@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Paperclip, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { z } from 'zod';
 
@@ -18,13 +18,58 @@ const contactSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters').max(1000, 'Message is too long'),
 });
 
+const MAX_FILES = 3;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+
 const ContactForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    
+    // Validate file count
+    if (files.length + selectedFiles.length > MAX_FILES) {
+      toast({
+        title: 'Too many files',
+        description: `You can only attach up to ${MAX_FILES} files`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate each file
+    for (const file of selectedFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: 'File too large',
+          description: `${file.name} exceeds 5MB limit`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        toast({
+          title: 'Invalid file type',
+          description: `${file.name} must be PDF, JPG, or PNG`,
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
+    setFiles([...files, ...selectedFiles]);
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,13 +79,43 @@ const ContactForm = () => {
       // ✅ Validate with Zod before submitting
       contactSchema.parse({ name, email, message });
 
+      // Upload files to storage if any
+      const uploadedPaths: string[] = [];
+      if (files.length > 0) {
+        const folderName = user?.id || 'anonymous';
+        
+        for (const file of files) {
+          const timestamp = Date.now();
+          const fileName = `${folderName}/${timestamp}_${file.name}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('contact-attachments')
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false,
+            });
+
+          if (uploadError) {
+            console.error('File upload error:', uploadError);
+            throw new Error(`Failed to upload ${file.name}`);
+          }
+
+          uploadedPaths.push(fileName);
+        }
+      }
+
+      // Submit form with file paths
       const { data, error } = await supabase.functions.invoke('submit-contact', {
-        body: { name, email, message },
+        body: { 
+          name, 
+          email, 
+          message,
+          attachments: uploadedPaths,
+        },
       });
 
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || 'Failed to send message');
-
 
       toast({
         title: 'Message sent!',
@@ -50,6 +125,7 @@ const ContactForm = () => {
       setName('');
       setEmail('');
       setMessage('');
+      setFiles([]);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         // ✅ Show first validation error
@@ -125,6 +201,59 @@ const ContactForm = () => {
                     maxLength={1000}
                     required
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="attachments">
+                    Attachments (Optional)
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Add up to {MAX_FILES} files (PDF, JPG, PNG - max 5MB each)
+                  </p>
+                  
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="attachments"
+                      type="file"
+                      onChange={handleFileChange}
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      multiple
+                      className="cursor-pointer"
+                      disabled={files.length >= MAX_FILES}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      disabled={files.length >= MAX_FILES}
+                      onClick={() => document.getElementById('attachments')?.click()}
+                    >
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {files.length > 0 && (
+                    <div className="space-y-2 mt-2">
+                      {files.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-2 bg-muted rounded-md"
+                        >
+                          <span className="text-sm truncate flex-1">
+                            {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFile(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <Button
