@@ -10,6 +10,20 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { z } from 'zod';
+
+const passwordSchema = z.string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
+  .regex(/[a-z]/, 'Must contain at least one lowercase letter')
+  .regex(/[0-9]/, 'Must contain at least one number')
+  .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character');
+
+const authSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: passwordSchema,
+  fullName: z.string().min(2, 'Name must be at least 2 characters').optional()
+});
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -17,6 +31,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -27,8 +42,51 @@ const Auth = () => {
     }
   }, [user, navigate]);
 
+  const validatePassword = (pwd: string) => {
+    if (!isSignUp) {
+      setPasswordErrors([]);
+      return true;
+    }
+
+    try {
+      passwordSchema.parse(pwd);
+      setPasswordErrors([]);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setPasswordErrors(error.errors.map(e => e.message));
+      }
+      return false;
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    if (isSignUp && newPassword) {
+      validatePassword(newPassword);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form data for sign up
+    if (isSignUp) {
+      try {
+        authSchema.parse({ email, password, fullName: fullName || undefined });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          toast({
+            title: 'Validation Error',
+            description: error.errors[0].message,
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+    }
+
     setIsLoading(true);
 
     try {
@@ -116,11 +174,23 @@ const Auth = () => {
                       id="password"
                       type="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={handlePasswordChange}
                       required
                       placeholder="••••••••"
-                      minLength={6}
+                      minLength={isSignUp ? 8 : 6}
                     />
+                    {isSignUp && passwordErrors.length > 0 && (
+                      <div className="text-xs text-destructive space-y-1 mt-2">
+                        {passwordErrors.map((error, idx) => (
+                          <div key={idx}>• {error}</div>
+                        ))}
+                      </div>
+                    )}
+                    {isSignUp && password && passwordErrors.length === 0 && password.length >= 8 && (
+                      <div className="text-xs text-green-600 mt-2">
+                        ✓ Password meets all requirements
+                      </div>
+                    )}
                   </div>
 
                   <Button
