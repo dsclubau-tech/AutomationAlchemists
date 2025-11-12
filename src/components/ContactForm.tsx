@@ -34,19 +34,12 @@ const ContactForm = () => {
       // ✅ Validate with Zod before submitting
       contactSchema.parse({ name, email, message });
 
-      const res = await fetch('/api/contact', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name,
-    email,
-    message,
-    user_id: user?.id || null,
-  }),
-});
+      const { data, error } = await supabase.functions.invoke('submit-contact', {
+        body: { name, email, message },
+      });
 
-const data = await res.json();
-if (!res.ok) throw new Error(data.error || 'Failed to send message');
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Failed to send message');
 
 
       toast({

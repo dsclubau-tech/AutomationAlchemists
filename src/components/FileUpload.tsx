@@ -32,6 +32,28 @@ const FileUpload = () => {
       return;
     }
 
+    // Validate file type and size
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Only JPG, PNG, and PDF files are allowed.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (file.size > MAX_SIZE) {
+      toast({
+        title: 'File too large',
+        description: 'Maximum file size is 5MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsUploading(true);
 
     try {
@@ -44,11 +66,14 @@ const FileUpload = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      // Get signed URL instead of public URL
+      const { data: signedUrlData, error: urlError } = await supabase.storage
         .from('uploads')
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 3600); // 1 hour expiry
 
-      setUploadedUrl(publicUrl);
+      if (urlError) throw urlError;
+
+      setUploadedUrl(signedUrlData.signedUrl);
 
       toast({
         title: 'Success!',
@@ -90,6 +115,7 @@ const FileUpload = () => {
                 <File className="w-12 h-12 text-muted-foreground mb-4" />
                 <Input
                   type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
                   onChange={handleFileChange}
                   disabled={!user}
                   className="max-w-xs"
