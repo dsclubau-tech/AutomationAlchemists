@@ -43,12 +43,12 @@ const Hero = () => {
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 
-              size="lg"
-              variant="outline"
-              className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg backdrop-blur-sm"
-            >
-              Learn More
-            </Button>
+  size="lg"
+  variant="outline"
+  className="border-2 border-white/30 text-gray-900 dark:text-white hover:bg-white/10 px-8 py-6 text-lg backdrop-blur-sm"
+>
+  Learn More
+</Button>
           </div>
         </motion.div>
       </div>

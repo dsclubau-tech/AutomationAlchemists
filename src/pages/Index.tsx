@@ -45,7 +45,7 @@ const Index = () => {
       
       <Contact />
       <ContactForm />
-      <FileUpload />
+      
       <Footer />
     </div>
   );
