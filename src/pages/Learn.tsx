@@ -6,9 +6,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Video, FileText, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { Tables } from '@/integrations/supabase/types';
-
-type EducationalContent = Tables<'educational_content'>;
+// Define type based on database schema
+type EducationalContent = {
+  id: string;
+  title: string;
+  description: string | null;
+  content_type: 'text' | 'video' | 'animation';
+  content_text: string | null;
+  video_url: string | null;
+  thumbnail_url: string | null;
+  display_order: number | null;
+  published: boolean | null;
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+};
 
 const Learn = () => {
   const [contents, setContents] = useState<EducationalContent[]>([]);
@@ -27,7 +39,7 @@ const Learn = () => {
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      setContents(data);
+      setContents(data as EducationalContent[]);
     }
     setIsLoading(false);
   };
