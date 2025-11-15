@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Video, FileText, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { analytics } from '@/utils/analytics';
+import { usePerformance } from '@/hooks/usePerformance';
 // Define type based on database schema
 type EducationalContent = {
   id: string;
@@ -26,7 +28,10 @@ const Learn = () => {
   const [contents, setContents] = useState<EducationalContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  usePerformance('Learn');
+
   useEffect(() => {
+    analytics.trackPageView('/learn');
     fetchContents();
   }, []);
 
