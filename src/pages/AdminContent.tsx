@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Edit, Trash2, Upload, Video, FileText, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { analytics } from '@/utils/analytics';
 // Define type based on database schema
 type EducationalContent = {
   id: string;
@@ -48,6 +49,10 @@ const AdminContent = () => {
   const [published, setPublished] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  useEffect(() => {
+    analytics.trackPageView('/admin/content');
+  }, []);
 
   useEffect(() => {
     checkAdminStatus();

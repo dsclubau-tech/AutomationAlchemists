@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, User, Calendar, Paperclip, Download, Shield, LogOut } from 'lucide-react';
+import { Loader2, Mail, User, Calendar, Paperclip, Download, Shield, LogOut, Trash2, FileDown, Users } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { analytics } from '@/utils/analytics';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -24,11 +26,16 @@ interface Contact {
 
 const AdminDashboard = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const { user, loading: authLoading, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    analytics.trackPageView('/admin');
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -112,6 +119,79 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
+  const toggleContactSelection = (contactId: string) => {
+    const newSelected = new Set(selectedContacts);
+    if (newSelected.has(contactId)) {
+      newSelected.delete(contactId);
+    } else {
+      newSelected.add(contactId);
+    }
+    setSelectedContacts(newSelected);
+  };
+
+  const toggleAllContacts = () => {
+    if (selectedContacts.size === contacts.length) {
+      setSelectedContacts(new Set());
+    } else {
+      setSelectedContacts(new Set(contacts.map(c => c.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedContacts.size === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .delete()
+        .in('id', Array.from(selectedContacts));
+
+      if (error) throw error;
+
+      toast({
+        title: 'Contacts deleted',
+        description: `${selectedContacts.size} contact(s) deleted successfully`,
+      });
+
+      setContacts(contacts.filter(c => !selectedContacts.has(c.id)));
+      setSelectedContacts(new Set());
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete contacts',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleBulkExport = () => {
+    if (selectedContacts.size === 0) return;
+
+    const selectedData = contacts.filter(c => selectedContacts.has(c.id));
+    const csv = [
+      ['Name', 'Email', 'Message', 'Date'].join(','),
+      ...selectedData.map(c => [
+        c.name,
+        c.email,
+        `"${c.message.replace(/"/g, '""')}"`,
+        new Date(c.created_at).toLocaleDateString()
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contacts-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: 'Export successful',
+      description: `${selectedContacts.size} contact(s) exported`,
+    });
+  };
+
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
@@ -146,6 +226,12 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Link to="/admin/users">
+                  <Button variant="outline">
+                    <Users className="mr-2 h-4 w-4" />
+                    Manage Users
+                  </Button>
+                </Link>
                 <Link to="/admin/content">
                   <Button variant="outline">
                     Manage Content
@@ -169,6 +255,29 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {selectedContacts.size > 0 && (
+                  <div className="mb-4 flex items-center gap-2 p-3 bg-muted rounded-lg">
+                    <span className="text-sm font-medium">
+                      {selectedContacts.size} selected
+                    </span>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleBulkDelete}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleBulkExport}
+                    >
+                      <FileDown className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </div>
+                )}
                 {contacts.length === 0 ? (
                   <div className="text-center py-12">
                     <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -181,6 +290,12 @@ const AdminDashboard = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead className="w-12">
+                            <Checkbox
+                              checked={selectedContacts.size === contacts.length}
+                              onCheckedChange={toggleAllContacts}
+                            />
+                          </TableHead>
                           <TableHead>Name</TableHead>
                           <TableHead>Email</TableHead>
                           <TableHead>Message</TableHead>
@@ -192,6 +307,12 @@ const AdminDashboard = () => {
                       <TableBody>
                         {contacts.map((contact) => (
                           <TableRow key={contact.id}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedContacts.has(contact.id)}
+                                onCheckedChange={() => toggleContactSelection(contact.id)}
+                              />
+                            </TableCell>
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-2">
                                 <User className="h-4 w-4 text-muted-foreground" />
