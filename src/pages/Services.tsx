@@ -121,7 +121,8 @@ const Services = () => {
                         animate={hoveredIndex === index ? { rotate: 360, scale: 1.1 } : { rotate: 0, scale: 1 }}
                         transition={{ duration: 0.6 }}
                       >
-                        <IconComponent className="w-7 h-7 text-white" />
+                        {/* FIX: text-foreground instead of text-white */}
+                        <IconComponent className="w-7 h-7 text-foreground" />
                       </motion.div>
                       <CardTitle className="text-2xl text-foreground">{service.title}</CardTitle>
                     </CardHeader>
