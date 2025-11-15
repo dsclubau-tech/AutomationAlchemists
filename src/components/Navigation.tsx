@@ -76,6 +76,9 @@ const Navigation = () => {
             <Link to="/services" className="text-foreground hover:text-primary transition-colors">
               Services
             </Link>
+            <Link to="/learn" className="text-foreground hover:text-primary transition-colors">
+              Learn
+            </Link>
             <button onClick={() => scrollToSection("contact")} className="text-foreground hover:text-primary transition-colors">
               Contact
             </button>
@@ -133,6 +136,9 @@ const Navigation = () => {
                 </button>
                 <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2">
                   Services
+                </Link>
+                <Link to="/learn" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2">
+                  Learn
                 </Link>
                 <button onClick={() => scrollToSection("contact")} className="text-left text-foreground hover:text-primary transition-colors py-2">
                   Contact
