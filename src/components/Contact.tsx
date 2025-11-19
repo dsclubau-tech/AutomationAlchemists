@@ -8,7 +8,7 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "hello@techforward.com"
+    value: "hello@aalchemists.com"
   },
   {
     icon: Phone,
@@ -40,7 +40,7 @@ const Contact = () => {
               Let's Work Together
             </h2>
             <p className="text-lg text-muted-foreground">
-              Ready to transform your business? Get in touch with our team today.
+              Ready to launch for real? Get a custom plan and pricing made for your idea.
             </p>
           </div>
 
@@ -68,11 +68,11 @@ const Contact = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-center"
           >
-            <Button 
+            <Button
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-lg"
             >
-              Schedule a Consultation
+              Tell Us About It
             </Button>
           </motion.div>
         </motion.div>

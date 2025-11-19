@@ -9,7 +9,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-accent rounded-lg" />
-              <span className="text-xl font-bold">TechForward</span>
+              <span className="text-xl font-bold">AAlchemists</span>
             </div>
             <p className="text-primary-foreground/80 text-sm">
               Innovative digital solutions for modern businesses.
@@ -51,7 +51,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-primary-foreground/20 pt-8 text-center text-sm text-primary-foreground/80">
-          <p>&copy; {new Date().getFullYear()} TechForward Solutions. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AAlchemists. All rights reserved.</p>
         </div>
       </div>
     </footer>

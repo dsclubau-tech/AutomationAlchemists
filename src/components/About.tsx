@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Award, Users, Globe } from "lucide-react";
+import { Award, Users, Globe, Hourglass } from "lucide-react";
 
 const stats = [
-  { icon: Users, label: "Happy Clients", value: "500+" },
-  { icon: Globe, label: "Countries Served", value: "25+" },
-  { icon: Award, label: "Years Experience", value: "10+" }
+  { icon: Users, label: "Ecommerce Expertise", value: "5+ Years" },
+  { icon: Globe, label: "Australia-Based & Operating Internationally", value: "2 Countries" },
+  { icon: Hourglass, label: "Through Automation & Workflow Optimization. Custom-built solutions designed around your exact needs.", value: "500+ Hours Saved" }
 ];
 
 const About = () => {
@@ -23,12 +23,12 @@ const About = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
-            About TechForward Solutions
+            About AAlchemists
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            We are a leading technology company specializing in innovative digital solutions. 
-            Our team of experts combines technical excellence with creative thinking to deliver 
-            exceptional results for businesses of all sizes.
+            When your vision outgrows the limits of vibe-coded prototypes, we step in.
+            You define the idea; we build, package, and deploy the full product end-to-end.
+            The result: a polished, launch-ready solution built to scale and built to earn.
           </p>
         </motion.div>
 

@@ -54,15 +54,14 @@ const Navigation = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-card" : "bg-background/80 backdrop-blur-sm"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background/95 backdrop-blur-sm shadow-card" : "bg-background/80 backdrop-blur-sm"
+        }`}
     >
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-gradient-hero rounded-lg" />
-            <span className="text-xl font-bold text-primary">TechForward</span>
+            <span className="text-xl font-bold text-primary">AAlchemists</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -143,7 +142,7 @@ const Navigation = () => {
                 <button onClick={() => scrollToSection("contact")} className="text-left text-foreground hover:text-primary transition-colors py-2">
                   Contact
                 </button>
-                
+
                 {/* Auth Section - Mobile */}
                 <div className="pt-4 border-t border-border space-y-4">
                   {user ? (
