@@ -8,33 +8,18 @@ const services = [
   {
     icon: Code,
     title: "Web Development",
-    description: "Custom websites and web applications built with cutting-edge technologies for optimal performance and user experience."
+    description: "Transform your digital presence with high-performance, responsive websites and web applications. We utilize modern frameworks and best practices to ensure your site is fast, secure, and SEO-friendly, providing an exceptional user experience that drives growth."
   },
   {
     icon: Cloud,
-    title: "Cloud Services",
-    description: "Scalable cloud infrastructure solutions to power your applications with reliability and security."
+    title: "Automation",
+    description: "Streamline your business operations with our advanced automation solutions. From cloud infrastructure management to CI/CD pipelines, we help you reduce manual effort, minimize errors, and accelerate delivery, allowing your team to focus on innovation."
   },
   {
     icon: Smartphone,
     title: "Mobile Development",
-    description: "Native and cross-platform mobile applications that deliver seamless experiences across all devices."
+    description: "Reach your audience wherever they are with our custom mobile application development services. Whether native or cross-platform, we build intuitive, feature-rich apps for iOS and Android that engage users and extend your brand's reach."
   },
-  {
-    icon: Lock,
-    title: "Cybersecurity",
-    description: "Comprehensive security solutions to protect your digital assets and ensure compliance with industry standards."
-  },
-  {
-    icon: Database,
-    title: "Data Analytics",
-    description: "Transform raw data into actionable insights with our advanced analytics and business intelligence solutions."
-  },
-  {
-    icon: Zap,
-    title: "Digital Transformation",
-    description: "End-to-end digital transformation services to modernize your business processes and infrastructure."
-  }
 ];
 
 const Services = () => {

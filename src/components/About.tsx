@@ -5,7 +5,7 @@ import { Award, Users, Globe, Hourglass } from "lucide-react";
 
 const stats = [
   { icon: Users, label: "Ecommerce Expertise", value: "5+ Years" },
-  { icon: Globe, label: "Australia-Based & Operating Internationally", value: "2 Countries" },
+  { icon: Globe, label: "Remotely And Flexibly", value: "Operating Internationally" },
   { icon: Hourglass, label: "Through Automation & Workflow Optimization. Custom-built solutions designed around your exact needs.", value: "500+ Hours Saved" }
 ];
 

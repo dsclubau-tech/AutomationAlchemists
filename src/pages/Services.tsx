@@ -1,61 +1,42 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Code, Cloud, Smartphone, Lock, Database, Zap, Check, ArrowRight } from "lucide-react";
+import { Code, Cloud, Smartphone, Check, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
-// Icon mapping for dynamic rendering
-const iconMap: Record<string, any> = {
-  Code,
-  Cloud,
-  Smartphone,
-  Lock,
-  Database,
-  Zap,
-};
-
-interface Service {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  features: string[];
-  color_gradient: string | null;
-}
+const services = [
+  {
+    icon: Code,
+    title: "Web Development",
+    description: "Transform your digital presence with high-performance, responsive websites and web applications. We utilize modern frameworks and best practices to ensure your site is fast, secure, and SEO-friendly, providing an exceptional user experience that drives growth.",
+    features: ["Modern Frameworks", "SEO Optimized", "Responsive Design", "High Performance"]
+  },
+  {
+    icon: Cloud,
+    title: "Automation",
+    description: "Streamline your business operations with our advanced automation solutions. From cloud infrastructure management to CI/CD pipelines, we help you reduce manual effort, minimize errors, and accelerate delivery, allowing your team to focus on innovation.",
+    features: ["Cloud Infrastructure", "CI/CD Pipelines", "Process Automation", "Error Reduction"]
+  },
+  {
+    icon: Smartphone,
+    title: "Mobile Development",
+    description: "Reach your audience wherever they are with our custom mobile application development services. Whether native or cross-platform, we build intuitive, feature-rich apps for iOS and Android that engage users and extend your brand's reach.",
+    features: ["iOS & Android", "Cross-platform", "Native Performance", "User Centric"]
+  },
+];
 
 const Services = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching services:', error);
-      } else if (data) {
-        setServices(data);
-      }
-      setLoading(false);
-    };
-
-    fetchServices();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
         <div className="container mx-auto">
@@ -91,17 +72,11 @@ const Services = () => {
       {/* Services Grid */}
       <section ref={ref} className="py-20 px-6">
         <div className="container mx-auto">
-          {loading ? (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground">Loading services...</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services.map((service, index) => {
-                const IconComponent = iconMap[service.icon] || Code;
-                return (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service, index) => {
+              return (
                 <motion.div
-                  key={service.id}
+                  key={service.title}
                   initial={{ opacity: 0, y: 50 }}
                   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -111,59 +86,57 @@ const Services = () => {
                 >
                   <Card className="h-full border-border transition-all duration-300 hover:shadow-elegant hover:-translate-y-2 overflow-hidden relative group">
                     <motion.div
-                      className={`absolute inset-0 bg-gradient-to-br ${service.color_gradient || 'from-primary to-accent'} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                      className={`absolute inset-0 bg-gradient-to-br from-primary to-accent opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
                       animate={hoveredIndex === index ? { scale: 1.05 } : { scale: 1 }}
                     />
-                    
+
                     <CardHeader>
                       <motion.div
-                        className={`w-14 h-14 bg-gradient-to-br ${service.color_gradient || 'from-primary to-accent'} rounded-xl flex items-center justify-center mb-4 shadow-lg`}
+                        className={`w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center mb-4 shadow-lg`}
                         animate={hoveredIndex === index ? { rotate: 360, scale: 1.1 } : { rotate: 0, scale: 1 }}
                         transition={{ duration: 0.6 }}
                       >
-                        {/* FIX: text-foreground instead of text-white */}
-                        <IconComponent className="w-7 h-7 text-foreground" />
+                        <service.icon className="w-7 h-7 text-white" />
                       </motion.div>
                       <CardTitle className="text-2xl text-foreground">{service.title}</CardTitle>
                     </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <CardDescription className="text-base text-muted-foreground">
-                      {service.description}
-                    </CardDescription>
-                    
-                    <div className="space-y-2 pt-4">
-                      {service.features.map((feature, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={hoveredIndex === index ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="flex items-center gap-2 text-sm text-muted-foreground"
-                        >
-                          <Check className="w-4 h-4 text-accent" />
-                          <span>{feature}</span>
-                        </motion.div>
-                      ))}
-                    </div>
 
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={hoveredIndex === index ? { opacity: 1 } : { opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Button variant="ghost" className="w-full mt-4 group/btn">
-                        Learn More 
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                      </Button>
-                    </motion.div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-            </div>
-          )}
+                    <CardContent className="space-y-4">
+                      <CardDescription className="text-base text-muted-foreground">
+                        {service.description}
+                      </CardDescription>
+
+                      <div className="space-y-2 pt-4">
+                        {service.features.map((feature, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={hoveredIndex === index ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex items-center gap-2 text-sm text-muted-foreground"
+                          >
+                            <Check className="w-4 h-4 text-accent" />
+                            <span>{feature}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={hoveredIndex === index ? { opacity: 1 } : { opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Button variant="ghost" className="w-full mt-4 group/btn">
+                          Learn More
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                        </Button>
+                      </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -201,7 +174,7 @@ const Services = () => {
               }}
               className="absolute -bottom-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl"
             />
-            
+
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                 Ready to Get Started?

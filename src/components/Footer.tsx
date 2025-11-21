@@ -12,25 +12,25 @@ const Footer = () => {
               <span className="text-xl font-bold">AAlchemists</span>
             </div>
             <p className="text-primary-foreground/80 text-sm">
-              Innovative digital solutions for modern businesses.
+              Alchemy for the automation era: ideas → apps → passive cashflow goes below AAlchemists
             </p>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#" className="hover:text-accent transition-colors">Web Development</a></li>
-              <li><a href="#" className="hover:text-accent transition-colors">Cloud Services</a></li>
-              <li><a href="#" className="hover:text-accent transition-colors">Mobile Apps</a></li>
+              <li><a href="#" className="hover:text-accent transition-colors">Vibe-to-App Execution</a></li>
+              <li><a href="#" className="hover:text-accent transition-colors">24/7 Virtual Assistants</a></li>
+              <li><a href="#" className="hover:text-accent transition-colors">Workflow Automation</a></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#about" className="hover:text-accent transition-colors">About Us</a></li>
-              <li><a href="#services" className="hover:text-accent transition-colors">Services</a></li>
-              <li><a href="#contact" className="hover:text-accent transition-colors">Contact</a></li>
+              <li><a href="#about" className="hover:text-accent transition-colors">The Mission</a></li>
+              <li><a href="#services" className="hover:text-accent transition-colors">Pricing</a></li>
+              <li><a href="#contact" className="hover:text-accent transition-colors">Contact the Alchemists</a></li>
             </ul>
           </div>
 
