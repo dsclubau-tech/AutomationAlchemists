@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Github, Linkedin, Twitter } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -9,28 +10,28 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-accent rounded-lg" />
-              <span className="text-xl font-bold">AAlchemists</span>
+              <span className="text-base font-bold">AAlchemists</span>
             </div>
-            <p className="text-primary-foreground/80 text-sm">
+            <p className="text-primary-foreground/80 text-xs">
               Alchemy for the automation era: ideas → apps → passive cashflow goes below AAlchemists
             </p>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Services</h3>
-            <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#" className="hover:text-accent transition-colors">Vibe-to-App Execution</a></li>
-              <li><a href="#" className="hover:text-accent transition-colors">24/7 Virtual Assistants</a></li>
-              <li><a href="#" className="hover:text-accent transition-colors">Workflow Automation</a></li>
+            <ul className="space-y-2 text-xs text-primary-foreground/80">
+              <li><Link to="/services/vibe-to-app" className="hover:text-accent transition-colors">Vibe-to-App Execution</Link></li>
+              <li><Link to="/services/virtual-assistants" className="hover:text-accent transition-colors">24/7 Virtual Assistants</Link></li>
+              <li><Link to="/services/workflow-automation" className="hover:text-accent transition-colors">Workflow Automation</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#about" className="hover:text-accent transition-colors">The Mission</a></li>
-              <li><a href="#services" className="hover:text-accent transition-colors">Pricing</a></li>
-              <li><a href="#contact" className="hover:text-accent transition-colors">Contact the Alchemists</a></li>
+            <ul className="space-y-2 text-xs text-primary-foreground/80">
+              <li><Link to="/mission" className="hover:text-accent transition-colors">The Mission</Link></li>
+              <li><Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link></li>
+              <li><Link to="/contact" className="hover:text-accent transition-colors">Contact the Alchemists</Link></li>
             </ul>
           </div>
 
@@ -50,7 +51,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 pt-8 text-center text-sm text-primary-foreground/80">
+        <div className="border-t border-primary-foreground/20 pt-8 text-center text-xs text-primary-foreground/80">
           <p>&copy; {new Date().getFullYear()} AAlchemists. All rights reserved.</p>
         </div>
       </div>

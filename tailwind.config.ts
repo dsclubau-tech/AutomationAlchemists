@@ -57,6 +57,42 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        brown: {
+          50: "#fdf8f6",
+          100: "#f2e8e5",
+          200: "#eaddd7",
+          300: "#e0cec7",
+          400: "#d2bab0",
+          500: "#a1887f",
+          600: "#8d746a",
+          700: "#795548",
+          800: "#5d4037",
+          900: "#4e342e",
+          950: "#3e2723",
+        },
+        purple: {
+          bg: "#1A0033",
+          dark: "#2A0055",
+          mid: "#5E0099",
+          accent: "#9F33FF",
+        },
+        saffron: {
+          DEFAULT: "#FFB84E",
+          dark: "#FF9900",
+          light: "#FFD700",
+        },
+        text: {
+          light: "#F0E8D0",
+          dark: "#0F001A",
+        },
+        brand: {
+          primary: "#FFB84E", // Saffron
+          secondary: "#9F33FF", // Purple accent
+        },
+      },
+      fontFamily: {
+        bungee: ['"Bungee Shade"', "cursive"],
+        determination: ['"Press Start 2P"', "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",

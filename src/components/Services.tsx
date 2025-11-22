@@ -35,10 +35,10 @@ const Services = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
             Our Services
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm text-muted-foreground max-w-3xl mx-auto">
             Comprehensive solutions tailored to meet your unique business needs
           </p>
         </motion.div>
@@ -56,10 +56,10 @@ const Services = () => {
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <service.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <CardTitle className="text-xl text-primary">{service.title}</CardTitle>
+                  <CardTitle className="text-base text-primary">{service.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base text-muted-foreground">
+                  <CardDescription className="text-xs text-muted-foreground">
                     {service.description}
                   </CardDescription>
                 </CardContent>

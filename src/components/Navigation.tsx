@@ -61,24 +61,24 @@ const Navigation = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-gradient-hero rounded-lg" />
-            <span className="text-xl font-bold text-primary">AAlchemists</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent font-determination">AAlchemists</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors">
+            <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors font-determination">
               Home
             </button>
-            <button onClick={() => scrollToSection("about")} className="text-foreground hover:text-primary transition-colors">
+            <button onClick={() => scrollToSection("about")} className="text-foreground hover:text-primary transition-colors font-determination">
               About
             </button>
-            <Link to="/services" className="text-foreground hover:text-primary transition-colors">
+            <Link to="/services" className="text-foreground hover:text-primary transition-colors font-determination">
               Services
             </Link>
-            <Link to="/learn" className="text-foreground hover:text-primary transition-colors">
+            <Link to="/learn" className="text-foreground hover:text-primary transition-colors font-determination">
               Learn
             </Link>
-            <button onClick={() => scrollToSection("contact")} className="text-foreground hover:text-primary transition-colors">
+            <button onClick={() => scrollToSection("contact")} className="text-foreground hover:text-primary transition-colors font-determination">
               Contact
             </button>
             <ThemeToggle />
@@ -88,17 +88,17 @@ const Navigation = () => {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
-                <span className="text-sm text-muted-foreground flex items-center gap-2">
+                <span className="text-sm text-muted-foreground flex items-center gap-2 font-determination">
                   <User className="w-4 h-4" />
                   {user.email}
                 </span>
-                <Button onClick={handleSignOut} variant="outline" size="sm">
+                <Button onClick={handleSignOut} variant="outline" size="sm" className="font-determination">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
                 </Button>
               </>
             ) : (
-              <Button onClick={() => navigate('/auth')} variant="default" size="sm">
+              <Button onClick={() => navigate('/auth')} variant="default" size="sm" className="font-determination">
                 Sign In
               </Button>
             )}
@@ -127,19 +127,19 @@ const Navigation = () => {
               className="md:hidden overflow-hidden"
             >
               <div className="mt-4 pb-4 flex flex-col gap-4">
-                <button onClick={() => scrollToSection("home")} className="text-left text-foreground hover:text-primary transition-colors py-2">
+                <button onClick={() => scrollToSection("home")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-determination">
                   Home
                 </button>
-                <button onClick={() => scrollToSection("about")} className="text-left text-foreground hover:text-primary transition-colors py-2">
+                <button onClick={() => scrollToSection("about")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-determination">
                   About
                 </button>
-                <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2">
+                <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-determination">
                   Services
                 </Link>
-                <Link to="/learn" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2">
+                <Link to="/learn" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-determination">
                   Learn
                 </Link>
-                <button onClick={() => scrollToSection("contact")} className="text-left text-foreground hover:text-primary transition-colors py-2">
+                <button onClick={() => scrollToSection("contact")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-determination">
                   Contact
                 </button>
 
@@ -147,17 +147,17 @@ const Navigation = () => {
                 <div className="pt-4 border-t border-border space-y-4">
                   {user ? (
                     <>
-                      <div className="text-sm text-muted-foreground px-4">
+                      <div className="text-sm text-muted-foreground px-4 font-determination">
                         <User className="w-4 h-4 inline mr-2" />
                         {user.email}
                       </div>
-                      <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+                      <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full font-determination">
                         <LogOut className="w-4 h-4 mr-2" />
                         Sign Out
                       </Button>
                     </>
                   ) : (
-                    <Button onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }} className="w-full">
+                    <Button onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }} className="w-full font-determination">
                       Sign In
                     </Button>
                   )}

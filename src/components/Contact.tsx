@@ -36,10 +36,10 @@ const Contact = () => {
           className="max-w-4xl mx-auto"
         >
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
               Let's Work Together
             </h2>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Ready to launch for real? Get a custom plan and pricing made for your idea.
             </p>
           </div>
@@ -57,7 +57,7 @@ const Contact = () => {
                   <info.icon className="w-6 h-6 text-primary" />
                 </div>
                 <div className="font-semibold text-primary mb-1">{info.label}</div>
-                <div className="text-muted-foreground">{info.value}</div>
+                <div className="text-xs text-muted-foreground">{info.value}</div>
               </motion.div>
             ))}
           </div>
@@ -70,7 +70,7 @@ const Contact = () => {
           >
             <Button
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-sm"
             >
               Tell Us About It
             </Button>
