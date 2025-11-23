@@ -52,8 +52,8 @@ const About = () => {
               >
                 <stat.icon className="w-8 h-8 text-primary" />
               </motion.div>
-              <div className="text-xl font-bold text-primary mb-2">{stat.value}</div>
-              <div className="text-[10px] text-muted-foreground leading-tight">{stat.label}</div>
+              <div className="text-lg md:text-xl font-bold text-primary mb-2 break-words hyphens-auto">{stat.value}</div>
+              <div className="text-[10px] text-muted-foreground leading-tight break-words">{stat.label}</div>
             </motion.div>
           ))}
         </div>

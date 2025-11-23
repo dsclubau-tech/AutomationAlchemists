@@ -80,6 +80,7 @@ export default {
           purple: "#4B0082",
           shadow: "#2E0854",
           bone: "#F5F5DC",
+          green: "#39FF14",
         },
         text: {
           light: "#E0FFE0",

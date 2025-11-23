@@ -62,11 +62,11 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <img src={logo} alt="AAlchemists Logo" className="w-16 h-16 object-contain -my-2" />
-            <span className="text-xl font-bold bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent font-determination">AAlchemists</span>
+            <span className="text-xl font-bold text-necro-green font-determination">AAlchemists</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-8">
             <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors font-determination">
               Home
             </button>
@@ -87,7 +87,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
           {/* Auth Section - Desktop */}
           {!hideAuthButton && (
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4">
               {user ? (
                 <>
                   <span className="text-sm text-muted-foreground flex items-center gap-2 font-determination">
@@ -108,7 +108,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
           )}
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2">
             <ThemeToggle />
             <button
               className="text-foreground"
@@ -127,7 +127,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden"
+              className="lg:hidden overflow-hidden"
             >
               <div className="mt-4 pb-4 flex flex-col gap-4">
                 <button onClick={() => scrollToSection("home")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-determination">
