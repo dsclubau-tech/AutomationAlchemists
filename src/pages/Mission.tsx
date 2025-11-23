@@ -18,7 +18,7 @@ const Mission = () => {
                         className="max-w-4xl mx-auto text-center"
                     >
                         <h1 className="text-4xl md:text-5xl font-bold mb-6 font-determination">
-                            <span className="bg-gradient-to-r from-blue-600 via-purple-400 to-saffron bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
                                 Our Mission
                             </span>
                         </h1>

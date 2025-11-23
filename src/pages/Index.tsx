@@ -9,14 +9,31 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 const Index = () => {
+  // Handle hash navigation when page loads
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      // Remove the # from the hash
+      const id = hash.replace('#', '');
+      // Wait a bit for the page to render
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen">
       <Navigation />
       <Hero />
       <About />
-      
+
       {/* Services Preview Section */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-6">
@@ -42,10 +59,10 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
-      
+
       <Contact />
       <ContactForm />
-      
+
       <Footer />
     </div>
   );

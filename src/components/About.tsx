@@ -39,11 +39,19 @@ const About = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="text-center p-8 bg-card rounded-2xl shadow-card"
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 20px 60px -10px rgba(0, 204, 51, 0.4), 0 0 0 2px rgba(0, 204, 51, 0.5)"
+              }}
+              className="text-center p-8 bg-card rounded-2xl shadow-card cursor-pointer transition-all duration-300 hover:border-primary/50 border-2 border-transparent"
             >
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <motion.div
+                className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.6 }}
+              >
                 <stat.icon className="w-8 h-8 text-primary" />
-              </div>
+              </motion.div>
               <div className="text-xl font-bold text-primary mb-2">{stat.value}</div>
               <div className="text-[10px] text-muted-foreground leading-tight">{stat.label}</div>
             </motion.div>

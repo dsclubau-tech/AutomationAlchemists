@@ -42,7 +42,7 @@ const ContactPage = () => {
                         className="max-w-4xl mx-auto text-center"
                     >
                         <h1 className="text-4xl md:text-5xl font-bold mb-6 font-determination">
-                            <span className="bg-gradient-to-r from-blue-600 via-purple-400 to-saffron bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
                                 Contact the Alchemists
                             </span>
                         </h1>
@@ -76,8 +76,8 @@ const ContactPage = () => {
                                     {
                                         icon: Mail,
                                         label: "Email",
-                                        value: "hello@aalchemists.com",
-                                        link: "mailto:hello@aalchemists.com"
+                                        value: "dsclub.au@outlook.com",
+                                        link: "mailto:dsclub.au@outlook.com"
                                     },
                                     {
                                         icon: Phone,

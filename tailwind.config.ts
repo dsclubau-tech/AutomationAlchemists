@@ -70,24 +70,24 @@ export default {
           900: "#4e342e",
           950: "#3e2723",
         },
-        purple: {
-          bg: "#1A0033",
-          dark: "#2A0055",
-          mid: "#5E0099",
-          accent: "#9F33FF",
+        evil: {
+          green: "#0F0",
+          toxic: "#7FFF00",
+          poison: "#39FF14",
+          death: "#00FF00",
         },
-        saffron: {
-          DEFAULT: "#FFB84E",
-          dark: "#FF9900",
-          light: "#FFD700",
+        necro: {
+          purple: "#4B0082",
+          shadow: "#2E0854",
+          bone: "#F5F5DC",
         },
         text: {
-          light: "#F0E8D0",
-          dark: "#0F001A",
+          light: "#E0FFE0",
+          dark: "#0A0A0A",
         },
         brand: {
-          primary: "#FFB84E", // Saffron
-          secondary: "#9F33FF", // Purple accent
+          primary: "#0F0", // Evil Green
+          secondary: "#4B0082", // Dark Purple
         },
       },
       fontFamily: {

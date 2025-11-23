@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
 import { z } from 'zod';
 
 const passwordSchema = z.string()
@@ -120,17 +119,17 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <Navigation />
-      
+      <Navigation hideAuthButton={true} />
+
       <section className="pt-32 pb-20 px-6">
-        <div className="container mx-auto max-w-md">
+        <div className="container mx-auto max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             <Card className="border-border">
-              <CardHeader>
+              <CardHeader className="py-8">
                 <CardTitle className="text-3xl text-center">
                   {isSignUp ? 'Create Account' : 'Welcome Back'}
                 </CardTitle>
@@ -140,8 +139,8 @@ const Auth = () => {
                     : 'Sign in to your account'}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+              <CardContent className="py-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   {isSignUp && (
                     <div className="space-y-2">
                       <Label htmlFor="fullName">Full Name</Label>
@@ -152,10 +151,11 @@ const Auth = () => {
                         onChange={(e) => setFullName(e.target.value)}
                         required={isSignUp}
                         placeholder="John Doe"
+                        className="h-12"
                       />
                     </div>
                   )}
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -165,9 +165,10 @@ const Auth = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="you@example.com"
+                      className="h-12"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <Input
@@ -178,6 +179,7 @@ const Auth = () => {
                       required
                       placeholder="••••••••"
                       minLength={isSignUp ? 8 : 6}
+                      className="h-12"
                     />
                     {isSignUp && passwordErrors.length > 0 && (
                       <div className="text-xs text-destructive space-y-1 mt-2">
@@ -195,7 +197,7 @@ const Auth = () => {
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12 text-base"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -209,24 +211,26 @@ const Auth = () => {
                   </Button>
                 </form>
 
-                <div className="mt-6 text-center">
-                  <button
+                <div className="mt-8 text-center">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {isSignUp
+                      ? 'Already have an account?'
+                      : "Don't have an account?"}
+                  </p>
+                  <Button
                     type="button"
                     onClick={() => setIsSignUp(!isSignUp)}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    variant="outline"
+                    className="border-2 border-primary/50 text-primary hover:bg-primary/10 hover:border-primary transition-all h-12 px-8"
                   >
-                    {isSignUp
-                      ? 'Already have an account? Sign in'
-                      : "Don't have an account? Sign up"}
-                  </button>
+                    {isSignUp ? 'Sign In' : 'Sign Up'}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

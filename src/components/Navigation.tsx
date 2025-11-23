@@ -6,8 +6,9 @@ import { ThemeToggle } from "./ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import logo from "@/assets/logo21.png";
 
-const Navigation = () => {
+const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -60,7 +61,7 @@ const Navigation = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-gradient-hero rounded-lg" />
+            <img src={logo} alt="AAlchemists Logo" className="w-16 h-16 object-contain -my-2" />
             <span className="text-xl font-bold bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent font-determination">AAlchemists</span>
           </Link>
 
@@ -85,24 +86,26 @@ const Navigation = () => {
           </div>
 
           {/* Auth Section - Desktop */}
-          <div className="hidden md:flex items-center gap-4">
-            {user ? (
-              <>
-                <span className="text-sm text-muted-foreground flex items-center gap-2 font-determination">
-                  <User className="w-4 h-4" />
-                  {user.email}
-                </span>
-                <Button onClick={handleSignOut} variant="outline" size="sm" className="font-determination">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+          {!hideAuthButton && (
+            <div className="hidden md:flex items-center gap-4">
+              {user ? (
+                <>
+                  <span className="text-sm text-muted-foreground flex items-center gap-2 font-determination">
+                    <User className="w-4 h-4" />
+                    {user.email}
+                  </span>
+                  <Button onClick={handleSignOut} variant="outline" size="sm" className="font-determination">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => navigate('/auth')} variant="default" size="sm" className="font-determination">
+                  Sign In
                 </Button>
-              </>
-            ) : (
-              <Button onClick={() => navigate('/auth')} variant="default" size="sm" className="font-determination">
-                Sign In
-              </Button>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
@@ -144,24 +147,26 @@ const Navigation = () => {
                 </button>
 
                 {/* Auth Section - Mobile */}
-                <div className="pt-4 border-t border-border space-y-4">
-                  {user ? (
-                    <>
-                      <div className="text-sm text-muted-foreground px-4 font-determination">
-                        <User className="w-4 h-4 inline mr-2" />
-                        {user.email}
-                      </div>
-                      <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full font-determination">
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Sign Out
+                {!hideAuthButton && (
+                  <div className="pt-4 border-t border-border space-y-4">
+                    {user ? (
+                      <>
+                        <div className="text-sm text-muted-foreground px-4 font-determination">
+                          <User className="w-4 h-4 inline mr-2" />
+                          {user.email}
+                        </div>
+                        <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full font-determination">
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Sign Out
+                        </Button>
+                      </>
+                    ) : (
+                      <Button onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }} className="w-full font-determination">
+                        Sign In
                       </Button>
-                    </>
-                  ) : (
-                    <Button onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }} className="w-full font-determination">
-                      Sign In
-                    </Button>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

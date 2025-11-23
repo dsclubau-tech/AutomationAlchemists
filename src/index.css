@@ -9,105 +9,104 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Custom Color Palette */
-    --purple-bg: #1A0033;
-    --purple-dark: #2A0055;
-    --purple-mid: #5E0099;
-    --purple-accent: #9F33FF;
-    --saffron: #FFB84E;
-    --saffron-dark: #FF9900;
-    --saffron-light: #FFD700;
-    --text-light: #F0E8D0;
-    --text-dark: #0F001A;
+    /* Custom Color Palette - Necromancer/Dark Magic Theme */
+    --evil-green: #0F0;
+    --toxic-green: #7FFF00;
+    --poison-green: #39FF14;
+    --death-green: #00FF00;
+    --dark-purple: #4B0082;
+    --shadow-purple: #2E0854;
+    --bone-white: #F5F5DC;
+    --text-light: #E0FFE0;
+    --text-dark: #0A0A0A;
 
     /* Theme colors using custom palette - Light Mode */
-    --background: 270 60% 97%;
-    /* Very light lavender */
-    --foreground: 270 100% 15%;
-    /* Deep purple for text */
+    --background: 0 0% 98%;
+    /* Very light gray/white */
+    --foreground: 120 100% 15%;
+    /* Dark evil green for text */
 
-    --card: 270 50% 99%;
-    /* Almost white with purple tint */
-    --card-foreground: 270 100% 15%;
+    --card: 0 0% 100%;
+    /* Pure white */
+    --card-foreground: 120 100% 15%;
 
     --popover: 0 0% 100%;
     /* Pure white */
-    --popover-foreground: 270 100% 15%;
+    --popover-foreground: 120 100% 15%;
 
-    --primary: 270 100% 60%;
-    /* purple-accent */
+    --primary: 120 100% 25%;
+    /* evil-green - darker for light mode */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 100% 65%;
-    /* saffron */
-    --secondary-foreground: 270 100% 15%;
+    --secondary: 275 100% 25%;
+    /* dark purple - darker for light mode */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 270 40% 95%;
-    /* Light purple-gray */
-    --muted-foreground: 270 30% 40%;
+    --muted: 0 0% 95%;
+    /* Light gray */
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 35 100% 65%;
-    /* saffron */
-    --accent-foreground: 270 100% 15%;
+    --accent: 84 100% 50%;
+    /* toxic green */
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 30% 85%;
-    --input: 270 30% 85%;
-    --ring: 270 100% 60%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 120 100% 25%;
 
     --radius: 0.75rem;
 
-    --gradient-hero: linear-gradient(135deg, #9F33FF 0%, #FFB84E 100%);
-    --gradient-subtle: linear-gradient(180deg, #F5F3FF 0%, #FEFCFF 100%);
+    --gradient-hero: linear-gradient(135deg, #0F0 0%, #4B0082 100%);
+    --gradient-subtle: linear-gradient(180deg, #F0FFF0 0%, #FFFFFF 100%);
 
-    --shadow-elegant: 0 10px 40px -10px rgba(159, 51, 255, 0.2);
-    --shadow-card: 0 4px 20px -4px rgba(42, 0, 85, 0.1);
+    --shadow-elegant: 0 10px 40px -10px rgba(15, 255, 0, 0.4);
+    --shadow-card: 0 4px 20px -4px rgba(0, 0, 0, 0.15);
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 270 100% 5%;
-    /* text-dark */
-    --foreground: 40 60% 88%;
-    /* text-light */
+    --background: 0 0% 4%;
+    /* Deep black */
+    --foreground: 120 100% 70%;
+    /* Evil green tint */
 
-    --card: 270 100% 8%;
-    --card-foreground: 40 60% 88%;
+    --card: 0 0% 6%;
+    --card-foreground: 120 100% 70%;
 
-    --popover: 270 100% 8%;
-    --popover-foreground: 40 60% 88%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 120 100% 70%;
 
-    --primary: 270 100% 60%;
-    /* purple-accent */
-    --primary-foreground: 40 60% 88%;
+    --primary: 120 100% 50%;
+    /* evil-green */
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 35 100% 50%;
-    /* saffron-dark */
-    --secondary-foreground: 270 100% 5%;
+    --secondary: 275 100% 35%;
+    /* dark-purple */
+    --secondary-foreground: 120 100% 70%;
 
-    --muted: 270 100% 17%;
-    /* purple-dark */
-    --muted-foreground: 40 60% 88%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 35 100% 65%;
-    /* saffron */
-    --accent-foreground: 270 100% 5%;
+    --accent: 84 100% 50%;
+    /* toxic-green */
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 40 60% 88%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 270 100% 20%;
-    --input: 270 100% 20%;
-    --ring: 270 100% 60%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 120 100% 50%;
 
-    --gradient-hero: linear-gradient(135deg, #9F33FF 0%, #5E0099 100%);
-    --gradient-subtle: linear-gradient(180deg, #0F001A 0%, #1A0033 100%);
+    --gradient-hero: linear-gradient(135deg, #0F0 0%, #4B0082 100%);
+    --gradient-subtle: linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%);
 
-    --shadow-elegant: 0 10px 40px -10px rgba(159, 51, 255, 0.5);
-    --shadow-card: 0 4px 20px -4px rgba(0, 0, 0, 0.6);
+    --shadow-elegant: 0 10px 40px -10px rgba(15, 255, 0, 0.5);
+    --shadow-card: 0 4px 20px -4px rgba(15, 255, 0, 0.2);
   }
 }
 
@@ -139,7 +138,7 @@ All colors MUST be HSL.
     paint-order: stroke fill;
   }
 
-  /* Hero text outline with white stroke for yellow/saffron text */
+  /* Hero text outline with white stroke for purple text */
   .hero-text-outline-white {
     -webkit-text-stroke: 1.5px #fff;
     text-stroke: 1.5px #fff;
@@ -153,11 +152,11 @@ All colors MUST be HSL.
     line-height: 1;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    color: var(--saffron);
+    color: var(--dark-purple);
     text-shadow:
-      0 0 20px var(--saffron),
-      0 0 40px var(--saffron),
-      0 0 80px var(--saffron),
+      0 0 20px var(--dark-purple),
+      0 0 40px var(--dark-purple),
+      0 0 80px var(--dark-purple),
       4px 4px 0px #000000;
     -webkit-text-stroke: 2.5px #000000;
     text-stroke: 2.5px #000000;
@@ -169,8 +168,8 @@ All colors MUST be HSL.
   @media (prefers-contrast: high) {
     .hero-subtitle {
       text-shadow:
-        0 0 30px var(--saffron),
-        0 0 60px var(--saffron),
+        0 0 30px var(--dark-purple),
+        0 0 60px var(--dark-purple),
         6px 6px 0px #000;
     }
   }

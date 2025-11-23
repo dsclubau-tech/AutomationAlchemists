@@ -8,7 +8,7 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "hello@aalchemists.com"
+    value: "dsclub.au@outlook.com"
   },
   {
     icon: Phone,
