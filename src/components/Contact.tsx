@@ -27,54 +27,62 @@ const Contact = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="contact" className="py-24 bg-gradient-subtle" ref={ref}>
+    <section id="contact" className="py-24 bg-background" ref={ref}>
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto"
-        >
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
-              Let's Work Together
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Ready to launch for real? Get a custom plan and pricing made for your idea.
-            </p>
+        {/* Section Header with Broken Gold Line */}
+        <div className="mb-16">
+          <div className="ml-0 w-1/2 mb-4">
+            <div className="broken-gold-line h-[1.5px] opacity-40"></div>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {contactInfo.map((info, index) => (
-              <motion.div
-                key={info.label}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center p-6 bg-card rounded-xl shadow-card"
-              >
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <info.icon className="w-6 h-6 text-primary" />
-                </div>
-                <div className="font-semibold text-primary mb-1">{info.label}</div>
-                <div className="text-xs text-muted-foreground">{info.value}</div>
-              </motion.div>
-            ))}
-          </div>
-
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-center"
+            transition={{ duration: 0.6 }}
+            className="text-left px-4"
           >
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-sm"
-            >
-              Tell Us About It
-            </Button>
+            <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight mb-6 font-display">
+              Let's Work Together
+            </h2>
+            <p className="text-white/80 text-base font-normal leading-relaxed max-w-3xl font-display">
+              Ready to launch for real? Get a custom plan and pricing made for your idea.
+            </p>
           </motion.div>
+        </div>
+
+        {/* Contact Info Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {contactInfo.map((info, index) => (
+            <motion.div
+              key={info.label}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="flex flex-col gap-4 p-6 bg-surface-dark/50 border border-primary/20 rounded-lg singularity-shadow"
+            >
+              <div className="flex items-start gap-4">
+                <info.icon className="w-6 h-6 text-primary mt-1" />
+                <div>
+                  <p className="font-semibold text-white font-display">{info.label}</p>
+                  <p className="text-white/70 text-sm font-display">{info.value}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-left px-4"
+        >
+          <Button
+            size="lg"
+            className="relative flex w-fit cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-primary text-background-dark text-base font-bold tracking-wide gold-foil-outline hover:brightness-110 transition-all singularity-shadow font-display"
+          >
+            Tell Us About It
+          </Button>
         </motion.div>
       </div>
     </section>

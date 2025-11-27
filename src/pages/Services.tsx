@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Code, Cloud, Smartphone, Check, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 
 const services = [
   {
@@ -34,163 +35,103 @@ const Services = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
       <Navigation />
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="container mx-auto">
+      {/* Fractal Corner Frames */}
+      <div className="pointer-events-none absolute top-0 left-0 h-32 w-32 md:h-48 md:w-48" style={{ background: 'radial-gradient(circle at top left, rgba(212,175,55,0.2) 0%, transparent 50%)' }}></div>
+      <div className="pointer-events-none absolute bottom-0 right-0 h-32 w-32 md:h-48 md:w-48" style={{ background: 'radial-gradient(circle at bottom right, rgba(212,175,55,0.15) 0%, transparent 50%)' }}></div>
+
+      <div className="relative w-full max-w-7xl mx-auto flex flex-col gap-16 md:gap-24 pt-32 px-6">
+        {/* Hero Section */}
+        <section className="flex flex-col items-start gap-6 text-left">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
+            className="flex flex-col gap-2"
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in">
-                  Our Services
-                </span>
-              </h1>
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-xl md:text-2xl text-muted-foreground mb-8"
-            >
-              Comprehensive solutions tailored to meet your unique business needs
-            </motion.p>
+            <h1 className="text-text-main text-4xl md:text-6xl font-black tracking-tighter spatial-distortion-glow font-display">
+              Architects of Automation
+            </h1>
+            <p className="text-text-muted text-base md:text-xl font-normal leading-relaxed max-w-2xl font-display">
+              Harnessing quantum principles and hyper-dimensional geometry to build the next generation of intelligent solutions.
+            </p>
           </motion.div>
-        </div>
-      </section>
+        </section>
 
-      {/* Services Grid */}
-      <section ref={ref} className="py-20 px-6">
-        <div className="container mx-auto">
+        {/* Directional Node Divider */}
+        <div className="w-full flex items-center gap-4">
+          <div className="directional-node"></div>
+          <div className="flex-grow h-px bg-gradient-to-r from-primary/50 to-transparent"></div>
+        </div>
+
+        {/* Services Grid */}
+        <section ref={ref} className="w-full flex flex-col gap-6">
+          <h2 className="text-text-main text-3xl font-bold leading-tight tracking-[-0.015em] md:text-4xl font-display">Core Services</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => {
-              return (
-                <motion.div
-                  key={service.title}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  onHoverStart={() => setHoveredIndex(index)}
-                  onHoverEnd={() => setHoveredIndex(null)}
-                  className="h-full"
-                >
-                  <Card className="h-full border-border transition-all duration-300 hover:shadow-elegant hover:-translate-y-2 overflow-hidden relative group">
+            {services.map((service, index) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 50 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                onHoverStart={() => setHoveredIndex(index)}
+                onHoverEnd={() => setHoveredIndex(null)}
+                className={`group flex flex-col gap-4 p-6 bg-surface-dark/50 border border-primary/20 shadow-singularity transition-all hover:border-primary/40 hover:-translate-y-1 ${index === 1 ? 'fractal-border-rev md:mt-12' : 'fractal-border'
+                  }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 flex items-center justify-center">
+                    <service.icon className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-text-main text-xl font-medium leading-normal font-display">{service.title}</h3>
+                </div>
+
+                <p className="text-text-muted text-sm font-normal leading-normal mt-1 font-display">
+                  {service.description}
+                </p>
+
+                <div className="space-y-2 pt-4">
+                  {service.features.map((feature, i) => (
                     <motion.div
-                      className={`absolute inset-0 bg-gradient-to-br from-primary to-accent opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
-                      animate={hoveredIndex === index ? { scale: 1.05 } : { scale: 1 }}
-                    />
-
-                    <CardHeader>
-                      <motion.div
-                        className={`w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center mb-4 shadow-lg`}
-                        animate={hoveredIndex === index ? { rotate: 360, scale: 1.1 } : { rotate: 0, scale: 1 }}
-                        transition={{ duration: 0.6 }}
-                      >
-                        <service.icon className="w-7 h-7 text-white" />
-                      </motion.div>
-                      <CardTitle className="text-2xl text-foreground">{service.title}</CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="space-y-4">
-                      <CardDescription className="text-base text-muted-foreground">
-                        {service.description}
-                      </CardDescription>
-
-                      <div className="space-y-2 pt-4">
-                        {service.features.map((feature, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={hoveredIndex === index ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="flex items-center gap-2 text-sm text-muted-foreground"
-                          >
-                            <Check className="w-4 h-4 text-accent" />
-                            <span>{feature}</span>
-                          </motion.div>
-                        ))}
-                      </div>
-
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={hoveredIndex === index ? { opacity: 1 } : { opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Button variant="ghost" className="w-full mt-4 group/btn">
-                          Learn More
-                          <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                        </Button>
-                      </motion.div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={hoveredIndex === index ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="flex items-center gap-2 text-sm text-text-muted font-display"
+                    >
+                      <Check className="w-4 h-4 text-primary" />
+                      <span>{feature}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
           </div>
+        </section>
+
+        {/* Directional Node Divider */}
+        <div className="w-full flex items-center gap-4">
+          <div className="flex-grow h-px bg-gradient-to-l from-primary/50 to-transparent"></div>
+          <div className="directional-node"></div>
         </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="bg-gradient-to-r from-primary to-accent rounded-3xl p-12 md:p-16 text-center relative overflow-hidden"
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute -top-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl"
-            />
-            <motion.div
-              animate={{
-                scale: [1.2, 1, 1.2],
-                rotate: [360, 180, 0],
-              }}
-              transition={{
-                duration: 15,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute -bottom-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl"
-            />
+        {/* CTA Section */}
+        <section className="bg-white/5 border border-primary/20 fractal-border-rev shadow-singularity p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 mb-16">
+          <div className="text-center md:text-left">
+            <h3 className="text-text-main text-2xl md:text-3xl font-bold font-display">Transcend Your Potential.</h3>
+            <p className="text-text-muted mt-1 font-display">Let's architect your future with intelligent automation.</p>
+          </div>
+          <Link to="/contact">
+            <Button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] fractal-border gold-foil-micro hover:brightness-110 transition-all flex-shrink-0 font-display">
+              <span className="truncate">Request a Consultation</span>
+            </Button>
+          </Link>
+        </section>
 
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Ready to Get Started?
-              </h2>
-              <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                Let's discuss how our services can help transform your business
-              </p>
-              <Button size="lg" variant="secondary" className="text-lg px-8 hover:scale-105 transition-transform">
-                Contact Us Today
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 };

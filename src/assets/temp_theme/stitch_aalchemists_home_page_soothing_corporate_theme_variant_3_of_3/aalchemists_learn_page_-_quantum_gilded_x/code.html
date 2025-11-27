@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AAlchemists - Quantum Insights</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 300,
+            'GRAD' 0,
+            'opsz' 24;
+            font-size: 1.25rem;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f9c31f",
+                        "background-light": "#f8f8f5",
+                        "background-dark": "#050505",
+                        "brand-gold": "#D4AF37",
+                        "text-off-white": "#E0E0E0",
+                        "text-muted": "#bbb39b",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-off-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full max-w-[1280px] flex-1">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-brand-gold/20 px-4 md:px-10 py-3 mb-8 md:mb-16">
+<div class="flex items-center gap-4">
+<div class="size-6 text-brand-gold">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-[-0.015em]">AAlchemists</h2>
+</div>
+<div class="hidden lg:flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9">
+<a class="text-text-off-white text-sm font-medium leading-normal hover:text-brand-gold transition-colors" href="#">Solutions</a>
+<a class="text-text-off-white text-sm font-medium leading-normal hover:text-brand-gold transition-colors" href="#">Platform</a>
+<a class="text-brand-gold text-sm font-bold leading-normal" href="#">Learn</a>
+<a class="text-text-off-white text-sm font-medium leading-normal hover:text-brand-gold transition-colors" href="#">Company</a>
+<a class="text-text-off-white text-sm font-medium leading-normal hover:text-brand-gold transition-colors" href="#">Contact Us</a>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-brand-gold text-background-dark text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+<span class="truncate">Request a Demo</span>
+</button>
+</div>
+<div class="lg:hidden">
+<button class="text-white p-2">
+<span class="material-symbols-outlined text-3xl" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<main class="flex-grow">
+<!-- PageHeading -->
+<div class="flex flex-wrap justify-between gap-6 p-4 items-start mb-4">
+<div class="flex min-w-72 flex-col gap-3 max-w-2xl">
+<p class="text-white text-5xl md:text-6xl font-black leading-tight tracking-[-0.033em] text-brand-gold">Quantum Insights</p>
+<p class="text-text-muted text-base font-normal leading-normal">
+                                    Explore our library of research, analysis, and success stories. Delve into the quantum realm of automation and discover the future of industry.
+                                </p>
+</div>
+</div>
+<!-- Chips / Filter Bar -->
+<div class="flex items-center gap-4 p-3 overflow-x-auto mb-8">
+<span class="text-text-muted text-sm font-medium whitespace-nowrap">Filter by:</span>
+<div class="flex gap-3">
+<div class="flex h-8 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded bg-brand-gold/10 ring-1 ring-inset ring-brand-gold pl-4 pr-4">
+<p class="text-brand-gold text-sm font-medium leading-normal">All</p>
+</div>
+<div class="flex h-8 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded bg-white/5 pl-4 pr-4 hover:bg-white/10 transition-colors">
+<p class="text-text-off-white text-sm font-medium leading-normal">Whitepapers</p>
+</div>
+<div class="flex h-8 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded bg-white/5 pl-4 pr-4 hover:bg-white/10 transition-colors">
+<p class="text-text-off-white text-sm font-medium leading-normal">Industry Analysis</p>
+</div>
+<div class="flex h-8 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded bg-white/5 pl-4 pr-4 hover:bg-white/10 transition-colors">
+<p class="text-text-off-white text-sm font-medium leading-normal">Case Studies</p>
+</div>
+<div class="flex h-8 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded bg-white/5 pl-4 pr-4 hover:bg-white/10 transition-colors">
+<p class="text-text-off-white text-sm font-medium leading-normal">Webinars</p>
+</div>
+</div>
+</div>
+<!-- Featured Card -->
+<div class="p-4 @container mb-12">
+<div class="flex flex-col items-stretch justify-start rounded-xl @xl:flex-row @xl:items-start bg-white/5 border border-brand-gold/20 p-4" style="--tw-shadow: 0 25px 50px -12px rgba(212, 175, 55, 0.15); box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);">
+<div class="w-full @xl:w-1/2 flex-shrink-0 bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract quantum computing visualization with glowing gold lines on a dark background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuATSjFp1MveEWOVBYpxzylHFihC_LpVWUaNlUapaXTGQAgOtGl9goHFjyHdiReaSfMJMwcxV0tnkDTGNErhF7M4lwo4vK1OG4-8DEam0CNRtA5UDgDdOqbKTfwVkV9U9v2-IjkzYlGt8Mp5FKeUa4ZNIUi7H0tr2Y_1ATI1OIC2Hh-xNlf_I7RYJ5KyPxn7IR9T5Qi1AlLZaxKzgyIcBnrkeyVhstG2hHXrW8_yyQTnGY96QweuGppa2kMU6ak_-sv2530qrbnHsiw");'></div>
+<div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-2 py-4 @xl:px-6">
+<p class="text-brand-gold text-sm font-normal leading-normal">Latest Report</p>
+<p class="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">Featured: The Quantum Leap in Process Mining</p>
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-2">
+<p class="text-text-muted text-base font-normal leading-normal">
+                                                Discover how quantum-inspired algorithms are redefining efficiency and providing unprecedented insights into complex business processes.
+                                            </p>
+<p class="text-text-muted text-sm font-normal leading-normal">Whitepaper</p>
+</div>
+<button class="flex self-start min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-6 bg-brand-gold text-background-dark text-sm font-bold leading-normal hover:opacity-90 transition-opacity">
+<span class="truncate">Access Now</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Broken Gold Line Divider -->
+<div class="w-full flex justify-center items-center gap-4 my-8 px-4">
+<div class="flex-grow h-px bg-gradient-to-l from-brand-gold/40 to-transparent"></div>
+<span class="material-symbols-outlined text-brand-gold" data-icon="auto_awesome">auto_awesome</span>
+<div class="flex-grow h-px bg-gradient-to-r from-brand-gold/40 to-transparent"></div>
+</div>
+<!-- ImageGrid / Asymmetrical Content Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+<div class="flex flex-col gap-3 pb-3 border border-transparent hover:border-brand-gold/20 rounded-xl p-4 transition-all">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="A futuristic manufacturing facility with robotic arms and glowing data streams" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDXAJHhN-1by_q_TdbMGHD2Uj3oz1CPbHNRn5D5E0EkmDj8xjJKmPOXItcgfNfQqPIIgitrlUDXhRBliKU984aYwvmTDlgzNseBY8B9XWJ0N4-7VQOVFULA1JIYhibeivfKFw_tFXV5KEsOhisA6iOVQM9dAZaCltPhr49li6jvEB9nV7lme7Mo5M44ImkEjVAownfijmnryr3Rgk1LVYveSAe1ngIOLpUZMvrLl-u8wQILY3DMr4qcepMhqRTuTn8I7dOIB4XKb_0");'></div>
+<div>
+<p class="text-white text-lg font-medium leading-normal mb-1">Case Study: Manufacturing Reimagined</p>
+<p class="text-text-muted text-sm font-normal leading-normal mb-2">How AAlchemists increased production efficiency by 300%.</p>
+<a class="text-brand-gold text-sm font-normal leading-normal hover:underline" href="#">Read More →</a>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 border border-transparent hover:border-brand-gold/20 rounded-xl p-4 transition-all">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="An abstract representation of a complex logistics network with interconnected nodes" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAZQnls1fB1cum9GLWvu6Og6TTvghwuJbh1Y_8d72JbDXbqc7AtXCj1M_frWgsAgh3L1nT9ScBAcXzqYpB3gnyhhqDOvWX0kGaO5-cGozb8A2i6zAlul90O_o-O5G6GdOA45vBi9WrkBIMAIVfO6rsZYCL0X8RtTWPK_1fdk_-N2sD-wHGyZn309I1JKtHKpMO_eZF_OsP5N4eYw6HQP_ahSZV12SEcmP0Z7XmbsfkhUVsRWzFqsgBMKuWlHN-oUp0XfViBhoiKyos");'></div>
+<div>
+<p class="text-white text-lg font-medium leading-normal mb-1">AI Integration in Logistics: A Deep Dive</p>
+<p class="text-text-muted text-sm font-normal leading-normal mb-2">Exploring the synergies between machine learning and supply chain management.</p>
+<a class="text-brand-gold text-sm font-normal leading-normal hover:underline" href="#">Read More →</a>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 border border-transparent hover:border-brand-gold/20 rounded-xl p-4 transition-all">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="A professional speaker presenting in front of a digital screen showing abstract data patterns" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDQbX5570OS7dFknmzwolIaS1QOfh2U6nnEsOXHpJpKuaMYySx3BTzgHXHfWhzj73nGurYmEvo-JZBbgXkRx73p8IMgdD3ZuqNaff1FhUZwRcqh-KD6Al4vHfzwTjw7O-BpcUwAX8l46NEY9j5uY1iHGOU5_Kh8jLX07bz9Rg_qVGRmfrK1aCqCIzu7s3BHdJLCx0l7rc4H8qHQCly4LLLrEGbYQFQxGhQ1fOa68FdQ0VYEgNQNjGQFpJTYCCqJmfPc1_iR2trb6qU");'></div>
+<div>
+<p class="text-white text-lg font-medium leading-normal mb-1">Webinar: The Future of Automation</p>
+<p class="text-text-muted text-sm font-normal leading-normal mb-2">Join our experts as they discuss the next decade of intelligent systems.</p>
+<a class="text-brand-gold text-sm font-normal leading-normal hover:underline" href="#">Watch Now →</a>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 border border-transparent hover:border-brand-gold/20 rounded-xl p-4 transition-all">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="A digital rendering of quantum computing particles interacting within a financial data grid" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAiuOjn4lPKwpvo-PC1cBku1mmjEmccg5WSYlUaYEkQsXl4KvimJ8u8pA1XviG-syFxgShqGhYyyvwVzAGmuOHlTuL2IpF-GZ0jgQzfAUfXF1EZKWerPWgjcbNyRiOjZwyhKbw7-I_gcEXjfBOSj8v_PDYfBSNRBp20_ByRab5mmBJ_h5ys-4KWhvgAhGHVctojtb-31yLFH3q28fbYe1GhbF3Vw4RkI6MSgMOQ6keUhH4kDSgcQUJAr9MhAHH_2SzyvUIIgP66nZE");'></div>
+<div>
+<p class="text-white text-lg font-medium leading-normal mb-1">Industry Analysis: Finance &amp; Quantum Computing</p>
+<p class="text-text-muted text-sm font-normal leading-normal mb-2">An in-depth look at how quantum principles are revolutionizing financial modeling.</p>
+<a class="text-brand-gold text-sm font-normal leading-normal hover:underline" href="#">Read More →</a>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 border border-transparent hover:border-brand-gold/20 rounded-xl p-4 transition-all">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="A secure data center with a digital lock icon overlayed, signifying cybersecurity" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBn5szYa1QlES2IH3elPsbsxKmJrM6L9BNFF2I4O7QsN7RT_vLKVc7PfABQFCXeoRiIDX6XS58A0Ry11uvAM_kIGFBVYoXdMLxeIq1xmEDA_xVL_R2TJ-cUIzaH4pwRmZlp41eUn3XBM_aPjyGtSprkyWUjyhtlegFyBNpmeRSFng74d8nin6wkKpBn57jxhyleKF22K6d4yH7hru_HaQ9h6YKJzqKVDKdB8aPhpIdAvU1YpVI8XQJaN0IF_vo_kgeiputklcK9TWs");'></div>
+<div>
+<p class="text-white text-lg font-medium leading-normal mb-1">Whitepaper: Securing the Automated Enterprise</p>
+<p class="text-text-muted text-sm font-normal leading-normal mb-2">Best practices for cybersecurity in a hyper-automated environment.</p>
+<a class="text-brand-gold text-sm font-normal leading-normal hover:underline" href="#">Read More →</a>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 border border-transparent hover:border-brand-gold/20 rounded-xl p-4 transition-all">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Lines of code on a computer screen with abstract fractal patterns in the background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBwPZnWtMSR3XYJud0Gu57OnI0uBdfAFroWfwVGl8saZJArTckaieNxP7YlBSL2sgkjbMLulPzMS6A7mNj-lY-xMOJ_J-JXlQcReZVPFotMmUJBemna74XWFA58COw5odvPXPBuCodCh_HExrnWXf4l2aIaEN7BpfLkKMGfXeicJlqyvG1stgiJ7CgPcwf95LQvEEfcUAw6bNbr6R03dnRaS_6GQYiZEi3KLM-uU9pdvPoh2XqKscgQWGRpG_UzaiRdDLSUNcSX8jM");'></div>
+<div>
+<p class="text-white text-lg font-medium leading-normal mb-1">Technical Guide: Implementing Fractal Logic</p>
+<p class="text-text-muted text-sm font-normal leading-normal mb-2">A developer's handbook for our proprietary automation frameworks.</p>
+<a class="text-brand-gold text-sm font-normal leading-normal hover:underline" href="#">Read More →</a>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</div>
+</body></html>

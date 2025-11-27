@@ -6,273 +6,79 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { useState } from "react";
+import ContactForm from "@/components/ContactForm";
 
 const ContactPage = () => {
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        subject: "",
-        message: ""
-    });
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle form submission
-        console.log("Form submitted:", formData);
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
             <Navigation />
 
-            {/* Hero Section */}
-            <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-20">
-                <div className="container mx-auto px-6 py-32 relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="max-w-4xl mx-auto text-center"
-                    >
-                        <h1 className="text-4xl md:text-5xl font-bold mb-6 font-determination">
-                            <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
-                                Contact the Alchemists
-                            </span>
-                        </h1>
-                        <p className="text-base md:text-xl text-foreground mb-8 max-w-3xl mx-auto font-determination">
-                            Let's turn your vision into reality. Reach out and start your transformation journey.
-                        </p>
-                    </motion.div>
-                </div>
-            </section>
+            {/* Fractal Corner Frames */}
+            <div className="pointer-events-none absolute top-0 left-0 h-1/2 w-1/2 opacity-20" style={{ background: 'radial-gradient(circle at top left, rgba(212,175,55,0.4) 0%, transparent 40%)' }}></div>
+            <div className="pointer-events-none absolute bottom-0 right-0 h-1/2 w-1/2 opacity-20" style={{ background: 'radial-gradient(circle at bottom right, rgba(212,175,55,0.4) 0%, transparent 40%)' }}></div>
 
-            {/* Contact Info + Form */}
-            <section className="py-24 bg-gradient-subtle">
-                <div className="container mx-auto px-6">
-                    <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-                        {/* Contact Information */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6 }}
-                            viewport={{ once: true }}
-                        >
-                            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-determination">
-                                Get in Touch
-                            </h2>
-                            <p className="text-sm text-muted-foreground mb-8 font-determination">
-                                Have a project in mind? Questions about our services? We're here to help. Reach out through any channel below.
-                            </p>
+            <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24">
+                <div className="broken-gold-line my-4 opacity-50"></div>
 
-                            <div className="space-y-6">
-                                {[
-                                    {
-                                        icon: Mail,
-                                        label: "Email",
-                                        value: "dsclub.au@outlook.com",
-                                        link: "mailto:dsclub.au@outlook.com"
-                                    },
-                                    {
-                                        icon: Phone,
-                                        label: "Phone",
-                                        value: "+1 (555) 123-4567",
-                                        link: "tel:+15551234567"
-                                    },
-                                    {
-                                        icon: MapPin,
-                                        label: "Location",
-                                        value: "Operating Internationally",
-                                        link: null
-                                    }
-                                ].map((contact, index) => (
-                                    <motion.div
-                                        key={contact.label}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.6, delay: index * 0.1 }}
-                                        viewport={{ once: true }}
-                                        className="flex items-start gap-4 p-6 bg-card rounded-xl shadow-card"
-                                    >
-                                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                            <contact.icon className="w-6 h-6 text-primary" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-base font-bold text-primary mb-1 font-determination">{contact.label}</h3>
-                                            {contact.link ? (
-                                                <a href={contact.link} className="text-xs text-muted-foreground hover:text-accent transition-colors font-determination">
-                                                    {contact.value}
-                                                </a>
-                                            ) : (
-                                                <p className="text-xs text-muted-foreground font-determination">{contact.value}</p>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                ))}
+                <main className="py-16 sm:py-24">
+                    <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
+                        <div className="flex flex-col">
+                            <div className="mb-8">
+                                <h1 className="text-4xl font-black tracking-[-0.033em] text-white lg:text-5xl font-display">
+                                    Open a Quantum Channel
+                                </h1>
+                                <p className="mt-3 text-base font-normal text-text-muted font-display">
+                                    Initiate a dialogue to reshape your operational reality.
+                                </p>
                             </div>
 
-                            <div className="mt-8 p-6 bg-card rounded-xl shadow-card">
-                                <h3 className="text-base font-bold text-primary mb-4 font-determination">
-                                    Business Hours
-                                </h3>
-                                <div className="space-y-2 text-xs text-muted-foreground font-determination">
+                            <div className="mt-8 fractal-clip-path-card border border-primary/20 bg-white/5 p-8 backdrop-blur-sm">
+                                <h3 className="text-xl font-bold text-white font-display">Direct Coordinates</h3>
+                                <div className="mt-6 space-y-6 text-text-main">
+                                    <div className="flex items-start gap-4">
+                                        <MapPin className="mt-1 text-primary w-5 h-5" />
+                                        <div>
+                                            <p className="font-semibold font-display">Headquarters</p>
+                                            <p className="text-text-muted font-display">Quantum Core 7, Singularity Plaza, Dimension 42</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <Mail className="mt-1 text-primary w-5 h-5" />
+                                        <div>
+                                            <p className="font-semibold font-display">General Inquiries</p>
+                                            <p className="text-text-muted font-display">contact@aalchemists.quant</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <Phone className="mt-1 text-primary w-5 h-5" />
+                                        <div>
+                                            <p className="font-semibold font-display">Primary Comms</p>
+                                            <p className="text-text-muted font-display">+1 (555) 010-0101</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Business Hours */}
+                            <div className="mt-8 fractal-clip-path-card border border-primary/20 bg-white/5 p-8 backdrop-blur-sm">
+                                <h3 className="text-xl font-bold text-white font-display mb-4">Temporal Availability</h3>
+                                <div className="space-y-2 text-sm text-text-muted font-display">
                                     <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
                                     <p>Saturday: 10:00 AM - 4:00 PM EST</p>
                                     <p>Sunday: Closed</p>
-                                    <p className="text-accent mt-4">24/7 Support for Enterprise Clients</p>
+                                    <p className="text-primary mt-4 font-bold">24/7 Support for Enterprise Clients</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
-                        {/* Contact Form */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6 }}
-                            viewport={{ once: true }}
-                            className="p-8 bg-card rounded-2xl shadow-card"
-                        >
-                            <h2 className="text-2xl font-bold text-primary mb-6 font-determination">
-                                Send Us a Message
-                            </h2>
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <label htmlFor="name" className="block text-xs font-bold text-primary mb-2 font-determination">
-                                        Your Name
-                                    </label>
-                                    <Input
-                                        id="name"
-                                        name="name"
-                                        type="text"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="John Doe"
-                                        className="font-determination text-xs"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="email" className="block text-xs font-bold text-primary mb-2 font-determination">
-                                        Email Address
-                                    </label>
-                                    <Input
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        placeholder="john@example.com"
-                                        className="font-determination text-xs"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="subject" className="block text-xs font-bold text-primary mb-2 font-determination">
-                                        Subject
-                                    </label>
-                                    <Input
-                                        id="subject"
-                                        name="subject"
-                                        type="text"
-                                        value={formData.subject}
-                                        onChange={handleChange}
-                                        placeholder="Project Inquiry"
-                                        className="font-determination text-xs"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="message" className="block text-xs font-bold text-primary mb-2 font-determination">
-                                        Message
-                                    </label>
-                                    <Textarea
-                                        id="message"
-                                        name="message"
-                                        value={formData.message}
-                                        onChange={handleChange}
-                                        placeholder="Tell us about your project..."
-                                        rows={6}
-                                        className="font-determination text-xs resize-none"
-                                        required
-                                    />
-                                </div>
-
-                                <Button
-                                    type="submit"
-                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-determination text-sm"
-                                >
-                                    Send Message
-                                    <Send className="ml-2 w-4 h-4" />
-                                </Button>
-                            </form>
-                        </motion.div>
+                        <div className="flex flex-col">
+                            <ContactForm />
+                        </div>
                     </div>
-                </div>
-            </section>
+                </main>
 
-            {/* Why Contact Us */}
-            <section className="py-24 bg-background">
-                <div className="container mx-auto px-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        viewport={{ once: true }}
-                        className="text-center mb-16"
-                    >
-                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-determination">
-                            What Happens Next?
-                        </h2>
-                    </motion.div>
-
-                    <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                        {[
-                            {
-                                step: "1",
-                                title: "Quick Response",
-                                desc: "We'll get back to you within 24 hours with an initial assessment"
-                            },
-                            {
-                                step: "2",
-                                title: "Discovery Call",
-                                desc: "Schedule a free consultation to discuss your project in detail"
-                            },
-                            {
-                                step: "3",
-                                title: "Custom Proposal",
-                                desc: "Receive a tailored proposal with timeline, pricing, and next steps"
-                            }
-                        ].map((item, index) => (
-                            <motion.div
-                                key={item.step}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: index * 0.1 }}
-                                viewport={{ once: true }}
-                                className="text-center p-8 bg-card rounded-xl shadow-card"
-                            >
-                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <span className="text-xl font-bold text-primary font-determination">{item.step}</span>
-                                </div>
-                                <h3 className="text-base font-bold text-primary mb-2 font-determination">{item.title}</h3>
-                                <p className="text-xs text-muted-foreground font-determination">{item.desc}</p>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <Footer />
+                <Footer />
+            </div>
         </div>
     );
 };

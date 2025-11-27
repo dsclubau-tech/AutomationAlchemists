@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Contact Us - AAlchemists</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .fractal-clip-path {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 95%, 95% 100%, 0% 100%);
+        }
+        .fractal-clip-path-sm {
+             clip-path: polygon(0% 0%, 100% 0%, 100% 88%, 92% 100%, 0% 100%);
+        }
+        .fractal-clip-path-card {
+            clip-path: polygon(0 8%, 8% 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
+        }
+        .fractal-clip-path-button {
+             clip-path: polygon(0 15%, 15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
+        }
+        .gold-foil-outline {
+            position: relative;
+            z-index: 1;
+        }
+        .gold-foil-outline::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(135deg, #FFD700, #D4AF37);
+            z-index: -1;
+            clip-path: inherit;
+        }
+        .broken-gold-line {
+             background: repeating-linear-gradient(90deg, #D4AF37, #D4AF37 8px, transparent 8px, transparent 12px);
+             height: 1px;
+             border: 0;
+        }
+    </style>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#D4AF37",
+              "background-light": "#050505",
+              "background-dark": "#050505",
+            },
+            fontFamily: {
+              "display": ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="font-display bg-background-dark text-[#EAEAEA]">
+<div class="relative min-h-screen w-full overflow-hidden">
+<!-- Fractal Corner Frames -->
+<div class="pointer-events-none absolute top-0 left-0 h-1/2 w-1/2 opacity-20" style="background: radial-gradient(circle at top left, rgba(212,175,55,0.4) 0%, transparent 40%);"></div>
+<div class="pointer-events-none absolute bottom-0 right-0 h-1/2 w-1/2 opacity-20" style="background: radial-gradient(circle at bottom right, rgba(212,175,55,0.4) 0%, transparent 40%);"></div>
+<div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<header class="flex items-center justify-between py-6 lg:py-8">
+<div class="flex items-center gap-4 text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold tracking-[-0.015em]">AAlchemists</h2>
+</div>
+<nav class="hidden items-center gap-9 md:flex">
+<a class="text-[#EAEAEA] text-sm font-medium hover:text-primary transition-colors" href="#">Solutions</a>
+<a class="text-[#EAEAEA] text-sm font-medium hover:text-primary transition-colors" href="#">About Us</a>
+<a class="text-[#EAEAEA] text-sm font-medium hover:text-primary transition-colors" href="#">Insights</a>
+<a class="text-[#EAEAEA] text-sm font-medium hover:text-primary transition-colors" href="#">Careers</a>
+</nav>
+</header>
+<hr class="broken-gold-line my-4 opacity-50"/>
+<main class="py-16 sm:py-24">
+<div class="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
+<div class="flex flex-col">
+<div class="mb-8">
+<p class="text-4xl font-black tracking-[-0.033em] text-white lg:text-5xl">Open a Quantum Channel</p>
+<p class="mt-3 text-base font-normal text-gray-400">Initiate a dialogue to reshape your operational reality.</p>
+</div>
+<div class="mt-8 fractal-clip-path-card border border-primary/20 bg-white/5 p-8 backdrop-blur-sm">
+<h3 class="text-xl font-bold text-white">Direct Coordinates</h3>
+<div class="mt-6 space-y-6 text-[#EAEAEA]">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined mt-1 text-primary">location_on</span>
+<div>
+<p class="font-semibold">Headquarters</p>
+<p class="text-gray-400">Quantum Core 7, Singularity Plaza, Dimension 42</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined mt-1 text-primary">mail</span>
+<div>
+<p class="font-semibold">General Inquiries</p>
+<p class="text-gray-400">contact@aalchemists.quant</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined mt-1 text-primary">call</span>
+<div>
+<p class="font-semibold">Primary Comms</p>
+<p class="text-gray-400">+1 (555) 010-0101</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col">
+<form action="#" class="space-y-6" method="POST">
+<div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+<label class="flex flex-col">
+<p class="pb-2 text-base font-medium text-white">Full Name</p>
+<input class="form-input w-full resize-none rounded-none border-0 bg-[#0F0F0F] p-[15px] text-base font-normal text-white placeholder:text-gray-500 focus:outline-0 focus:ring-1 focus:ring-inset focus:ring-primary fractal-clip-path-sm h-14" placeholder="Enter your full name" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="pb-2 text-base font-medium text-white">Corporate Email</p>
+<input class="form-input w-full resize-none rounded-none border-0 bg-[#0F0F0F] p-[15px] text-base font-normal text-white placeholder:text-gray-500 focus:outline-0 focus:ring-1 focus:ring-inset focus:ring-primary fractal-clip-path-sm h-14" placeholder="Enter your corporate email" type="email"/>
+</label>
+</div>
+<label class="flex flex-col">
+<p class="pb-2 text-base font-medium text-white">Subject</p>
+<input class="form-input w-full resize-none rounded-none border-0 bg-[#0F0F0F] p-[15px] text-base font-normal text-white placeholder:text-gray-500 focus:outline-0 focus:ring-1 focus:ring-inset focus:ring-primary fractal-clip-path-sm h-14" placeholder="Enter the subject of your inquiry" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="pb-2 text-base font-medium text-white">Your Message</p>
+<textarea class="form-input w-full resize-none rounded-none border-0 bg-[#0F0F0F] p-[15px] text-base font-normal text-white placeholder:text-gray-500 focus:outline-0 focus:ring-1 focus:ring-inset focus:ring-primary fractal-clip-path min-h-36" placeholder="Describe your inquiry in detail here..." rows="5"></textarea>
+</label>
+<div>
+<button class="fractal-clip-path-button gold-foil-outline group relative flex h-12 w-full cursor-pointer items-center justify-center overflow-hidden bg-background-dark px-4 text-sm font-bold tracking-wider text-primary transition-all duration-300 hover:text-black" type="submit">
+<span class="absolute inset-0 z-0 h-full w-0 bg-gradient-to-r from-primary to-[#FFD700] transition-all duration-300 group-hover:w-full"></span>
+<span class="relative z-10 truncate">Transmit Inquiry</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<footer class="mt-16 pb-8 text-center text-gray-500 lg:mt-24 lg:text-left">
+<div class="flex flex-col items-center justify-between gap-4 lg:flex-row">
+<p class="text-sm">© 2024 AAlchemists. All rights reserved.</p>
+<div class="flex items-center gap-4">
+<a class="text-sm hover:text-primary" href="#">Privacy Policy</a>
+<span class="text-primary opacity-50">|</span>
+<a class="text-sm hover:text-primary" href="#">Careers</a>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

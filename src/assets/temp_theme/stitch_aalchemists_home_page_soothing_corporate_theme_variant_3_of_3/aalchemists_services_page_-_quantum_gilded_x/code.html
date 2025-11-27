@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AAlchemists - Services</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .fractal-border {
+            border-image-slice: 1;
+            border-image-source: linear-gradient(to right, #D4AF37, #FFD700);
+            clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0% 100%);
+        }
+        .fractal-border-sm {
+            clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%);
+        }
+        .fractal-border-rev {
+            clip-path: polygon(0% 0%, calc(100% - 16px) 0%, 100% 16px, 100% 100%, 0% 100%);
+        }
+        .gold-foil-micro {
+            background-image: linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.05) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+        }
+        .time-fold-ripple {
+             background-image: radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 40%),
+                              radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.02) 0%, transparent 30%);
+        }
+    </style>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#D4AF37",
+              "primary-light": "#FFD700",
+              "background-light": "#050505",
+              "background-dark": "#050505",
+              "text-main": "#F5F5DC",
+              "text-muted": "#bab59c",
+            },
+            fontFamily: {
+              "display": ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            boxShadow: {
+                'singularity': '0 25px 50px -12px rgba(212, 175, 55, 0.1), 0 10px 20px -10px rgba(212, 175, 55, 0.08)',
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="font-display bg-background-dark text-text-main">
+<div class="relative w-full min-h-screen flex flex-col items-center overflow-x-hidden p-4 sm:p-6 md:p-8 time-fold-ripple">
+<!-- Fractal Corner Frames -->
+<div class="pointer-events-none absolute top-0 left-0 h-32 w-32 md:h-48 md:w-48" style="background: radial-gradient(circle at top left, rgba(212,175,55,0.2) 0%, transparent 50%);"></div>
+<div class="pointer-events-none absolute bottom-0 right-0 h-32 w-32 md:h-48 md:w-48" style="background: radial-gradient(circle at bottom right, rgba(212,175,55,0.15) 0%, transparent 50%);"></div>
+<div class="w-full max-w-6xl mx-auto flex flex-col gap-16 md:gap-24">
+<!-- TopNavBar -->
+<header class="w-full flex justify-center pt-5">
+<div class="w-full flex items-center justify-between border-b border-primary/20 pb-4 md:ml-8">
+<div class="flex items-center gap-4 text-text-main">
+<div class="size-5 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-text-main text-xl font-bold leading-tight tracking-[-0.015em]">AAlchemists</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-text-main text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Services</a>
+<a class="text-text-main text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Case Studies</a>
+<a class="text-text-main text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">About Us</a>
+</nav>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden h-10 px-4 bg-transparent text-text-main text-sm font-bold leading-normal tracking-[0.015em] border border-primary/50 hover:border-primary transition-colors fractal-border-sm">
+<span class="truncate">Contact Us</span>
+</button>
+</div>
+</header>
+<main class="w-full flex flex-col gap-16 md:gap-24">
+<!-- HeroSection -->
+<section class="flex flex-col items-start gap-6 md:ml-8 text-left py-10 md:py-20">
+<div class="flex flex-col gap-2">
+<h1 class="text-text-main text-4xl font-black leading-tight tracking-[-0.033em] sm:text-5xl md:text-6xl max-w-3xl">Architects of Automation</h1>
+<p class="text-text-muted text-base font-normal leading-normal max-w-2xl">Harnessing quantum principles and hyper-dimensional geometry to build the next generation of intelligent solutions.</p>
+</div>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] fractal-border gold-foil-micro hover:brightness-110 transition-all">
+<span class="truncate">Explore Solutions</span>
+</button>
+</section>
+<!-- Directional Node Divider -->
+<div class="w-full flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-primary/80 shadow-[0_0_10px_2px_rgba(212,175,55,0.5)]"></div>
+<div class="flex-grow h-px bg-gradient-to-r from-primary/50 to-transparent"></div>
+</div>
+<!-- Core Services Grid -->
+<section class="w-full flex flex-col gap-6">
+<h2 class="text-text-main text-3xl font-bold leading-tight tracking-[-0.015em] md:text-4xl md:ml-8">Core Services</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+<div class="group flex flex-col gap-4 p-6 bg-white/5 border border-primary/20 fractal-border shadow-singularity transition-all hover:border-primary/40 hover:-translate-y-1">
+<span class="material-symbols-outlined text-primary text-4xl">auto_graph</span>
+<div>
+<h3 class="text-text-main text-xl font-medium leading-normal">Quantum Process Optimization</h3>
+<p class="text-text-muted text-sm font-normal leading-normal mt-1">Re-engineer your workflows with quantum-inspired algorithms for unparalleled efficiency.</p>
+</div>
+</div>
+<div class="group flex flex-col gap-4 p-6 bg-white/5 border border-primary/20 fractal-border-rev shadow-singularity transition-all hover:border-primary/40 hover:-translate-y-1 md:mt-12">
+<span class="material-symbols-outlined text-primary text-4xl">local_shipping</span>
+<div>
+<h3 class="text-text-main text-xl font-medium leading-normal">AI-Driven Logistics</h3>
+<p class="text-text-muted text-sm font-normal leading-normal mt-1">Automate and optimize your supply chain with intelligent, self-learning logistical networks.</p>
+</div>
+</div>
+<div class="group flex flex-col gap-4 p-6 bg-white/5 border border-primary/20 fractal-border shadow-singularity transition-all hover:border-primary/40 hover:-translate-y-1">
+<span class="material-symbols-outlined text-primary text-4xl">model_training</span>
+<div>
+<h3 class="text-text-main text-xl font-medium leading-normal">Predictive Analytics Engines</h3>
+<p class="text-text-muted text-sm font-normal leading-normal mt-1">Anticipate market shifts and operational needs with our advanced predictive modeling.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Directional Node Divider -->
+<div class="w-full flex items-center gap-4">
+<div class="flex-grow h-px bg-gradient-to-l from-primary/50 to-transparent"></div>
+<div class="w-2 h-2 rounded-full bg-primary/80 shadow-[0_0_10px_2px_rgba(212,175,55,0.5)] self-end ml-auto"></div>
+</div>
+<!-- Detailed Breakdown Section -->
+<section class="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12 items-center">
+<div class="md:col-span-3 flex flex-col gap-4">
+<h2 class="text-text-main text-3xl font-bold leading-tight tracking-[-0.015em] md:text-4xl">
+                        Deep Dive: Quantum Optimization
+                    </h2>
+<p class="text-text-muted text-base font-normal leading-normal">
+                        Our flagship service redefines operational efficiency by applying principles of quantum computing to classical problems. We create bespoke algorithms that navigate complex variable landscapes, identifying optimal paths that traditional systems cannot perceive. This results in radical reductions in waste, time, and computational overhead.
+                    </p>
+</div>
+<div class="md:col-span-2 flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover border border-primary/20 fractal-border-sm" data-alt="Abstract visualization of golden quantum trace paths navigating a complex dark data structure" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDBqcXKNyTo98KZoapgw87cYFJQE1aQ73XHBZ0ezwXl1Qr6vE9Vj9sEVE9ytM-IwfffS2Bv7F-LTBHLryrGr7HDX5JHiHwS5HWEiDx31bF3OGujTZ1H3jld0afbG9Ocx1oyCTnj_gYPhbdAZsuMg-DONF48iaCY-z2YiUp_ZR0-5tAVZZ1AJhouDmqzxGMVbX2QmKRCieidVGt_fcRPusJcC7Xvmf-poEOWEawjufVDsy26FPShHYKby06L_dFjqLqO7ScV34D-Olw");'></div>
+<div>
+<p class="text-text-main text-base font-medium leading-normal">Dynamic Visualization</p>
+<p class="text-text-muted text-sm font-normal leading-normal">An animated visualization showing quantum trace paths navigating a complex data structure.</p>
+</div>
+</div>
+</section>
+<!-- Client Snippet -->
+<section class="flex flex-col gap-8 items-center text-center py-10">
+<div class="w-16 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+<p class="text-text-main text-xl md:text-2xl italic font-light max-w-3xl">"AAlchemists didn't just optimize our systems; they revealed a new dimension of operational possibility. Their work is paradigm-shifting."</p>
+<span class="text-text-muted text-sm">- CEO, Hyperion Dynamics</span>
+<div class="w-16 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+</section>
+<!-- Final CTA -->
+<section class="bg-white/5 border border-primary/20 fractal-border-rev shadow-singularity p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="text-center md:text-left">
+<h3 class="text-text-main text-2xl md:text-3xl font-bold">Transcend Your Potential.</h3>
+<p class="text-text-muted mt-1">Let's architect your future with intelligent automation.</p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] fractal-border gold-foil-micro hover:brightness-110 transition-all flex-shrink-0">
+<span class="truncate">Request a Consultation</span>
+</button>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full text-center md:text-right py-8">
+<p class="text-text-muted text-xs">© 2024 AAlchemists. All Rights Reserved. Architects of the Impossible.</p>
+</footer>
+</div>
+</div>
+</body></html>

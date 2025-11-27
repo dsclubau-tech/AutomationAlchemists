@@ -14,46 +14,47 @@ const About = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="about" className="py-24 bg-gradient-subtle" ref={ref}>
+    <section id="about" className="py-24 bg-background" ref={ref}>
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl md:text-4xl text-primary mb-6">
-            About AAlchemists
-          </h2>
-          <p className="text-sm text-muted-foreground max-w-3xl mx-auto">
-            When your vision outgrows the limits of vibe-coded prototypes, we step in.
-            You define the idea; we build, package, and deploy the full product end-to-end.
-            The result: a polished, launch-ready solution built to scale and built to earn.
-          </p>
-        </motion.div>
+        {/* Section Header with Broken Gold Line */}
+        <div className="mb-16">
+          <div className="ml-0 w-1/2 mb-4">
+            <div className="broken-gold-line h-[1.5px] opacity-40"></div>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ duration: 0.6 }}
+            className="text-left px-4"
+          >
+            <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight mb-6 font-display">
+              About AAlchemists
+            </h2>
+            <p className="text-white/80 text-base font-normal leading-relaxed max-w-3xl font-display">
+              When your vision outgrows the limits of vibe-coded prototypes, we step in.
+              You define the idea; we build, package, and deploy the full product end-to-end.
+              The result: a polished, launch-ready solution built to scale and built to earn.
+            </p>
+          </motion.div>
+        </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mt-16">
+        {/* Stats Grid */}
+        <div className="grid md:grid-cols-3 gap-6">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 20px 60px -10px rgba(0, 204, 51, 0.4), 0 0 0 2px rgba(0, 204, 51, 0.5)"
-              }}
-              className="text-center p-8 bg-card rounded-2xl shadow-card cursor-pointer transition-all duration-300 hover:border-primary/50 border-2 border-transparent"
+              className="flex flex-col gap-4 rounded-lg border border-primary/20 bg-surface-dark p-5 hover:border-primary/40 transition-all"
             >
-              <motion.div
-                className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-              >
-                <stat.icon className="w-8 h-8 text-primary" />
-              </motion.div>
-              <div className="text-lg md:text-xl font-bold text-primary mb-2 break-words hyphens-auto">{stat.value}</div>
-              <div className="text-[10px] text-muted-foreground leading-tight break-words">{stat.label}</div>
+              <div className="flex items-center gap-4">
+                <stat.icon className="w-7 h-7 text-primary" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-white text-lg font-bold font-display">{stat.value}</h2>
+                <p className="text-white/70 text-sm font-normal leading-relaxed font-display">{stat.label}</p>
+              </div>
             </motion.div>
           ))}
         </div>
