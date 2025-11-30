@@ -32,35 +32,35 @@ const ContactPage = () => {
                                 </p>
                             </div>
 
-                            <div className="mt-8 fractal-clip-path-card border border-primary/20 bg-white/5 p-8 backdrop-blur-sm">
+                            <div className="mt-8 rounded-2xl shadow-singularity border border-primary/20 bg-surface-dark/50 p-8 backdrop-blur-sm">
                                 <h3 className="text-xl font-bold text-white font-display">Direct Coordinates</h3>
                                 <div className="mt-6 space-y-6 text-text-main">
                                     <div className="flex items-start gap-4">
                                         <MapPin className="mt-1 text-primary w-5 h-5" />
                                         <div>
-                                            <p className="font-semibold font-display">Headquarters</p>
-                                            <p className="text-text-muted font-display">Quantum Core 7, Singularity Plaza, Dimension 42</p>
+                                            <p className="font-semibold font-display">Address</p>
+                                            <p className="text-text-muted font-display">3/33-37 Warialda St<br />Kogarah NSW 2217</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
                                         <Mail className="mt-1 text-primary w-5 h-5" />
                                         <div>
-                                            <p className="font-semibold font-display">General Inquiries</p>
-                                            <p className="text-text-muted font-display">contact@aalchemists.quant</p>
+                                            <p className="font-semibold font-display">Email</p>
+                                            <p className="text-text-muted font-display">dsclub.au@outlook.com</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
                                         <Phone className="mt-1 text-primary w-5 h-5" />
                                         <div>
-                                            <p className="font-semibold font-display">Primary Comms</p>
-                                            <p className="text-text-muted font-display">+1 (555) 010-0101</p>
+                                            <p className="font-semibold font-display">Phone</p>
+                                            <p className="text-text-muted font-display">+61 404 242 373</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Business Hours */}
-                            <div className="mt-8 fractal-clip-path-card border border-primary/20 bg-white/5 p-8 backdrop-blur-sm">
+                            <div className="mt-8 rounded-2xl shadow-singularity border border-primary/20 bg-surface-dark/50 p-8 backdrop-blur-sm">
                                 <h3 className="text-xl font-bold text-white font-display mb-4">Temporal Availability</h3>
                                 <div className="space-y-2 text-sm text-text-muted font-display">
                                     <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>

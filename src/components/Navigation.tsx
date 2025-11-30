@@ -2,11 +2,18 @@ import { useState, useEffect } from "react";
 import { Menu, X, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import logo from "@/assets/logo21.png";
+import logo from "@/assets/logo.png";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -60,9 +67,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
         >
             <div className="container mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
-                    <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                        <img src={logo} alt="AAlchemists Logo" className="w-16 h-16 object-contain -my-2" />
-                        <span className="text-xl font-bold text-primary font-display">AAlchemists</span>
+                    <Link to="/" className="flex items-center space-x-2 group">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-primary/10 rounded-full blur-md group-hover:bg-primary/20 transition-all"></div>
+                            <img src={logo} alt="AAlchemists Logo" className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain -my-2 transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(212,175,55,0.8)] brightness-110" />
+                        </div>
+                        <span className="text-lg sm:text-xl font-bold text-primary font-display group-hover:text-primary-light transition-colors">AAlchemists</span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -79,9 +89,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                         <Link to="/learn" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Learn
                         </Link>
-                        <button onClick={() => scrollToSection("contact")} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/contact" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Contact
-                        </button>
+                        </Link>
 
                     </div>
 
@@ -89,16 +99,28 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                     {!hideAuthButton && (
                         <div className="hidden lg:flex items-center gap-4">
                             {user ? (
-                                <>
-                                    <span className="text-sm text-muted-foreground flex items-center gap-2 font-display">
-                                        <User className="w-4 h-4" />
-                                        {user.email}
-                                    </span>
-                                    <Button onClick={handleSignOut} variant="outline" size="sm" className="font-display">
-                                        <LogOut className="w-4 h-4 mr-2" />
-                                        Sign Out
-                                    </Button>
-                                </>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="relative h-12 w-12 rounded-full hover:bg-primary/10 transition-colors">
+                                            <User className="h-8 w-8 text-primary" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56 bg-surface-dark border-primary/20 text-text-main rounded-2xl shadow-singularity" align="end" forceMount>
+                                        <DropdownMenuLabel className="font-normal">
+                                            <div className="flex flex-col space-y-1">
+                                                <p className="text-sm font-medium leading-none font-display text-white">{user.user_metadata.full_name || 'User'}</p>
+                                                <p className="text-xs leading-none text-muted-foreground font-display">
+                                                    {user.email}
+                                                </p>
+                                            </div>
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuSeparator className="bg-primary/20" />
+                                        <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-400/10 cursor-pointer font-display rounded-xl">
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            <span>Sign out</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             ) : (
                                 <Button onClick={() => navigate('/auth')} variant="default" size="sm" className="gold-foil-outline font-display">
                                     Sign In
@@ -142,9 +164,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                 <Link to="/learn" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Learn
                                 </Link>
-                                <button onClick={() => scrollToSection("contact")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-display">
+                                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Contact
-                                </button>
+                                </Link>
 
                                 {/* Auth Section - Mobile */}
                                 {!hideAuthButton && (

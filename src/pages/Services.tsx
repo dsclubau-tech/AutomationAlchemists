@@ -69,7 +69,7 @@ const Services = () => {
         {/* Services Grid */}
         <section ref={ref} className="w-full flex flex-col gap-6">
           <h2 className="text-text-main text-3xl font-bold leading-tight tracking-[-0.015em] md:text-4xl font-display">Core Services</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {services.map((service, index) => (
               <motion.div
                 key={service.title}
@@ -78,8 +78,7 @@ const Services = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 onHoverStart={() => setHoveredIndex(index)}
                 onHoverEnd={() => setHoveredIndex(null)}
-                className={`group flex flex-col gap-4 p-6 bg-surface-dark/50 border border-primary/20 shadow-singularity transition-all hover:border-primary/40 hover:-translate-y-1 ${index === 1 ? 'fractal-border-rev md:mt-12' : 'fractal-border'
-                  }`}
+                className="group flex flex-col gap-4 p-6 bg-surface-dark/50 border border-primary/20 rounded-2xl shadow-singularity transition-all hover:border-primary/40 hover:-translate-y-1 h-full"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 flex items-center justify-center">

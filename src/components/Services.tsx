@@ -38,30 +38,29 @@ const Services = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                         transition={{ duration: 0.6 }}
-                        className="text-white text-3xl font-bold tracking-tight px-4 font-display"
+                        className="text-white text-2xl sm:text-3xl font-bold tracking-tight px-4 font-display"
                     >
                         Our Services
                     </motion.h2>
                 </div>
 
                 {/* Services Grid with Fractal Borders */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                     {services.map((service, index) => (
                         <motion.div
                             key={service.title}
                             initial={{ opacity: 0, y: 30 }}
                             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                             transition={{ duration: 0.6, delay: index * 0.1 }}
-                            className={`flex flex-col gap-4 p-5 bg-surface-dark/50 rounded-lg singularity-shadow border border-primary/10 hover:border-primary/40 transition-all hover:-translate-y-1 ${index === 0 ? 'fractal-border' : index === 1 ? 'fractal-border-rev' : 'fractal-border'
-                                }`}
+                            className="flex flex-col gap-3 sm:gap-4 p-4 sm:p-5 bg-surface-dark/50 rounded-2xl singularity-shadow border border-primary/10 hover:border-primary/40 transition-all hover:-translate-y-1 h-full"
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 flex items-center justify-center">
-                                    <service.icon className="w-8 h-8 text-primary" />
+                            <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
+                                    <service.icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                                 </div>
-                                <p className="text-primary-light text-lg font-bold font-display">{service.title}</p>
+                                <p className="text-primary-light text-base sm:text-lg font-bold font-display">{service.title}</p>
                             </div>
-                            <p className="text-white/70 text-sm font-normal leading-relaxed font-display">
+                            <p className="text-white/70 text-xs sm:text-sm font-normal leading-relaxed font-display">
                                 {service.description}
                             </p>
                         </motion.div>

@@ -3,6 +3,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Workflow, TrendingUp, Cog, BarChart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const WorkflowAutomation = () => {
     return (
@@ -204,12 +205,14 @@ const WorkflowAutomation = () => {
                             ))}
                         </div>
                         <div className="text-center">
-                            <Button
-                                size="lg"
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-sm font-determination"
-                            >
-                                Calculate Your ROI
-                            </Button>
+                            <Link to="/contact">
+                                <Button
+                                    size="lg"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-sm font-determination"
+                                >
+                                    Calculate Your ROI
+                                </Button>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>

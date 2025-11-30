@@ -1,8 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
-import Contact from "@/components/Contact";
-import ContactForm from "@/components/ContactForm";
 import FileUpload from "@/components/FileUpload";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
@@ -73,8 +71,7 @@ const Index = () => {
           </div>
         </section>
 
-        <Contact />
-        <ContactForm />
+
 
         <Footer />
       </div>

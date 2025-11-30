@@ -155,7 +155,7 @@ const ContactForm = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <Card className="border-primary/20 bg-surface-dark/50 singularity-shadow fractal-clip-path-card">
+          <Card className="border-primary/20 bg-surface-dark/50 singularity-shadow rounded-2xl">
             <CardHeader>
               <CardTitle className="text-2xl text-white font-display">Send Us a Message</CardTitle>
               <CardDescription className="text-white/70 font-display">
@@ -172,7 +172,7 @@ const ContactForm = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
                     required
-                    className="fractal-clip-path-sm bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
+                    className="rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
                   />
                 </div>
 
@@ -185,7 +185,7 @@ const ContactForm = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
                     required
-                    className="fractal-clip-path-sm bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
+                    className="rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
                   />
                 </div>
 
@@ -198,7 +198,7 @@ const ContactForm = () => {
                     placeholder="Describe your inquiry in detail here..."
                     required
                     rows={5}
-                    className="fractal-clip-path bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary resize-none font-display"
+                    className="rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary resize-none font-display"
                   />
                 </div>
 
@@ -254,7 +254,7 @@ const ContactForm = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full fractal-clip-path-button gold-foil-outline relative flex h-12 cursor-pointer items-center justify-center overflow-hidden bg-background-dark px-4 text-sm font-bold tracking-wider text-primary transition-all duration-300 hover:text-black group font-display"
+                  className="w-full rounded-full gold-foil-outline relative flex h-12 cursor-pointer items-center justify-center overflow-hidden bg-background-dark px-4 text-sm font-bold tracking-wider text-primary transition-all duration-300 hover:text-black group font-display"
                 >
                   <span className="absolute inset-0 z-0 h-full w-0 bg-gradient-to-r from-primary to-primary-light transition-all duration-300 group-hover:w-full"></span>
                   <span className="relative z-10 flex items-center gap-2">

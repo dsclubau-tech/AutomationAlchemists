@@ -6,7 +6,7 @@ import heroImage from "@/assets/hero.webm";
 
 const Hero = () => {
     return (
-        <section id="home" className="hero-section relative min-h-[520px] md:min-h-[600px] flex items-end overflow-hidden w-full singularity-shadow">
+        <section id="home" className="hero-section relative min-h-[400px] sm:min-h-[480px] md:min-h-[600px] flex items-end overflow-hidden w-full singularity-shadow">
             {/* Background Image with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
                 <video
@@ -26,7 +26,7 @@ const Hero = () => {
             <div className="fractal-corner-tl" />
             <div className="fractal-corner-br" />
 
-            <div className="container mx-auto px-8 md:px-12 py-12 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-10 md:py-12 relative z-10">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -34,10 +34,10 @@ const Hero = () => {
                     className="max-w-3xl text-left flex flex-col gap-6"
                 >
                     <div className="flex flex-col gap-2">
-                        <h1 className="text-white text-4xl md:text-6xl font-black tracking-tighter spatial-distortion-glow font-display">
+                        <h1 className="text-white text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter spatial-distortion-glow font-display leading-tight">
                             Transform Your Business with Automation Alchemists
                         </h1>
-                        <h2 className="text-white/80 text-base md:text-lg font-normal leading-relaxed font-display">
+                        <h2 className="text-white/80 text-sm sm:text-base md:text-lg font-normal leading-relaxed font-display">
                             You Dream It, We Build It. No Coding Walls, No Deploy Drama - Just Automation, AI and Passive Income.
                         </h2>
                     </div>
@@ -46,17 +46,17 @@ const Hero = () => {
                         <Link to="/services">
                             <Button
                                 size="lg"
-                                className="relative flex w-fit cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-primary text-background-dark text-base font-bold tracking-wide gold-foil-outline hover:brightness-110 transition-all singularity-shadow font-display group"
+                                className="relative flex w-fit cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 sm:h-12 px-4 sm:px-6 bg-primary text-background-dark text-sm sm:text-base font-bold tracking-wide gold-foil-outline hover:brightness-110 transition-all singularity-shadow font-display group"
                             >
                                 Discover Our Solutions
-                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>
                         <Link to="/learn">
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="relative flex w-fit cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-6 bg-background-dark text-primary-light border-primary/50 hover:bg-primary/10 transition-colors font-display"
+                                className="relative flex w-fit cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 sm:h-12 px-4 sm:px-6 bg-background-dark text-primary-light border-primary/50 hover:bg-primary/10 transition-colors font-display text-sm sm:text-base"
                             >
                                 Learn More
                             </Button>
