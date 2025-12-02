@@ -45,6 +45,8 @@ export function HoverVideoPlayer({
                 ref={videoRef}
                 className="w-full h-full object-cover"
                 controls={enableControls && isPlaying}
+                controlsList="nodownload nofullscreen noremoteplayback"
+                disablePictureInPicture
                 poster={thumbnailSrc}
                 loop
                 muted

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -33,6 +33,8 @@ const Learn = () => {
   const [contents, setContents] = useState<EducationalContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
+  const [isVideoHovered, setIsVideoHovered] = useState(false);
+  const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
 
   usePerformance('Learn');
 
@@ -40,6 +42,68 @@ const Learn = () => {
     analytics.trackPageView('/learn');
     fetchContents();
   }, []);
+
+  // Geometric Hover Lock: Track global mouse position to handle closing
+  useEffect(() => {
+    if (!isVideoHovered) return;
+
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      // Calculate the "safe zone" based on viewport dimensions
+      // Video is 65vw wide, 36.5625vw high, centered
+      const vw = window.innerWidth;
+      const vh = window.innerHeight; // Use innerHeight for vertical centering check
+
+      const videoWidth = vw * 0.65;
+      const videoHeight = vw * 0.365625; // Aspect ratio based on width
+
+      const centerX = vw / 2;
+      const centerY = window.innerHeight / 2; // Fixed center is viewport center
+
+      const halfWidth = videoWidth / 2;
+      const halfHeight = videoHeight / 2;
+
+      // Add a small buffer (e.g., 20px) to prevent accidental closing at edges
+      const buffer = 20;
+
+      const minX = centerX - halfWidth - buffer;
+      const maxX = centerX + halfWidth + buffer;
+      const minY = centerY - halfHeight - buffer;
+      const maxY = centerY + halfHeight + buffer;
+
+      const isInside =
+        e.clientX >= minX &&
+        e.clientX <= maxX &&
+        e.clientY >= minY &&
+        e.clientY <= maxY;
+
+      if (!isInside) {
+        // Mouse is outside the geometric safe zone -> Close video
+        // We can use a small debounce here too if desired, but immediate is usually better for "feeling" the edge
+        setIsVideoHovered(false);
+      }
+    };
+
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, [isVideoHovered]);
+
+  const handleMouseEnter = () => {
+    if (hoverTimeout.current) {
+      clearTimeout(hoverTimeout.current);
+      hoverTimeout.current = null;
+    }
+    setIsVideoHovered(true);
+  };
+
+  // We don't need handleMouseLeave anymore because the global listener handles closing
+  // But we keep it as a fallback for the non-expanded state
+  const handleMouseLeave = () => {
+    if (!isVideoHovered) {
+      // If not expanded yet (e.g. just entering/leaving quickly), standard behavior
+      setIsVideoHovered(false);
+    }
+    // If expanded, do nothing here. Global listener takes over.
+  };
 
   const fetchContents = async () => {
     const { data, error } = await supabase
@@ -79,6 +143,17 @@ const Learn = () => {
       <img src={robot2} alt="" className="absolute right-6 bottom-80 w-32 h-32 opacity-5 pointer-events-none rotate-[-8deg] hidden lg:block" />
       <img src={robot1} alt="" className="absolute right-10 bottom-40 w-26 h-26 opacity-5 pointer-events-none -rotate-6 hidden lg:block" />
 
+      {/* Backdrop overlay - placed early in DOM so video can be on top */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isVideoHovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 bg-black/60 backdrop-blur-md pointer-events-none"
+        style={{
+          zIndex: isVideoHovered ? 105 : -1
+        }}
+      />
+
       <Navigation />
 
       <section className="relative pt-32 pb-12 px-6">
@@ -107,17 +182,43 @@ const Learn = () => {
       <section className="pb-20 px-6">
         <div className="container mx-auto max-w-7xl">
           <div className="space-y-12">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Card className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 backdrop-blur-sm border-gray-700/50 rounded-2xl overflow-visible group hover:border-primary/60 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
+            {/* Replaced motion.div with standard div to prevent transform context issue with fixed positioning */}
+            <div style={{ position: 'relative', zIndex: isVideoHovered ? 120 : 1 }}>
+              <Card className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border-gray-700/50 rounded-2xl overflow-visible group hover:border-primary/60 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
                 <div className="grid md:grid-cols-2 gap-8 p-8">
-                  <motion.div
-                    initial={{ width: "24rem", height: "18rem" }}
-                    whileHover={{ width: "75vw", height: "42.1875vw" }}
-                    transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                    className="relative rounded-xl overflow-hidden bg-gray-800 shadow-lg z-10"
-                  >
-                    <HoverVideoPlayer videoSrc={vaVideo} enableControls={true} className="rounded-xl" />
-                  </motion.div>
+                  {/* Wrapper to preserve layout space when video becomes fixed */}
+                  <div className="w-96 h-72 relative z-10">
+                    <motion.div
+                      animate={isVideoHovered ? "expanded" : "collapsed"}
+                      style={{ zIndex: isVideoHovered ? 110 : 1 }}
+                      variants={{
+                        collapsed: {
+                          width: "24rem",
+                          height: "18rem",
+                          position: "relative" as const,
+                          left: 0,
+                          top: 0,
+                          x: 0,
+                          y: 0
+                        },
+                        expanded: {
+                          width: "65vw",
+                          height: "36.5625vw",
+                          position: "fixed" as const,
+                          left: "50%",
+                          top: "50%",
+                          x: "-50%",
+                          y: "-50%"
+                        }
+                      }}
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
+                      transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                      className="rounded-xl overflow-hidden bg-gray-800 shadow-2xl"
+                    >
+                      <HoverVideoPlayer videoSrc={vaVideo} enableControls={true} className="rounded-xl" />
+                    </motion.div>
+                  </div>
                   <div className="flex flex-col justify-center">
                     <div className="inline-block mb-4">
                       <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-full">Latest Report</span>
@@ -136,7 +237,7 @@ const Learn = () => {
                   </div>
                 </div>
               </Card>
-            </motion.div>
+            </div>
 
             {regularContents.length > 0 && (
               <div className="flex items-center justify-center py-4">
