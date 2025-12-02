@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -67,12 +67,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
         >
             <div className="container mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
-                    <Link to="/" className="flex items-center space-x-2 group">
+                    <Link to="/" className="flex items-center space-x-3 group">
                         <div className="relative">
                             <div className="absolute inset-0 bg-primary/10 rounded-full blur-md group-hover:bg-primary/20 transition-all"></div>
-                            <img src={logo} alt="AAlchemists Logo" className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain -my-2 transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(212,175,55,0.8)] brightness-110" />
+                            <img src={logo} alt="AAlchemists Logo" className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain -my-2 transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(212,175,55,0.8)] brightness-110" />
                         </div>
-                        <span className="text-lg sm:text-xl font-bold text-primary font-display group-hover:text-primary-light transition-colors">AAlchemists</span>
+                        <span className="text-xl sm:text-2xl md:text-2xl font-bold text-primary font-display group-hover:text-primary-light transition-colors">AAlchemists</span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -122,9 +122,23 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             ) : (
-                                <Button onClick={() => navigate('/auth')} variant="default" size="sm" className="gold-foil-outline font-display">
-                                    Sign In
-                                </Button>
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Button
+                                        onClick={() => navigate('/auth')}
+                                        className="relative rounded-full px-8 py-6 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-black font-bold font-display shadow-lg hover:shadow-xl hover:shadow-primary/50 transition-all duration-300 overflow-hidden group"
+                                    >
+                                        {/* Animated background shimmer */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                                        {/* Pulse ring */}
+                                        <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-0 group-hover:opacity-100"></div>
+
+                                        <span className="relative z-10">Book a Free Roadmap Call</span>
+                                    </Button>
+                                </motion.div>
                             )}
                         </div>
                     )}
@@ -183,8 +197,11 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                                 </Button>
                                             </>
                                         ) : (
-                                            <Button onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }} className="w-full font-display">
-                                                Sign In
+                                            <Button
+                                                onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
+                                                className="w-full rounded-full py-6 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-black font-bold font-display shadow-lg hover:shadow-xl transition-all duration-300"
+                                            >
+                                                Book a Free Roadmap Call
                                             </Button>
                                         )}
                                     </div>

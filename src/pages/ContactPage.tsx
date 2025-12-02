@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { useState } from "react";
-import ContactForm from "@/components/ContactForm";
+import { ExpandableContactForm } from "@/components/ExpandableContactForm";
 
 const ContactPage = () => {
     return (
@@ -72,7 +72,7 @@ const ContactPage = () => {
                         </div>
 
                         <div className="flex flex-col">
-                            <ContactForm />
+                            <ExpandableContactForm />
                         </div>
                     </div>
                 </main>
