@@ -4,12 +4,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2, Shield, Mail, Users, FileText, DollarSign, LogOut, ChevronLeft, ChevronRight, Home, Briefcase, BookOpen } from 'lucide-react';
+import { Loader2, Shield, Mail, Users, FileText, DollarSign, LogOut, ChevronLeft, ChevronRight, Home, Briefcase, BookOpen, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
     children: ReactNode;
-    title: string;
+    title?: string;
     description?: string;
 }
 
@@ -24,6 +24,7 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
 
     const navItems = [
         { path: '/admin', label: 'Dashboard', icon: Mail, description: 'Contact submissions' },
+        { path: '/admin/contacts', label: 'Contacts', icon: MessageSquare, description: 'Contact settings & submissions' },
         { path: '/admin/users', label: 'Users', icon: Users, description: 'Manage users' },
         { path: '/admin/content', label: 'Content', icon: FileText, description: 'Educational content' },
         { path: '/admin/pricing', label: 'Pricing', icon: DollarSign, description: 'Pricing packages' },
