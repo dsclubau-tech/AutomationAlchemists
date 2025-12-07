@@ -1,15 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Shield, ShieldOff, User, Mail } from 'lucide-react';
+import { Loader2, Shield, User, Mail } from 'lucide-react';
 import { analytics } from '@/utils/analytics';
 import AdminLayout from '@/components/AdminLayout';
-import { useAuth } from '@/hooks/useAuth';
 
 interface UserWithRole {
   id: string;
@@ -22,7 +20,6 @@ interface UserWithRole {
 const AdminUsers = () => {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -77,58 +74,6 @@ const AdminUsers = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  const toggleAdminRole = async (userId: string, currentlyAdmin: boolean) => {
-    try {
-      if (userId === user?.id) {
-        toast({
-          title: 'Cannot modify own role',
-          description: 'You cannot remove your own admin privileges',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (currentlyAdmin) {
-        const { error } = await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', userId)
-          .eq('role', 'admin');
-
-        if (error) throw error;
-
-        toast({
-          title: 'Admin role removed',
-          description: 'User admin privileges have been revoked',
-        });
-      } else {
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({ user_id: userId, role: 'admin' });
-
-        if (error) throw error;
-
-        toast({
-          title: 'Admin role granted',
-          description: 'User now has admin privileges',
-        });
-      }
-
-      analytics.trackEvent('admin_role_changed', { userId, granted: !currentlyAdmin });
-
-      setUsers(users.map(u =>
-        u.id === userId ? { ...u, isAdmin: !currentlyAdmin } : u
-      ));
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update user role';
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-    }
-  };
-
   return (
     <AdminLayout title="User Management" description="Manage user roles and permissions">
       <motion.div
@@ -160,7 +105,6 @@ const AdminUsers = () => {
                       <TableHead className="text-text-muted">Email</TableHead>
                       <TableHead className="text-text-muted">Created</TableHead>
                       <TableHead className="text-text-muted">Role</TableHead>
-                      <TableHead className="text-right text-text-muted">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -196,27 +140,6 @@ const AdminUsers = () => {
                             ) : (
                               <Badge variant="outline" className="border-primary/30 text-text-muted">User</Badge>
                             )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant={userItem.isAdmin ? "destructive" : "default"}
-                              size="sm"
-                              onClick={() => toggleAdminRole(userItem.id, userItem.isAdmin)}
-                              disabled={userItem.id === user?.id}
-                              className={!userItem.isAdmin ? "bg-primary hover:bg-primary/90 text-background-dark" : ""}
-                            >
-                              {userItem.isAdmin ? (
-                                <>
-                                  <ShieldOff className="h-4 w-4 mr-2" />
-                                  Remove Admin
-                                </>
-                              ) : (
-                                <>
-                                  <Shield className="h-4 w-4 mr-2" />
-                                  Make Admin
-                                </>
-                              )}
-                            </Button>
                           </TableCell>
                         </TableRow>
                       ))
