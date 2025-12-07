@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +13,11 @@ import { ExpandableContactForm } from "@/components/ExpandableContactForm";
 const ContactPage = () => {
     return (
         <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
+            <SEOHead
+                title="Contact"
+                description="Get in touch with AAlchemists. We're ready to help transform your business with automation, AI, and custom solutions."
+                keywords="contact, get in touch, automation inquiry, business consultation"
+            />
             <PageLoader pageName="Contact" />
             <Navigation />
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X, LogOut, User, ArrowRight, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -24,6 +24,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
     const { toast } = useToast();
+
+    // Easter egg: track rapid clicks on current page links
+    const clickCountRef = useRef<{ [key: string]: { count: number; lastClick: number } }>({});
 
     // Check if user is admin
     useEffect(() => {
@@ -60,6 +63,36 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
         if (element) {
             element.scrollIntoView({ behavior: "smooth" });
             setIsMobileMenuOpen(false);
+        }
+    };
+
+    // Easter egg: detect rapid clicks on same page
+    const handleNavClick = (e: React.MouseEvent, path: string) => {
+        const isOnPage = location.pathname === path;
+
+        if (isOnPage) {
+            const now = Date.now();
+            const pageData = clickCountRef.current[path] || { count: 0, lastClick: 0 };
+
+            // Reset if more than 1.5 seconds since last click
+            if (now - pageData.lastClick > 1500) {
+                pageData.count = 0;
+            }
+
+            pageData.count++;
+            pageData.lastClick = now;
+            clickCountRef.current[path] = pageData;
+
+            // Show easter egg on 4th rapid click
+            if (pageData.count >= 4) {
+                e.preventDefault();
+                const pageName = path.replace('/', '') || 'home';
+                toast({
+                    title: "🤦 Really?",
+                    description: `You're already on the ${pageName} page, idiot!`,
+                });
+                pageData.count = 0; // Reset so they can trigger it again
+            }
         }
     };
 
@@ -100,23 +133,23 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                         <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Home
                         </button>
-                        <Link to="/company" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/company" onClick={(e) => handleNavClick(e, '/company')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Company
                         </Link>
-                        <Link to="/services" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/services" onClick={(e) => handleNavClick(e, '/services')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Services
                         </Link>
-                        <Link to="/pricing" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/pricing" onClick={(e) => handleNavClick(e, '/pricing')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Pricing
                         </Link>
-                        <Link to="/learn" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/learn" onClick={(e) => handleNavClick(e, '/learn')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Learn
                         </Link>
-                        <Link to="/contact" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/contact" onClick={(e) => handleNavClick(e, '/contact')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Contact
                         </Link>
                         {isAdmin && (
-                            <Link to="/admin" className="text-primary hover:text-primary-light transition-colors font-display text-sm font-medium flex items-center gap-1">
+                            <Link to="/admin" onClick={(e) => handleNavClick(e, '/admin')} className="text-primary hover:text-primary-light transition-colors font-display text-sm font-medium flex items-center gap-1">
                                 <Shield className="h-4 w-4" />
                                 Admin
                             </Link>

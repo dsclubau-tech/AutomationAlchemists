@@ -4,6 +4,8 @@ import About from "@/components/About";
 import FileUpload from "@/components/FileUpload";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
+import SEOHead from "@/components/SEOHead";
+import Testimonials from "@/components/Testimonials";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -29,6 +31,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
+      <SEOHead
+        title="Home"
+        description="AAlchemists transforms your business with automation, AI, and passive income solutions. Custom-built apps, virtual assistants, and workflow automation."
+        keywords="automation, AI, virtual assistants, workflow automation, app development, passive income"
+      />
       <PageLoader pageName="Home" />
       <Navigation />
 
@@ -73,7 +80,7 @@ const Index = () => {
           </div>
         </section>
 
-
+        <Testimonials />
 
         <Footer />
       </div>

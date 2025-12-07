@@ -3,7 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
+import ScrollToTopButton from "./components/ScrollToTopButton";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
@@ -33,42 +35,46 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/company" element={<Company />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/:slug" element={<ServiceDetail />} />
-            <Route path="/services/vibe-to-app" element={<VibeToApp />} />
-            <Route path="/services/virtual-assistants" element={<VirtualAssistants />} />
-            <Route path="/services/workflow-automation" element={<WorkflowAutomation />} />
-            <Route path="/mission" element={<Mission />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/learn" element={<Learn />} />
-            <Route path="/learn/:slug" element={<ArticleDetail />} />
-            <Route path="/terms" element={<TermsOfUse />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/content" element={<AdminContent />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/pricing" element={<AdminPricing />} />
-            <Route path="/admin/services" element={<AdminServices />} />
-            <Route path="/admin/learn" element={<AdminLearn />} />
-            <Route path="/admin-setup" element={<AdminSetup />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <ScrollToTopButton />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/company" element={<Company />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/services/:slug" element={<ServiceDetail />} />
+              <Route path="/services/vibe-to-app" element={<VibeToApp />} />
+              <Route path="/services/virtual-assistants" element={<VirtualAssistants />} />
+              <Route path="/services/workflow-automation" element={<WorkflowAutomation />} />
+              <Route path="/mission" element={<Mission />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/learn" element={<Learn />} />
+              <Route path="/learn/:slug" element={<ArticleDetail />} />
+              <Route path="/terms" element={<TermsOfUse />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/content" element={<AdminContent />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/pricing" element={<AdminPricing />} />
+              <Route path="/admin/services" element={<AdminServices />} />
+              <Route path="/admin/learn" element={<AdminLearn />} />
+              <Route path="/admin-setup" element={<AdminSetup />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </ErrorBoundary>
 );
 
 export default App;
+

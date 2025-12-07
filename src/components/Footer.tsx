@@ -31,13 +31,13 @@ const Footer = () => {
           <div className="flex flex-col items-start">
             <h3 className="font-semibold mb-4 text-white font-display text-sm sm:text-base">FOLLOW US</h3>
             <div className="flex space-x-4 mb-4">
-              <a href="#" className="text-white/60 hover:text-primary transition-colors" aria-label="Twitter">
+              <a href="https://x.com/AAlchemists" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-primary transition-colors" aria-label="Twitter/X">
                 <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
-              <a href="#" className="text-white/60 hover:text-primary transition-colors" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/company/aalchemists" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-primary transition-colors" aria-label="LinkedIn">
                 <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
-              <a href="#" className="text-white/60 hover:text-primary transition-colors" aria-label="GitHub">
+              <a href="https://github.com/dsclubau-tech" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-primary transition-colors" aria-label="GitHub">
                 <Github className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
               <a href="mailto:dsclub.au@outlook.com" className="text-white/60 hover:text-primary transition-colors" title="Email us" aria-label="Email">

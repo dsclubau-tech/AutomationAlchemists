@@ -6,6 +6,7 @@ import { Code, Cloud, Smartphone, Check, ArrowRight, Bot, Database, Palette, Glo
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
+import SEOHead from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import {
   Expandable,
@@ -122,6 +123,11 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
+      <SEOHead
+        title="Services"
+        description="Explore our comprehensive automation services: Vibe-to-App execution, 24/7 Virtual Assistants, Workflow Automation, and custom software development."
+        keywords="automation services, virtual assistants, workflow automation, app development, software development"
+      />
       <PageLoader pageName="Services" />
       <Navigation />
 

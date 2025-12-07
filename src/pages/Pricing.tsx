@@ -4,6 +4,8 @@ import { useRef, useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
+import SEOHead from "@/components/SEOHead";
+import FAQ from "@/components/FAQ";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Star, Zap, Shield, Rocket, Crown, Gem, Target, Award, Loader2, Percent } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -156,6 +158,11 @@ const Pricing = () => {
 
     return (
         <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
+            <SEOHead
+                title="Pricing"
+                description="Transparent pricing for automation services. Choose from Starter, Professional, or Enterprise plans tailored to your business needs."
+                keywords="pricing, automation pricing, service packages, custom solutions"
+            />
             <PageLoader pageName="Pricing" />
             <Navigation />
 
@@ -461,6 +468,8 @@ const Pricing = () => {
                         </Link>
                     </motion.div>
                 </section>
+
+                <FAQ />
 
                 <Footer />
             </div>

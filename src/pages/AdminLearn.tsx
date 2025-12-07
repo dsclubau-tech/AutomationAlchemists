@@ -245,6 +245,48 @@ const AdminLearn = () => {
         }
     }, []);
 
+    // Toggle featured status for a specific category
+    // When setting as featured, unfeature all other articles in same category
+    const handleToggleCategoryFeatured = async (article: Article) => {
+        try {
+            if (article.is_featured) {
+                // If already featured, just unfeatured it
+                const { error } = await (supabase as any)
+                    .from('learn_articles')
+                    .update({ is_featured: false })
+                    .eq('id', article.id);
+                if (error) throw error;
+                toast({ title: 'Success', description: 'Article unfeatured.' });
+            } else {
+                // First, unfeature all articles in the same category
+                if (article.category_id) {
+                    await (supabase as any)
+                        .from('learn_articles')
+                        .update({ is_featured: false })
+                        .eq('category_id', article.category_id);
+                }
+                // Then feature this article
+                const { error } = await (supabase as any)
+                    .from('learn_articles')
+                    .update({ is_featured: true })
+                    .eq('id', article.id);
+                if (error) throw error;
+                const categoryName = getCategoryName(article.category_id);
+                toast({ title: 'Success', description: `Article set as featured for ${categoryName}.` });
+            }
+            fetchArticles();
+        } catch (error) {
+            toast({ title: 'Error', description: 'Failed to update featured status.', variant: 'destructive' });
+        }
+    };
+
+    // Get category name helper (defined early for use in toggle function)
+    const getCategoryNameEarly = (categoryId: string | null) => {
+        if (!categoryId) return 'Uncategorized';
+        const cat = categories.find(c => c.id === categoryId);
+        return cat?.name || 'Unknown';
+    };
+
     // Approve comment
     const handleApproveComment = async (commentId: string) => {
         try {
@@ -704,6 +746,15 @@ const AdminLearn = () => {
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        variant={article.is_featured ? "default" : "outline"}
+                                                        onClick={() => handleToggleCategoryFeatured(article)}
+                                                        className={article.is_featured ? "bg-yellow-500 hover:bg-yellow-600 text-black" : "border-primary/30"}
+                                                        title={article.is_featured ? "Remove from featured" : "Set as category featured"}
+                                                    >
+                                                        <Star className={`w-4 h-4 ${article.is_featured ? 'fill-current' : ''}`} />
+                                                    </Button>
                                                     <Button size="sm" variant="outline" onClick={() => handleEditArticle(article)} className="border-primary/30"><Edit className="w-4 h-4" /></Button>
                                                     <Button size="sm" variant="destructive" onClick={() => handleDeleteArticle(article.id)}><Trash2 className="w-4 h-4" /></Button>
                                                 </div>

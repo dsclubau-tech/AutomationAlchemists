@@ -19,21 +19,23 @@ const WorkflowAutomation = () => {
                         transition={{ duration: 0.8 }}
                         className="max-w-4xl mx-auto text-center"
                     >
-                        <h1 className="text-4xl md:text-5xl font-bold mb-6 font-determination">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-6 font-display">
                             <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
                                 Workflow Automation
                             </span>
                         </h1>
-                        <p className="text-base md:text-xl text-foreground mb-8 max-w-3xl mx-auto font-determination">
+                        <p className="text-base md:text-xl text-foreground mb-8 max-w-3xl mx-auto font-display">
                             Streamline your business processes and eliminate repetitive tasks. Focus on what matters most.
                         </p>
-                        <Button
-                            size="lg"
-                            className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-base group font-determination"
-                        >
-                            Automate Now
-                            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Button>
+                        <Link to="/contact">
+                            <Button
+                                size="lg"
+                                className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-6 text-base group font-display"
+                            >
+                                Automate Now
+                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                        </Link>
                     </motion.div>
                 </div>
             </section>
@@ -48,10 +50,10 @@ const WorkflowAutomation = () => {
                         viewport={{ once: true }}
                         className="text-center mb-16"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-determination">
+                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-display">
                             Transform Your Operations
                         </h2>
-                        <p className="text-sm text-muted-foreground max-w-3xl mx-auto font-determination">
+                        <p className="text-sm text-muted-foreground max-w-3xl mx-auto font-display">
                             Intelligent automation that adapts to your business needs and scales with your growth
                         </p>
                     </motion.div>
@@ -90,8 +92,8 @@ const WorkflowAutomation = () => {
                                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <benefit.icon className="w-8 h-8 text-primary" />
                                 </div>
-                                <h3 className="text-base font-bold text-primary mb-2 font-determination">{benefit.title}</h3>
-                                <p className="text-xs text-muted-foreground font-determination">{benefit.description}</p>
+                                <h3 className="text-base font-bold text-primary mb-2 font-display">{benefit.title}</h3>
+                                <p className="text-xs text-muted-foreground font-display">{benefit.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -108,10 +110,10 @@ const WorkflowAutomation = () => {
                         viewport={{ once: true }}
                         className="text-center mb-16"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-determination">
+                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-display">
                             Automation Solutions
                         </h2>
-                        <p className="text-sm text-muted-foreground max-w-3xl mx-auto font-determination">
+                        <p className="text-sm text-muted-foreground max-w-3xl mx-auto font-display">
                             Custom-built workflows tailored to your specific business processes
                         </p>
                     </motion.div>
@@ -157,10 +159,10 @@ const WorkflowAutomation = () => {
                                 viewport={{ once: true }}
                                 className="p-8 bg-card rounded-xl shadow-card"
                             >
-                                <h3 className="text-base font-bold text-primary mb-4 font-determination">{category.title}</h3>
+                                <h3 className="text-base font-bold text-primary mb-4 font-display">{category.title}</h3>
                                 <ul className="space-y-2">
                                     {category.workflows.map((workflow) => (
-                                        <li key={workflow} className="text-xs text-muted-foreground flex items-start font-determination">
+                                        <li key={workflow} className="text-xs text-muted-foreground flex items-start font-display">
                                             <span className="text-accent mr-2">▸</span>
                                             {workflow}
                                         </li>
@@ -182,7 +184,7 @@ const WorkflowAutomation = () => {
                         viewport={{ once: true }}
                         className="max-w-4xl mx-auto"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-8 text-center font-determination">
+                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-8 text-center font-display">
                             The Numbers Speak
                         </h2>
                         <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -199,8 +201,8 @@ const WorkflowAutomation = () => {
                                     viewport={{ once: true }}
                                     className="text-center p-6 bg-card rounded-xl shadow-card"
                                 >
-                                    <div className="text-xl font-bold text-primary mb-2 font-determination">{item.stat}</div>
-                                    <div className="text-xs text-muted-foreground font-determination">{item.label}</div>
+                                    <div className="text-xl font-bold text-primary mb-2 font-display">{item.stat}</div>
+                                    <div className="text-xs text-muted-foreground font-display">{item.label}</div>
                                 </motion.div>
                             ))}
                         </div>
@@ -208,7 +210,7 @@ const WorkflowAutomation = () => {
                             <Link to="/contact">
                                 <Button
                                     size="lg"
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-sm font-determination"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-6 text-sm font-display"
                                 >
                                     Calculate Your ROI
                                 </Button>

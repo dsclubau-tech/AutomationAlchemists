@@ -15,12 +15,12 @@ const PrivacyPolicy = () => {
                         transition={{ duration: 0.8 }}
                         className="max-w-4xl mx-auto text-center"
                     >
-                        <h1 className="text-4xl md:text-5xl font-bold mb-6 font-determination">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-6 font-display">
                             <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
                                 Privacy Policy
                             </span>
                         </h1>
-                        <p className="text-base md:text-xl text-foreground mb-8 max-w-3xl mx-auto font-determination">
+                        <p className="text-base md:text-xl text-foreground mb-8 max-w-3xl mx-auto font-display">
                             Your privacy is important to us. Learn how we collect, use, and protect your information.
                         </p>
                     </motion.div>
@@ -38,11 +38,11 @@ const PrivacyPolicy = () => {
                             className="space-y-8 text-foreground"
                         >
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">1. Information We Collect</h2>
-                                <p className="text-sm text-muted-foreground font-determination mb-4">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">1. Information We Collect</h2>
+                                <p className="text-sm text-muted-foreground font-display mb-4">
                                     We collect information that you provide directly to us, including:
                                 </p>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground font-determination space-y-2">
+                                <ul className="list-disc list-inside text-sm text-muted-foreground font-display space-y-2">
                                     <li>Name and contact information</li>
                                     <li>Email address</li>
                                     <li>Business information</li>
@@ -52,11 +52,11 @@ const PrivacyPolicy = () => {
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">2. How We Use Your Information</h2>
-                                <p className="text-sm text-muted-foreground font-determination mb-4">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">2. How We Use Your Information</h2>
+                                <p className="text-sm text-muted-foreground font-display mb-4">
                                     We use the information we collect to:
                                 </p>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground font-determination space-y-2">
+                                <ul className="list-disc list-inside text-sm text-muted-foreground font-display space-y-2">
                                     <li>Provide, maintain, and improve our services</li>
                                     <li>Process transactions and send related information</li>
                                     <li>Send you technical notices and support messages</li>
@@ -66,11 +66,11 @@ const PrivacyPolicy = () => {
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">3. Information Sharing</h2>
-                                <p className="text-sm text-muted-foreground font-determination">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">3. Information Sharing</h2>
+                                <p className="text-sm text-muted-foreground font-display">
                                     We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:
                                 </p>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground font-determination mt-2 space-y-2">
+                                <ul className="list-disc list-inside text-sm text-muted-foreground font-display mt-2 space-y-2">
                                     <li>With your consent</li>
                                     <li>To comply with legal obligations</li>
                                     <li>To protect our rights and safety</li>
@@ -79,25 +79,25 @@ const PrivacyPolicy = () => {
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">4. Data Security</h2>
-                                <p className="text-sm text-muted-foreground font-determination">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">4. Data Security</h2>
+                                <p className="text-sm text-muted-foreground font-display">
                                     We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
                                 </p>
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">5. Cookies and Tracking</h2>
-                                <p className="text-sm text-muted-foreground font-determination">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">5. Cookies and Tracking</h2>
+                                <p className="text-sm text-muted-foreground font-display">
                                     We use cookies and similar tracking technologies to track activity on our service and hold certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.
                                 </p>
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">6. Your Rights</h2>
-                                <p className="text-sm text-muted-foreground font-determination mb-4">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">6. Your Rights</h2>
+                                <p className="text-sm text-muted-foreground font-display mb-4">
                                     You have the right to:
                                 </p>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground font-determination space-y-2">
+                                <ul className="list-disc list-inside text-sm text-muted-foreground font-display space-y-2">
                                     <li>Access your personal information</li>
                                     <li>Correct inaccurate data</li>
                                     <li>Request deletion of your data</li>
@@ -107,15 +107,15 @@ const PrivacyPolicy = () => {
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">7. Changes to This Policy</h2>
-                                <p className="text-sm text-muted-foreground font-determination">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">7. Changes to This Policy</h2>
+                                <p className="text-sm text-muted-foreground font-display">
                                     We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
                                 </p>
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold text-primary mb-4 font-determination">8. Contact Us</h2>
-                                <p className="text-sm text-muted-foreground font-determination">
+                                <h2 className="text-2xl font-bold text-primary mb-4 font-display">8. Contact Us</h2>
+                                <p className="text-sm text-muted-foreground font-display">
                                     If you have any questions about this Privacy Policy, please contact us at{" "}
                                     <a href="mailto:dsclub.au@outlook.com" className="text-accent hover:underline">
                                         dsclub.au@outlook.com
@@ -124,7 +124,7 @@ const PrivacyPolicy = () => {
                             </div>
 
                             <div className="pt-8 border-t border-border">
-                                <p className="text-xs text-muted-foreground font-determination">
+                                <p className="text-xs text-muted-foreground font-display">
                                     Last updated: {new Date().toLocaleDateString()}
                                 </p>
                             </div>

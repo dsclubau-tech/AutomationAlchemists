@@ -17,12 +17,12 @@ const Mission = () => {
                         transition={{ duration: 0.8 }}
                         className="max-w-4xl mx-auto text-center"
                     >
-                        <h1 className="text-4xl md:text-5xl font-bold mb-6 font-determination">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-6 font-display">
                             <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
                                 Our Mission
                             </span>
                         </h1>
-                        <p className="text-base md:text-xl text-foreground mb-8 max-w-3xl mx-auto font-determination">
+                        <p className="text-base md:text-xl text-foreground mb-8 max-w-3xl mx-auto font-display">
                             Transforming ideas into reality through automation, AI, and innovation.
                         </p>
                     </motion.div>
@@ -39,13 +39,13 @@ const Mission = () => {
                         viewport={{ once: true }}
                         className="max-w-4xl mx-auto text-center mb-16"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-determination">
+                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-display">
                             Alchemy for the Automation Era
                         </h2>
-                        <p className="text-sm text-muted-foreground mb-8 font-determination">
+                        <p className="text-sm text-muted-foreground mb-8 font-display">
                             At AAlchemists, we believe that every visionary idea deserves to become reality. We're not just developers—we're digital alchemists who transform your concepts into fully functional, revenue-generating applications.
                         </p>
-                        <p className="text-sm text-muted-foreground font-determination">
+                        <p className="text-sm text-muted-foreground font-display">
                             Our mission is simple: eliminate the barriers between imagination and execution. No coding walls. No deploy drama. Just pure automation magic that turns your vision into passive income streams.
                         </p>
                     </motion.div>
@@ -62,10 +62,10 @@ const Mission = () => {
                         viewport={{ once: true }}
                         className="text-center mb-16"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-determination">
+                        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-display">
                             What Drives Us
                         </h2>
-                        <p className="text-sm text-muted-foreground max-w-3xl mx-auto font-determination">
+                        <p className="text-sm text-muted-foreground max-w-3xl mx-auto font-display">
                             Our core values guide everything we do
                         </p>
                     </motion.div>
@@ -104,8 +104,8 @@ const Mission = () => {
                                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <value.icon className="w-8 h-8 text-primary" />
                                 </div>
-                                <h3 className="text-base font-bold text-primary mb-2 font-determination">{value.title}</h3>
-                                <p className="text-xs text-muted-foreground font-determination">{value.description}</p>
+                                <h3 className="text-base font-bold text-primary mb-2 font-display">{value.title}</h3>
+                                <p className="text-xs text-muted-foreground font-display">{value.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -123,7 +123,7 @@ const Mission = () => {
                             viewport={{ once: true }}
                             className="text-center mb-12"
                         >
-                            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-determination">
+                            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6 font-display">
                                 Our Journey
                             </h2>
                         </motion.div>
@@ -136,22 +136,22 @@ const Mission = () => {
                             className="space-y-6"
                         >
                             <div className="p-8 bg-card rounded-xl shadow-card">
-                                <h3 className="text-base font-bold text-primary mb-4 font-determination">The Problem We Saw</h3>
-                                <p className="text-xs text-muted-foreground font-determination">
+                                <h3 className="text-base font-bold text-primary mb-4 font-display">The Problem We Saw</h3>
+                                <p className="text-xs text-muted-foreground font-display">
                                     Too many brilliant ideas die in the prototype phase. Entrepreneurs and businesses struggle with technical barriers, deployment complexities, and the overwhelming challenge of turning concepts into production-ready applications.
                                 </p>
                             </div>
 
                             <div className="p-8 bg-card rounded-xl shadow-card">
-                                <h3 className="text-base font-bold text-primary mb-4 font-determination">Our Solution</h3>
-                                <p className="text-xs text-muted-foreground font-determination">
+                                <h3 className="text-base font-bold text-primary mb-4 font-display">Our Solution</h3>
+                                <p className="text-xs text-muted-foreground font-display">
                                     We built AAlchemists to be the bridge between vision and reality. With 5+ years of ecommerce expertise and a passion for automation, we handle the entire development lifecycle—from initial concept to deployed, revenue-generating application.
                                 </p>
                             </div>
 
                             <div className="p-8 bg-card rounded-xl shadow-card">
-                                <h3 className="text-base font-bold text-primary mb-4 font-determination">Looking Forward</h3>
-                                <p className="text-xs text-muted-foreground font-determination">
+                                <h3 className="text-base font-bold text-primary mb-4 font-display">Looking Forward</h3>
+                                <p className="text-xs text-muted-foreground font-display">
                                     We're building a future where anyone with a great idea can bring it to life. Through AI, automation, and intelligent workflows, we're making professional-grade development accessible to visionaries worldwide.
                                 </p>
                             </div>
