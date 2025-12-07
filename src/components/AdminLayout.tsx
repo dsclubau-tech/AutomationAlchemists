@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2, Shield, Mail, Users, FileText, DollarSign, LogOut, ChevronLeft, ChevronRight, Home, Briefcase } from 'lucide-react';
+import { Loader2, Shield, Mail, Users, FileText, DollarSign, LogOut, ChevronLeft, ChevronRight, Home, Briefcase, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
@@ -28,6 +28,7 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
         { path: '/admin/content', label: 'Content', icon: FileText, description: 'Educational content' },
         { path: '/admin/pricing', label: 'Pricing', icon: DollarSign, description: 'Pricing packages' },
         { path: '/admin/services', label: 'Services', icon: Briefcase, description: 'Manage services' },
+        { path: '/admin/learn', label: 'Learn Content', icon: BookOpen, description: 'Articles & categories' },
     ];
 
     const checkAdminStatus = useCallback(async () => {
