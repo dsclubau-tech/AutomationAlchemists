@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -98,18 +99,38 @@ const Auth = () => {
         });
         navigate('/');
       } else {
-        const { error } = await signIn(email, password);
+        const { data, error } = await signIn(email, password);
         if (error) throw error;
+
+        // Check if user is admin
+        if (data?.user) {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', data.user.id)
+            .eq('role', 'admin')
+            .maybeSingle();
+
+          if (roleData) {
+            toast({
+              title: 'Welcome Admin',
+              description: 'Redirecting to admin dashboard...',
+            });
+            navigate('/admin');
+            return;
+          }
+        }
+
         toast({
           title: 'Welcome back!',
           description: 'You have been signed in successfully.',
         });
         navigate('/');
       }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: 'Error',
-        description: error.message || 'An error occurred. Please try again.',
+        description: error instanceof Error ? error.message : 'An error occurred. Please try again.',
         variant: 'destructive',
       });
     } finally {

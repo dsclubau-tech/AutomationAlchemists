@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Menu, X, LogOut, User, ArrowRight } from "lucide-react";
+import { Menu, X, LogOut, User, ArrowRight, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 import {
     DropdownMenu,
@@ -18,10 +19,29 @@ import {
 const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
     const { toast } = useToast();
+
+    // Check if user is admin
+    useEffect(() => {
+        const checkAdminRole = async () => {
+            if (!user) {
+                setIsAdmin(false);
+                return;
+            }
+            const { data } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', user.id)
+                .eq('role', 'admin')
+                .maybeSingle();
+            setIsAdmin(!!data);
+        };
+        checkAdminRole();
+    }, [user]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -80,11 +100,14 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                         <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Home
                         </button>
-                        <button onClick={() => scrollToSection("about")} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
-                            About
-                        </button>
+                        <Link to="/company" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                            Company
+                        </Link>
                         <Link to="/services" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Services
+                        </Link>
+                        <Link to="/pricing" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                            Pricing
                         </Link>
                         <Link to="/learn" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Learn
@@ -92,6 +115,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                         <Link to="/contact" className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Contact
                         </Link>
+                        {isAdmin && (
+                            <Link to="/admin" className="text-primary hover:text-primary-light transition-colors font-display text-sm font-medium flex items-center gap-1">
+                                <Shield className="h-4 w-4" />
+                                Admin
+                            </Link>
+                        )}
 
                     </div>
 
@@ -169,11 +198,14 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                 <button onClick={() => scrollToSection("home")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Home
                                 </button>
-                                <button onClick={() => scrollToSection("about")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-display">
-                                    About
-                                </button>
+                                <Link to="/company" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
+                                    Company
+                                </Link>
                                 <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Services
+                                </Link>
+                                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
+                                    Pricing
                                 </Link>
                                 <Link to="/learn" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Learn
@@ -181,6 +213,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                 <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Contact
                                 </Link>
+                                {isAdmin && (
+                                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-primary hover:text-primary-light transition-colors py-2 font-display flex items-center gap-2">
+                                        <Shield className="h-4 w-4" />
+                                        Admin Dashboard
+                                    </Link>
+                                )}
 
                                 {/* Auth Section - Mobile */}
                                 {!hideAuthButton && (

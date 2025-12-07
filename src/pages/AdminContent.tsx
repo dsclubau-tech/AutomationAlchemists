@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,9 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Edit, Trash2, Upload, Video, FileText, Sparkles } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, Video, FileText, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { analytics } from '@/utils/analytics';
+import AdminLayout from '@/components/AdminLayout';
+import { motion } from 'framer-motion';
+
 // Define type based on database schema
 type EducationalContent = {
   id: string;
@@ -30,12 +31,9 @@ type EducationalContent = {
 };
 
 const AdminContent = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [contents, setContents] = useState<EducationalContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingContent, setEditingContent] = useState<EducationalContent | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,49 +46,8 @@ const AdminContent = () => {
   const [displayOrder, setDisplayOrder] = useState(0);
   const [published, setPublished] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
-  useEffect(() => {
-    analytics.trackPageView('/admin/content');
-  }, []);
-
-  useEffect(() => {
-    checkAdminStatus();
-  }, [user]);
-
-  useEffect(() => {
-    if (isAdmin) {
-      fetchContents();
-    }
-  }, [isAdmin]);
-
-  const checkAdminStatus = async () => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .single();
-
-    if (error || !data) {
-      toast({
-        title: 'Access Denied',
-        description: 'You need admin privileges to access this page.',
-        variant: 'destructive',
-      });
-      navigate('/');
-      return;
-    }
-
-    setIsAdmin(true);
-  };
-
-  const fetchContents = async () => {
+  const fetchContents = useCallback(async () => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from('educational_content')
@@ -108,7 +65,15 @@ const AdminContent = () => {
       setContents((data || []) as EducationalContent[]);
     }
     setIsLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    analytics.trackPageView('/admin/content');
+  }, []);
+
+  useEffect(() => {
+    fetchContents();
+  }, [fetchContents]);
 
   const resetForm = () => {
     setTitle('');
@@ -119,7 +84,6 @@ const AdminContent = () => {
     setPublished(false);
     setVideoFile(null);
     setEditingContent(null);
-    setUploadProgress(0);
   };
 
   const handleEdit = (content: EducationalContent) => {
@@ -128,8 +92,8 @@ const AdminContent = () => {
     setDescription(content.description || '');
     setContentType(content.content_type as 'video' | 'animation' | 'text');
     setContentText(content.content_text || '');
-    setDisplayOrder(content.display_order);
-    setPublished(content.published);
+    setDisplayOrder(content.display_order || 0);
+    setPublished(content.published || false);
     setIsDialogOpen(true);
   };
 
@@ -221,10 +185,11 @@ const AdminContent = () => {
       setIsDialogOpen(false);
       resetForm();
       fetchContents();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: 'Error',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -241,212 +206,221 @@ const AdminContent = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto px-6 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-foreground">Manage Educational Content</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Content
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingContent ? 'Edit Content' : 'Add New Content'}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title *</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  placeholder="Enter content title"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief description of the content"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contentType">Content Type *</Label>
-                <Select 
-                  value={contentType} 
-                  onValueChange={(value) => setContentType(value as 'video' | 'animation' | 'text')}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="text">Text / Paragraph</SelectItem>
-                    <SelectItem value="video">Video</SelectItem>
-                    <SelectItem value="animation">Animation / GIF</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {contentType === 'video' && (
+    <AdminLayout title="Educational Content" description="Manage videos, animations, and text content">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex justify-end mb-6">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm} className="bg-primary hover:bg-primary/90 text-background-dark">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Content
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-dark border-primary/20">
+              <DialogHeader>
+                <DialogTitle className="text-text-main">
+                  {editingContent ? 'Edit Content' : 'Add New Content'}
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="videoFile">Upload Video</Label>
+                  <Label htmlFor="title" className="text-text-main">Title *</Label>
                   <Input
-                    id="videoFile"
-                    type="file"
-                    accept="video/*"
-                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    placeholder="Enter content title"
+                    className="bg-background-dark border-primary/30 text-text-main"
                   />
-                  {editingContent?.video_url && !videoFile && (
-                    <p className="text-sm text-muted-foreground">
-                      Current video will be kept if no new file is uploaded
-                    </p>
-                  )}
                 </div>
-              )}
 
-              {contentType === 'text' && (
                 <div className="space-y-2">
-                  <Label htmlFor="contentText">Content Text *</Label>
+                  <Label htmlFor="description" className="text-text-main">Description</Label>
                   <Textarea
-                    id="contentText"
-                    value={contentText}
-                    onChange={(e) => setContentText(e.target.value)}
-                    required={contentType === 'text'}
-                    placeholder="Enter the text content / explanation"
-                    rows={8}
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Brief description of the content"
+                    rows={3}
+                    className="bg-background-dark border-primary/30 text-text-main"
                   />
                 </div>
-              )}
 
-              {contentType === 'animation' && (
                 <div className="space-y-2">
-                  <Label htmlFor="videoFile">Upload Animation / GIF</Label>
-                  <Input
-                    id="videoFile"
-                    type="file"
-                    accept="image/gif,video/*"
-                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                  />
+                  <Label htmlFor="contentType" className="text-text-main">Content Type *</Label>
+                  <Select
+                    value={contentType}
+                    onValueChange={(value) => setContentType(value as 'video' | 'animation' | 'text')}
+                  >
+                    <SelectTrigger className="bg-background-dark border-primary/30 text-text-main">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-surface-dark border-primary/30">
+                      <SelectItem value="text">Text / Paragraph</SelectItem>
+                      <SelectItem value="video">Video</SelectItem>
+                      <SelectItem value="animation">Animation / GIF</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="displayOrder">Display Order</Label>
-                <Input
-                  id="displayOrder"
-                  type="number"
-                  value={displayOrder}
-                  onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                />
-                <p className="text-xs text-muted-foreground">Lower numbers appear first</p>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="published"
-                  checked={published}
-                  onCheckedChange={setPublished}
-                />
-                <Label htmlFor="published">Published</Label>
-              </div>
-
-              <div className="flex gap-2 justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setIsDialogOpen(false);
-                    resetForm();
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    'Save Content'
-                  )}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="grid gap-6">
-        {contents.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">No content yet. Create your first educational content!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          contents.map((content) => (
-            <Card key={content.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      {getContentIcon(content.content_type)}
-                      <CardTitle>{content.title}</CardTitle>
-                      {!content.published && (
-                        <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded">
-                          Draft
-                        </span>
-                      )}
-                    </div>
-                    {content.description && (
-                      <p className="text-sm text-muted-foreground">{content.description}</p>
+                {contentType === 'video' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="videoFile" className="text-text-main">Upload Video</Label>
+                    <Input
+                      id="videoFile"
+                      type="file"
+                      accept="video/*"
+                      onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                      className="bg-background-dark border-primary/30 text-text-main"
+                    />
+                    {editingContent?.video_url && !videoFile && (
+                      <p className="text-sm text-text-muted">
+                        Current video will be kept if no new file is uploaded
+                      </p>
                     )}
-                    <p className="text-xs text-muted-foreground">Order: {content.display_order}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(content)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(content.id, content.video_url)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                )}
+
+                {contentType === 'text' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="contentText" className="text-text-main">Content Text *</Label>
+                    <Textarea
+                      id="contentText"
+                      value={contentText}
+                      onChange={(e) => setContentText(e.target.value)}
+                      required={contentType === 'text'}
+                      placeholder="Enter the text content / explanation"
+                      rows={8}
+                      className="bg-background-dark border-primary/30 text-text-main"
+                    />
                   </div>
+                )}
+
+                {contentType === 'animation' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="videoFile" className="text-text-main">Upload Animation / GIF</Label>
+                    <Input
+                      id="videoFile"
+                      type="file"
+                      accept="image/gif,video/*"
+                      onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                      className="bg-background-dark border-primary/30 text-text-main"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="displayOrder" className="text-text-main">Display Order</Label>
+                  <Input
+                    id="displayOrder"
+                    type="number"
+                    value={displayOrder}
+                    onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
+                    placeholder="0"
+                    className="bg-background-dark border-primary/30 text-text-main"
+                  />
+                  <p className="text-xs text-text-muted">Lower numbers appear first</p>
                 </div>
-              </CardHeader>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="published"
+                    checked={published}
+                    onCheckedChange={setPublished}
+                  />
+                  <Label htmlFor="published" className="text-text-main">Published</Label>
+                </div>
+
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsDialogOpen(false);
+                      resetForm();
+                    }}
+                    className="border-primary/30 text-text-main hover:bg-primary/10"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-background-dark">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Content'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="grid gap-6">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : contents.length === 0 ? (
+            <Card className="border-primary/20 bg-surface-dark/50">
+              <CardContent className="py-12 text-center">
+                <p className="text-text-muted">No content yet. Create your first educational content!</p>
+              </CardContent>
             </Card>
-          ))
-        )}
-      </div>
-    </div>
+          ) : (
+            contents.map((content) => (
+              <Card key={content.id} className="border-primary/20 bg-surface-dark/50">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-primary">{getContentIcon(content.content_type)}</span>
+                        <CardTitle className="text-text-main">{content.title}</CardTitle>
+                        {!content.published && (
+                          <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded">
+                            Draft
+                          </span>
+                        )}
+                      </div>
+                      {content.description && (
+                        <p className="text-sm text-text-muted">{content.description}</p>
+                      )}
+                      <p className="text-xs text-text-muted">Order: {content.display_order}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(content)}
+                        className="border-primary/30 text-text-main hover:bg-primary/10"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(content.id, content.video_url)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))
+          )}
+        </div>
+      </motion.div>
+    </AdminLayout>
   );
 };
 

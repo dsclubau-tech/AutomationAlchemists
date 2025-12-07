@@ -12,11 +12,159 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Loading screen styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.4s ease-out;
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loading-logo {
+            width: 100px;
+            height: 100px;
+            animation: pulse 1.5s ease-in-out infinite;
+            margin-bottom: 16px;
+        }
+
+        #loading-text {
+            color: #d4af37;
+            font-family: 'Inter', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Gears Container */
+        .gears-container {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 80px;
+            height: 50px;
+        }
+
+        /* Gear styles */
+        .gear {
+            fill: none;
+            stroke: #d4af37;
+            stroke-width: 2;
+        }
+
+        .gear-large {
+            width: 45px;
+            height: 45px;
+            animation: rotate-cw 2s linear infinite;
+            position: absolute;
+            left: 0;
+        }
+
+        .gear-small {
+            width: 30px;
+            height: 30px;
+            animation: rotate-ccw 1.5s linear infinite;
+            position: absolute;
+            right: 5px;
+            top: 2px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.85;
+            }
+        }
+
+        @keyframes rotate-cw {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes rotate-ccw {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <!-- Logo -->
+        <img id="loading-logo" src="/logo.png" alt="AAlchemists Logo" onerror="this.style.display='none'">
+
+        <!-- Text -->
+        <div id="loading-text">AAlchemists</div>
+
+        <!-- Animated Gears -->
+        <div class="gears-container">
+            <!-- Large Gear -->
+            <svg class="gear gear-large" viewBox="0 0 100 100">
+                <path
+                    d="M50 15 L53 15 L55 5 L60 5 L62 15 L65 16 L72 8 L77 12 L71 20 L73 23 L83 20 L86 25 L77 30 L78 33 L88 35 L88 40 L78 42 L77 45 L86 52 L82 57 L73 52 L70 55 L75 65 L70 68 L63 60 L60 61 L60 72 L55 72 L53 62 L50 62 L47 72 L42 72 L42 61 L39 60 L32 68 L27 65 L32 55 L29 52 L20 57 L16 52 L25 45 L24 42 L14 40 L14 35 L24 33 L25 30 L16 25 L19 20 L29 23 L31 20 L25 12 L30 8 L37 16 L40 15 L42 5 L47 5 L49 15 Z"
+                    stroke="#d4af37" stroke-width="2" fill="none" />
+                <circle cx="50" cy="38" r="12" stroke="#d4af37" stroke-width="2" fill="none" />
+            </svg>
+
+            <!-- Small Gear -->
+            <svg class="gear gear-small" viewBox="0 0 100 100">
+                <path
+                    d="M50 20 L54 20 L56 10 L62 10 L64 20 L68 22 L76 14 L82 20 L74 28 L76 32 L86 34 L86 40 L76 42 L74 46 L82 54 L76 60 L68 52 L64 54 L62 64 L56 64 L54 54 L50 54 L46 64 L40 64 L38 54 L34 52 L26 60 L20 54 L28 46 L26 42 L16 40 L16 34 L26 32 L28 28 L20 20 L26 14 L34 22 L38 20 L40 10 L46 10 L48 20 Z"
+                    stroke="#d4af37" stroke-width="2" fill="none" />
+                <circle cx="50" cy="37" r="10" stroke="#d4af37" stroke-width="2" fill="none" />
+            </svg>
+        </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+        // Hide loading screen when app is ready
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                var loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('fade-out');
+                    setTimeout(function () {
+                        loadingScreen.style.display = 'none';
+                    }, 400);
+                }
+            }, 300);
+        });
+    </script>
 </body>
 
 </html>

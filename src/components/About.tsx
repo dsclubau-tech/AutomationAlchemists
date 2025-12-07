@@ -1,7 +1,55 @@
-import { motion } from "framer-motion";
+import { motion, useSpring, useTransform } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Award, Users, Globe, Hourglass } from "lucide-react";
+
+// Animated counter component
+const AnimatedNumber = ({ value, suffix = "", duration = 2 }: { value: number; suffix?: string; duration?: number }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    if (isInView) {
+      let startTime: number;
+      const animate = (currentTime: number) => {
+        if (!startTime) startTime = currentTime;
+        const progress = Math.min((currentTime - startTime) / (duration * 1000), 1);
+
+        // Easing function for smooth deceleration
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        setDisplayValue(Math.floor(easeOutQuart * value));
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setDisplayValue(value);
+        }
+      };
+      requestAnimationFrame(animate);
+    }
+  }, [isInView, value, duration]);
+
+  return (
+    <span ref={ref}>
+      {displayValue}{suffix}
+    </span>
+  );
+};
+
+// Parse value to extract number and suffix (e.g., "500+ Hours" -> { num: 500, suffix: "+ Hours" })
+const parseValue = (value: string): { hasNumber: boolean; num: number; prefix: string; suffix: string } => {
+  const match = value.match(/^(\D*)(\d+)(.*)$/);
+  if (match) {
+    return {
+      hasNumber: true,
+      prefix: match[1] || "",
+      num: parseInt(match[2], 10),
+      suffix: match[3] || ""
+    };
+  }
+  return { hasNumber: false, num: 0, prefix: "", suffix: value };
+};
 
 const stats = [
   { icon: Users, label: "Ecommerce Expertise", value: "5+ Years" },
@@ -40,23 +88,36 @@ const About = () => {
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-3 gap-6 items-stretch">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="flex flex-col gap-3 sm:gap-4 rounded-2xl border border-primary/20 bg-surface-dark p-4 sm:p-5 hover:border-primary/40 transition-all h-full"
-            >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <stat.icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <h2 className="text-white text-base sm:text-lg font-bold font-display">{stat.value}</h2>
-                <p className="text-white/70 text-xs sm:text-sm font-normal leading-relaxed font-display">{stat.label}</p>
-              </div>
-            </motion.div>
-          ))}
+          {stats.map((stat, index) => {
+            const parsed = parseValue(stat.value);
+
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="flex flex-col gap-3 sm:gap-4 rounded-2xl border border-primary/20 bg-surface-dark p-4 sm:p-5 hover:border-primary/40 transition-all h-full"
+              >
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <stat.icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-white text-base sm:text-lg font-bold font-display">
+                    {parsed.hasNumber ? (
+                      <>
+                        {parsed.prefix}
+                        <AnimatedNumber value={parsed.num} suffix={parsed.suffix} duration={2} />
+                      </>
+                    ) : (
+                      stat.value
+                    )}
+                  </h2>
+                  <p className="text-white/70 text-xs sm:text-sm font-normal leading-relaxed font-display">{stat.label}</p>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

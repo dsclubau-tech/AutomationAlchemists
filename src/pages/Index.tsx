@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import About from "@/components/About";
 import FileUpload from "@/components/FileUpload";
 import Footer from "@/components/Footer";
+import PageLoader from "@/components/PageLoader";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -28,6 +29,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
+      <PageLoader pageName="Home" />
       <Navigation />
 
       <Hero />

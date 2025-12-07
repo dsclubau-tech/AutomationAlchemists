@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import PageLoader from "@/components/PageLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +12,7 @@ import { ExpandableContactForm } from "@/components/ExpandableContactForm";
 const ContactPage = () => {
     return (
         <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
+            <PageLoader pageName="Contact" />
             <Navigation />
 
             {/* Fractal Corner Frames */}
