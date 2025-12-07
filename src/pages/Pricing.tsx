@@ -226,7 +226,7 @@ const Pricing = () => {
                                                     <ExpandableCard
                                                         className={`bg-surface-dark/50 border-primary/20 hover:border-primary/40 w-full max-w-[340px] sm:max-w-none ${plan.is_popular ? 'ring-1 ring-primary/50' : ''}`}
                                                         collapsedSize={{ width: 300, height: 320 }}
-                                                        expandedSize={{ width: 340, height: 600 }}
+                                                        expandedSize={{ width: 340, height: "auto" }}
                                                         hoverToExpand={true}
                                                         expandDelay={200}
                                                         collapseDelay={300}
@@ -269,7 +269,7 @@ const Pricing = () => {
                                                             </div>
                                                         </ExpandableCardHeader>
 
-                                                        <ExpandableCardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+                                                        <ExpandableCardContent className="px-4 sm:px-6 flex-1">
                                                             <p className="text-text-muted text-xs sm:text-sm font-normal leading-normal font-display mb-3 sm:mb-4">
                                                                 {isExpanded ? plan.description : (plan.short_description || plan.description)}
                                                             </p>
@@ -291,7 +291,8 @@ const Pricing = () => {
                                                                     ))}
                                                                 </div>
 
-                                                                <div className="mt-4 sm:mt-6 space-y-2">
+                                                                {/* Consistent spacing: mt-6 from last feature to button */}
+                                                                <div className="mt-6">
                                                                     <Link to="/contact" className="block">
                                                                         <Button className="w-full bg-primary text-background-dark hover:brightness-110 transition-all font-display text-xs sm:text-sm h-9 sm:h-10">
                                                                             <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
@@ -304,7 +305,7 @@ const Pricing = () => {
 
                                                         {/* Collapsed state hint - always visible when not expanded */}
                                                         {!isExpanded && (
-                                                            <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
+                                                            <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2 mt-auto">
                                                                 <div className="flex items-center justify-between w-full text-[10px] sm:text-xs text-text-muted font-display border-t border-primary/10 pt-3">
                                                                     <span>Hover to expand</span>
                                                                     <span className="text-primary">↓</span>
@@ -314,7 +315,7 @@ const Pricing = () => {
 
                                                         {/* Expanded state hint - only shows when expanded */}
                                                         <ExpandableContent preset="slide-up">
-                                                            <ExpandableCardFooter className="px-4 sm:px-6 pb-4 sm:pb-6 pt-0">
+                                                            <ExpandableCardFooter className="px-4 sm:px-6 pb-4 sm:pb-6 pt-4 mt-auto">
                                                                 <div className="flex items-center justify-between w-full text-[10px] sm:text-xs text-text-muted font-display border-t border-primary/10 pt-3">
                                                                     <span>Hover to collapse</span>
                                                                     <span className="text-primary">↑</span>

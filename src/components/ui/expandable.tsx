@@ -75,8 +75,8 @@ export function ExpandableTrigger({ children, className }: ExpandableTriggerProp
 interface ExpandableCardProps {
     children: React.ReactNode
     className?: string
-    collapsedSize?: { width: number; height: number }
-    expandedSize?: { width: number; height: number }
+    collapsedSize?: { width: number | "auto"; height: number | "auto" }
+    expandedSize?: { width: number | "auto"; height: number | "auto" }
     hoverToExpand?: boolean
     expandDelay?: number
     collapseDelay?: number
@@ -111,16 +111,20 @@ export function ExpandableCard({
         }
     }
 
+    // Determine width and height values
+    const width = isExpanded ? expandedSize.width : collapsedSize.width
+    const height = isExpanded ? expandedSize.height : collapsedSize.height
+
     return (
         <motion.div
-            className={`cursor-pointer overflow-hidden rounded-xl border bg-card text-card-foreground shadow ${className}`}
+            className={`cursor-pointer overflow-hidden rounded-xl border bg-card text-card-foreground shadow flex flex-col ${className}`}
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             initial={false}
             animate={{
-                width: isExpanded ? expandedSize.width : collapsedSize.width,
-                height: isExpanded ? expandedSize.height : collapsedSize.height,
+                width: width === "auto" ? "auto" : width,
+                height: height === "auto" ? "auto" : height,
             }}
             transition={{
                 type: "spring",
