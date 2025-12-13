@@ -296,15 +296,8 @@
         min-height: 44px;
     }
 
-    /* Prevent Horizontal Overflow */
-    html,
-    body {
-        overflow-x: hidden;
-    }
-
     .container {
         max-width: 100%;
-        overflow-x: hidden;
     }
 
     /* Mobile-First Spacing */
@@ -314,4 +307,21 @@
             padding-right: 1rem;
         }
     }
+}
+
+/* Prevent Horizontal Overflow & Scrollbar Flicker - Outside layer for priority */
+html {
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+}
+
+body {
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Force no horizontal scroll on any element that might cause flicker */
+#root {
+    overflow-x: hidden;
+    max-width: 100vw;
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, LogOut, User, ArrowRight, Shield } from "lucide-react";
+import { Menu, X, LogOut, User, ArrowRight, Shield, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -167,49 +167,108 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                             <User className="h-8 w-8 text-primary" />
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56 bg-surface-dark border-primary/20 text-text-main rounded-2xl shadow-singularity" align="end" forceMount>
-                                        <DropdownMenuLabel className="font-normal">
-                                            <div className="flex flex-col space-y-1">
-                                                <p className="text-sm font-medium leading-none font-display text-white">{user.user_metadata.full_name || 'User'}</p>
-                                                <p className="text-xs leading-none text-muted-foreground font-display">
-                                                    {user.email}
+                                    <DropdownMenuContent className="w-64 bg-surface-dark border-primary/20 text-text-main rounded-xl shadow-singularity p-0 z-[200]" align="end" sideOffset={8} forceMount>
+                                        {/* Header with greeting */}
+                                        <div className="px-4 py-3 border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
+                                            <p className="text-sm font-semibold text-primary font-display">
+                                                Hello, {user.user_metadata.full_name?.split(' ')[0] || 'User'}
+                                            </p>
+                                            <p className="text-xs text-text-muted font-display truncate">
+                                                {user.email}
+                                            </p>
+                                        </div>
+
+                                        {/* Admin Section - Only for admins */}
+                                        {isAdmin && (
+                                            <div className="p-2">
+                                                <p className="px-2 py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                                    Admin
                                                 </p>
+                                                <Link to="/admin" onClick={() => { }} className="block">
+                                                    <DropdownMenuItem className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                                        <Shield className="mr-2 h-4 w-4 text-primary" />
+                                                        <span>Admin Dashboard</span>
+                                                    </DropdownMenuItem>
+                                                </Link>
                                             </div>
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator className="bg-primary/20" />
-                                        <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-400/10 cursor-pointer font-display rounded-xl">
-                                            <LogOut className="mr-2 h-4 w-4" />
-                                            <span>Sign out</span>
-                                        </DropdownMenuItem>
+                                        )}
+
+                                        {isAdmin && <DropdownMenuSeparator className="bg-primary/20" />}
+
+                                        {/* Sign Out */}
+                                        <div className="p-2">
+                                            <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-400/10 cursor-pointer font-display rounded-lg px-3 py-2">
+                                                <LogOut className="mr-2 h-4 w-4" />
+                                                <span>Sign out</span>
+                                            </DropdownMenuItem>
+                                        </div>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             ) : (
-                                <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
+                                <Button
+                                    onClick={() => navigate('/auth')}
+                                    className="relative rounded-full px-8 py-6 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-black font-bold font-display shadow-lg hover:shadow-xl hover:shadow-primary/50 transition-all duration-300 overflow-hidden group hover:scale-105"
                                 >
-                                    <Button
-                                        onClick={() => navigate('/auth')}
-                                        className="relative rounded-full px-8 py-6 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-black font-bold font-display shadow-lg hover:shadow-xl hover:shadow-primary/50 transition-all duration-300 overflow-hidden group"
-                                    >
-                                        {/* Animated background shimmer */}
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                    {/* Animated background shimmer */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
-                                        {/* Pulse ring */}
-                                        <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-0 group-hover:opacity-100"></div>
-
-                                        <span className="relative z-10">Book a Free Roadmap Call</span>
-                                    </Button>
-                                </motion.div>
+                                    <span className="relative z-10">Book a Free Roadmap Call</span>
+                                </Button>
                             )}
                         </div>
                     )}
 
                     {/* Mobile Menu Button */}
                     <div className="lg:hidden flex items-center gap-2">
+                        {/* Mobile User Icon - only when signed in */}
+                        {user && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+                                        <User className="h-6 w-6" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-64 bg-surface-dark border-primary/20 text-text-main rounded-xl shadow-singularity p-0 z-[200]" align="end" sideOffset={8} forceMount>
+                                    {/* Header with greeting */}
+                                    <div className="px-4 py-3 border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
+                                        <p className="text-sm font-semibold text-primary font-display">
+                                            Hello, {user.user_metadata.full_name?.split(' ')[0] || 'User'}
+                                        </p>
+                                        <p className="text-xs text-text-muted font-display truncate">
+                                            {user.email}
+                                        </p>
+                                    </div>
+
+                                    {/* Admin Section - Only for admins */}
+                                    {isAdmin && (
+                                        <div className="p-2">
+                                            <p className="px-2 py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                                Admin
+                                            </p>
+                                            <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block">
+                                                <DropdownMenuItem className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                                    <Shield className="mr-2 h-4 w-4 text-primary" />
+                                                    <span>Admin Dashboard</span>
+                                                </DropdownMenuItem>
+                                            </Link>
+                                        </div>
+                                    )}
+
+                                    {isAdmin && <DropdownMenuSeparator className="bg-primary/20" />}
+
+                                    {/* Sign Out */}
+                                    <div className="p-2">
+                                        <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-400/10 cursor-pointer font-display rounded-lg px-3 py-2">
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            <span>Sign out</span>
+                                        </DropdownMenuItem>
+                                    </div>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
 
                         <button
-                            className="text-foreground"
+                            className="text-foreground p-2"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         >
                             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
