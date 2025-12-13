@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
 import SEOHead from "@/components/SEOHead";
 import Testimonials from "@/components/Testimonials";
+import Newsletter from "@/components/Newsletter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -81,6 +82,8 @@ const Index = () => {
         </section>
 
         <Testimonials />
+
+        <Newsletter />
 
         <Footer />
       </div>
