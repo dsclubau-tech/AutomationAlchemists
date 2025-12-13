@@ -51,6 +51,8 @@ type Service = {
     video_url: string | null;
     display_order: number | null;
     is_active: boolean | null;
+    quote: string | null;
+    visual_tags: string[] | null;
     created_at: string;
     updated_at: string;
 };
@@ -80,6 +82,10 @@ const AdminServices = () => {
 
     // Form state - Detailed Content
     const [detailedContent, setDetailedContent] = useState('');
+
+    // Form state - New section format fields
+    const [quote, setQuote] = useState('');
+    const [visualTags, setVisualTags] = useState('');
 
     const fetchServices = useCallback(async () => {
         setIsLoading(true);
@@ -139,6 +145,8 @@ const AdminServices = () => {
         setIsActive(true);
         setVideoUrl('');
         setImages('');
+        setQuote('');
+        setVisualTags('');
         setEditingService(null);
     };
 
@@ -156,6 +164,8 @@ const AdminServices = () => {
         setIsActive(service.is_active !== false);
         setVideoUrl(service.video_url || '');
         setImages(service.images?.join('\n') || '');
+        setQuote(service.quote || '');
+        setVisualTags(service.visual_tags?.join('\n') || '');
         setIsDialogOpen(true);
     };
 
@@ -203,6 +213,8 @@ const AdminServices = () => {
                 is_active: isActive,
                 video_url: videoUrl || null,
                 images: images.split('\n').filter(i => i.trim()) || null,
+                quote: quote || null,
+                visual_tags: visualTags.split('\n').filter(t => t.trim()) || null,
             };
 
             let error;
@@ -329,15 +341,40 @@ const AdminServices = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="features" className="text-text-main">Features (one per line)</Label>
+                                            <Label htmlFor="features" className="text-text-main">Features (one per line, max 4 recommended)</Label>
                                             <Textarea
                                                 id="features"
                                                 value={features}
                                                 onChange={(e) => setFeatures(e.target.value)}
-                                                placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
+                                                placeholder="Feature 1&#10;Feature 2&#10;Feature 3&#10;Feature 4"
                                                 rows={4}
                                                 className="bg-background-dark border-primary/30 text-text-main"
                                             />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="quote" className="text-text-main">Quote (for section display)</Label>
+                                            <Input
+                                                id="quote"
+                                                value={quote}
+                                                onChange={(e) => setQuote(e.target.value)}
+                                                placeholder="e.g., Stop bragging about working 80 hours..."
+                                                className="bg-background-dark border-primary/30 text-text-main"
+                                            />
+                                            <p className="text-xs text-text-muted">Inspirational quote displayed in the service section.</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="visualTags" className="text-text-main">Visual Tags (one per line)</Label>
+                                            <Textarea
+                                                id="visualTags"
+                                                value={visualTags}
+                                                onChange={(e) => setVisualTags(e.target.value)}
+                                                placeholder="Zapier&#10;Make&#10;n8n&#10;AI Agents"
+                                                rows={3}
+                                                className="bg-background-dark border-primary/30 text-text-main"
+                                            />
+                                            <p className="text-xs text-text-muted">Tags shown in the visual element (e.g., tool names, integrations).</p>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">

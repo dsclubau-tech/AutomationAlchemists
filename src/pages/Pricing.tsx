@@ -214,7 +214,7 @@ const Pricing = () => {
                                         initial={{ opacity: 0, y: 50 }}
                                         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                                         transition={{ duration: 0.6, delay: index * 0.1 }}
-                                        className="w-full max-w-[340px]"
+                                        className="w-full"
                                     >
                                         <Expandable
                                             expandDirection="both"
@@ -224,9 +224,9 @@ const Pricing = () => {
                                             {({ isExpanded }) => (
                                                 <ExpandableTrigger>
                                                     <ExpandableCard
-                                                        className={`bg-surface-dark/50 border-primary/20 hover:border-primary/40 w-full max-w-[340px] sm:max-w-none ${plan.is_popular ? 'ring-1 ring-primary/50' : ''}`}
-                                                        collapsedSize={{ width: 300, height: 320 }}
-                                                        expandedSize={{ width: 340, height: "auto" }}
+                                                        className={`bg-surface-dark/50 border-primary/20 hover:border-primary/40 w-full ${plan.is_popular ? 'ring-1 ring-primary/50' : ''}`}
+                                                        collapsedSize={{ width: "auto", height: 320 }}
+                                                        expandedSize={{ width: "auto", height: "auto" }}
                                                         hoverToExpand={true}
                                                         expandDelay={200}
                                                         collapseDelay={300}

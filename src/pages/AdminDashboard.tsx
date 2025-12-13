@@ -5,9 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, User, Calendar, Paperclip, Download, Trash2, FileDown } from 'lucide-react';
+import { Mail, User, Calendar, Paperclip, Download, Trash2, FileDown, Eye, Loader2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { analytics } from '@/utils/analytics';
 import AdminLayout from '@/components/AdminLayout';
 
@@ -16,6 +19,9 @@ interface Contact {
   name: string;
   email: string;
   message: string;
+  use_case?: string | null;
+  team_size?: string | null;
+  status?: string;
   attachments: string[] | null;
   user_id: string | null;
   created_at: string;
@@ -25,6 +31,8 @@ const AdminDashboard = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,7 +41,8 @@ const AdminDashboard = () => {
 
   const fetchContacts = useCallback(async () => {
     try {
-      const { data: contactsData, error: contactsError } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: contactsData, error: contactsError } = await (supabase as any)
         .from('contacts')
         .select('*')
         .order('created_at', { ascending: false });
@@ -77,6 +86,54 @@ const AdminDashboard = () => {
     }
   };
 
+  const deleteContact = async (id: string) => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from('contacts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setContacts(contacts.filter(c => c.id !== id));
+      toast({
+        title: 'Contact deleted',
+        description: 'The contact submission has been removed.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to delete contact',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const updateContactStatus = async (id: string, status: string) => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from('contacts')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setContacts(contacts.map(c => c.id === id ? { ...c, status } : c));
+      toast({
+        title: 'Status updated',
+        description: `Contact marked as ${status}.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to update status',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const toggleContactSelection = (contactId: string) => {
     const newSelected = new Set(selectedContacts);
     if (newSelected.has(contactId)) {
@@ -99,7 +156,8 @@ const AdminDashboard = () => {
     if (selectedContacts.size === 0) return;
 
     try {
-      const { error } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
         .from('contacts')
         .delete()
         .in('id', Array.from(selectedContacts));
@@ -123,16 +181,20 @@ const AdminDashboard = () => {
   };
 
   const handleBulkExport = () => {
-    if (selectedContacts.size === 0) return;
+    const dataToExport = selectedContacts.size > 0
+      ? contacts.filter(c => selectedContacts.has(c.id))
+      : contacts;
 
-    const selectedData = contacts.filter(c => selectedContacts.has(c.id));
     const csv = [
-      ['Name', 'Email', 'Message', 'Date'].join(','),
-      ...selectedData.map(c => [
-        c.name,
-        c.email,
+      ['Name', 'Email', 'Message', 'Use Case', 'Team Size', 'Status', 'Date'].join(','),
+      ...dataToExport.map(c => [
+        `"${c.name}"`,
+        `"${c.email}"`,
         `"${c.message.replace(/"/g, '""')}"`,
-        new Date(c.created_at).toLocaleDateString()
+        `"${c.use_case || ''}"`,
+        `"${c.team_size || ''}"`,
+        `"${c.status || 'new'}"`,
+        `"${new Date(c.created_at).toLocaleDateString()}"`,
       ].join(','))
     ].join('\n');
 
@@ -146,8 +208,18 @@ const AdminDashboard = () => {
 
     toast({
       title: 'Export successful',
-      description: `${selectedContacts.size} contact(s) exported`,
+      description: `${dataToExport.length} contact(s) exported`,
     });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, string> = {
+      new: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      read: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      replied: 'bg-green-500/20 text-green-400 border-green-500/30',
+      archived: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    };
+    return variants[status] || variants.new;
   };
 
   return (
@@ -160,28 +232,27 @@ const AdminDashboard = () => {
       >
         <Card className="border-primary/20 bg-surface-dark/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-text-main">
-              <Mail className="h-5 w-5 text-primary" />
-              Contact Form Submissions
-            </CardTitle>
-            <CardDescription className="text-text-muted">
-              Total submissions: {contacts.length}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {selectedContacts.size > 0 && (
-              <div className="mb-4 flex items-center gap-2 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <span className="text-sm font-medium text-text-main">
-                  {selectedContacts.size} selected
-                </span>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleBulkDelete}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-text-main">
+                  <Mail className="h-5 w-5 text-primary" />
+                  Contact Form Submissions
+                </CardTitle>
+                <CardDescription className="text-text-muted">
+                  Total submissions: {contacts.length}
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                {selectedContacts.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBulkDelete}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete ({selectedContacts.size})
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
@@ -189,11 +260,17 @@ const AdminDashboard = () => {
                   className="border-primary/30 text-text-main hover:bg-primary/10"
                 >
                   <FileDown className="h-4 w-4 mr-2" />
-                  Export
+                  Export CSV
                 </Button>
               </div>
-            )}
-            {contacts.length === 0 ? (
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : contacts.length === 0 ? (
               <div className="text-center py-12">
                 <Mail className="h-12 w-12 mx-auto text-text-muted mb-4" />
                 <p className="text-text-muted">
@@ -213,10 +290,11 @@ const AdminDashboard = () => {
                       </TableHead>
                       <TableHead className="text-text-muted">Name</TableHead>
                       <TableHead className="text-text-muted">Email</TableHead>
-                      <TableHead className="text-text-muted">Message</TableHead>
-                      <TableHead className="text-text-muted">Type</TableHead>
+                      <TableHead className="text-text-muted">Use Case</TableHead>
+                      <TableHead className="text-text-muted">Status</TableHead>
                       <TableHead className="text-text-muted">Attachments</TableHead>
                       <TableHead className="text-text-muted">Date</TableHead>
+                      <TableHead className="text-text-muted text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -242,21 +320,13 @@ const AdminDashboard = () => {
                             {contact.email}
                           </a>
                         </TableCell>
-                        <TableCell className="max-w-md text-text-muted">
-                          <p className="truncate" title={contact.message}>
-                            {contact.message}
-                          </p>
+                        <TableCell className="text-text-muted">
+                          {contact.use_case || '-'}
                         </TableCell>
                         <TableCell>
-                          {contact.user_id ? (
-                            <Badge variant="secondary" className="bg-primary/20 text-primary">
-                              Authenticated
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="border-primary/30 text-text-muted">
-                              Anonymous
-                            </Badge>
-                          )}
+                          <Badge className={getStatusBadge(contact.status || 'new')}>
+                            {contact.status || 'new'}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           {contact.attachments && contact.attachments.length > 0 ? (
@@ -284,6 +354,29 @@ const AdminDashboard = () => {
                             {new Date(contact.created_at).toLocaleDateString()}
                           </div>
                         </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setSelectedContact(contact);
+                                setViewDialogOpen(true);
+                              }}
+                              className="h-8 w-8 text-text-muted hover:text-text-main"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteContact(contact.id)}
+                              className="h-8 w-8 text-text-muted hover:text-red-400"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -299,12 +392,94 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-text-muted">
             <p>• Click on email addresses to compose a reply</p>
+            <p>• Use the eye icon to view full details and update status</p>
             <p>• Use the attachment download buttons to view uploaded files</p>
-            <p>• Anonymous submissions don't have a user account associated</p>
-            <p>• All attachments are stored securely in a private storage bucket</p>
+            <p>• Export all or selected contacts to CSV for external use</p>
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* View Contact Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="bg-surface-dark border-primary/20 text-text-main max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Contact Details</DialogTitle>
+            <DialogDescription className="text-text-muted">View and manage this contact submission</DialogDescription>
+          </DialogHeader>
+          {selectedContact && (
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-text-muted">Name</Label>
+                  <p className="text-text-main font-medium">{selectedContact.name}</p>
+                </div>
+                <div>
+                  <Label className="text-text-muted">Email</Label>
+                  <p className="text-text-main">{selectedContact.email}</p>
+                </div>
+                <div>
+                  <Label className="text-text-muted">Use Case</Label>
+                  <p className="text-text-main">{selectedContact.use_case || '-'}</p>
+                </div>
+                <div>
+                  <Label className="text-text-muted">Team Size</Label>
+                  <p className="text-text-main">{selectedContact.team_size || '-'}</p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-text-muted">Message</Label>
+                <p className="text-text-main whitespace-pre-wrap bg-background-dark p-4 rounded-lg mt-2 border border-primary/20">
+                  {selectedContact.message}
+                </p>
+              </div>
+              {selectedContact.attachments && selectedContact.attachments.length > 0 && (
+                <div>
+                  <Label className="text-text-muted">Attachments</Label>
+                  <div className="flex gap-2 mt-2">
+                    {selectedContact.attachments.map((path, idx) => (
+                      <Button
+                        key={idx}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadAttachment(path)}
+                        className="border-primary/30 text-primary hover:bg-primary/10"
+                      >
+                        <Paperclip className="h-4 w-4 mr-2" />
+                        Download {idx + 1}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center justify-between pt-4 border-t border-primary/20">
+                <div className="flex items-center gap-3">
+                  <Label className="text-text-muted">Status</Label>
+                  <Select
+                    value={selectedContact.status || 'new'}
+                    onValueChange={(value) => {
+                      updateContactStatus(selectedContact.id, value);
+                      setSelectedContact({ ...selectedContact, status: value });
+                    }}
+                  >
+                    <SelectTrigger className="w-32 bg-background-dark border-primary/30">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-surface-dark border-primary/20">
+                      <SelectItem value="new">New</SelectItem>
+                      <SelectItem value="read">Read</SelectItem>
+                      <SelectItem value="replied">Replied</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="text-text-muted text-sm">
+                  Submitted: {new Date(selectedContact.created_at).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

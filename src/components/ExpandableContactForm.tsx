@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/expandable-screen"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, Send, CheckCircle2, Sparkles, Zap, MessageSquare, Users } from "lucide-react"
+import { Loader2, Send, CheckCircle2, Sparkles, Zap, MessageSquare, Users, Paperclip, X } from "lucide-react"
 import { z } from "zod"
 
 // Validation schema
@@ -41,6 +41,8 @@ export function ExpandableContactForm() {
         team_size: "",
         message: "",
     })
+    const [attachments, setAttachments] = useState<File[]>([])
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }))
@@ -54,6 +56,24 @@ export function ExpandableContactForm() {
             // Validate form data
             contactSchema.parse(formData)
 
+            // Upload attachments if any
+            const attachmentPaths: string[] = []
+            for (const file of attachments) {
+                const fileExt = file.name.split('.').pop()
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+                const filePath = `contact-attachments/${fileName}`
+
+                const { error: uploadError } = await supabase.storage
+                    .from('contact-attachments')
+                    .upload(filePath, file)
+
+                if (uploadError) {
+                    console.error('Upload error:', uploadError)
+                } else {
+                    attachmentPaths.push(filePath)
+                }
+            }
+
             // Insert into Supabase contacts table
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { error } = await (supabase as any)
@@ -64,6 +84,7 @@ export function ExpandableContactForm() {
                     message: formData.message,
                     use_case: formData.use_case || null,
                     team_size: formData.team_size || null,
+                    attachments: attachmentPaths.length > 0 ? attachmentPaths : null,
                     status: "new",
                 })
 
@@ -85,6 +106,7 @@ export function ExpandableContactForm() {
                     team_size: "",
                     message: "",
                 })
+                setAttachments([])
                 setIsSuccess(false)
             }, 3000)
 
@@ -358,6 +380,56 @@ export function ExpandableContactForm() {
                                                 placeholder="Describe your automation needs, current challenges, and goals..."
                                                 className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none text-sm"
                                             />
+                                        </div>
+
+                                        {/* File Attachments */}
+                                        <div>
+                                            <Label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">
+                                                Attachments (optional, max 10MB each)
+                                            </Label>
+                                            <div className="space-y-2">
+                                                <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-50 border border-dashed border-gray-300 text-gray-600 cursor-pointer hover:bg-gray-100 hover:border-primary/50 transition-all">
+                                                    <Paperclip className="w-4 h-4" />
+                                                    <span className="text-sm">Click to attach files</span>
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const files = Array.from(e.target.files || [])
+                                                            const validFiles = files.filter(file => {
+                                                                if (file.size > MAX_FILE_SIZE) {
+                                                                    toast({
+                                                                        title: "File too large",
+                                                                        description: `${file.name} exceeds 10MB limit`,
+                                                                        variant: "destructive",
+                                                                    })
+                                                                    return false
+                                                                }
+                                                                return true
+                                                            })
+                                                            setAttachments(prev => [...prev, ...validFiles])
+                                                            e.target.value = ''
+                                                        }}
+                                                    />
+                                                </label>
+                                                {attachments.length > 0 && (
+                                                    <div className="space-y-1">
+                                                        {attachments.map((file, index) => (
+                                                            <div key={index} className="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg">
+                                                                <span className="text-sm text-gray-700 truncate max-w-[200px]">{file.name}</span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
+                                                                    className="text-gray-500 hover:text-red-500 transition-colors"
+                                                                >
+                                                                    <X className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <Button

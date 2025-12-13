@@ -24,6 +24,7 @@ import AdminPricing from "./pages/AdminPricing";
 import AdminServices from "./pages/AdminServices";
 import AdminLearn from "./pages/AdminLearn";
 import AdminContact from "./pages/AdminContact";
+import AdminNewsletter from "./pages/AdminNewsletter";
 import AdminSetup from "./pages/AdminSetup";
 import Learn from "./pages/Learn";
 import ArticleDetail from "./pages/ArticleDetail";
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/admin/services" element={<AdminServices />} />
               <Route path="/admin/learn" element={<AdminLearn />} />
               <Route path="/admin/contacts" element={<AdminContact />} />
+              <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/admin-setup" element={<AdminSetup />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

@@ -113,35 +113,83 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          id: string
+          email: string
+          subscribed_at: string | null
+          is_active: boolean | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          subscribed_at?: string | null
+          is_active?: boolean | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          subscribed_at?: string | null
+          is_active?: boolean | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
-          color_gradient: string | null
-          created_at: string | null
-          description: string
-          features: string[] | null
-          icon: string
           id: string
           title: string
+          slug: string | null
+          description: string
+          short_description: string | null
+          detailed_content: string | null
+          features: string[] | null
+          icon: string
+          color_gradient: string | null
+          display_order: number | null
+          is_active: boolean | null
+          video_url: string | null
+          images: string[] | null
+          quote: string | null
+          visual_tags: string[] | null
+          created_at: string | null
           updated_at: string | null
         }
         Insert: {
-          color_gradient?: string | null
-          created_at?: string | null
-          description: string
-          features?: string[] | null
-          icon: string
           id?: string
           title: string
+          slug?: string | null
+          description: string
+          short_description?: string | null
+          detailed_content?: string | null
+          features?: string[] | null
+          icon: string
+          color_gradient?: string | null
+          display_order?: number | null
+          is_active?: boolean | null
+          video_url?: string | null
+          images?: string[] | null
+          quote?: string | null
+          visual_tags?: string[] | null
+          created_at?: string | null
           updated_at?: string | null
         }
         Update: {
-          color_gradient?: string | null
-          created_at?: string | null
-          description?: string
-          features?: string[] | null
-          icon?: string
           id?: string
           title?: string
+          slug?: string | null
+          description?: string
+          short_description?: string | null
+          detailed_content?: string | null
+          features?: string[] | null
+          icon?: string
+          color_gradient?: string | null
+          display_order?: number | null
+          is_active?: boolean | null
+          video_url?: string | null
+          images?: string[] | null
+          quote?: string | null
+          visual_tags?: string[] | null
+          created_at?: string | null
           updated_at?: string | null
         }
         Relationships: []

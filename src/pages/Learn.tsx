@@ -280,7 +280,7 @@ const Learn = () => {
                   >
                     <Card className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border-gray-700/50 rounded-2xl overflow-hidden group hover:border-primary/60 transition-all duration-300">
                       <div className="grid md:grid-cols-2 gap-8 p-8">
-                        <div className="relative w-full h-72">
+                        <div className="relative w-full h-48 md:h-72">
                           {featuredArticle.video_url ? (
                             <div className="relative w-full h-full rounded-xl overflow-hidden bg-gray-800">
                               <HoverVideoPlayer
@@ -319,11 +319,11 @@ const Learn = () => {
 
                 {activeFilter === 'all' && allFeaturedArticles.length > 1 && (
                   <>
-                    <button onClick={goToPrevFeatured} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 bg-gray-900/90 hover:bg-primary text-white hover:text-black rounded-full flex items-center justify-center transition-all z-10">
-                      <ChevronLeft className="w-6 h-6" />
+                    <button onClick={goToPrevFeatured} className="absolute left-2 md:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-gray-900/90 hover:bg-primary text-white hover:text-black rounded-full flex items-center justify-center transition-all z-10">
+                      <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
-                    <button onClick={goToNextFeatured} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 bg-gray-900/90 hover:bg-primary text-white hover:text-black rounded-full flex items-center justify-center transition-all z-10">
-                      <ChevronRight className="w-6 h-6" />
+                    <button onClick={goToNextFeatured} className="absolute right-2 md:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-gray-900/90 hover:bg-primary text-white hover:text-black rounded-full flex items-center justify-center transition-all z-10">
+                      <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                     <div className="flex justify-center gap-2 mt-4">
                       {allFeaturedArticles.map((_, idx) => (
@@ -342,7 +342,7 @@ const Learn = () => {
             {!featuredArticle && !searchQuery && (
               <Card className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border-gray-700/50 rounded-2xl overflow-hidden">
                 <div className="grid md:grid-cols-2 gap-8 p-8">
-                  <div className="relative w-full h-72 rounded-xl overflow-hidden bg-gray-800">
+                  <div className="relative w-full h-48 md:h-72 rounded-xl overflow-hidden bg-gray-800">
                     <HoverVideoPlayer videoSrc={vaVideo} className="rounded-xl" onMiniPlayer={() => handleOpenMiniPlayer(vaVideo)} />
                   </div>
                   <div className="flex flex-col justify-center">
