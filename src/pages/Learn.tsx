@@ -299,7 +299,7 @@ const Learn = () => {
                         </div>
                         <div className="flex flex-col justify-center">
                           <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-full w-fit mb-4">Featured</span>
-                          <h2 className="text-3xl md:text-4xl font-bold mb-5 group-hover:text-primary transition-colors">{featuredArticle.title}</h2>
+                          <h2 className="text-2xl md:text-4xl font-bold mb-5 group-hover:text-primary transition-colors break-words overflow-hidden">{featuredArticle.title}</h2>
                           <p className="text-gray-300 mb-6">{featuredArticle.excerpt}</p>
                           <div className="flex items-center gap-3 mb-6">
                             <span className="text-sm text-gray-400">{getCategoryName(featuredArticle.category_id)}</span>
@@ -330,7 +330,7 @@ const Learn = () => {
                         <button
                           key={idx}
                           onClick={() => setFeaturedIndex(idx)}
-                          className={`w-2 h-2 rounded-full transition-all ${idx === featuredIndex ? 'bg-primary w-6' : 'bg-gray-600 hover:bg-gray-500'}`}
+                          className={`h-2 min-h-0 rounded-full transition-all ${idx === featuredIndex ? 'bg-primary w-6' : 'bg-gray-600 hover:bg-gray-500 w-2'}`}
                         />
                       ))}
                     </div>
@@ -347,7 +347,7 @@ const Learn = () => {
                   </div>
                   <div className="flex flex-col justify-center">
                     <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-full w-fit mb-4">Latest</span>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-5">Virtual Assistant Automation</h2>
+                    <h2 className="text-2xl md:text-4xl font-bold mb-5 break-words overflow-hidden">Virtual Assistant Automation</h2>
                     <p className="text-gray-300 mb-6">Discover how automation is redefining efficiency in business processes.</p>
                     <Link to="/contact">
                       <Button className="bg-primary text-black hover:bg-primary/90 w-fit px-6 py-6 font-semibold">
@@ -412,7 +412,7 @@ const Learn = () => {
                             <span className="text-xs text-primary font-medium">{getCategoryName(article.category_id)}</span>
                             {article.read_time && <span className="text-xs text-gray-500">• {article.read_time}</span>}
                           </div>
-                          <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors line-clamp-2">{article.title}</h3>
+                          <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors line-clamp-2 break-words">{article.title}</h3>
                           <p className="text-gray-300 text-sm mb-5 flex-1 line-clamp-3">{article.excerpt || 'Discover insights and strategies.'}</p>
                           <div className="text-primary font-semibold flex items-center">
                             Read More <ArrowRight className="ml-2 w-4 h-4" />

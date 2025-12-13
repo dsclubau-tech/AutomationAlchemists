@@ -110,14 +110,14 @@ const Testimonials = () => {
                     </div>
 
                     {/* Dots indicator */}
-                    <div className="flex justify-center gap-3 mt-8">
+                    <div className="flex justify-center gap-2 mt-8">
                         {testimonials.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => setActiveIndex(index)}
-                                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activeIndex
-                                    ? "bg-primary w-8"
-                                    : "bg-primary/30 hover:bg-primary/50"
+                                className={`h-2 min-h-0 rounded-full transition-all duration-300 ${index === activeIndex
+                                    ? "bg-primary w-6"
+                                    : "bg-primary/30 hover:bg-primary/50 w-2"
                                     }`}
                                 aria-label={`View testimonial ${index + 1}`}
                             />
