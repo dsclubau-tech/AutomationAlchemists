@@ -164,7 +164,7 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
                 <Button
                     variant="ghost"
                     className="w-full justify-start gap-3 text-text-muted hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => { handleSignOut(); isMobile && setMobileMenuOpen(false); }}
+                    onClick={() => { handleSignOut(); if (isMobile) setMobileMenuOpen(false); }}
                     title={sidebarCollapsed && !isMobile ? "Sign Out" : undefined}
                 >
                     <LogOut className="h-5 w-5" />

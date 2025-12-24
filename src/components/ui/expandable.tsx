@@ -156,9 +156,9 @@ interface ExpandableContentProps {
     stagger?: boolean
     staggerChildren?: number
     animateIn?: {
-        initial: any
-        animate: any
-        transition?: any
+        initial: any  // eslint-disable-line @typescript-eslint/no-explicit-any
+        animate: any  // eslint-disable-line @typescript-eslint/no-explicit-any
+        transition?: any  // eslint-disable-line @typescript-eslint/no-explicit-any
     }
 }
 
