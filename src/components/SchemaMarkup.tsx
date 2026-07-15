@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 interface SchemaMarkupProps {
-  type: 'Organization' | 'ProfessionalService' | 'WebSite';
+  type: 'Organization' | 'ProfessionalService' | 'WebSite' | 'FAQPage';
   data: Record<string, any>;
 }
 
