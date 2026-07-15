@@ -12,6 +12,10 @@ import ServiceDetail from "./pages/ServiceDetail";
 import VibeToApp from "./pages/VibeToApp";
 import VirtualAssistants from "./pages/VirtualAssistants";
 import WorkflowAutomation from "./pages/WorkflowAutomation";
+import WebDevelopment from "./pages/WebDevelopment";
+import AppDevelopment from "./pages/AppDevelopment";
+import SaasDevelopment from "./pages/SaasDevelopment";
+import Automation from "./pages/Automation";
 import Mission from "./pages/Mission";
 import Company from "./pages/Company";
 import Pricing from "./pages/Pricing";
@@ -53,6 +57,10 @@ const App = () => (
               <Route path="/services/vibe-to-app" element={<VibeToApp />} />
               <Route path="/services/virtual-assistants" element={<VirtualAssistants />} />
               <Route path="/services/workflow-automation" element={<WorkflowAutomation />} />
+              <Route path="/services/web-development" element={<WebDevelopment />} />
+              <Route path="/services/app-development" element={<AppDevelopment />} />
+              <Route path="/services/saas-development" element={<SaasDevelopment />} />
+              <Route path="/services/automation" element={<Automation />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/contact" element={<ContactPage />} />

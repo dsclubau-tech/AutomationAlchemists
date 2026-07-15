@@ -4,10 +4,30 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Workflow, TrendingUp, Cog, BarChart } from "lucide-react";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import SchemaMarkup from "@/components/SchemaMarkup";
 
 const WorkflowAutomation = () => {
     return (
         <div className="min-h-screen bg-background">
+            <SEOHead
+                title="Workflow Automation | AAlchemists"
+                description="Streamline your operations with intelligent workflow automation. Connect your apps and eliminate manual tasks."
+                url="https://automationalchemists.com/services/workflow-automation"
+                keywords="workflow automation, zapier, make, API integration, business automation"
+            />
+            <SchemaMarkup
+                type="ProfessionalService"
+                data={{
+                    name: "Workflow Automation",
+                    description: "Streamline your operations with intelligent workflow automation.",
+                    url: "https://automationalchemists.com/services/workflow-automation",
+                    provider: {
+                        "@type": "Organization",
+                        "name": "AAlchemists"
+                    }
+                }}
+            />
             <Navigation />
 
             {/* Hero Section */}

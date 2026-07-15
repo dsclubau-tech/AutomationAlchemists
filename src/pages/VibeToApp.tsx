@@ -4,10 +4,30 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Zap, Rocket } from "lucide-react";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import SchemaMarkup from "@/components/SchemaMarkup";
 
 const VibeToApp = () => {
     return (
         <div className="min-h-screen bg-background">
+            <SEOHead
+                title="Vibe-to-App Execution | AAlchemists"
+                description="Transform your wildest ideas into fully functional applications. No coding walls, no deploy drama."
+                url="https://automationalchemists.com/services/vibe-to-app"
+                keywords="app execution, rapid development, prototype to production, vibe to app"
+            />
+            <SchemaMarkup
+                type="ProfessionalService"
+                data={{
+                    name: "Vibe-to-App Execution",
+                    description: "Transform your wildest ideas into fully functional applications.",
+                    url: "https://automationalchemists.com/services/vibe-to-app",
+                    provider: {
+                        "@type": "Organization",
+                        "name": "AAlchemists"
+                    }
+                }}
+            />
             <Navigation />
 
             {/* Hero Section */}

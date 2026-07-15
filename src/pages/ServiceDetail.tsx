@@ -7,6 +7,8 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Check, Loader2, Code, Cloud, Smartphone, Bot, Database, Palette, Globe, Cpu, Zap, Shield, Play } from 'lucide-react';
+import SEOHead from '@/components/SEOHead';
+import SchemaMarkup from '@/components/SchemaMarkup';
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -119,6 +121,23 @@ const ServiceDetail = () => {
 
     return (
         <div className="min-h-screen bg-background-dark text-text-main overflow-x-hidden">
+            <SEOHead
+                title={`${service.title} | Custom Development Services`}
+                description={service.short_description || service.description}
+                url={`https://automationalchemists.com/services/${service.slug || service.id}`}
+            />
+            <SchemaMarkup
+                type="ProfessionalService"
+                data={{
+                    name: service.title,
+                    description: service.short_description || service.description,
+                    url: `https://automationalchemists.com/services/${service.slug || service.id}`,
+                    provider: {
+                        "@type": "Organization",
+                        "name": "AAlchemists"
+                    }
+                }}
+            />
             <Navigation />
 
             {/* Fractal Corner Frames */}
@@ -255,6 +274,7 @@ const ServiceDetail = () => {
                                     <img
                                         src={image}
                                         alt={`${service.title} - Image ${index + 1}`}
+                                        loading="lazy"
                                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                                     />
                                 </div>

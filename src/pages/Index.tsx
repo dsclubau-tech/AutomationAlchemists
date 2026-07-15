@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
+import SchemaMarkup from "@/components/SchemaMarkup";
 
 const Index = () => {
   // Handle hash navigation when page loads
@@ -33,9 +34,21 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
       <SEOHead
-        title="Home"
-        description="AAlchemists transforms your business with automation, AI, and passive income solutions. Custom-built apps, virtual assistants, and workflow automation."
-        keywords="automation, AI, virtual assistants, workflow automation, app development, passive income"
+        title="AAlchemists — Custom Web Development, App Development & SaaS Automation Agency"
+        description="AAlchemists is a global services platform specializing in web development, Android/Flutter app development, SaaS solutions, and automation consulting."
+        keywords="web development, app development, SaaS development, workflow automation, global services, Flutter, Android"
+      />
+      <SchemaMarkup
+        type="Organization"
+        data={{
+          name: "AAlchemists",
+          url: "https://automationalchemists.com",
+          logo: "https://automationalchemists.com/og-image.png",
+          description: "Global services platform for web development, Android/Flutter app development, SaaS, and automation consulting.",
+          sameAs: [
+            "https://twitter.com/AAlchemists"
+          ]
+        }}
       />
       <PageLoader pageName="Home" />
       <Navigation />

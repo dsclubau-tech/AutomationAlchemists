@@ -4,10 +4,30 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Bot, Clock, MessageSquare, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import SchemaMarkup from "@/components/SchemaMarkup";
 
 const VirtualAssistants = () => {
     return (
         <div className="min-h-screen bg-background">
+            <SEOHead
+                title="Virtual Assistants | AAlchemists"
+                description="Scale your team with elite virtual assistants. Focus on growth while we handle the rest."
+                url="https://automationalchemists.com/services/virtual-assistants"
+                keywords="virtual assistants, remote team, business scaling, administrative support"
+            />
+            <SchemaMarkup
+                type="ProfessionalService"
+                data={{
+                    name: "Virtual Assistants",
+                    description: "Scale your team with elite virtual assistants. Focus on growth while we handle the rest.",
+                    url: "https://automationalchemists.com/services/virtual-assistants",
+                    provider: {
+                        "@type": "Organization",
+                        "name": "AAlchemists"
+                    }
+                }}
+            />
             <Navigation />
 
             {/* Hero Section */}
