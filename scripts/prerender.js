@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
-import puppeteer from 'puppeteer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, '../dist');
@@ -48,12 +47,29 @@ async function prerender() {
   });
 
   try {
-    // 2. Launch Puppeteer using @sparticuz/chromium
+    // 2. Launch headless browser depending on environment
     console.log('Launching headless browser...');
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    let browser;
+    
+    if (process.env.VERCEL || process.env.CI) {
+      console.log('Detected Vercel/CI environment. Using @sparticuz/chromium...');
+      const chromium = (await import('@sparticuz/chromium')).default;
+      const puppeteerCore = (await import('puppeteer-core')).default;
+      
+      browser = await puppeteerCore.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
+    } else {
+      console.log('Detected local environment. Using standard puppeteer...');
+      const puppeteer = (await import('puppeteer')).default;
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+    }
 
     // 3. Visit each route and extract HTML
     for (const route of routes) {
