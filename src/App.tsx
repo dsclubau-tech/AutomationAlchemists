@@ -32,7 +32,6 @@ const AdminServices = lazy(() => import("./pages/AdminServices"));
 const AdminLearn = lazy(() => import("./pages/AdminLearn"));
 const AdminContact = lazy(() => import("./pages/AdminContact"));
 const AdminNewsletter = lazy(() => import("./pages/AdminNewsletter"));
-const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Learn = lazy(() => import("./pages/Learn"));
 const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
@@ -82,7 +81,6 @@ const App = () => (
                 <Route path="/admin/learn" element={<AdminLearn />} />
                 <Route path="/admin/contacts" element={<AdminContact />} />
                 <Route path="/admin/newsletter" element={<AdminNewsletter />} />
-                <Route path="/admin-setup" element={<AdminSetup />} />
                 <Route path="/tools" element={<Tools />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
