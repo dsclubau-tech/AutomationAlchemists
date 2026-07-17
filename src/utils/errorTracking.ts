@@ -1,5 +1,6 @@
 // Error tracking and logging utility
 // Integrate with Sentry or similar service by adding SENTRY_DSN to secrets
+import * as Sentry from "@sentry/react";
 
 interface ErrorLog {
   message: string;
@@ -50,9 +51,17 @@ class ErrorTracker {
 
   private async sendToBackend(errorLog: ErrorLog) {
     try {
-      // You can send errors to a backend endpoint or Sentry
-      // For now, just log them
-      console.log('Error logged:', errorLog);
+      if (import.meta.env.VITE_SENTRY_DSN) {
+        Sentry.captureException(new Error(errorLog.message), {
+          extra: {
+            context: errorLog.context,
+            stack: errorLog.stack
+          }
+        });
+      } else {
+        // Fallback or development logging
+        import.meta.env.DEV && console.log('Error logged locally:', errorLog);
+      }
     } catch (err) {
       console.error('Failed to send error log:', err);
     }
