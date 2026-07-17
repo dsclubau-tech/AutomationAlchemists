@@ -17,19 +17,17 @@ const Newsletter = () => {
 
         setIsSubscribing(true);
         try {
-            const { error } = await supabase
-                .from('newsletter_subscribers')
-                .insert([{ email: email.trim() }]);
+            const { data, error } = await supabase.functions.invoke('submit-newsletter', {
+                body: { email: email.trim() }
+            });
 
-            if (error) {
-                if (error.code === '23505') {
-                    toast({
-                        title: 'Already Subscribed',
-                        description: 'This email is already on our list!',
-                    });
-                } else {
-                    throw error;
-                }
+            if (error) throw error;
+            
+            if (data?.error === 'Already subscribed' || data?.error === 'Validation failed') {
+                toast({
+                    title: 'Already Subscribed',
+                    description: 'This email is already on our list!',
+                });
             } else {
                 toast({
                     title: 'Subscribed!',
@@ -37,10 +35,12 @@ const Newsletter = () => {
                 });
                 setEmail('');
             }
-        } catch (error) {
+        } catch (error: any) {
             toast({
                 title: 'Error',
-                description: 'Failed to subscribe. Please try again.',
+                description: error.message === 'Too many requests. Please try again later.' 
+                    ? error.message 
+                    : 'Failed to subscribe. Please try again.',
                 variant: 'destructive',
             });
         } finally {

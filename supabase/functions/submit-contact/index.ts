@@ -145,6 +145,30 @@ Deno.serve(async (req) => {
     // ============================================
     // 3. PARSE & VALIDATE REQUEST BODY
     // ============================================
+    // Rate Limiting Logic
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    
+    // Check hit count in the last hour
+    const { count, error: rlError } = await supabase
+      .from('rate_limits')
+      .select('*', { count: 'exact', head: true })
+      .eq('ip_address', ip)
+      .eq('endpoint', 'submit-contact')
+      .gte('created_at', oneHourAgo);
+
+    if (rlError) {
+      console.error('Rate limit check error:', rlError);
+    }
+
+    if (count !== null && count >= 5) {
+      console.log('🔴 Rate limit exceeded for IP:', ip);
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 }
+      );
+    }
+
     const body = await req.json();
     console.log('📝 Validating input data...');
     
@@ -178,6 +202,9 @@ Deno.serve(async (req) => {
     }
 
     console.log('✅ Contact form submitted successfully');
+
+    // Record the rate limit hit
+    await supabase.from('rate_limits').insert({ ip_address: ip, endpoint: 'submit-contact' });
 
     // ============================================
     // 5. RETURN SUCCESS RESPONSE
