@@ -17,7 +17,8 @@ const routes = [
   '/services/automation',
   '/services/vibe-to-app',
   '/services/virtual-assistants',
-  '/services/workflow-automation'
+  '/services/workflow-automation',
+  '/tools'
 ];
 
 /**

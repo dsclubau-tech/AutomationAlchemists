@@ -17,6 +17,7 @@ const routes = [
   { url: '/services/vibe-to-app', changefreq: 'monthly', priority: 0.8 },
   { url: '/services/virtual-assistants', changefreq: 'monthly', priority: 0.8 },
   { url: '/services/workflow-automation', changefreq: 'monthly', priority: 0.8 },
+  { url: '/tools', changefreq: 'monthly', priority: 0.8 },
   { url: '/company', changefreq: 'monthly', priority: 0.7 },
   { url: '/mission', changefreq: 'monthly', priority: 0.7 },
   { url: '/contact', changefreq: 'yearly', priority: 0.6 }

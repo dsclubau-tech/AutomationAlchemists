@@ -37,6 +37,7 @@ const Learn = lazy(() => import("./pages/Learn"));
 const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Tools = lazy(() => import("./pages/Tools"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -82,6 +83,7 @@ const App = () => (
                 <Route path="/admin/contacts" element={<AdminContact />} />
                 <Route path="/admin/newsletter" element={<AdminNewsletter />} />
                 <Route path="/admin-setup" element={<AdminSetup />} />
+                <Route path="/tools" element={<Tools />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

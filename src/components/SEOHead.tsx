@@ -11,6 +11,8 @@ interface SEOHeadProps {
     publishedTime?: string;
 }
 
+const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://www.automationalchemists.com').replace(/\/$/, '');
+
 const SEOHead = ({
     title,
     description,
@@ -23,7 +25,8 @@ const SEOHead = ({
 }: SEOHeadProps) => {
     const siteName = 'AAlchemists';
     const fullTitle = title === 'Home' ? siteName : `${title} | ${siteName}`;
-    const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+    const currentUrl = url || `${SITE_URL}${pathname}`;
 
     return (
         <Helmet>

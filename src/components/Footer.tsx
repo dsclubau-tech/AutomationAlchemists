@@ -54,6 +54,7 @@ const Footer = () => {
               <li><Link to="/services/vibe-to-app" className="hover:text-primary transition-colors">Vibe-to-App Execution</Link></li>
               <li><Link to="/services/virtual-assistants" className="hover:text-primary transition-colors">24/7 Virtual Assistants</Link></li>
               <li><Link to="/services/workflow-automation" className="hover:text-primary transition-colors">Workflow Automation</Link></li>
+              <li><Link to="/tools" className="hover:text-primary transition-colors">SaaS Tools</Link></li>
               <li><Link to="/mission" className="hover:text-primary transition-colors">The Mission</Link></li>
               <li><Link to="/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
               <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>

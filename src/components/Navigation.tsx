@@ -139,6 +139,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                         <Link to="/services" onClick={(e) => handleNavClick(e, '/services')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Services
                         </Link>
+                        <Link to="/tools" onClick={(e) => handleNavClick(e, '/tools')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                            Tools
+                        </Link>
                         <Link to="/pricing" onClick={(e) => handleNavClick(e, '/pricing')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Pricing
                         </Link>
@@ -295,6 +298,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                 </Link>
                                 <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Services
+                                </Link>
+                                <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
+                                    Tools
                                 </Link>
                                 <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Pricing

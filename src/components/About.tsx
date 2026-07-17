@@ -7,10 +7,13 @@ import { Award, Users, Globe, Hourglass } from "lucide-react";
 const AnimatedNumber = ({ value, suffix = "", duration = 2 }: { value: number; suffix?: string; duration?: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const [displayValue, setDisplayValue] = useState(0);
+  // Initialize to the target value so prerendered/static HTML shows real numbers
+  const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
     if (isInView) {
+      // Reset to 0 and animate up when the element scrolls into view
+      setDisplayValue(0);
       let startTime: number;
       const animate = (currentTime: number) => {
         if (!startTime) startTime = currentTime;
