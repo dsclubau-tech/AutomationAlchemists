@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "CP Bot by Automation Alchemists",
+  "short_name": "CP Bot",
+  "version": "1.0.3",
+  "description": "Copy eBay AU buyer addresses into Amazon AU checkout/address forms. Manual place-order only.",
+  "permissions": ["storage", "tabs", "webNavigation"],
+  "host_permissions": [
+    "https://*.ebay.com.au/*",
+    "https://*.amazon.com.au/*",
+    "http://localhost:3000/*",
+    "https://amazon-au-ebay-au-return-label-conv.vercel.app/*",
+    "https://amazon-au-ebay-au-return-label-converter.vercel.app/*"
+  ],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "CP Bot",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.ebay.com.au/sh/ord/*",
+        "https://*.ebay.com.au/sh/ord*",
+        "https://*.ebay.com.au/mesh/ord/details*"
+      ],
+      "js": ["content-scripts/ebay-scraper.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.amazon.com.au/gp/checkout/*", "https://*.amazon.com.au/a/addresses*", "https://*.amazon.com.au/*"],
+      "js": ["content-scripts/amazon-autofill.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.amazon.com.au/ap/signin*"
+      ],
+      "js": ["content-scripts/amazon-account-check.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://amazon-au-ebay-au-return-label-conv.vercel.app/*",
+        "https://amazon-au-ebay-au-return-label-converter.vercel.app/*"
+      ],
+      "js": ["content-scripts/webapp-bridge.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://amazon-au-ebay-au-return-label-conv.vercel.app/*",
+        "https://amazon-au-ebay-au-return-label-converter.vercel.app/*"
+      ],
+      "js": ["content-scripts/inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}
