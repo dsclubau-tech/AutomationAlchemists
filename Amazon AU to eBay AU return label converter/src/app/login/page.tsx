@@ -158,9 +158,9 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
 
             <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
               Need access?{" "}
-              <Link className="text-blue-500 hover:text-blue-600 underline transition" href="/register">
+              <a className="text-blue-500 hover:text-blue-600 underline transition" href="https://automationalchemists.com" target="_blank" rel="noopener noreferrer">
                 Create account
-              </Link>
+              </a>
             </p>
           </div>
         )}

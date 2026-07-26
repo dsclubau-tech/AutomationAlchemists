@@ -84,7 +84,7 @@ export async function signInWithPassword(formData: FormData) {
   });
 
   if (error) {
-    redirect(buildAuthErrorUrl("/login", error.message, email, next));
+    redirect(buildAuthErrorUrl("/login", "Invalid email or password", email, next));
   }
 
   redirect("/choose");
