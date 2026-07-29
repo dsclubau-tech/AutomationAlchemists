@@ -9,6 +9,8 @@ const distDir = path.resolve(__dirname, '../dist');
 // Define the routes to prerender
 const routes = [
   '/',
+  '/company',
+  '/services',
   '/services/web-development',
   '/services/app-development',
   '/services/saas-development',
@@ -16,6 +18,12 @@ const routes = [
   '/services/vibe-to-app',
   '/services/virtual-assistants',
   '/services/workflow-automation',
+  '/mission',
+  '/pricing',
+  '/contact',
+  '/learn',
+  '/terms',
+  '/privacy',
   '/tools'
 ];
 
