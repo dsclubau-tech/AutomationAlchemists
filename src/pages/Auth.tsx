@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import { z } from 'zod';
+import logo from '@/assets/logo.png';
 
 const passwordSchema = z.string()
   .min(8, 'Password must be at least 8 characters')
@@ -73,6 +71,7 @@ const Auth = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
@@ -207,206 +206,326 @@ const Auth = () => {
     }
   };
 
-  const selectClassName = "h-12 rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display w-full px-3 appearance-none cursor-pointer";
+  const labelClass = "text-[11px] text-[#888] uppercase tracking-[0.5px] font-display mb-1.5 block font-semibold";
+  const inputClass = "w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display";
+  const selectClass = "w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display appearance-none cursor-pointer";
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen w-full flex bg-[#111] overflow-hidden flex-col md:flex-row pt-[80px]">
       <Navigation hideAuthButton={true} />
+      {/* LEFT PANEL */}
+      <div className="hidden md:flex w-[45%] flex-col relative overflow-hidden bg-black border-r border-[#2a2a2a] p-12 justify-center pb-20">
+        {/* Radial gold glow */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[rgba(212,175,55,0.12)] rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        
+        <div className="relative z-10 max-w-md mx-auto w-full">
+          {/* Logo & Brand */}
+          <Link to="/" className="flex items-center gap-3 mb-12 group w-fit">
+            <img src={logo} alt="Automation Alchemists" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+            <span className="text-2xl font-bold text-white font-display tracking-tight group-hover:text-[#D4AF37] transition-colors">Automation Alchemists</span>
+          </Link>
+          
+          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 font-display leading-tight tracking-tight">Turn ideas into<br/>working software</h1>
+          
+          <p className="text-[#888] mb-12 text-lg font-display">Alchemy for the automation era: ideas → apps → passive cashflow</p>
+          
+          <div className="space-y-5 font-display">
+            <div className="flex items-center gap-4 text-[#ddd]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <span className="font-medium">Web & App Development</span>
+            </div>
+            <div className="flex items-center gap-4 text-[#ddd]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <span className="font-medium">Flutter & Android</span>
+            </div>
+            <div className="flex items-center gap-4 text-[#ddd]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <span className="font-medium">SaaS Products</span>
+            </div>
+            <div className="flex items-center gap-4 text-[#ddd]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <span className="font-medium">Workflow Automation</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <section className="pt-32 pb-20 px-6">
-        <div className="container mx-auto max-w-2xl">
+      {/* RIGHT PANEL */}
+      <div className="w-full md:w-[55%] flex flex-col items-center justify-center p-6 sm:p-12 min-h-[calc(100vh-80px)] overflow-y-auto">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="md:hidden flex items-center gap-3 mb-10">
+            <Link to="/" className="flex items-center gap-3 group">
+              <img src={logo} alt="Automation Alchemists" className="w-10 h-10 object-contain" />
+              <span className="text-xl font-bold text-white font-display tracking-tight">Automation Alchemists</span>
+            </Link>
+          </div>
+
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <Card className="border-primary/20 bg-surface-dark/50 singularity-shadow rounded-2xl backdrop-blur-sm">
-              <CardHeader className="py-8">
-                <CardTitle className="text-3xl text-center text-white font-display">
-                  {isSignUp ? 'Create Account' : 'Welcome Back'}
-                </CardTitle>
-                <CardDescription className="text-center text-white/70 font-display">
-                  {isSignUp
-                    ? 'Sign up to get started with our services'
-                    : 'Sign in to your account'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="py-8">
+            {/* Tabs */}
+            <div className="flex items-center gap-2 mb-8 pb-4 border-b border-[#2a2a2a]">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(false)}
+                className={`px-5 py-2 rounded-md text-[13px] transition-all font-display ${
+                  !isSignUp 
+                    ? 'bg-[#D4AF37] text-[#0a0a0a] font-bold' 
+                    : 'bg-transparent text-[#666] hover:text-white font-medium'
+                }`}
+              >
+                Sign in
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(true)}
+                className={`px-5 py-2 rounded-md text-[13px] transition-all font-display ${
+                  isSignUp 
+                    ? 'bg-[#D4AF37] text-[#0a0a0a] font-bold' 
+                    : 'bg-transparent text-[#666] hover:text-white font-medium'
+                }`}
+              >
+                Create account
+              </button>
+            </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {isSignUp && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName" className="text-white font-display">Full Name</Label>
-                      <Input
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {isSignUp ? (
+                // SIGN UP FORM
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="fullName" className={labelClass}>Full Name</label>
+                      <input
                         id="fullName"
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        required={isSignUp}
+                        required
                         placeholder="John Doe"
-                        className="h-12 rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
+                        className={inputClass}
                       />
                     </div>
-                  )}
+                    <div>
+                      <label htmlFor="country" className={labelClass}>Country</label>
+                      <select
+                        id="country"
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        required
+                        className={selectClass}
+                      >
+                        <option value="" disabled>Select your country</option>
+                        {COUNTRIES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-white font-display">Email</Label>
-                    <Input
+                  <div>
+                    <label htmlFor="email" className={labelClass}>Email</label>
+                    <input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="you@example.com"
-                      className="h-12 rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
+                      className={inputClass}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-white font-display">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={handlePasswordChange}
-                      required
-                      placeholder="••••••••"
-                      minLength={isSignUp ? 8 : 6}
-                      className="h-12 rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
-                    />
-                    {isSignUp && passwordErrors.length > 0 && (
-                      <div className="text-xs text-destructive space-y-1 mt-2">
+                  <div>
+                    <label htmlFor="password" className={labelClass}>Password</label>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={handlePasswordChange}
+                        required
+                        placeholder="••••••••"
+                        minLength={8}
+                        className={`${inputClass} pr-10`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#888] hover:text-white transition-colors focus:outline-none"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                    {passwordErrors.length > 0 && (
+                      <div className="text-xs text-destructive space-y-1 mt-2 font-display">
                         {passwordErrors.map((error, idx) => (
                           <div key={idx}>• {error}</div>
                         ))}
                       </div>
                     )}
-                    {isSignUp && password && passwordErrors.length === 0 && password.length >= 8 && (
-                      <div className="text-xs text-green-600 mt-2">
+                    {password && passwordErrors.length === 0 && password.length >= 8 && (
+                      <div className="text-xs text-green-500 mt-2 font-display font-medium">
                         ✓ Password meets all requirements
                       </div>
                     )}
                   </div>
 
-                  {/* New Sign Up Fields */}
-                  {isSignUp && (
-                    <>
-                      {/* Country Dropdown */}
-                      <div className="space-y-2">
-                        <Label htmlFor="country" className="text-white font-display">Country</Label>
-                        <select
-                          id="country"
-                          value={country}
-                          onChange={(e) => setCountry(e.target.value)}
-                          required
-                          className={selectClassName}
-                        >
-                          <option value="" disabled>Select your country</option>
-                          {COUNTRIES.map((c) => (
-                            <option key={c} value={c}>{c}</option>
-                          ))}
-                        </select>
-                      </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="phone" className={labelClass}>Phone (Optional)</label>
+                      <input
+                        id="phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+61 400 000 000"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="referralSource" className={labelClass}>How did you hear?</label>
+                      <select
+                        id="referralSource"
+                        value={referralSource}
+                        onChange={(e) => setReferralSource(e.target.value)}
+                        className={selectClass}
+                      >
+                        <option value="">Select (optional)</option>
+                        {REFERRAL_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
 
-                      {/* Phone Number */}
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-white font-display">Phone Number (Optional)</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+61 400 000 000"
-                          className="h-12 rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
-                        />
-                      </div>
-
-                      {/* How did you hear about us? */}
-                      <div className="space-y-2">
-                        <Label htmlFor="referralSource" className="text-white font-display">How did you hear about us?</Label>
-                        <select
-                          id="referralSource"
-                          value={referralSource}
-                          onChange={(e) => setReferralSource(e.target.value)}
-                          className={selectClassName}
-                        >
-                          <option value="">Select an option (optional)</option>
-                          {REFERRAL_OPTIONS.map((option) => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Terms & Privacy Checkbox */}
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            id="termsAccepted"
-                            checked={termsAccepted}
-                            onChange={(e) => {
-                              setTermsAccepted(e.target.checked);
-                              if (e.target.checked) setTermsError('');
-                            }}
-                            className="mt-1 h-4 w-4 rounded border-white/20 bg-input text-primary focus:ring-primary cursor-pointer accent-[#d4af37]"
-                          />
-                          <Label htmlFor="termsAccepted" className="text-white/80 font-display text-sm leading-relaxed cursor-pointer">
-                            I agree to the{' '}
-                            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light underline transition-colors">
-                              Terms of Service
-                            </a>{' '}
-                            and{' '}
-                            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light underline transition-colors">
-                              Privacy Policy
-                            </a>
-                          </Label>
-                        </div>
-                        {termsError && (
-                          <p className="text-xs text-destructive mt-1">{termsError}</p>
-                        )}
-                      </div>
-                    </>
-                  )}
+                  <div className="pt-2">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="termsAccepted"
+                        checked={termsAccepted}
+                        onChange={(e) => {
+                          setTermsAccepted(e.target.checked);
+                          if (e.target.checked) setTermsError('');
+                        }}
+                        className="mt-1 h-4 w-4 rounded border-[#2a2a2a] bg-[#1a1a1a] text-[#D4AF37] focus:ring-[#D4AF37] focus:ring-offset-0 cursor-pointer accent-[#D4AF37]"
+                      />
+                      <label htmlFor="termsAccepted" className="text-[#888] font-display text-sm leading-relaxed cursor-pointer select-none mt-[-2px]">
+                        I agree to the{' '}
+                        <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#D4AF37] transition-colors">
+                          Terms of Service
+                        </Link>{' '}
+                        and{' '}
+                        <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#D4AF37] transition-colors">
+                          Privacy Policy
+                        </Link>
+                      </label>
+                    </div>
+                    {termsError && (
+                      <p className="text-xs text-destructive mt-2 font-display">{termsError}</p>
+                    )}
+                  </div>
 
                   <Button
                     type="submit"
-                    className="w-full rounded-full gold-foil-outline relative flex h-12 cursor-pointer items-center justify-center overflow-hidden bg-background-dark px-4 text-base font-bold tracking-wider text-primary transition-all duration-300 hover:text-black group font-display"
-                    disabled={isLoading || (isSignUp && !termsAccepted)}
+                    className="w-full bg-[#D4AF37] hover:bg-[#c29f2f] text-[#0a0a0a] font-bold h-11 rounded-lg text-[14px] transition-colors font-display mt-2"
+                    disabled={isLoading || !termsAccepted}
                   >
-                    <span className="absolute inset-0 z-0 h-full w-0 bg-gradient-to-r from-primary to-primary-light transition-all duration-300 group-hover:w-full"></span>
-                    <span className="relative z-10 flex items-center gap-2">
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Please wait
-                        </>
-                      ) : (
-                        <>{isSignUp ? 'Sign Up' : 'Sign In'}</>
-                      )}
-                    </span>
+                    {isLoading ? (
+                      <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Please wait...</span>
+                    ) : (
+                      'Create Account'
+                    )}
                   </Button>
-                </form>
+                  
+                  <div className="text-center mt-4">
+                    <button 
+                      type="button"
+                      onClick={() => setIsSignUp(false)}
+                      className="text-[13px] text-[#888] hover:text-white transition-colors font-display"
+                    >
+                      Already have an account? Sign in
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // SIGN IN FORM
+                <>
+                  <div>
+                    <label htmlFor="email" className={labelClass}>Email</label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="you@example.com"
+                      className={inputClass}
+                    />
+                  </div>
 
-                <div className="mt-8 text-center">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {isSignUp
-                      ? 'Already have an account?'
-                      : "Don't have an account?"}
-                  </p>
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label htmlFor="password" className={`${labelClass} mb-0`}>Password</label>
+                      <button 
+                        type="button" 
+                        onClick={() => {/* forgot password logic */}}
+                        className="text-[11px] text-[#555] hover:text-[#D4AF37] transition-colors font-display"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                        className={`${inputClass} pr-10`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#888] hover:text-white transition-colors focus:outline-none"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
                   <Button
-                    type="button"
-                    onClick={() => setIsSignUp(!isSignUp)}
-                    variant="outline"
-                    className="rounded-full border-primary/50 text-white hover:bg-primary/10 hover:border-primary transition-all h-12 px-8 font-display"
+                    type="submit"
+                    className="w-full bg-[#D4AF37] hover:bg-[#c29f2f] text-[#0a0a0a] font-bold h-11 rounded-lg text-[14px] transition-colors font-display mt-4"
+                    disabled={isLoading}
                   >
-                    {isSignUp ? 'Sign In' : 'Sign Up'}
+                    {isLoading ? (
+                      <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Please wait...</span>
+                    ) : (
+                      'Sign In'
+                    )}
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+
+                  <div className="text-center mt-4">
+                    <button 
+                      type="button"
+                      onClick={() => setIsSignUp(true)}
+                      className="text-[13px] text-[#888] hover:text-white transition-colors font-display"
+                    >
+                      Don't have an account? Create one
+                    </button>
+                  </div>
+                </>
+              )}
+            </form>
           </motion.div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };
