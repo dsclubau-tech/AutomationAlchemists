@@ -9,6 +9,7 @@ interface SEOHeadProps {
     type?: 'website' | 'article';
     author?: string;
     publishedTime?: string;
+    noindex?: boolean;
 }
 
 const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://www.automationalchemists.com').replace(/\/$/, '');
@@ -22,6 +23,7 @@ const SEOHead = ({
     type = 'website',
     author,
     publishedTime,
+    noindex,
 }: SEOHeadProps) => {
     const siteName = 'Automation Alchemists';
     const fullTitle = title === 'Home' ? siteName : `${title} | ${siteName}`;
@@ -36,6 +38,7 @@ const SEOHead = ({
             <meta name="description" content={description} />
             {keywords && <meta name="keywords" content={keywords} />}
             <meta name="author" content={author || siteName} />
+            {noindex && <meta name="robots" content="noindex, nofollow" />}
 
             {/* Open Graph / Facebook */}
             <meta property="og:type" content={type} />

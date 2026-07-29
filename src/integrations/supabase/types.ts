@@ -128,6 +128,28 @@ export type Database = {
         }
         Relationships: []
       }
+      cp_bot_licenses: {
+        Row: {
+          id: string
+          user_id: string | null
+          email: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          email: string
+          status: string
+          user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          email?: string
+          status?: string
+          user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           id: string

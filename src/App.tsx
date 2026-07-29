@@ -26,6 +26,7 @@ const Company = lazy(() => import("./pages/Company"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminContent = lazy(() => import("./pages/AdminContent"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
@@ -39,6 +40,8 @@ const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Tools = lazy(() => import("./pages/Tools"));
+const ToolDetail = lazy(() => import("./pages/ToolDetail"));
+const Billing = lazy(() => import("./pages/Billing"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -53,7 +56,7 @@ const App = () => (
           <Sonner />
           <Analytics />
           <SpeedInsights />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ScrollToTop />
             <ScrollToTopButton />
             <Suspense fallback={<PageLoader pageName="Loading..." />}>
@@ -77,6 +80,7 @@ const App = () => (
                 <Route path="/terms" element={<TermsOfUse />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/content" element={<AdminContent />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
@@ -86,6 +90,8 @@ const App = () => (
                 <Route path="/admin/contacts" element={<AdminContact />} />
                 <Route path="/admin/newsletter" element={<AdminNewsletter />} />
                 <Route path="/tools" element={<Tools />} />
+                <Route path="/tools/:slug" element={<ToolDetail />} />
+                <Route path="/billing" element={<Billing />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
