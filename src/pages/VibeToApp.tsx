@@ -11,7 +11,7 @@ const VibeToApp = () => {
     return (
         <div className="min-h-screen bg-background">
             <SEOHead
-                title="Vibe-to-App Execution | AAlchemists"
+                title="Vibe-to-App Execution | Automation Alchemists"
                 description="Transform your wildest ideas into fully functional applications. No coding walls, no deploy drama."
                 url="https://automationalchemists.com/services/vibe-to-app"
                 keywords="app execution, rapid development, prototype to production, vibe to app"
@@ -24,7 +24,7 @@ const VibeToApp = () => {
                     url: "https://automationalchemists.com/services/vibe-to-app",
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />

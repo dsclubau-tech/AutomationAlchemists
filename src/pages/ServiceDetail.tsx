@@ -134,7 +134,7 @@ const ServiceDetail = () => {
                     url: `https://automationalchemists.com/services/${service.slug || service.id}`,
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />

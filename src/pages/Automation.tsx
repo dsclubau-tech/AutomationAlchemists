@@ -46,7 +46,7 @@ const Automation = () => {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <SEOHead
-                title="Custom Workflow Automation for Growing Businesses | AAlchemists"
+                title="Custom Workflow Automation for Growing Businesses | Automation Alchemists"
                 description="Streamline your operations with our workflow automation consulting. We integrate AI and automation tools to save time and boost efficiency."
                 url="https://automationalchemists.com/services/automation"
                 keywords="business process automation services, workflow automation agency, custom automation solutions"
@@ -59,7 +59,7 @@ const Automation = () => {
                     url: "https://automationalchemists.com/services/automation",
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />
@@ -125,7 +125,7 @@ const Automation = () => {
                                     As companies scale, their software ecosystems fracture. Sales uses Salesforce, marketing uses HubSpot, finance uses QuickBooks, and operations lives in Google Sheets. Without an automated bridge between these systems, your most expensive asset—your employees—spend hours every week manually copying and pasting data between tabs.
                                 </p>
                                 <p>
-                                    <strong>AAlchemists engineers connectivity.</strong> As a specialized workflow automation agency, we map your fragmented data silos and deploy robust integrations that run silently in the background 24/7. We replace brittle, manual human processes with deterministic logic.
+                                    <strong>Automation Alchemists engineers connectivity.</strong> As a specialized workflow automation agency, we map your fragmented data silos and deploy robust integrations that run silently in the background 24/7. We replace brittle, manual human processes with deterministic logic.
                                 </p>
                                 <p>
                                     From triggering complex onboarding sequences the moment a Stripe payment clears, to automatically enriching CRM records using AI, our custom automation solutions transform chaotic operations into streamlined, scalable systems.

@@ -18,7 +18,7 @@ const testimonials: Testimonial[] = [
         name: "Sarah Chen",
         role: "CEO",
         company: "TechFlow Solutions",
-        content: "AAlchemists transformed our operations. The virtual assistant they provided handles tasks that used to take our team hours. We've seen a 40% increase in productivity since partnering with them.",
+        content: "Automation Alchemists transformed our operations. The virtual assistant they provided handles tasks that used to take our team hours. We've seen a 40% increase in productivity since partnering with them.",
         rating: 5,
     },
     {

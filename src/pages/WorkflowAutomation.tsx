@@ -11,7 +11,7 @@ const WorkflowAutomation = () => {
     return (
         <div className="min-h-screen bg-background">
             <SEOHead
-                title="Workflow Automation | AAlchemists"
+                title="Workflow Automation | Automation Alchemists"
                 description="Streamline your operations with intelligent workflow automation. Connect your apps and eliminate manual tasks."
                 url="https://automationalchemists.com/services/workflow-automation"
                 keywords="workflow automation, zapier, make, API integration, business automation"
@@ -24,7 +24,7 @@ const WorkflowAutomation = () => {
                     url: "https://automationalchemists.com/services/workflow-automation",
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />

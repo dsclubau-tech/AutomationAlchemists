@@ -34,14 +34,14 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
       <SEOHead
-        title="AAlchemists — Custom Web Development, App Development & SaaS Automation Agency"
-        description="AAlchemists is a global services platform specializing in web development, Android/Flutter app development, SaaS solutions, and automation consulting."
+        title="Automation Alchemists — Custom Web Development, App Development & SaaS Automation Agency"
+        description="Automation Alchemists is a global services platform specializing in web development, Android/Flutter app development, SaaS solutions, and automation consulting."
         keywords="web development, app development, SaaS development, workflow automation, global services, Flutter, Android"
       />
       <SchemaMarkup
         type="Organization"
         data={{
-          name: "AAlchemists",
+          name: "Automation Alchemists",
           url: "https://automationalchemists.com",
           logo: "https://automationalchemists.com/og-image.png",
           description: "Global services platform for web development, Android/Flutter app development, SaaS, and automation consulting.",

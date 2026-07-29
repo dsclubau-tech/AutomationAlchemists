@@ -46,7 +46,7 @@ const AppDevelopment = () => {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <SEOHead
-                title="Flutter App Development for iOS & Android | AAlchemists"
+                title="Flutter App Development for iOS & Android | Automation Alchemists"
                 description="Top-tier Android and Flutter app development. We create cross-platform mobile apps with native performance to reach your global audience."
                 url="https://automationalchemists.com/services/app-development"
                 keywords="Flutter app development company, Android app development services, cross-platform mobile app development"
@@ -59,7 +59,7 @@ const AppDevelopment = () => {
                     url: "https://automationalchemists.com/services/app-development",
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />
@@ -122,7 +122,7 @@ const AppDevelopment = () => {
                                     Building for mobile used to mean a painful choice: either fund two completely separate engineering teams to build native iOS and Android apps, or settle for a sluggish, web-wrapped hybrid app that feels cheap to your users. Maintaining dual codebases means twice the bugs, twice the deployment headaches, and feature disparity between your Apple and Android users.
                                 </p>
                                 <p>
-                                    <strong>AAlchemists eliminates this friction.</strong> By leveraging Dart and the Flutter SDK, our senior developers compile a single, pristine codebase directly into native ARM machine code. Your app gets direct hardware access, fluid 60-120fps animations, and a pixel-perfect UI.
+                                    <strong>Automation Alchemists eliminates this friction.</strong> By leveraging Dart and the Flutter SDK, our senior developers compile a single, pristine codebase directly into native ARM machine code. Your app gets direct hardware access, fluid 60-120fps animations, and a pixel-perfect UI.
                                 </p>
                                 <p>
                                     As a boutique Flutter app development company, we don't just write code—we architect resilient mobile ecosystems designed for massive user acquisition and retention.

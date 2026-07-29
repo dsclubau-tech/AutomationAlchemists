@@ -49,7 +49,7 @@ const WebDevelopment = () => {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <SEOHead
-                title="Custom Web Development with Next.js & React | AAlchemists"
+                title="Custom Web Development with Next.js & React | Automation Alchemists"
                 description="Expert custom web development services. We build responsive, fast, and scalable web applications tailored to your business needs globally."
                 url="https://automationalchemists.com/services/web-development"
                 keywords="custom web development agency, Next.js/React development services, business website development"
@@ -62,7 +62,7 @@ const WebDevelopment = () => {
                     url: "https://automationalchemists.com/services/web-development",
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />
@@ -128,7 +128,7 @@ const WebDevelopment = () => {
                                     Most growing businesses inevitably hit a technological ceiling. Legacy CMS platforms become sluggish, off-the-shelf themes require fragile plugins to function, and your digital presence begins to look exactly like your competitors. This technological debt leads to poor SEO, high bounce rates, and constant security anxiety.
                                 </p>
                                 <p>
-                                    <strong>AAlchemists takes a fundamentally different approach.</strong> As a boutique agency, our founders are directly involved in your architecture. We don't farm out your vision to junior developers or rely on bloated page builders. We engineer custom web solutions from the ground up using the modern JavaScript stack.
+                                    <strong>Automation Alchemists takes a fundamentally different approach.</strong> As a boutique agency, our founders are directly involved in your architecture. We don't farm out your vision to junior developers or rely on bloated page builders. We engineer custom web solutions from the ground up using the modern JavaScript stack.
                                 </p>
                                 <p>
                                     The result? Sub-second loading speeds, unbreakable security, bespoke animations, and an administration layer custom-tailored to how your team actually works.
@@ -143,7 +143,7 @@ const WebDevelopment = () => {
                             className="bg-background-dark p-8 rounded-2xl border border-border relative overflow-hidden group"
                         >
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-20 -mt-20 transition-transform group-hover:scale-150 duration-700"></div>
-                            <h3 className="text-2xl font-bold mb-6 font-display text-white">The AAlchemists Difference</h3>
+                            <h3 className="text-2xl font-bold mb-6 font-display text-white">The Automation Alchemists Difference</h3>
                             <ul className="space-y-5">
                                 {[
                                     "Senior-level engineering on every project",

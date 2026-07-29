@@ -74,7 +74,7 @@ const ContactPage = () => {
         <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
             <SEOHead
                 title="Contact"
-                description="Get in touch with AAlchemists. We're ready to help transform your business with automation, AI, and custom solutions."
+                description="Get in touch with Automation Alchemists. We're ready to help transform your business with automation, AI, and custom solutions."
                 keywords="contact, get in touch, automation inquiry, business consultation"
             />
             <PageLoader pageName="Contact" />

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.window"]
+  },
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.81.0",
+    "zod": "https://deno.land/x/zod@v3.22.4/mod.ts"
+  },
+  "lock": false
+}

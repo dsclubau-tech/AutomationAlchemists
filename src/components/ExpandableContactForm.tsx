@@ -265,7 +265,7 @@ export function ExpandableContactForm() {
                         <div className="pt-6 mt-4 border-t border-black/10">
                             <div className="bg-black/5 rounded-2xl p-5">
                                 <p className="text-black/90 text-lg leading-relaxed mb-4 italic">
-                                    "AAlchemists transformed our operations. We saved 40+ hours per week through their automation solutions."
+                                    "Automation Alchemists transformed our operations. We saved 40+ hours per week through their automation solutions."
                                 </p>
                                 <div className="flex items-center gap-3">
                                     <div className="w-11 h-11 rounded-full bg-black/20 flex items-center justify-center text-black font-bold text-sm">

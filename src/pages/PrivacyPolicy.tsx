@@ -16,7 +16,7 @@ const PrivacyPolicy = () => {
                         className="max-w-4xl mx-auto text-center"
                     >
                         <h1 className="text-4xl md:text-5xl font-bold mb-6 font-display">
-                            <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
+                            <span className="text-primary">
                                 Privacy Policy
                             </span>
                         </h1>

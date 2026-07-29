@@ -79,7 +79,7 @@ const About = () => {
             className="text-left px-4"
           >
             <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-6 font-display">
-              About AAlchemists
+              About Automation Alchemists
             </h2>
             <p className="text-white/80 text-sm sm:text-base font-normal leading-relaxed max-w-3xl font-display">
               When your vision outgrows the limits of vibe-coded prototypes, we step in.

@@ -16,7 +16,7 @@ const TermsOfUse = () => {
                         className="max-w-4xl mx-auto text-center"
                     >
                         <h1 className="text-4xl md:text-5xl font-bold mb-6 font-display">
-                            <span className="bg-gradient-to-r from-neon-green via-cyan to-neon-bright bg-clip-text text-transparent">
+                            <span className="text-primary">
                                 Terms of Use
                             </span>
                         </h1>
@@ -40,14 +40,14 @@ const TermsOfUse = () => {
                             <div>
                                 <h2 className="text-2xl font-bold text-primary mb-4 font-display">1. Acceptance of Terms</h2>
                                 <p className="text-sm text-muted-foreground font-display">
-                                    By accessing and using AAlchemists services, you accept and agree to be bound by the terms and provision of this agreement.
+                                    By accessing and using Automation Alchemists services, you accept and agree to be bound by the terms and provision of this agreement.
                                 </p>
                             </div>
 
                             <div>
                                 <h2 className="text-2xl font-bold text-primary mb-4 font-display">2. Use License</h2>
                                 <p className="text-sm text-muted-foreground font-display mb-4">
-                                    Permission is granted to temporarily access the materials (information or software) on AAlchemists' website for personal, non-commercial transitory viewing only.
+                                    Permission is granted to temporarily access the materials (information or software) on Automation Alchemists' website for personal, non-commercial transitory viewing only.
                                 </p>
                                 <p className="text-sm text-muted-foreground font-display">
                                     This is the grant of a license, not a transfer of title, and under this license you may not:
@@ -55,7 +55,7 @@ const TermsOfUse = () => {
                                 <ul className="list-disc list-inside text-sm text-muted-foreground font-display mt-2 space-y-2">
                                     <li>Modify or copy the materials</li>
                                     <li>Use the materials for any commercial purpose or for any public display</li>
-                                    <li>Attempt to reverse engineer any software contained on AAlchemists' website</li>
+                                    <li>Attempt to reverse engineer any software contained on Automation Alchemists' website</li>
                                     <li>Remove any copyright or other proprietary notations from the materials</li>
                                 </ul>
                             </div>
@@ -63,7 +63,7 @@ const TermsOfUse = () => {
                             <div>
                                 <h2 className="text-2xl font-bold text-primary mb-4 font-display">3. Service Description</h2>
                                 <p className="text-sm text-muted-foreground font-display">
-                                    AAlchemists provides automation solutions, virtual assistants, and workflow automation services. We reserve the right to modify or discontinue services at any time without notice.
+                                    Automation Alchemists provides automation solutions, virtual assistants, and workflow automation services. We reserve the right to modify or discontinue services at any time without notice.
                                 </p>
                             </div>
 
@@ -77,14 +77,14 @@ const TermsOfUse = () => {
                             <div>
                                 <h2 className="text-2xl font-bold text-primary mb-4 font-display">5. Limitation of Liability</h2>
                                 <p className="text-sm text-muted-foreground font-display">
-                                    In no event shall AAlchemists or its suppliers be liable for any damages arising out of the use or inability to use the materials on our website or services.
+                                    In no event shall Automation Alchemists or its suppliers be liable for any damages arising out of the use or inability to use the materials on our website or services.
                                 </p>
                             </div>
 
                             <div>
                                 <h2 className="text-2xl font-bold text-primary mb-4 font-display">6. Revisions</h2>
                                 <p className="text-sm text-muted-foreground font-display">
-                                    AAlchemists may revise these terms of use at any time without notice. By using this website and our services, you are agreeing to be bound by the current version of these Terms of Use.
+                                    Automation Alchemists may revise these terms of use at any time without notice. By using this website and our services, you are agreeing to be bound by the current version of these Terms of Use.
                                 </p>
                             </div>
 

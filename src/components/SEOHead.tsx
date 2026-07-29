@@ -23,7 +23,7 @@ const SEOHead = ({
     author,
     publishedTime,
 }: SEOHeadProps) => {
-    const siteName = 'AAlchemists';
+    const siteName = 'Automation Alchemists';
     const fullTitle = title === 'Home' ? siteName : `${title} | ${siteName}`;
     const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
     const currentUrl = url || `${SITE_URL}${pathname}`;
@@ -51,7 +51,7 @@ const SEOHead = ({
             <meta property="twitter:title" content={fullTitle} />
             <meta property="twitter:description" content={description} />
             <meta property="twitter:image" content={image} />
-            <meta property="twitter:site" content="@AAlchemists" />
+            <meta property="twitter:site" content="@AutomationAlchemists" />
 
             {/* Article specific */}
             {type === 'article' && publishedTime && (

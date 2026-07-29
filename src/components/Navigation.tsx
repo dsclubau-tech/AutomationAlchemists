@@ -123,9 +123,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                     <Link to="/" className="flex items-center space-x-3 group">
                         <div className="relative">
                             <div className="absolute inset-0 bg-primary/10 rounded-full blur-md group-hover:bg-primary/20 transition-all"></div>
-                            <img src={logo} alt="AAlchemists Logo" className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain -my-2 transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(212,175,55,0.8)] brightness-110" />
+                            <img src={logo} alt="Automation Alchemists Logo" className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain -my-2 transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(212,175,55,0.8)] brightness-110" />
                         </div>
-                        <span className="text-xl sm:text-2xl md:text-2xl font-bold text-primary font-display group-hover:text-primary-light transition-colors">AAlchemists</span>
+                        <span className="text-xl sm:text-2xl md:text-2xl font-bold text-primary font-display group-hover:text-primary-light transition-colors">Automation Alchemists</span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -215,7 +215,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     {/* Animated background shimmer */}
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
-                                    <span className="relative z-10">Book a Free Roadmap Call</span>
+                                    <span className="relative z-10">Login or Register</span>
                                 </Button>
                             )}
                         </div>
@@ -337,7 +337,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                                 onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
                                                 className="w-full rounded-full py-6 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-black font-bold font-display shadow-lg hover:shadow-xl transition-all duration-300"
                                             >
-                                                Book a Free Roadmap Call
+                                                Login or Register
                                             </Button>
                                         )}
                                     </div>

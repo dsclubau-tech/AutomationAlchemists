@@ -25,14 +25,56 @@ const authSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters').optional()
 });
 
+const COUNTRIES = [
+  "Australia", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
+  "Argentina", "Armenia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
+  "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana",
+  "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon",
+  "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros",
+  "Congo (Democratic Republic)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus",
+  "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador",
+  "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+  "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece",
+  "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary",
+  "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
+  "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan",
+  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania",
+  "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
+  "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
+  "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand",
+  "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan",
+  "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland",
+  "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia",
+  "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia",
+  "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia",
+  "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka",
+  "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania",
+  "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay",
+  "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+];
+
+const REFERRAL_OPTIONS = [
+  "Facebook / Instagram",
+  "Reddit",
+  "Google Search",
+  "Friend or Referral",
+  "Other"
+];
+
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [country, setCountry] = useState('Australia');
+  const [phone, setPhone] = useState('');
+  const [referralSource, setReferralSource] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
-  const { signUp, signIn, signInWithGoogle, user } = useAuth();
+  const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -85,13 +127,40 @@ const Auth = () => {
           return;
         }
       }
+
+      // Validate country
+      if (!country) {
+        toast({
+          title: 'Validation Error',
+          description: 'Please select your country.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Validate terms
+      if (!termsAccepted) {
+        setTermsError('Please agree to the Terms of Service and Privacy Policy to continue');
+        toast({
+          title: 'Validation Error',
+          description: 'Please agree to the Terms of Service and Privacy Policy to continue',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setTermsError('');
     }
 
     setIsLoading(true);
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, fullName, {
+          country,
+          phone: phone || undefined,
+          referral_source: referralSource || undefined,
+          terms_accepted: true,
+        });
         if (error) throw error;
         toast({
           title: 'Success!',
@@ -138,6 +207,8 @@ const Auth = () => {
     }
   };
 
+  const selectClassName = "h-12 rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display w-full px-3 appearance-none cursor-pointer";
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation hideAuthButton={true} />
@@ -161,45 +232,6 @@ const Auth = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="py-8">
-                <div className="mb-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full rounded-full h-12 border-white/20 bg-white/5 hover:bg-white/10 hover:text-white text-white font-display flex items-center justify-center gap-2 transition-all"
-                    onClick={() => signInWithGoogle()}
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                        fill="#4285F4"
-                      />
-                      <path
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                        fill="#34A853"
-                      />
-                      <path
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                        fill="#FBBC05"
-                      />
-                      <path
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                        fill="#EA4335"
-                      />
-                    </svg>
-                    Continue with Google
-                  </Button>
-
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-white/10" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-surface-dark px-2 text-muted-foreground font-display">
-                        Or continue with email
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {isSignUp && (
@@ -256,10 +288,90 @@ const Auth = () => {
                     )}
                   </div>
 
+                  {/* New Sign Up Fields */}
+                  {isSignUp && (
+                    <>
+                      {/* Country Dropdown */}
+                      <div className="space-y-2">
+                        <Label htmlFor="country" className="text-white font-display">Country</Label>
+                        <select
+                          id="country"
+                          value={country}
+                          onChange={(e) => setCountry(e.target.value)}
+                          required
+                          className={selectClassName}
+                        >
+                          <option value="" disabled>Select your country</option>
+                          {COUNTRIES.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Phone Number */}
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="text-white font-display">Phone Number (Optional)</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+61 400 000 000"
+                          className="h-12 rounded-xl bg-input border-0 text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary font-display"
+                        />
+                      </div>
+
+                      {/* How did you hear about us? */}
+                      <div className="space-y-2">
+                        <Label htmlFor="referralSource" className="text-white font-display">How did you hear about us?</Label>
+                        <select
+                          id="referralSource"
+                          value={referralSource}
+                          onChange={(e) => setReferralSource(e.target.value)}
+                          className={selectClassName}
+                        >
+                          <option value="">Select an option (optional)</option>
+                          {REFERRAL_OPTIONS.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Terms & Privacy Checkbox */}
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            id="termsAccepted"
+                            checked={termsAccepted}
+                            onChange={(e) => {
+                              setTermsAccepted(e.target.checked);
+                              if (e.target.checked) setTermsError('');
+                            }}
+                            className="mt-1 h-4 w-4 rounded border-white/20 bg-input text-primary focus:ring-primary cursor-pointer accent-[#d4af37]"
+                          />
+                          <Label htmlFor="termsAccepted" className="text-white/80 font-display text-sm leading-relaxed cursor-pointer">
+                            I agree to the{' '}
+                            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light underline transition-colors">
+                              Terms of Service
+                            </a>{' '}
+                            and{' '}
+                            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light underline transition-colors">
+                              Privacy Policy
+                            </a>
+                          </Label>
+                        </div>
+                        {termsError && (
+                          <p className="text-xs text-destructive mt-1">{termsError}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
                   <Button
                     type="submit"
                     className="w-full rounded-full gold-foil-outline relative flex h-12 cursor-pointer items-center justify-center overflow-hidden bg-background-dark px-4 text-base font-bold tracking-wider text-primary transition-all duration-300 hover:text-black group font-display"
-                    disabled={isLoading}
+                    disabled={isLoading || (isSignUp && !termsAccepted)}
                   >
                     <span className="absolute inset-0 z-0 h-full w-0 bg-gradient-to-r from-primary to-primary-light transition-all duration-300 group-hover:w-full"></span>
                     <span className="relative z-10 flex items-center gap-2">

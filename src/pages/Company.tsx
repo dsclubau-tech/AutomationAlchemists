@@ -63,7 +63,7 @@ const Company = () => {
                     >
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm font-display">
                             <Sparkles className="w-4 h-4" />
-                            About AAlchemists
+                            About Automation Alchemists
                         </div>
                         <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-text-main font-display">
                             Transforming Vision Into

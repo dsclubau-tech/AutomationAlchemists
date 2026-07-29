@@ -27,7 +27,12 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, metadata?: {
+    country?: string;
+    phone?: string;
+    referral_source?: string;
+    terms_accepted?: boolean;
+  }) => {
     const redirectUrl = `${window.location.origin}/`;
 
     const { data, error } = await supabase.auth.signUp({
@@ -37,6 +42,10 @@ export const useAuth = () => {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          country: metadata?.country,
+          phone: metadata?.phone,
+          referral_source: metadata?.referral_source,
+          terms_accepted: metadata?.terms_accepted,
         },
       },
     });
@@ -51,15 +60,6 @@ export const useAuth = () => {
     return { data, error };
   };
 
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
-    return { error };
-  };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -72,7 +72,6 @@ export const useAuth = () => {
     loading,
     signUp,
     signIn,
-    signInWithGoogle,
     signOut,
   };
 };

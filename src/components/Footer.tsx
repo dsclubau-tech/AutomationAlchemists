@@ -18,9 +18,9 @@ const Footer = () => {
             <div className="flex items-center space-x-2 mb-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/10 rounded-full blur-sm"></div>
-                <img src={logo} alt="AAlchemists Logo" className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain brightness-110" />
+                <img src={logo} alt="Automation Alchemists Logo" className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain brightness-110" />
               </div>
-              <span className="text-sm sm:text-base font-bold text-primary font-display">AAlchemists</span>
+              <span className="text-sm sm:text-base font-bold text-primary font-display">Automation Alchemists</span>
             </div>
             <p className="text-white/60 text-xs sm:text-xs font-display">
               Alchemy for the automation era: ideas → apps → passive cashflow
@@ -64,7 +64,7 @@ const Footer = () => {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6 text-xs sm:text-sm text-white/60 font-display">
-          <p>&copy; {new Date().getFullYear()} AAlchemists. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Automation Alchemists. All rights reserved.</p>
           <div className="flex gap-4 sm:gap-6">
             <Link to="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy

@@ -30,7 +30,7 @@ const PageLoader = ({ pageName = '', minDisplayTime = 500 }: PageLoaderProps) =>
                     {/* Logo */}
                     <motion.img
                         src={logo}
-                        alt="AAlchemists Logo"
+                        alt="Automation Alchemists Logo"
                         className="w-24 h-24 mb-4"
                         animate={{ scale: [1, 1.05, 1] }}
                         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
@@ -38,7 +38,7 @@ const PageLoader = ({ pageName = '', minDisplayTime = 500 }: PageLoaderProps) =>
 
                     {/* Brand Text */}
                     <h1 className="text-primary text-2xl font-bold font-display tracking-tight mb-6">
-                        AAlchemists
+                        Automation Alchemists
                     </h1>
 
                     {/* Animated Gears */}

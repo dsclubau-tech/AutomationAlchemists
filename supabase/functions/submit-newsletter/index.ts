@@ -1,5 +1,5 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.0';
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { createClient } from '@supabase/supabase-js';
+import { z } from 'zod';
 
 const ALLOWED_ORIGINS = [
   'https://www.automationalchemists.com',

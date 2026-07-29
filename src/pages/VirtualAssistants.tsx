@@ -11,7 +11,7 @@ const VirtualAssistants = () => {
     return (
         <div className="min-h-screen bg-background">
             <SEOHead
-                title="Virtual Assistants | AAlchemists"
+                title="Virtual Assistants | Automation Alchemists"
                 description="Scale your team with elite virtual assistants. Focus on growth while we handle the rest."
                 url="https://automationalchemists.com/services/virtual-assistants"
                 keywords="virtual assistants, remote team, business scaling, administrative support"
@@ -24,7 +24,7 @@ const VirtualAssistants = () => {
                     url: "https://automationalchemists.com/services/virtual-assistants",
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />

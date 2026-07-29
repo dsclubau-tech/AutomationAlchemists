@@ -43,7 +43,7 @@ const Mission = () => {
                             Alchemy for the Automation Era
                         </h2>
                         <p className="text-sm text-muted-foreground mb-8 font-display">
-                            At AAlchemists, we believe that every visionary idea deserves to become reality. We're not just developers—we're digital alchemists who transform your concepts into fully functional, revenue-generating applications.
+                            At Automation Alchemists, we believe that every visionary idea deserves to become reality. We're not just developers—we're digital alchemists who transform your concepts into fully functional, revenue-generating applications.
                         </p>
                         <p className="text-sm text-muted-foreground font-display">
                             Our mission is simple: eliminate the barriers between imagination and execution. No coding walls. No deploy drama. Just pure automation magic that turns your vision into passive income streams.
@@ -145,7 +145,7 @@ const Mission = () => {
                             <div className="p-8 bg-card rounded-xl shadow-card">
                                 <h3 className="text-base font-bold text-primary mb-4 font-display">Our Solution</h3>
                                 <p className="text-xs text-muted-foreground font-display">
-                                    We built AAlchemists to be the bridge between vision and reality. With 5+ years of ecommerce expertise and a passion for automation, we handle the entire development lifecycle—from initial concept to deployed, revenue-generating application.
+                                    We built Automation Alchemists to be the bridge between vision and reality. With 5+ years of ecommerce expertise and a passion for automation, we handle the entire development lifecycle—from initial concept to deployed, revenue-generating application.
                                 </p>
                             </div>
 

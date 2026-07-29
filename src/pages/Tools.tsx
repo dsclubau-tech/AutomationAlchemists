@@ -68,14 +68,14 @@ const Tools = () => {
         },
         author: {
             "@type": "Organization",
-            name: "AAlchemists",
+            name: "Automation Alchemists",
         },
     }));
 
     return (
         <div className="min-h-screen bg-background">
             <SEOHead
-                title="SaaS Tools for eBay & Amazon Dropshipping | AAlchemists"
+                title="SaaS Tools for eBay & Amazon Dropshipping | Automation Alchemists"
                 description="Automation tools built for Australian eBay sellers who dropship from Amazon. Covers order notifications, invoicing, returns, order fulfillment, and product listing."
                 url="https://www.automationalchemists.com/tools"
                 keywords="eBay automation, Amazon dropshipping tools, eBay seller tools, order bot, invoice generator, return labels, listing tool, Australia"

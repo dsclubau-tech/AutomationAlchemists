@@ -46,7 +46,7 @@ const SaasDevelopment = () => {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <SEOHead
-                title="Custom SaaS Development Agency for Scalable MVPs | AAlchemists"
+                title="Custom SaaS Development Agency for Scalable MVPs | Automation Alchemists"
                 description="End-to-end SaaS development services. From conceptualization to deployment, we build scalable software-as-a-service platforms."
                 url="https://automationalchemists.com/services/saas-development"
                 keywords="SaaS MVP development, custom SaaS development agency, SaaS product development services"
@@ -59,7 +59,7 @@ const SaasDevelopment = () => {
                     url: "https://automationalchemists.com/services/saas-development",
                     provider: {
                         "@type": "Organization",
-                        "name": "AAlchemists"
+                        "name": "Automation Alchemists"
                     }
                 }}
             />
@@ -125,7 +125,7 @@ const SaasDevelopment = () => {
                                     Building a SaaS product is radically different than building a standard website. If your engineering team doesn't understand multi-tenant data isolation, horizontal scaling, or complex state management, your MVP will collapse under its own weight the moment you achieve product-market fit. Rebuilding a poorly architected platform can cost months of runway.
                                 </p>
                                 <p>
-                                    <strong>AAlchemists builds SaaS platforms the right way from day one.</strong> As a specialized custom SaaS development agency, our founders architect your platform using enterprise-grade paradigms. We balance speed-to-market with rock-solid infrastructure so you can launch fast and scale safely.
+                                    <strong>Automation Alchemists builds SaaS platforms the right way from day one.</strong> As a specialized custom SaaS development agency, our founders architect your platform using enterprise-grade paradigms. We balance speed-to-market with rock-solid infrastructure so you can launch fast and scale safely.
                                 </p>
                                 <p>
                                     We don't just write functions; we engineer revenue-generating assets. We understand subscription billing edge-cases, user onboarding funnels, and the critical importance of a snappy, intuitive user interface.
