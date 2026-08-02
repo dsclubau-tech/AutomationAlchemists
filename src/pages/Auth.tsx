@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
@@ -60,6 +60,45 @@ const REFERRAL_OPTIONS = [
   "Other"
 ];
 
+type CountryDialCodeInfo = { code: string; digits: number | null };
+
+const COUNTRY_DIAL_CODES: Record<string, CountryDialCodeInfo> = {
+  'Australia': { code: '+61', digits: 9 },
+  'Bangladesh': { code: '+880', digits: 10 },
+  'United States': { code: '+1', digits: 10 },
+  'United Kingdom': { code: '+44', digits: 10 },
+  'India': { code: '+91', digits: 10 },
+  'Canada': { code: '+1', digits: 10 },
+  'Pakistan': { code: '+92', digits: 10 },
+  'Singapore': { code: '+65', digits: 8 },
+  'Malaysia': { code: '+60', digits: 9 },
+  'New Zealand': { code: '+64', digits: 9 },
+  'UAE': { code: '+971', digits: 9 },
+  'Saudi Arabia': { code: '+966', digits: 9 },
+};
+
+const validatePhone = (phoneNumber: string, currentCountry: string) => {
+  if (!phoneNumber) return '';
+  const info = COUNTRY_DIAL_CODES[currentCountry] || { code: '', digits: null };
+  const digitsOnly = phoneNumber.replace(/\D/g, '');
+  
+  if (info.digits !== null) {
+    if (digitsOnly.length !== info.digits) {
+      if (currentCountry === 'Bangladesh') return 'Bangladesh numbers are 10 digits after the country code';
+      if (currentCountry === 'Australia') return 'Australian numbers are 9 digits after the country code';
+      if (currentCountry === 'United States') return 'US numbers are 10 digits after the country code';
+      if (currentCountry === 'United Kingdom') return 'UK numbers are 10 digits after the country code';
+      if (currentCountry === 'India') return 'Indian numbers are 10 digits after the country code';
+      return `${currentCountry} numbers are ${info.digits} digits after the country code`;
+    }
+  } else {
+    if (digitsOnly.length < 6) {
+      return 'Please enter a valid phone number';
+    }
+  }
+  return '';
+};
+
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
@@ -67,6 +106,7 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [country, setCountry] = useState('Australia');
   const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [referralSource, setReferralSource] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState('');
@@ -148,15 +188,30 @@ const Auth = () => {
         return;
       }
       setTermsError('');
+
+      // Validate phone
+      if (phone) {
+        const pErr = validatePhone(phone, country);
+        if (pErr) {
+          setPhoneError(pErr);
+          toast({
+            title: 'Validation Error',
+            description: pErr,
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
     }
 
     setIsLoading(true);
 
     try {
       if (isSignUp) {
+        const fullPhone = phone ? `${COUNTRY_DIAL_CODES[country]?.code || ''}${phone}` : undefined;
         const { error } = await signUp(email, password, fullName, {
           country,
-          phone: phone || undefined,
+          phone: fullPhone,
           referral_source: referralSource || undefined,
           terms_accepted: true,
         });
@@ -314,7 +369,10 @@ const Auth = () => {
                       <select
                         id="country"
                         value={country}
-                        onChange={(e) => setCountry(e.target.value)}
+                        onChange={(e) => {
+                          setCountry(e.target.value);
+                          setPhoneError('');
+                        }}
                         required
                         className={selectClass}
                       >
@@ -377,14 +435,38 @@ const Auth = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label htmlFor="phone" className={labelClass}>Phone (Optional)</label>
-                      <input
-                        id="phone"
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+61 400 000 000"
-                        className={inputClass}
-                      />
+                      <div className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg h-11 flex items-center focus-within:border-[#D4AF37] focus-within:ring-1 focus-within:ring-[#D4AF37] transition-colors overflow-hidden">
+                        {COUNTRY_DIAL_CODES[country]?.code && (
+                          <div className="flex items-center px-3 border-r border-[#2a2a2a] text-[#888] h-full font-display whitespace-nowrap bg-[#1a1a1a]">
+                            {COUNTRY_DIAL_CODES[country].code}
+                          </div>
+                        )}
+                        <input
+                          id="phone"
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => {
+                            setPhone(e.target.value);
+                            if (phoneError) setPhoneError('');
+                          }}
+                          onBlur={(e) => {
+                            const err = validatePhone(e.target.value, country);
+                            setPhoneError(err);
+                          }}
+                          placeholder={(!country || !COUNTRY_DIAL_CODES[country]?.code) ? "+61 400 000 000" : ""}
+                          className="flex-1 bg-transparent text-white placeholder-[#444] h-full px-3 outline-none font-display min-w-0"
+                        />
+                      </div>
+                      {phone.trim().startsWith('0') && (
+                        <p className="text-[11px] text-amber-500 mt-1.5 font-display">
+                          Remove the leading 0 — dial codes already include it
+                        </p>
+                      )}
+                      {phoneError && (
+                        <p className="text-[11px] text-destructive mt-1.5 font-display">
+                          {phoneError}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="referralSource" className={labelClass}>How did you hear?</label>
