@@ -214,12 +214,14 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                             </DropdownMenuContent>
                         </DropdownMenu>
 
+                        {/* TODO: Uncomment when Pricing/Learn pages are ready
                         <Link to="/pricing" onClick={(e) => handleNavClick(e, '/pricing')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Pricing
                         </Link>
                         <Link to="/learn" onClick={(e) => handleNavClick(e, '/learn')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Learn
                         </Link>
+                        */}
                         <Link to="/contact" onClick={(e) => handleNavClick(e, '/contact')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
                             Contact
                         </Link>
@@ -426,12 +428,14 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     </div>
                                 </div>
 
+                                {/* TODO: Uncomment when Pricing/Learn pages are ready
                                 <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Pricing
                                 </Link>
                                 <Link to="/learn" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Learn
                                 </Link>
+                                */}
                                 <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
                                     Contact
                                 </Link>

@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
@@ -73,9 +73,9 @@ const App = () => (
                 <Route path="/services/saas-development" element={<SaasDevelopment />} />
                 <Route path="/services/automation" element={<Automation />} />
                 <Route path="/mission" element={<Mission />} />
-                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/pricing" element={<Navigate to="/" replace />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/learn" element={<Learn />} />
+                <Route path="/learn" element={<Navigate to="/" replace />} />
                 <Route path="/learn/:slug" element={<ArticleDetail />} />
                 <Route path="/terms" element={<TermsOfUse />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
