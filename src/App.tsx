@@ -27,7 +27,11 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminOverview = lazy(() => import("./pages/AdminOverview"));
+const AdminSubscriptions = lazy(() => import("./pages/AdminSubscriptions"));
+const AdminTools = lazy(() => import("./pages/AdminTools"));
+const AdminAuditLog = lazy(() => import("./pages/AdminAuditLog"));
+const AdminContactSubmissions = lazy(() => import("./pages/AdminContactSubmissions"));
 const AdminContent = lazy(() => import("./pages/AdminContent"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminPricing = lazy(() => import("./pages/AdminPricing"));
@@ -82,7 +86,11 @@ const App = () => (
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin" element={<AdminOverview />} />
+                <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+                <Route path="/admin/tools" element={<AdminTools />} />
+                <Route path="/admin/audit-log" element={<AdminAuditLog />} />
+                <Route path="/admin/contact-submissions" element={<AdminContactSubmissions />} />
                 <Route path="/admin/content" element={<AdminContent />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/pricing" element={<AdminPricing />} />

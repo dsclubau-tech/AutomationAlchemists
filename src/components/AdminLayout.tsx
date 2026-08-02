@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2, Shield, Mail, Users, FileText, DollarSign, LogOut, ChevronLeft, ChevronRight, Home, Briefcase, BookOpen, MessageSquare, Newspaper, Menu, X } from 'lucide-react';
+import { Loader2, Shield, Mail, Users, FileText, DollarSign, LogOut, ChevronLeft, ChevronRight, Home, Briefcase, BookOpen, MessageSquare, Newspaper, Menu, X, CreditCard, PenTool, ActivitySquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
@@ -24,13 +24,17 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
     const location = useLocation();
 
     const navItems = [
-        { path: '/admin', label: 'Dashboard', icon: Mail, description: 'Contact submissions' },
-        { path: '/admin/contacts', label: 'Contact Settings', icon: MessageSquare, description: 'Contact page info' },
+        { path: '/admin', label: 'Overview', icon: Shield, description: 'Stats & Activity' },
         { path: '/admin/users', label: 'Users', icon: Users, description: 'Manage users' },
+        { path: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, description: 'User access' },
+        { path: '/admin/tools', label: 'Tools & Status', icon: PenTool, description: 'Manage tools' },
+        { path: '/admin/audit-log', label: 'Audit Log', icon: ActivitySquare, description: 'Admin actions' },
+        // Legacy pages preserved:
+        { path: '/admin/contacts', label: 'Contact Settings', icon: MessageSquare, description: 'Contact page info' },
         { path: '/admin/content', label: 'Content', icon: FileText, description: 'Educational content' },
-        { path: '/admin/pricing', label: 'Pricing', icon: DollarSign, description: 'Pricing packages' },
-        { path: '/admin/services', label: 'Services', icon: Briefcase, description: 'Manage services' },
-        { path: '/admin/learn', label: 'Learn Content', icon: BookOpen, description: 'Articles & categories' },
+        { path: '/admin/pricing', label: 'Pricing Packages', icon: DollarSign, description: 'Pricing plans' },
+        { path: '/admin/services', label: 'Services Content', icon: Briefcase, description: 'Manage services' },
+        { path: '/admin/learn', label: 'Learn Articles', icon: BookOpen, description: 'Articles & categories' },
         { path: '/admin/newsletter', label: 'Newsletter', icon: Newspaper, description: 'Newsletter subscribers' },
     ];
 
@@ -46,21 +50,16 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
         }
 
         try {
-            const { data: roleData, error: roleError } = await supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', user.id)
-                .eq('role', 'admin')
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('is_admin')
+                .eq('id', user.id)
                 .maybeSingle();
 
-            if (roleError) throw roleError;
+            if (profileError) throw profileError;
 
-            if (!roleData) {
-                toast({
-                    title: 'Access Denied',
-                    description: 'You do not have admin privileges',
-                    variant: 'destructive',
-                });
+            if (!profileData?.is_admin) {
+                // Silent redirect as requested
                 navigate('/');
                 return;
             }
@@ -240,6 +239,12 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
                                 <p className="text-text-muted mt-1 text-sm md:text-base">{description}</p>
                             )}
                         </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-[#888]">
+                        <span className="hidden md:inline-block">{user?.email}</span>
+                        <Link to="/" className="hover:text-white transition-colors">
+                            Back to site
+                        </Link>
                     </div>
                 </header>
 

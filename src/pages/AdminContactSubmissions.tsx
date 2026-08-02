@@ -27,7 +27,7 @@ interface Contact {
   created_at: string;
 }
 
-const AdminDashboard = () => {
+const AdminContactSubmissions = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
@@ -484,4 +484,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default AdminContactSubmissions;
