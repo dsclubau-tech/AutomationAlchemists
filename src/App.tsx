@@ -42,6 +42,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Tools = lazy(() => import("./pages/Tools"));
 const ToolDetail = lazy(() => import("./pages/ToolDetail"));
 const Billing = lazy(() => import("./pages/Billing"));
+const Account = lazy(() => import("./pages/Account"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -92,6 +93,7 @@ const App = () => (
                 <Route path="/tools" element={<Tools />} />
                 <Route path="/tools/:slug" element={<ToolDetail />} />
                 <Route path="/billing" element={<Billing />} />
+                <Route path="/account" element={<Account />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
