@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Users, CreditCard, Tool, Activity, Calendar } from 'lucide-react';
+import { Loader2, Users, CreditCard, Wrench, Activity, Calendar } from 'lucide-react';
 import { analytics } from '@/utils/analytics';
 import AdminLayout from '@/components/AdminLayout';
 
@@ -143,7 +143,7 @@ const AdminOverview = () => {
 
                     <Card className="border-primary/20 bg-surface-dark/50">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                            <Tool className="h-8 w-8 text-yellow-500 mb-2" />
+                            <Wrench className="h-8 w-8 text-yellow-500 mb-2" />
                             <p className="text-sm text-text-muted mb-1">Tools in Maintenance</p>
                             {isLoading ? (
                                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
