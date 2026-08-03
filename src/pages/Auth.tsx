@@ -119,6 +119,19 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectTarget = urlParams.get('redirect');
+      
+      if (redirectTarget === 'cpbot') {
+        // Already logged in — redirect to CP Bot with session tokens
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            window.location.href = `https://return-cpbot.vercel.app/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+          }
+        });
+        return;
+      }
+      
       navigate('/');
     }
   }, [user, navigate]);
@@ -204,7 +217,12 @@ const Auth = () => {
       }
     }
 
+
     setIsLoading(true);
+
+    // Check for cross-app redirect (e.g. ?redirect=cpbot)
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTarget = urlParams.get('redirect');
 
     try {
       if (isSignUp) {
@@ -216,6 +234,16 @@ const Auth = () => {
           terms_accepted: true,
         });
         if (error) throw error;
+
+        // Handle cross-app redirect after signup
+        if (redirectTarget === 'cpbot') {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            window.location.href = `https://return-cpbot.vercel.app/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+            return;
+          }
+        }
+
         toast({
           title: 'Success!',
           description: 'Your account has been created successfully.',
@@ -224,6 +252,15 @@ const Auth = () => {
       } else {
         const { data, error } = await signIn(email, password);
         if (error) throw error;
+
+        // Handle cross-app redirect after signin
+        if (redirectTarget === 'cpbot') {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            window.location.href = `https://return-cpbot.vercel.app/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+            return;
+          }
+        }
 
         // Check if user is admin
         if (data?.user) {
@@ -260,6 +297,7 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
 
   const labelClass = "text-[11px] text-[#888] uppercase tracking-[0.5px] font-display mb-1.5 block font-semibold";
   const inputClass = "w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display";

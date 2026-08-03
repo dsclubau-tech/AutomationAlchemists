@@ -1,0 +1,57 @@
+This handoff targets a different stack than this repo. Let me ground the assessment in the actual code before saying anything.
+
+I've mapped the handoff against the actual code. **Do not run this checklist as written** — it was authored for a different application, and two items would break things you've told me not to touch.
+
+## The core mismatch
+
+The handoff assumes CP Bot is a standalone Vite/React-Router SPA at `cpbot.automationalchemists.com`. In this repo, CP Bot is a **section** (`/cp-bot/*`) of a dual-product **Next.js 16 App Router** app that also serves the Return Label Converter at `/main`. They share one auth system.
+
+| Handoff assumes | This repo actually is |
+|---|---|
+| `react-router-dom`, `useNavigate` | Next.js App Router, `next/navigation` |
+| `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| localStorage session (`setSession`) | **Cookie-based SSR auth** (`@supabase/ssr`, `sb-*` cookies) |
+| `/dashboard` route | `/choose` and `/cp-bot` |
+| CP Bot owns its login | `/login` is **shared with the Return Converter** |
+
+## Blocker 1 — Step 1 would break the Return Label Converter
+
+`src/lib/supabase/proxy.ts` is middleware guarding the **entire app**. Everything except `/auth/*`, `/login`, `/register`, `/privacy` redirects to `/login`:
+
+```ts
+if (!user && !isAuthRoute && !isLoginRoute && !isRegisterRoute && !isPrivacyRoute) {
+  redirectUrl.pathname = "/login";
+```
+
+`/main` (Return Converter), `/account`, and `/choose` all depend on it. "Remove CP Bot's own signup/login pages" removes the Return Converter's login too — directly against your standing instruction. Only the `/cp-bot/*` redirects can be repointed at AA without collateral damage.
+
+## Blocker 2 — the callback as written won't log anyone in
+
+The sample calls `supabase.auth.setSession()` client-side, which writes to **localStorage**. This app's middleware and every server component read **`sb-*` cookies**. A localStorage-only session means the user still appears signed out on every server-rendered page — an infinite redirect back to AA. The callback must set cookies server-side (a Route Handler using `@supabase/ssr`), not the client-side snippet provided.
+
+## Steps 3 and 6 are no-ops — and that's the real finding
+
+`cp_bot_licenses` is **queried nowhere** in `src/` or `extension/`. The only hit is a text mention in the privacy policy:
+
+```
+src/app/privacy/page.tsx:154   storage="Supabase database (cp_bot_licenses table, ...)"
+```
+
+There are no license queries to replace. This matches what we established earlier: **paid gating was never implemented**. So steps 3 and 6 aren't migrations — they're net-new feature work (build the gate, the `/no-subscription` page, and extension enforcement from scratch).
+
+## Two things to check on your side right now
+
+**1. Vercel env vars may have been set with the wrong names.** The handoff says AA updated `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`. This app reads `NEXT_PUBLIC_*` — if only `VITE_*` were set, the deployment is **still pointing at the old Supabase project** and nothing will appear to have changed. Worth verifying before anything else.
+
+**2. Moving the web app to `automationalchemists.com` forces a Chrome Web Store re-review.** The extension's `host_permissions`, `content_scripts[].matches` (webapp-bridge + inject), the `webNavigation` sign-out filters, and `cpBotWebAppUrl` are all hardcoded to the two `*.vercel.app` domains. The AuthBridge handshake will silently stop working on any AA domain until the manifest is updated — which means a new version and another review, on top of the 1.0.4.1 submission you just prepared.
+
+## What I'd actually do
+
+1. Verify the Vercel env var names (blocking — nothing else matters if this is wrong).
+2. Add `/auth/callback` as a **Route Handler** that exchanges tokens into `sb-*` cookies.
+3. Repoint **only** `/cp-bot/*` unauthenticated redirects to AA; leave `/login`, `/register`, and the middleware default intact so the Return Converter is untouched.
+4. Build the subscription gate around `check_product_subscription` — new work, not a replacement — plus the `/no-subscription` page.
+5. Extension: manifest domains + `cpBotWebAppUrl` + popup gating, shipped as a separate version after the current submission clears.
+6. Leave `cp_bot_licenses` in place, unused, until the new gate is proven.
+
+I've made no changes. Want me to start with steps 2–3 (callback + CP-Bot-only redirect), or would you rather I write this up as a corrected handoff document to send back to the AA side first?
