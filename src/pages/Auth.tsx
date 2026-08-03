@@ -126,7 +126,7 @@ const Auth = () => {
         // Already logged in — redirect to CP Bot with session tokens
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session) {
-            window.location.href = `https://return-cpbot.vercel.app/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+            window.location.href = `https://rccp.automationalchemists.com/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
           }
         });
         return;
@@ -239,7 +239,7 @@ const Auth = () => {
         if (redirectTarget === 'cpbot') {
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
-            window.location.href = `https://return-cpbot.vercel.app/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+            window.location.href = `https://rccp.automationalchemists.com/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
             return;
           }
         }
@@ -257,7 +257,7 @@ const Auth = () => {
         if (redirectTarget === 'cpbot') {
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
-            window.location.href = `https://return-cpbot.vercel.app/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+            window.location.href = `https://rccp.automationalchemists.com/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
             return;
           }
         }
