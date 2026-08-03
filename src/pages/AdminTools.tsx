@@ -233,7 +233,7 @@ const AdminTools = () => {
                         
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-text-muted">Monthly Price:</span>
-                          <span className="text-sm font-medium text-text-main">A${tool.price_monthly.toFixed(2)}</span>
+                          <span className="text-sm font-medium text-text-main">AUD ${tool.price_monthly.toFixed(2)}</span>
                         </div>
 
                         {tool.status === 'maintenance' && tool.maintenance_message && (
@@ -303,7 +303,7 @@ const AdminTools = () => {
             )}
 
             <div className="space-y-2">
-              <Label>Monthly Price (A$)</Label>
+              <Label>Monthly Price (AUD $)</Label>
               <Input 
                 type="number"
                 step="0.01"

@@ -138,7 +138,7 @@ const ToolCard = ({
             </Button>
         ) : (
             <Button variant="outline" className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                Buy now — A${tool.price_monthly}/mo
+                Buy now — AUD ${tool.price_monthly}/mo
             </Button>
         );
     } else if (type === 'coming_soon') {
