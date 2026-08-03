@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Loader2, PenTool, Edit, Wrench, EyeOff, CheckCircle2, Clock, Users, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, PenTool, Edit, Wrench, EyeOff, CheckCircle2, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { analytics } from '@/utils/analytics';
 import AdminLayout from '@/components/AdminLayout';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Tool {
   id: string;
@@ -25,7 +26,9 @@ interface Tool {
 }
 
 const AdminTools = () => {
+  const { user } = useAuth();
   const [tools, setTools] = useState<Tool[]>([]);
+  const [waitlistCounts, setWaitlistCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   
   // Edit Modal State
@@ -34,6 +37,10 @@ const AdminTools = () => {
   const [editPrice, setEditPrice] = useState<number>(0);
   const [editMessage, setEditMessage] = useState('');
   const [isActionLoading, setIsActionLoading] = useState(false);
+  
+  // Notify All Modal State
+  const [notifyTool, setNotifyTool] = useState<Tool | null>(null);
+  const [isNotifying, setIsNotifying] = useState(false);
 
   const { toast } = useToast();
 
@@ -50,6 +57,21 @@ const AdminTools = () => {
 
       if (error) throw error;
       setTools(data || []);
+
+      // Fetch waitlist counts
+      const { data: waitlistData, error: waitlistError } = await supabase
+        .from('tool_notifications')
+        .select('tool_slug')
+        .eq('notified', false);
+
+      if (waitlistError) throw waitlistError;
+
+      const counts: Record<string, number> = {};
+      waitlistData?.forEach(row => {
+        counts[row.tool_slug] = (counts[row.tool_slug] || 0) + 1;
+      });
+      setWaitlistCounts(counts);
+
     } catch (error) {
       console.error('Error loading tools:', error);
       toast({
@@ -98,6 +120,39 @@ const AdminTools = () => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
       setIsActionLoading(false);
+    }
+  };
+
+  const handleNotifyAll = async () => {
+    if (!notifyTool || !user) return;
+    setIsNotifying(true);
+
+    try {
+      const { error } = await supabase
+        .from('tool_notifications')
+        .update({ notified: true, notified_at: new Date().toISOString() })
+        .eq('tool_slug', notifyTool.slug)
+        .eq('notified', false);
+
+      if (error) throw error;
+
+      // Log to admin audit
+      await supabase.from('admin_audit_log').insert({
+        admin_id: user.id,
+        action: 'sent_launch_notifications',
+        target_user_id: null,
+        details: { tool_slug: notifyTool.slug, users_notified: waitlistCounts[notifyTool.slug] }
+      });
+
+      toast({ title: 'Success', description: `Notifications sent to ${waitlistCounts[notifyTool.slug]} users.` });
+      
+      // Update local state
+      setWaitlistCounts(prev => ({ ...prev, [notifyTool.slug]: 0 }));
+      setNotifyTool(null);
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'Failed to send notifications.', variant: 'destructive' });
+    } finally {
+      setIsNotifying(false);
     }
   };
 
@@ -163,6 +218,13 @@ const AdminTools = () => {
                         </Button>
                       </div>
                       
+                      {waitlistCounts[tool.slug] > 0 && (
+                        <div className="flex items-center gap-1.5 text-sm text-[#888] mb-4">
+                          <Users className="w-4 h-4 text-primary" />
+                          {waitlistCounts[tool.slug]} users waiting
+                        </div>
+                      )}
+                      
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-text-muted">Status:</span>
@@ -171,13 +233,26 @@ const AdminTools = () => {
                         
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-text-muted">Monthly Price:</span>
-                          <span className="text-sm font-medium text-text-main">£{tool.price_monthly.toFixed(2)}</span>
+                          <span className="text-sm font-medium text-text-main">A${tool.price_monthly.toFixed(2)}</span>
                         </div>
 
                         {tool.status === 'maintenance' && tool.maintenance_message && (
                           <div className="mt-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
                             <span className="text-xs font-semibold text-yellow-500 block mb-1">Maintenance Message:</span>
                             <span className="text-sm text-yellow-400/90">{tool.maintenance_message}</span>
+                          </div>
+                        )}
+
+                        {tool.status === 'available' && waitlistCounts[tool.slug] > 0 && (
+                          <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
+                            <Button 
+                              onClick={() => setNotifyTool(tool)}
+                              className="w-full bg-primary/20 text-primary hover:bg-primary hover:text-black transition-colors"
+                              size="sm"
+                            >
+                              <Bell className="w-4 h-4 mr-2" />
+                              Notify All ({waitlistCounts[tool.slug]})
+                            </Button>
                           </div>
                         )}
                       </div>
@@ -228,7 +303,7 @@ const AdminTools = () => {
             )}
 
             <div className="space-y-2">
-              <Label>Monthly Price (£)</Label>
+              <Label>Monthly Price (A$)</Label>
               <Input 
                 type="number"
                 step="0.01"
@@ -244,6 +319,25 @@ const AdminTools = () => {
             <Button onClick={handleEditSubmit} disabled={isActionLoading} className="bg-primary hover:bg-primary/90 text-background-dark">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notify All Confirmation Modal */}
+      <Dialog open={!!notifyTool} onOpenChange={(open) => !open && setNotifyTool(null)}>
+        <DialogContent className="bg-surface-dark border-primary/20 text-text-main">
+          <DialogHeader>
+            <DialogTitle>Send Launch Notifications</DialogTitle>
+            <DialogDescription>
+              <strong className="text-white">{notifyTool?.name}</strong> is now available. Send launch notification to all <strong className="text-white">{notifyTool ? waitlistCounts[notifyTool.slug] : 0}</strong> users on the waitlist?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-6">
+            <Button variant="outline" onClick={() => setNotifyTool(null)} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button onClick={handleNotifyAll} disabled={isNotifying} className="bg-primary hover:bg-primary/90 text-background-dark">
+              {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Confirm & Notify
             </Button>
           </DialogFooter>
         </DialogContent>

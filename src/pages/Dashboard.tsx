@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import SEOHead from '@/components/SEOHead';
 import { Lock, Box, Zap, FileText, Activity, AlertCircle, Sparkles, Wrench, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 export interface DbTool {
     id: string;
@@ -70,11 +71,15 @@ const SkeletonCard = () => (
 const ToolCard = ({ 
     tool, 
     type,
-    currentPeriodEnd
+    currentPeriodEnd,
+    isNotified,
+    onNotify
 }: { 
     tool: DbTool; 
     type: 'active' | 'available' | 'coming_soon';
     currentPeriodEnd?: string | null;
+    isNotified?: boolean;
+    onNotify?: (tool: DbTool) => void;
 }) => {
     const Icon = getIconComponent(tool.slug);
     
@@ -133,7 +138,7 @@ const ToolCard = ({
             </Button>
         ) : (
             <Button variant="outline" className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                Buy now — £{tool.price_monthly}/mo
+                Buy now — A${tool.price_monthly}/mo
             </Button>
         );
     } else if (type === 'coming_soon') {
@@ -144,8 +149,12 @@ const ToolCard = ({
                 Coming soon
             </div>
         );
-        button = (
-            <Button disabled className="bg-[#2a2a2a] text-[#888] font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto">
+        button = isNotified ? (
+            <Button disabled className="bg-[#111] text-[#D4AF37] border border-[#D4AF37]/30 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
+                ✓ You're on the list
+            </Button>
+        ) : (
+            <Button onClick={() => onNotify?.(tool)} className="bg-[#2a2a2a] hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Notify me
             </Button>
         );
@@ -188,20 +197,26 @@ const ToolCard = ({
 const Dashboard = () => {
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+    const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [subscriptions, setSubscriptions] = useState<SubscriptionData[]>([]);
     const [dbTools, setDbTools] = useState<DbTool[]>([]);
+    const [notifications, setNotifications] = useState<string[]>([]);
 
     useEffect(() => {
-        if (!authLoading && user === null) {
-            navigate('/auth');
-            return;
-        }
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                // Fetch Tools (always available)
+                const { data: toolsData } = await supabase
+                    .from('tools')
+                    .select('*')
+                    .neq('status', 'hidden')
+                    .order('sort_order', { ascending: true });
+                
+                if (toolsData) setDbTools(toolsData as DbTool[]);
 
-        if (user) {
-            const fetchData = async () => {
-                setIsLoading(true);
-                try {
+                if (user) {
                     // Fetch Subscriptions
                     const { data: subsData } = await supabase
                         .from('subscriptions')
@@ -210,24 +225,73 @@ const Dashboard = () => {
                     
                     if (subsData) setSubscriptions(subsData);
 
-                    // Fetch Tools
-                    const { data: toolsData } = await supabase
-                        .from('tools')
-                        .select('*')
-                        .neq('status', 'hidden')
-                        .order('sort_order', { ascending: true });
+                    // Fetch Notifications
+                    const { data: notifData } = await supabase
+                        .from('tool_notifications')
+                        .select('tool_slug')
+                        .eq('user_id', user.id);
                     
-                    if (toolsData) setDbTools(toolsData as DbTool[]);
-
-                } catch (err) {
-                    console.error("Error fetching dashboard data:", err);
-                } finally {
-                    setIsLoading(false);
+                    if (notifData) {
+                        setNotifications(notifData.map(n => n.tool_slug));
+                    }
                 }
-            };
+            } catch (err) {
+                console.error("Error fetching dashboard data:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        if (!authLoading) {
             fetchData();
         }
-    }, [user, authLoading, navigate]);
+    }, [user, authLoading]);
+
+    const handleNotifyMe = async (tool: DbTool) => {
+        if (!user) {
+            toast({
+                title: "🔒 Sign in required",
+                description: "Create a free account to get notified when this tool launches.",
+                action: (
+                    <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="bg-transparent border-white text-white hover:bg-white hover:text-black">
+                        Sign in →
+                    </Button>
+                ),
+                className: "bg-[#111] border-l-4 border-l-[#D4AF37] text-white",
+                duration: Infinity,
+            });
+            return;
+        }
+
+        try {
+            const { error } = await supabase
+                .from('tool_notifications')
+                .insert({
+                    user_id: user.id,
+                    email: user.email,
+                    tool_slug: tool.slug,
+                    tool_name: tool.name
+                });
+            
+            if (error) throw error;
+
+            setNotifications(prev => [...prev, tool.slug]);
+            
+            toast({
+                title: "🔔 You're on the list!",
+                description: `We'll notify you the moment ${tool.name} launches.`,
+                className: "bg-[#111] border-none border-l-4 border-l-[#D4AF37] text-white bottom-right-slide",
+                duration: 4000,
+            });
+        } catch (err) {
+            console.error("Error signing up for notification:", err);
+            toast({
+                title: "Error",
+                description: "Failed to sign up for notifications.",
+                variant: "destructive",
+            });
+        }
+    };
 
     // Categorize tools based on dynamic DB data
     const activeTools = dbTools.filter(t => {
@@ -248,7 +312,7 @@ const Dashboard = () => {
         return sub?.current_period_end;
     };
 
-    if (authLoading || !user) {
+    if (authLoading) {
         return null;
     }
 
@@ -331,6 +395,8 @@ const Dashboard = () => {
                                                 key={tool.id} 
                                                 tool={tool} 
                                                 type="coming_soon" 
+                                                isNotified={notifications.includes(tool.slug)}
+                                                onNotify={handleNotifyMe}
                                             />
                                         ))}
                                     </div>

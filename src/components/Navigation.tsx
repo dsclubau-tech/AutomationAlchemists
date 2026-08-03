@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, LogOut, User, ArrowRight, Shield, Mail } from "lucide-react";
+import { Menu, X, LogOut, User, ArrowRight, Shield, Mail, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,6 +22,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [profileName, setProfileName] = useState<string | null>(null);
+    const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
@@ -69,14 +70,38 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
         fetchProfile();
     }, [user]);
 
+    // Fetch unread notifications
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if (!user) {
+                setHasUnreadNotifications(false);
+                return;
+            }
+            const { count } = await supabase
+                .from('tool_notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('notified', true)
+                .is('seen_at', null);
+            
+            setHasUnreadNotifications((count || 0) > 0);
+        };
+        fetchNotifications();
+    }, [user, location.pathname]); // Re-check when path changes (like visiting the page)
+
     const userInitial = profileName
         ? profileName.charAt(0).toUpperCase()
         : user?.email?.charAt(0).toUpperCase() || 'U';
     const displayFullName = profileName || user?.user_metadata?.full_name || 'User';
 
     const AvatarCircle = () => (
-        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-[#D4AF37] text-black font-bold text-sm">
-            {userInitial}
+        <div className="relative">
+            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-[#D4AF37] text-black font-bold text-sm">
+                {userInitial}
+            </div>
+            {hasUnreadNotifications && (
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#D4AF37] rounded-full border-2 border-[#111]" />
+            )}
         </div>
     );
 
@@ -262,7 +287,15 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
-                                                <Link to="/dashboard" className="block w-full">
+                                                <Link to="/account/notifications" className="block w-full flex items-center justify-between">
+                                                    <span>Notifications</span>
+                                                    {hasUnreadNotifications && (
+                                                        <span className="w-2 h-2 rounded-full bg-[#D4AF37]"></span>
+                                                    )}
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                                <Link to="/account" className="block w-full">
                                                     <span>Account settings</span>
                                                 </Link>
                                             </DropdownMenuItem>
@@ -342,7 +375,15 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
-                                            <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
+                                            <Link to="/account/notifications" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center justify-between">
+                                                <span>Notifications</span>
+                                                {hasUnreadNotifications && (
+                                                    <span className="w-2 h-2 rounded-full bg-[#D4AF37]"></span>
+                                                )}
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                            <Link to="/account" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
                                                 <span>Account settings</span>
                                             </Link>
                                         </DropdownMenuItem>
