@@ -79,7 +79,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
             }
             const { count } = await supabase
                 .from('tool_notifications')
-                .select('*', { count: 'exact', head: true })
+                .select('id', { count: 'exact', head: true })
                 .eq('user_id', user.id)
                 .eq('notified', true)
                 .is('seen_at', null);
@@ -218,7 +218,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                             <DropdownMenuItem asChild key={tool.id} className="cursor-pointer font-display rounded-lg px-3 py-3 hover:bg-[#2a2a2a] focus:bg-[#2a2a2a] flex items-start gap-3">
                                                 <Link to={`/tools/${tool.slug}`} className="flex items-start gap-3 w-full">
                                                     <div className="mt-0.5 bg-primary/10 p-1.5 rounded-md text-primary shrink-0">
-                                                        <Icon className="w-4 h-4" />
+                                                        {Icon ? <Icon className="w-4 h-4" /> : <img src="/images/rccp-logo.png" alt={tool.name} className="w-4 h-4 object-contain" />}
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-white text-sm">{tool.name}</p>
