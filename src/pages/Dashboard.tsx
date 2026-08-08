@@ -74,7 +74,8 @@ const ToolCard = ({
     type,
     currentPeriodEnd,
     isNotified,
-    onNotify
+    onNotify,
+    hasCpBotSub
 }: { 
     tool: DbTool; 
     type: 'active' | 'available' | 'coming_soon';
