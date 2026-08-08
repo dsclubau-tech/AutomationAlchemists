@@ -31,22 +31,28 @@ const ToolDetail = () => {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const [tool, setTool] = useState<ToolData | null>(null);
+    const tool = toolsData.find(t => t.slug === slug);
 
     useEffect(() => {
-        const foundTool = toolsData.find(t => t.slug === slug);
-        if (foundTool) {
-            setTool(foundTool);
-            window.scrollTo(0, 0);
-        } else {
-            // Not found
-            navigate('/tools');
-        }
-    }, [slug, navigate]);
+        if (tool) window.scrollTo(0, 0);
+    }, [tool]);
 
-    if (!tool) return null; // Or a loading spinner
+    if (!tool) {
+        return (
+            <div className="min-h-screen bg-background text-foreground flex flex-col">
+                <Navigation />
+                <main className="flex-grow flex flex-col items-center justify-center pt-32 pb-24 text-center">
+                    <h1 className="text-4xl font-bold mb-6 text-white font-display">Tool not found</h1>
+                    <Link to="/tools" className="text-primary hover:underline text-lg font-display">
+                        return to Tools page
+                    </Link>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
-    const HeroIcon = tool.icon;
+    const HeroIcon = tool.icon || CheckCircle2;
 
     const handleGetAccess = () => {
         if (user) {
@@ -110,7 +116,7 @@ const ToolDetail = () => {
                                     {tool.name}
                                 </h1>
                                 <p className="text-[#888] text-lg md:text-xl leading-relaxed mb-8 max-w-3xl font-display">
-                                    {tool.fullDescription}
+                                    {tool.fullDescription ?? 'No description available'}
                                 </p>
                                 
                                 <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -141,7 +147,7 @@ const ToolDetail = () => {
                     >
                         <h2 className="text-3xl font-bold text-white mb-10 font-display">What's included</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {tool.features.map((feature, i) => {
+                            {(tool.features ?? []).map((feature, i) => {
                                 const FeatureIcon = iconMap[feature.icon] || CheckCircle2;
                                 return (
                                     <div key={i} className="bg-[#111] border border-[#2a2a2a] rounded-2xl p-6 hover:border-primary/30 transition-colors">
@@ -169,7 +175,7 @@ const ToolDetail = () => {
                     >
                         <h2 className="text-3xl font-bold text-white mb-8 font-display">How it works</h2>
                         <div className="space-y-6">
-                            {tool.howItWorks.map((step, i) => (
+                            {(tool.howItWorks ?? []).map((step, i) => (
                                 <div key={i} className="flex gap-4">
                                     <div className="shrink-0 w-8 h-8 rounded-full bg-[#2a2a2a] text-white flex items-center justify-center font-bold font-display text-sm">
                                         {i + 1}
@@ -190,7 +196,7 @@ const ToolDetail = () => {
                         <h2 className="text-3xl font-bold text-white mb-8 font-display">Built for</h2>
                         <div className="bg-[#111] border border-primary/20 rounded-2xl p-8">
                             <p className="text-[#888] leading-relaxed text-lg">
-                                {tool.builtFor}
+                                {tool.builtFor ?? 'N/A'}
                             </p>
                         </div>
                     </motion.section>

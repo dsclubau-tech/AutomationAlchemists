@@ -32,6 +32,7 @@ export const toolsData: ToolData[] = [
         name: 'CP Bot & Return Converter',
         category: 'Order Fulfilment & Returns',
         bannerBg: '#0d1117',
+        icon: Box,
         shortDescription: 'One-click eBay to Amazon order fulfilment plus instant return label generation — two tools in one platform.',
         fullDescription: 'CP Bot & Return Converter is an essential toolkit for Amazon-to-eBay dropshippers. It completely eliminates manual data entry by automatically copying your eBay customer\'s address and pasting it seamlessly into the Amazon checkout page with a single click. Additionally, generate compliant return shipping labels for your eBay customers, fully compatible with Amazon AU returns, without paying a cent for the Return Converter module.',
         features: [
