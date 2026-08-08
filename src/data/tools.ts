@@ -13,7 +13,7 @@ export interface ToolData {
     name: string;
     category: string;
     bannerBg: string;
-    icon: ElementType;
+    icon?: ElementType; // Make icon optional so we can use logo image for rccp
     shortDescription: string;
     fullDescription: string;
     features: ToolFeature[];
@@ -27,30 +27,30 @@ export interface ToolData {
 
 export const toolsData: ToolData[] = [
     {
-        id: 'cp_bot',
-        slug: 'cpbot',
-        name: 'CP Bot',
-        category: 'ORDER FULFILMENT',
+        id: 'rccp',
+        slug: 'rccp',
+        name: 'CP Bot & Return Converter',
+        category: 'Order Fulfilment & Returns',
         bannerBg: '#0d1117',
-        icon: Box,
-        shortDescription: 'One-click copy of eBay customer address directly into Amazon checkout.',
-        fullDescription: 'CP Bot is an essential Chrome extension for Amazon-to-eBay dropshippers. It completely eliminates manual data entry by automatically copying your eBay customer\'s address and pasting it seamlessly into the Amazon checkout page with a single click. Save hours of tedious work, prevent human error in shipping addresses, and scale your fulfillment process exponentially.',
+        shortDescription: 'One-click eBay to Amazon order fulfilment plus instant return label generation — two tools in one platform.',
+        fullDescription: 'CP Bot & Return Converter is an essential toolkit for Amazon-to-eBay dropshippers. It completely eliminates manual data entry by automatically copying your eBay customer\'s address and pasting it seamlessly into the Amazon checkout page with a single click. Additionally, generate compliant return shipping labels for your eBay customers, fully compatible with Amazon AU returns, without paying a cent for the Return Converter module.',
         features: [
-            { title: 'One-click copy', description: 'Instantly copy the entire eBay customer address structure to your clipboard.', icon: 'mouse-pointer-click' },
-            { title: 'Auto-fill checkout', description: 'Paste the exact address directly into Amazon\'s checkout fields without errors.', icon: 'zap' },
-            { title: 'Chrome extension', description: 'Works seamlessly in your browser right alongside your regular workflow.', icon: 'chrome' }
+            { title: 'One-click copy', description: 'Copy eBay address to Amazon in one click', icon: 'mouse-pointer-click' },
+            { title: 'Instant labels', description: 'Generate eBay return labels instantly', icon: 'zap' },
+            { title: 'History tracking', description: 'Fulfilment history and activity tracking', icon: 'line-chart' },
+            { title: 'Cloud clipboard', description: 'Cloud clipboard for cross-device sync', icon: 'cloud' }
         ],
-        price: '$9/month',
+        price: 'Return Converter: Free | CP Bot: A$9/mo',
         isFree: false,
         howItWorks: [
-            'Install the CP Bot Chrome extension from the store.',
-            'Open your eBay Orders page.',
-            'Click the CP Bot button to copy the customer address.',
-            'Navigate to Amazon checkout and click to auto-fill.'
+            'Install the CP Bot Chrome extension or log in to the dashboard.',
+            'Copy the customer address directly to Amazon checkout.',
+            'Use the dashboard to generate instant return labels.',
+            'Manage all your fulfillment needs in one place.'
         ],
-        builtFor: 'Australian eBay sellers who fulfill orders via Amazon and want to eliminate manual data entry.',
-        seoKeywords: 'CP Bot, eBay to Amazon fulfillment, address copier, Chrome extension, dropshipping automation, order fulfillment tool',
-        appUrl: 'https://cpbot.automationalchemists.com',
+        builtFor: 'Australian eBay sellers who fulfill orders via Amazon and want to eliminate manual data entry and handle returns effortlessly.',
+        seoKeywords: 'CP Bot, Return Converter, eBay to Amazon fulfillment, return label generator, address copier, Chrome extension, dropshipping automation',
+        appUrl: 'https://rccp.automationalchemists.com',
     },
     {
         id: 'list_flow',
@@ -129,31 +129,5 @@ export const toolsData: ToolData[] = [
         builtFor: 'Professional sellers who need to provide compliant, branded tax invoices quickly and easily.',
         seoKeywords: 'eBay invoice generator, automated invoicing, dropshipping tax invoice, custom branded invoice, PDF invoice maker',
         appUrl: 'https://invoicegen.automationalchemists.com',
-    },
-    {
-        id: 'return_label',
-        slug: 'returnlabels',
-        name: 'Return Label Generator',
-        category: 'RETURNS',
-        bannerBg: '#100a0d',
-        icon: Zap,
-        shortDescription: 'Generate eBay return shipping labels instantly. Free for all registered users.',
-        fullDescription: 'Handling returns is one of the most frustrating parts of dropshipping. Our Return Label Generator takes the pain out of the process. Instantly generate compliant return shipping labels for your eBay customers, fully compatible with Amazon AU returns, without paying a cent. It\'s completely free for all registered users.',
-        features: [
-            { title: 'Instant labels', description: 'Generate the label immediately without navigating complex postal sites.', icon: 'zap' },
-            { title: 'Amazon AU ready', description: 'Formats match exactly what is required for Amazon Australia returns.', icon: 'check-circle-2' },
-            { title: '100% Free', description: 'No subscription required. Just create an account and start using it.', icon: 'gift' }
-        ],
-        price: 'FREE',
-        isFree: true,
-        howItWorks: [
-            'Sign up for a free Automation Alchemists account.',
-            'Go to the Return Label Generator tool in your dashboard.',
-            'Enter the required details for the return shipment.',
-            'Instantly download your print-ready return label.'
-        ],
-        builtFor: 'Any Amazon-to-eBay dropshipper who wants a hassle-free, automated way to handle customer returns.',
-        seoKeywords: 'Return Label Generator, free eBay return labels, Amazon AU returns, dropshipping returns automation, shipping label creator',
-        appUrl: 'https://returnlabel.automationalchemists.com',
     }
 ];

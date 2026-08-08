@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -12,6 +13,7 @@ const ToolCard = ({ tool, isFullWidth = false, index }: { tool: ToolData; isFull
     const Icon = tool.icon;
     const navigate = useNavigate();
     const { user } = useAuth();
+    const [imageError, setImageError] = useState(false);
 
     const handleGetAccess = () => {
         if (user) {
@@ -36,7 +38,16 @@ const ToolCard = ({ tool, isFullWidth = false, index }: { tool: ToolData; isFull
             >
                 {/* Badge */}
                 <div className="absolute top-4 right-4">
-                    {tool.isFree ? (
+                    {tool.slug === 'rccp' ? (
+                        <div className="flex gap-2">
+                            <span className="bg-[#4caf50]/20 text-[#4caf50] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                Free
+                            </span>
+                            <span className="bg-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                Paid
+                            </span>
+                        </div>
+                    ) : tool.isFree ? (
                         <span className="bg-[#4caf50]/20 text-[#4caf50] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                             Free
                         </span>
@@ -47,9 +58,22 @@ const ToolCard = ({ tool, isFullWidth = false, index }: { tool: ToolData; isFull
                     )}
                 </div>
                 
-                {/* Icon */}
-                <div className="bg-black/20 p-4 rounded-2xl backdrop-blur-sm border border-white/5">
-                    <Icon className="w-12 h-12 text-white/90" />
+                {/* Icon or Image */}
+                <div className="bg-black/20 p-4 rounded-2xl backdrop-blur-sm border border-white/5 flex items-center justify-center">
+                    {tool.slug === 'rccp' ? (
+                        imageError ? (
+                            <span className="text-4xl" title="CP Bot & Return Converter">🤖↩️</span>
+                        ) : (
+                            <img 
+                                src="/images/rccp-logo.png" 
+                                alt="CP Bot & Return Converter" 
+                                className="w-16 h-16 object-contain" 
+                                onError={() => setImageError(true)}
+                            />
+                        )
+                    ) : (
+                        Icon && <Icon className="w-12 h-12 text-white/90" />
+                    )}
                 </div>
             </div>
 
@@ -78,22 +102,37 @@ const ToolCard = ({ tool, isFullWidth = false, index }: { tool: ToolData; isFull
 
                 {/* Footer */}
                 <div className="pt-6 border-t border-[#2a2a2a] flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-auto">
-                    <div className="text-white font-bold font-display">
+                    <div className="text-white font-bold font-display text-sm">
                         {tool.price}
                     </div>
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <Link to={`/tools/${tool.slug}`} className="flex-1 sm:flex-none">
-                            <Button variant="outline" className="w-full sm:w-auto border-[#2a2a2a] hover:bg-[#2a2a2a] hover:text-white font-display">
-                                Learn more
+                    {tool.slug === 'rccp' ? (
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                            <a href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none">
+                                <Button variant="outline" className="w-full sm:w-auto border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-display font-bold">
+                                    Use Free Tool →
+                                </Button>
+                            </a>
+                            <a href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none">
+                                <Button className="w-full sm:w-auto bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold font-display">
+                                    Get CP Bot →
+                                </Button>
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                            <Link to={`/tools/${tool.slug}`} className="flex-1 sm:flex-none">
+                                <Button variant="outline" className="w-full sm:w-auto border-[#2a2a2a] hover:bg-[#2a2a2a] hover:text-white font-display">
+                                    Learn more
+                                </Button>
+                            </Link>
+                            <Button 
+                                onClick={handleGetAccess}
+                                className="flex-1 sm:flex-none bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold font-display"
+                            >
+                                Get access
                             </Button>
-                        </Link>
-                        <Button 
-                            onClick={handleGetAccess}
-                            className="flex-1 sm:flex-none bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold font-display"
-                        >
-                            Get access
-                        </Button>
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </motion.div>
@@ -121,8 +160,7 @@ const Tools = () => {
         },
     }));
 
-    const regularTools = toolsData.filter(t => t.slug !== 'returnlabels');
-    const fullWidthTool = toolsData.find(t => t.slug === 'returnlabels');
+    const regularTools = toolsData;
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -168,9 +206,6 @@ const Tools = () => {
                         {regularTools.map((tool, index) => (
                             <ToolCard key={tool.id} tool={tool} index={index} />
                         ))}
-                        {fullWidthTool && (
-                            <ToolCard key={fullWidthTool.id} tool={fullWidthTool} index={regularTools.length} isFullWidth={true} />
-                        )}
                     </div>
                 </div>
             </section>

@@ -44,8 +44,9 @@ const getIconComponent = (slug: string): ElementType => {
 
 const getAppUrl = (slug: string): string => {
     switch (slug) {
-        case 'cpbot': return 'https://cpbot.automationalchemists.com';
-        case 'returnlabels': return 'https://returnlabel.automationalchemists.com';
+        case 'rccp': return 'https://rccp.automationalchemists.com';
+        case 'cpbot': return 'https://rccp.automationalchemists.com';
+        case 'returnlabels': return 'https://rccp.automationalchemists.com';
         case 'orderbot': return 'https://orderbot.automationalchemists.com';
         case 'invoicegen': return 'https://invoicegen.automationalchemists.com';
         case 'listflow': return 'https://listflow.automationalchemists.com';
@@ -80,12 +81,15 @@ const ToolCard = ({
     currentPeriodEnd?: string | null;
     isNotified?: boolean;
     onNotify?: (tool: DbTool) => void;
+    hasCpBotSub?: boolean;
 }) => {
     const Icon = getIconComponent(tool.slug);
+    const [imageError, setImageError] = useState(false);
     
     let bannerClass = 'bg-[#2a2a2a]';
     let badge = null;
     let button = null;
+    let displayDescription = tool.short_description || tool.description;
 
     if (type === 'active') {
         if (tool.status === 'maintenance') {
@@ -101,6 +105,60 @@ const ToolCard = ({
                     Currently Unavailable
                 </Button>
             );
+        } else if (tool.slug === 'rccp') {
+            bannerClass = 'bg-gradient-to-br from-[#1a1200] to-[#2a1f00]';
+            if (!hasCpBotSub) {
+                displayDescription = "Return Converter is free. Upgrade to unlock CP Bot.";
+                badge = (
+                    <div className="flex flex-col xl:flex-row items-start xl:items-center gap-2">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                            ↩️ Return Converter — Active
+                        </div>
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-semibold border border-zinc-500/20 whitespace-nowrap">
+                            🔒 CP Bot — Locked
+                        </div>
+                    </div>
+                );
+                button = (
+                    <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-2 w-full sm:w-auto">
+                        <Button asChild variant="outline" className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
+                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                Open Return Converter
+                            </a>
+                        </Button>
+                        <Button asChild className="bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
+                            <a href="/#">
+                                Unlock CP Bot — A$9/mo
+                            </a>
+                        </Button>
+                    </div>
+                );
+            } else {
+                badge = (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-col xl:flex-row items-start xl:items-center gap-2">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                                ↩️ Return Converter — Active
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                                🤖 CP Bot — Active
+                            </div>
+                        </div>
+                        {currentPeriodEnd && (
+                            <div className="text-[10px] text-[#888] font-medium">
+                                CP Bot renews {new Date(currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </div>
+                        )}
+                    </div>
+                );
+                button = (
+                    <Button asChild className="bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                        <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                            Open Tools
+                        </a>
+                    </Button>
+                );
+            }
         } else {
             bannerClass = 'bg-gradient-to-br from-[#1a1200] to-[#2a1f00]';
             badge = (
@@ -168,14 +226,27 @@ const ToolCard = ({
         >
             <div className={`h-[80px] w-full flex items-center justify-center ${bannerClass} relative overflow-hidden`}>
                 <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
-                <Icon className="w-10 h-10 text-white/80 relative z-10" />
+                {tool.slug === 'rccp' ? (
+                    imageError ? (
+                        <span className="text-4xl relative z-10" title="CP Bot & Return Converter">🤖↩️</span>
+                    ) : (
+                        <img 
+                            src="/images/rccp-logo.png" 
+                            alt="CP Bot & Return Converter" 
+                            className="w-12 h-12 object-contain relative z-10" 
+                            onError={() => setImageError(true)}
+                        />
+                    )
+                ) : (
+                    <Icon className="w-10 h-10 text-white/80 relative z-10" />
+                )}
             </div>
             
             <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-bold text-white mb-2 font-display">{tool.name}</h3>
                 
                 <p className="text-[#888] text-sm mb-4 leading-relaxed flex-grow">
-                    {tool.short_description || tool.description}
+                    {displayDescription}
                 </p>
 
                 {tool.status === 'maintenance' && type === 'active' && tool.maintenance_message && (
@@ -295,11 +366,13 @@ const Dashboard = () => {
 
     // Categorize tools based on dynamic DB data
     const activeTools = dbTools.filter(t => {
+        if (t.slug === 'rccp') return true;
         const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && s.status === 'active');
         return t.is_free || hasActiveSub;
     });
 
     const availableTools = dbTools.filter(t => {
+        if (t.slug === 'rccp') return false;
         if (t.is_free) return false;
         const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && s.status === 'active');
         return !hasActiveSub && (t.status === 'available' || t.status === 'maintenance');
@@ -308,7 +381,8 @@ const Dashboard = () => {
     const comingSoonTools = dbTools.filter(t => t.status === 'coming_soon');
 
     const getSubscriptionEndDate = (slug: string) => {
-        const sub = subscriptions.find(s => s.product_slug === slug && s.status === 'active');
+        const querySlug = slug === 'rccp' ? 'cpbot' : slug;
+        const sub = subscriptions.find(s => s.product_slug === querySlug && s.status === 'active');
         return sub?.current_period_end;
     };
 
@@ -363,6 +437,7 @@ const Dashboard = () => {
                                                 tool={tool} 
                                                 type="active" 
                                                 currentPeriodEnd={getSubscriptionEndDate(tool.slug)}
+                                                hasCpBotSub={tool.slug === 'rccp' ? subscriptions.some(s => s.product_slug === 'cpbot' && s.status === 'active') : undefined}
                                             />
                                         ))}
                                     </div>
