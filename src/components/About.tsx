@@ -65,7 +65,7 @@ const About = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="about" className="py-24 bg-background" ref={ref}>
+    <section id="about" className="py-24" ref={ref}>
       <div className="container mx-auto px-6">
         {/* Section Header with Broken Gold Line */}
         <div className="mb-16">
@@ -78,10 +78,10 @@ const About = () => {
             transition={{ duration: 0.6 }}
             className="text-left px-4"
           >
-            <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-6 font-display">
+            <h2 className="text-[#112E81] text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-6 font-display">
               About Automation Alchemists
             </h2>
-            <p className="text-white/80 text-sm sm:text-base font-normal leading-relaxed max-w-3xl font-display">
+            <p className="text-[#444651] text-sm sm:text-base font-normal leading-relaxed max-w-3xl font-display">
               When your vision outgrows the limits of vibe-coded prototypes, we step in.
               You define the idea; we build, package, and deploy the full product end-to-end.
               The result: a polished, launch-ready solution built to scale and built to earn.
@@ -100,13 +100,13 @@ const About = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="flex flex-col gap-3 sm:gap-4 rounded-2xl border border-primary/20 bg-surface-dark p-4 sm:p-5 hover:border-primary/40 transition-all h-full"
+                className="flex flex-col gap-3 sm:gap-4 rounded-2xl border border-[#112E81]/10 bg-white shadow-sm p-4 sm:p-5 hover:border-[#112E81]/30 hover:shadow-md transition-all h-full"
               >
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <stat.icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+                  <stat.icon className="w-6 h-6 sm:w-7 sm:h-7 text-[#112E81]" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-white text-base sm:text-lg font-bold font-display">
+                  <h2 className="text-[#1c1b1b] text-base sm:text-lg font-bold font-display">
                     {parsed.hasNumber ? (
                       <>
                         {parsed.prefix}
@@ -116,7 +116,7 @@ const About = () => {
                       stat.value
                     )}
                   </h2>
-                  <p className="text-white/70 text-xs sm:text-sm font-normal leading-relaxed font-display">{stat.label}</p>
+                  <p className="text-[#444651] text-xs sm:text-sm font-normal leading-relaxed font-display">{stat.label}</p>
                 </div>
               </motion.div>
             );

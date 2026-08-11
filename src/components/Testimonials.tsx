@@ -52,7 +52,7 @@ const Testimonials = () => {
     const currentTestimonial = testimonials[activeIndex];
 
     return (
-        <section className="py-20 bg-surface-dark/50">
+        <section className="py-20 bg-white/50">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -61,10 +61,10 @@ const Testimonials = () => {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-display">
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#112E81] mb-4 font-display">
                         What Our Clients Say
                     </h2>
-                    <p className="text-text-muted max-w-2xl mx-auto font-display">
+                    <p className="text-[#444651] max-w-2xl mx-auto font-display">
                         Real results from businesses that trusted us with their automation journey
                     </p>
                 </motion.div>
@@ -72,28 +72,28 @@ const Testimonials = () => {
                 <div className="max-w-4xl mx-auto">
                     <div className="relative min-h-[350px] md:min-h-[300px]">
                         <AnimatePresence mode="wait">
-                            <motion.div
+                                <motion.div
                                 key={currentTestimonial.id}
                                 initial={{ opacity: 0, x: 50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -50 }}
                                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                                className="bg-background-dark border border-primary/20 rounded-2xl p-8 md:p-12"
+                                className="bg-white border border-[#112E81]/10 rounded-2xl p-8 md:p-12 shadow-sm"
                             >
-                                <Quote className="w-12 h-12 text-primary/30 mb-6" />
+                                <Quote className="w-12 h-12 text-[#112E81]/30 mb-6" />
 
-                                <p className="text-lg md:text-xl text-white/90 mb-8 font-display leading-relaxed">
+                                <p className="text-lg md:text-xl text-[#1c1b1b] mb-8 font-display leading-relaxed">
                                     "{currentTestimonial.content}"
                                 </p>
 
                                 <div className="flex items-center justify-between flex-wrap gap-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
+                                        <div className="w-14 h-14 rounded-full bg-[#112E81]/10 flex items-center justify-center text-[#112E81] font-bold text-xl">
                                             {currentTestimonial.name.charAt(0)}
                                         </div>
                                         <div>
-                                            <h4 className="text-white font-semibold font-display">{currentTestimonial.name}</h4>
-                                            <p className="text-text-muted text-sm font-display">
+                                            <h4 className="text-[#112E81] font-semibold font-display">{currentTestimonial.name}</h4>
+                                            <p className="text-[#444651] text-sm font-display">
                                                 {currentTestimonial.role} at {currentTestimonial.company}
                                             </p>
                                         </div>
@@ -101,7 +101,7 @@ const Testimonials = () => {
 
                                     <div className="flex gap-1">
                                         {[...Array(currentTestimonial.rating)].map((_, i) => (
-                                            <Star key={i} className="w-5 h-5 text-primary fill-primary" />
+                                            <Star key={i} className="w-5 h-5 text-[#D4AF37] fill-[#D4AF37]" />
                                         ))}
                                     </div>
                                 </div>
@@ -116,8 +116,8 @@ const Testimonials = () => {
                                 key={index}
                                 onClick={() => setActiveIndex(index)}
                                 className={`h-2 min-h-0 rounded-full transition-all duration-300 ${index === activeIndex
-                                    ? "bg-primary w-6"
-                                    : "bg-primary/30 hover:bg-primary/50 w-2"
+                                    ? "bg-[#112E81] w-6"
+                                    : "bg-[#112E81]/30 hover:bg-[#112E81]/50 w-2"
                                     }`}
                                 aria-label={`View testimonial ${index + 1}`}
                             />

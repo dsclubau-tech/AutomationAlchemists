@@ -31,7 +31,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background-dark text-text-main time-fold-ripple overflow-x-hidden">
+    <div className="min-h-screen bg-[#aaccd6] text-[#1c1b1b] time-fold-ripple overflow-x-hidden selection:bg-[#112E81] selection:text-white">
       <SEOHead
         title="Automation Alchemists — Custom Web Development, App Development & SaaS Automation Agency"
         description="Automation Alchemists is a global services platform specializing in web development, Android/Flutter app development, SaaS solutions, and automation consulting."
@@ -66,7 +66,7 @@ const Index = () => {
         {/* Carousel Section */}
         <section className="py-12 overflow-hidden">
           <div className="container mx-auto px-6 mb-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-display mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#112E81] font-display mb-4">
               Featured Tools & Solutions
             </h2>
           </div>
@@ -93,59 +93,59 @@ const Index = () => {
                 <div key={i} className="flex gap-6">
                   {/* Card 1 */}
                   <a href="https://rccp.automationalchemists.com" target="_blank" rel="noreferrer" 
-                     className="flex-none w-[280px] h-[180px] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all flex flex-col justify-end group relative overflow-hidden"
+                     className="flex-none w-[280px] h-[180px] rounded-[12px] border border-[#112E81]/10 hover:border-[#112E81]/30 shadow-sm transition-all flex flex-col justify-end group relative overflow-hidden"
                      style={{
                          backgroundImage: "url('/images/rccp-logo.png')",
                          backgroundSize: "cover",
                          backgroundPosition: "center",
                          backgroundRepeat: "no-repeat"
                      }}>
-                      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.55)" }}></div>
+                      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.25)" }}></div>
                       <div className="relative z-10 p-6 w-full">
-                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">Return Converter × CP Bot</h3>
-                          <p className="text-white/90 text-sm font-display">Order Fulfilment & Returns</p>
+                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-white/90 transition-colors drop-shadow-md">Return Converter × CP Bot</h3>
+                          <p className="text-white/90 text-sm font-display drop-shadow-md">Order Fulfilment & Returns</p>
                       </div>
                   </a>
 
                   {/* Card 2 */}
-                  <Link to="/tools/listflow" className="flex-none w-[280px] h-[180px] bg-[#111] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
+                  <Link to="/tools/listflow" className="flex-none w-[280px] h-[180px] bg-white rounded-[12px] border border-[#112E81]/10 hover:border-[#112E81]/30 hover:shadow-md transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
                       <div className="flex justify-between items-start">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <span className="text-primary font-bold">✨</span>
+                          <div className="w-10 h-10 rounded-lg bg-[#112E81]/10 flex items-center justify-center">
+                              <span className="text-[#112E81] font-bold">✨</span>
                           </div>
-                          <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
+                          <span className="bg-[#112E81]/10 text-[#112E81] text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
                       </div>
                       <div>
-                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">ListFlow</h3>
-                          <p className="text-text-muted text-sm font-display">Product Management</p>
+                          <h3 className="text-[#1c1b1b] font-bold font-display text-lg mb-1 group-hover:text-[#112E81] transition-colors">ListFlow</h3>
+                          <p className="text-[#444651] text-sm font-display">Product Management</p>
                       </div>
                   </Link>
 
                   {/* Card 3 */}
-                  <Link to="/tools/orderbot" className="flex-none w-[280px] h-[180px] bg-[#111] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
+                  <Link to="/tools/orderbot" className="flex-none w-[280px] h-[180px] bg-white rounded-[12px] border border-[#112E81]/10 hover:border-[#112E81]/30 hover:shadow-md transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
                       <div className="flex justify-between items-start">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <span className="text-primary font-bold">⚡</span>
+                          <div className="w-10 h-10 rounded-lg bg-[#112E81]/10 flex items-center justify-center">
+                              <span className="text-[#112E81] font-bold">⚡</span>
                           </div>
-                          <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
+                          <span className="bg-[#112E81]/10 text-[#112E81] text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
                       </div>
                       <div>
-                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">Order Bot</h3>
-                          <p className="text-text-muted text-sm font-display">Notifications</p>
+                          <h3 className="text-[#1c1b1b] font-bold font-display text-lg mb-1 group-hover:text-[#112E81] transition-colors">Order Bot</h3>
+                          <p className="text-[#444651] text-sm font-display">Notifications</p>
                       </div>
                   </Link>
 
                   {/* Card 4 */}
-                  <Link to="/tools/invoicegen" className="flex-none w-[280px] h-[180px] bg-[#111] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
+                  <Link to="/tools/invoicegen" className="flex-none w-[280px] h-[180px] bg-white rounded-[12px] border border-[#112E81]/10 hover:border-[#112E81]/30 hover:shadow-md transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
                       <div className="flex justify-between items-start">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <span className="text-primary font-bold">📄</span>
+                          <div className="w-10 h-10 rounded-lg bg-[#112E81]/10 flex items-center justify-center">
+                              <span className="text-[#112E81] font-bold">📄</span>
                           </div>
-                          <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
+                          <span className="bg-[#112E81]/10 text-[#112E81] text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
                       </div>
                       <div>
-                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">Invoice Generator</h3>
-                          <p className="text-text-muted text-sm font-display">Invoicing</p>
+                          <h3 className="text-[#1c1b1b] font-bold font-display text-lg mb-1 group-hover:text-[#112E81] transition-colors">Invoice Generator</h3>
+                          <p className="text-[#444651] text-sm font-display">Invoicing</p>
                       </div>
                   </Link>
                 </div>
@@ -168,14 +168,14 @@ const Index = () => {
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 font-display">
+              <h2 className="text-4xl md:text-5xl font-bold text-[#112E81] mb-6 font-display">
                 Our Services
               </h2>
-              <p className="text-lg text-white/70 max-w-3xl mx-auto mb-12 font-display">
+              <p className="text-lg text-[#444651] max-w-3xl mx-auto mb-12 font-display">
                 Comprehensive solutions tailored to meet your unique business needs
               </p>
               <Link to="/services">
-                <Button size="lg" className="group hover:scale-105 transition-transform bg-primary text-background-dark font-bold font-display gold-foil-outline">
+                <Button size="lg" className="group hover:scale-105 transition-transform bg-[#112E81] text-white hover:bg-[#112E81]/90 shadow-md font-bold font-display border-none">
                   View All Services
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
