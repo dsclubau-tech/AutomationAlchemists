@@ -63,6 +63,97 @@ const Index = () => {
 
         <About />
 
+        {/* Carousel Section */}
+        <section className="py-12 overflow-hidden">
+          <div className="container mx-auto px-6 mb-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-display mb-4">
+              Featured Tools & Solutions
+            </h2>
+          </div>
+          
+          <div className="relative w-full overflow-hidden">
+            <style>{`
+              @keyframes scroll-carousel {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(calc(-280px * 4 - 1.5rem * 4)); }
+              }
+              .animate-infinite-scroll {
+                animation: scroll-carousel 20s linear infinite;
+                width: max-content;
+              }
+              .animate-infinite-scroll:hover {
+                animation-play-state: paused;
+              }
+              .hide-scrollbar::-webkit-scrollbar { display: none; }
+            `}</style>
+            
+            <div className="flex gap-6 animate-infinite-scroll hide-scrollbar pl-6">
+              {/* Duplicate the cards once to create the infinite loop effect */}
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex gap-6">
+                  {/* Card 1 */}
+                  <a href="https://rccp.automationalchemists.com" target="_blank" rel="noreferrer" 
+                     className="flex-none w-[280px] h-[180px] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all flex flex-col justify-end group relative overflow-hidden"
+                     style={{
+                         backgroundImage: "url('/images/rccp-logo.png')",
+                         backgroundSize: "cover",
+                         backgroundPosition: "center",
+                         backgroundRepeat: "no-repeat"
+                     }}>
+                      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.55)" }}></div>
+                      <div className="relative z-10 p-6 w-full">
+                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">Return Converter × CP Bot</h3>
+                          <p className="text-white/90 text-sm font-display">Order Fulfilment & Returns</p>
+                      </div>
+                  </a>
+
+                  {/* Card 2 */}
+                  <Link to="/tools/listflow" className="flex-none w-[280px] h-[180px] bg-[#111] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
+                      <div className="flex justify-between items-start">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <span className="text-primary font-bold">✨</span>
+                          </div>
+                          <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
+                      </div>
+                      <div>
+                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">ListFlow</h3>
+                          <p className="text-text-muted text-sm font-display">Product Management</p>
+                      </div>
+                  </Link>
+
+                  {/* Card 3 */}
+                  <Link to="/tools/orderbot" className="flex-none w-[280px] h-[180px] bg-[#111] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
+                      <div className="flex justify-between items-start">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <span className="text-primary font-bold">⚡</span>
+                          </div>
+                          <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
+                      </div>
+                      <div>
+                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">Order Bot</h3>
+                          <p className="text-text-muted text-sm font-display">Notifications</p>
+                      </div>
+                  </Link>
+
+                  {/* Card 4 */}
+                  <Link to="/tools/invoicegen" className="flex-none w-[280px] h-[180px] bg-[#111] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
+                      <div className="flex justify-between items-start">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <span className="text-primary font-bold">📄</span>
+                          </div>
+                          <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
+                      </div>
+                      <div>
+                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">Invoice Generator</h3>
+                          <p className="text-text-muted text-sm font-display">Invoicing</p>
+                      </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Services Preview Section */}
         <section className="py-24">
           <div className="container mx-auto px-6">
