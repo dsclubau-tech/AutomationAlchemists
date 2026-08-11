@@ -6,7 +6,6 @@ import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
 import SEOHead from "@/components/SEOHead";
 import Testimonials from "@/components/Testimonials";
-import Newsletter from "@/components/Newsletter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -96,7 +95,15 @@ const Index = () => {
 
         <Testimonials />
 
-        <Newsletter />
+        <section className="py-16 md:py-20">
+          <div className="container mx-auto px-6">
+            <div className="max-w-[700px] mx-auto text-center bg-transparent">
+              <p className="text-white text-lg md:text-xl font-display leading-relaxed">
+                "We're a team who build custom automation systems and digital tools, helping businesses cut manual work, streamline operations, and scale faster."
+              </p>
+            </div>
+          </div>
+        </section>
 
         <Footer />
       </div>
