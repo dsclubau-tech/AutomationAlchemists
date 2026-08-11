@@ -174,39 +174,36 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isScrolled ? "bg-background/95 backdrop-blur-sm shadow-card" : "bg-background/80 backdrop-blur-sm"
+            className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isScrolled ? "bg-[#AACCD6]/95 backdrop-blur-md shadow-sm border-b border-[#112E81]/10" : "bg-[#AACCD6]/90 backdrop-blur-md border-b border-[#112E81]/20 shadow-sm"
                 }`}
         >
-            <div className="container mx-auto px-6 py-4">
-                <div className="flex items-center justify-between">
+            <div className="container mx-auto px-4 sm:px-6 md:px-12 py-3 sm:py-4 max-w-7xl">
+                <div className="flex items-center justify-between h-12 sm:h-14">
                     <Link to="/" className="flex items-center space-x-3 group">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-primary/10 rounded-full blur-md group-hover:bg-primary/20 transition-all"></div>
-                            <img src={logo} alt="Automation Alchemists Logo" className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain -my-2 transition-all duration-500 group-hover:rotate-[360deg] group-hover:drop-shadow-[0_0_15px_rgba(212,175,55,0.8)] brightness-110" />
-                        </div>
-                        <span className="text-xl sm:text-2xl md:text-2xl font-bold text-primary font-display group-hover:text-primary-light transition-colors">Automation Alchemists</span>
+                        <img src={logo} alt="Automation Alchemists Logo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain transition-all duration-500 group-hover:rotate-[360deg] filter drop-shadow-md" />
+                        <span className="hidden sm:block text-lg sm:text-xl md:text-2xl font-bold text-[#112E81] font-display">Automation Alchemists</span>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden lg:flex items-center gap-4 xl:gap-8">
-                        <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                    <div className="hidden md:flex items-center gap-6 xl:gap-8">
+                        <button onClick={() => scrollToSection("home")} className="text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90 transition-all duration-300 font-display text-sm font-semibold">
                             Home
                         </button>
-                        <Link to="/company" onClick={(e) => handleNavClick(e, '/company')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/company" onClick={(e) => handleNavClick(e, '/company')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/company' ? 'text-[#112E81] border-b-2 border-[#112E81] pb-1' : 'text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90'}`}>
                             Company
                         </Link>
-                        <Link to="/services" onClick={(e) => handleNavClick(e, '/services')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/services" onClick={(e) => handleNavClick(e, '/services')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/services' ? 'text-[#112E81] border-b-2 border-[#112E81] pb-1' : 'text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90'}`}>
                             Services
                         </Link>
                         
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium flex items-center gap-1">
+                                <button className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 ${location.pathname.startsWith('/tools') ? 'text-[#112E81] border-b-2 border-[#112E81] pb-1' : 'text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90'}`}>
                                     Tools
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[320px] bg-[#111] border-[#2a2a2a] text-text-main rounded-xl p-0 z-[200]" align="start" sideOffset={8}>
-                                <div className="px-4 py-3 border-b border-[#2a2a2a]">
+                            <DropdownMenuContent className="w-[320px] bg-white border-[#112E81]/20 text-[#1c1b1b] rounded-xl p-0 z-[200] shadow-lg" align="start" sideOffset={8}>
+                                <div className="px-4 py-3 border-b border-[#112E81]/10">
                                     <p className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider font-display">
                                         Our Tools
                                     </p>
@@ -215,23 +212,23 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     {toolsData.map(tool => {
                                         const Icon = tool.icon;
                                         return (
-                                            <DropdownMenuItem asChild key={tool.id} className="cursor-pointer font-display rounded-lg px-3 py-3 hover:bg-[#2a2a2a] focus:bg-[#2a2a2a] flex items-start gap-3">
+                                            <DropdownMenuItem asChild key={tool.id} className="cursor-pointer font-display rounded-lg px-3 py-3 hover:bg-[#AACCD6]/30 focus:bg-[#AACCD6]/30 flex items-start gap-3">
                                                 <Link to={`/tools/${tool.slug}`} className="flex items-start gap-3 w-full">
-                                                    <div className="mt-0.5 bg-primary/10 p-1.5 rounded-md text-primary shrink-0">
+                                                    <div className="mt-0.5 bg-[#112E81]/10 p-1.5 rounded-md text-[#112E81] shrink-0">
                                                         {Icon ? <Icon className="w-4 h-4" /> : <img src="/images/rccp-logo.png" alt={tool.name} className="w-4 h-4 object-contain" />}
                                                     </div>
                                                     <div>
-                                                        <p className="font-semibold text-white text-sm">{tool.name}</p>
-                                                        <p className="text-xs text-[#888] line-clamp-1">{tool.shortDescription}</p>
+                                                        <p className="font-semibold text-[#112E81] text-sm">{tool.name}</p>
+                                                        <p className="text-xs text-[#1c1b1b]/70 line-clamp-1">{tool.shortDescription}</p>
                                                     </div>
                                                 </Link>
                                             </DropdownMenuItem>
                                         )
                                     })}
                                 </div>
-                                <div className="p-2 border-t border-[#2a2a2a]">
-                                    <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 flex justify-center hover:bg-[#2a2a2a] focus:bg-[#2a2a2a]">
-                                        <Link to="/tools" className="text-sm font-medium text-primary w-full text-center">
+                                <div className="p-2 border-t border-[#112E81]/10">
+                                    <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 flex justify-center hover:bg-[#AACCD6]/30 focus:bg-[#AACCD6]/30">
+                                        <Link to="/tools" className="text-sm font-medium text-[#112E81] w-full text-center">
                                             View all tools →
                                         </Link>
                                     </DropdownMenuItem>
@@ -239,54 +236,45 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                             </DropdownMenuContent>
                         </DropdownMenu>
 
-                        {/* TODO: Uncomment when Pricing/Learn pages are ready
-                        <Link to="/pricing" onClick={(e) => handleNavClick(e, '/pricing')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
-                            Pricing
-                        </Link>
-                        <Link to="/learn" onClick={(e) => handleNavClick(e, '/learn')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
-                            Learn
-                        </Link>
-                        */}
-                        <Link to="/contact" onClick={(e) => handleNavClick(e, '/contact')} className="text-foreground hover:text-primary transition-colors font-display text-sm font-medium">
+                        <Link to="/contact" onClick={(e) => handleNavClick(e, '/contact')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/contact' ? 'text-[#112E81] border-b-2 border-[#112E81] pb-1' : 'text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90'}`}>
                             Contact
                         </Link>
                         {isAdmin && (
-                            <Link to="/admin" onClick={(e) => handleNavClick(e, '/admin')} className="text-primary hover:text-primary-light transition-colors font-display text-sm font-medium flex items-center gap-1">
+                            <Link to="/admin" onClick={(e) => handleNavClick(e, '/admin')} className="text-[#112E81] hover:text-[#D4AF37] transition-colors font-display text-sm font-bold flex items-center gap-1">
                                 <Shield className="h-4 w-4" />
                                 Admin
                             </Link>
                         )}
-
                     </div>
 
                     {/* Auth Section - Desktop */}
                     {!hideAuthButton && (
-                        <div className="hidden lg:flex items-center gap-4">
+                        <div className="hidden md:flex items-center gap-4">
                             {user ? (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="relative h-12 w-12 rounded-full hover:bg-primary/10 transition-colors p-0 flex items-center justify-center">
+                                        <Button variant="ghost" className="relative h-12 w-12 rounded-full hover:bg-[#112E81]/10 transition-colors p-0 flex items-center justify-center">
                                             <AvatarCircle />
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-64 bg-surface-dark border-primary/20 text-text-main rounded-xl shadow-singularity p-0 z-[200]" align="end" sideOffset={8} forceMount>
+                                    <DropdownMenuContent className="w-64 bg-white border-[#112E81]/20 text-[#1c1b1b] rounded-xl shadow-lg p-0 z-[200]" align="end" sideOffset={8} forceMount>
                                         {/* Header with greeting */}
-                                        <div className="px-4 py-3 border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
-                                            <p className="text-sm font-semibold text-primary font-display">
+                                        <div className="px-4 py-3 border-b border-[#112E81]/10 bg-[#AACCD6]/30 rounded-t-xl">
+                                            <p className="text-sm font-bold text-[#112E81] font-display">
                                                 Hello, {displayFullName.split(' ')[0]}
                                             </p>
-                                            <p className="text-xs text-text-muted font-display truncate">
+                                            <p className="text-xs text-[#1c1b1b]/70 font-display truncate">
                                                 {user.email}
                                             </p>
                                         </div>
 
                                         <div className="p-2">
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                                 <Link to="/dashboard" className="block w-full">
                                                     <span>Dashboard</span>
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                                 <Link to="/account/notifications" className="block w-full flex items-center justify-between">
                                                     <span>Notifications</span>
                                                     {hasUnreadNotifications && (
@@ -294,39 +282,39 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                                     )}
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                                 <Link to="/account" className="block w-full">
                                                     <span>Account settings</span>
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                                 <Link to="/billing" className="block w-full">
                                                     <span>Billing</span>
                                                 </Link>
                                             </DropdownMenuItem>
                                         </div>
-                                        <DropdownMenuSeparator className="bg-primary/20" />
+                                        <DropdownMenuSeparator className="bg-[#112E81]/10" />
 
                                         {/* Admin Section - Only for admins */}
                                         {isAdmin && (
                                             <div className="p-2">
-                                                <p className="px-2 py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                                <p className="px-2 py-1.5 text-xs font-semibold text-[#112E81]/60 uppercase tracking-wider">
                                                     Admin
                                                 </p>
-                                                <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                                <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                                     <Link to="/admin" onClick={() => { }} className="block w-full flex items-center">
-                                                        <Shield className="mr-2 h-4 w-4 text-primary" />
+                                                        <Shield className="mr-2 h-4 w-4 text-[#112E81]" />
                                                         <span>Admin Dashboard</span>
                                                     </Link>
                                                 </DropdownMenuItem>
                                             </div>
                                         )}
 
-                                        {isAdmin && <DropdownMenuSeparator className="bg-primary/20" />}
+                                        {isAdmin && <DropdownMenuSeparator className="bg-[#112E81]/10" />}
 
                                         {/* Sign Out */}
                                         <div className="p-2">
-                                            <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-400/10 cursor-pointer font-display rounded-lg px-3 py-2">
+                                            <DropdownMenuItem onClick={handleSignOut} className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-display rounded-lg px-3 py-2">
                                                 <LogOut className="mr-2 h-4 w-4" />
                                                 <span>Sign out</span>
                                             </DropdownMenuItem>
@@ -336,45 +324,42 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                             ) : (
                                 <Button
                                     onClick={() => navigate('/auth')}
-                                    className="relative rounded-full px-8 py-6 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-black font-bold font-display shadow-lg hover:shadow-xl hover:shadow-primary/50 transition-all duration-300 overflow-hidden group hover:scale-105"
+                                    className="bg-[#112E81] text-white font-display text-sm font-semibold px-6 py-5 rounded hover:shadow-lg transition-all duration-300 active:scale-95 border-none"
                                 >
-                                    {/* Animated background shimmer */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-                                    <span className="relative z-10">Login or Register</span>
+                                    Login or Register
                                 </Button>
                             )}
                         </div>
                     )}
 
                     {/* Mobile Menu Button */}
-                    <div className="lg:hidden flex items-center gap-2">
+                    <div className="md:hidden flex items-center gap-2">
                         {/* Mobile User Icon - only when signed in */}
                         {user && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="p-2 hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center">
+                                    <button className="p-2 hover:bg-[#112E81]/10 rounded-full transition-colors flex items-center justify-center">
                                         <AvatarCircle />
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-64 bg-surface-dark border-primary/20 text-text-main rounded-xl shadow-singularity p-0 z-[200]" align="end" sideOffset={8} forceMount>
+                                <DropdownMenuContent className="w-64 bg-white border-[#112E81]/20 text-[#1c1b1b] rounded-xl shadow-lg p-0 z-[200]" align="end" sideOffset={8} forceMount>
                                     {/* Header with greeting */}
-                                    <div className="px-4 py-3 border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
-                                        <p className="text-sm font-semibold text-primary font-display">
+                                    <div className="px-4 py-3 border-b border-[#112E81]/10 bg-[#AACCD6]/30 rounded-t-xl">
+                                        <p className="text-sm font-bold text-[#112E81] font-display">
                                             Hello, {displayFullName.split(' ')[0]}
                                         </p>
-                                        <p className="text-xs text-text-muted font-display truncate">
+                                        <p className="text-xs text-[#1c1b1b]/70 font-display truncate">
                                             {user.email}
                                         </p>
                                     </div>
 
                                     <div className="p-2">
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                             <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
                                                 <span>Dashboard</span>
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                             <Link to="/account/notifications" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center justify-between">
                                                 <span>Notifications</span>
                                                 {hasUnreadNotifications && (
@@ -382,39 +367,39 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                                 )}
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                             <Link to="/account" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
                                                 <span>Account settings</span>
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                             <Link to="/billing" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
                                                 <span>Billing</span>
                                             </Link>
                                         </DropdownMenuItem>
                                     </div>
-                                    <DropdownMenuSeparator className="bg-primary/20" />
+                                    <DropdownMenuSeparator className="bg-[#112E81]/10" />
 
                                     {/* Admin Section - Only for admins */}
                                     {isAdmin && (
                                         <div className="p-2">
-                                            <p className="px-2 py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                            <p className="px-2 py-1.5 text-xs font-semibold text-[#112E81]/60 uppercase tracking-wider">
                                                 Admin
                                             </p>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-primary/10 focus:bg-primary/10">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-[#AACCD6]/40 focus:bg-[#AACCD6]/40 text-[#112E81]">
                                                 <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center">
-                                                    <Shield className="mr-2 h-4 w-4 text-primary" />
+                                                    <Shield className="mr-2 h-4 w-4 text-[#112E81]" />
                                                     <span>Admin Dashboard</span>
                                                 </Link>
                                             </DropdownMenuItem>
                                         </div>
                                     )}
 
-                                    {isAdmin && <DropdownMenuSeparator className="bg-primary/20" />}
+                                    {isAdmin && <DropdownMenuSeparator className="bg-[#112E81]/10" />}
 
                                     {/* Sign Out */}
                                     <div className="p-2">
-                                        <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-400/10 cursor-pointer font-display rounded-lg px-3 py-2">
+                                        <DropdownMenuItem onClick={handleSignOut} className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-display rounded-lg px-3 py-2">
                                             <LogOut className="mr-2 h-4 w-4" />
                                             <span>Sign out</span>
                                         </DropdownMenuItem>
@@ -424,7 +409,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                         )}
 
                         <button
-                            className="text-foreground p-2"
+                            className="text-[#112E81] p-2 hover:bg-[#112E81]/10 rounded-full transition-colors"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         >
                             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -440,16 +425,16 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3 }}
-                            className="lg:hidden overflow-hidden"
+                            className="md:hidden overflow-hidden"
                         >
                             <div className="mt-4 pb-4 flex flex-col gap-4">
-                                <button onClick={() => scrollToSection("home")} className="text-left text-foreground hover:text-primary transition-colors py-2 font-display">
+                                <button onClick={() => scrollToSection("home")} className="text-left text-[#112E81] font-semibold transition-colors py-2 font-display">
                                     Home
                                 </button>
-                                <Link to="/company" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
+                                <Link to="/company" onClick={() => setIsMobileMenuOpen(false)} className="text-[#112E81] font-semibold transition-colors py-2 font-display">
                                     Company
                                 </Link>
-                                <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
+                                <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-[#112E81] font-semibold transition-colors py-2 font-display">
                                     Services
                                 </Link>
                                 
@@ -457,31 +442,23 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     <div className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider mb-3 font-display">
                                         Our Tools
                                     </div>
-                                    <div className="pl-4 border-l-2 border-[#2a2a2a] space-y-4">
+                                    <div className="pl-4 border-l-2 border-[#112E81]/20 space-y-4">
                                         {toolsData.map(tool => (
-                                            <Link key={tool.id} to={`/tools/${tool.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="block text-foreground hover:text-primary transition-colors font-display text-sm">
+                                            <Link key={tool.id} to={`/tools/${tool.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="block text-[#112E81]/80 hover:text-[#112E81] transition-colors font-display text-sm font-medium">
                                                 {tool.name}
                                             </Link>
                                         ))}
-                                        <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="block text-primary hover:text-primary-light transition-colors font-display text-sm font-medium pt-2">
+                                        <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="block text-[#D4AF37] hover:text-[#D4AF37]/80 transition-colors font-display text-sm font-bold pt-2">
                                             View all tools →
                                         </Link>
                                     </div>
                                 </div>
 
-                                {/* TODO: Uncomment when Pricing/Learn pages are ready
-                                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
-                                    Pricing
-                                </Link>
-                                <Link to="/learn" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
-                                    Learn
-                                </Link>
-                                */}
-                                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground hover:text-primary transition-colors py-2 font-display">
+                                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-[#112E81] font-semibold transition-colors py-2 font-display">
                                     Contact
                                 </Link>
                                 {isAdmin && (
-                                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-primary hover:text-primary-light transition-colors py-2 font-display flex items-center gap-2">
+                                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-[#D4AF37] font-semibold transition-colors py-2 font-display flex items-center gap-2">
                                         <Shield className="h-4 w-4" />
                                         Admin Dashboard
                                     </Link>
@@ -489,14 +466,14 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
                                 {/* Auth Section - Mobile */}
                                 {!hideAuthButton && (
-                                    <div className="pt-4 border-t border-border space-y-4">
+                                    <div className="pt-4 border-t border-[#112E81]/20 space-y-4">
                                         {user ? (
                                             <>
-                                                <div className="text-sm text-muted-foreground px-4 font-display">
-                                                    <User className="w-4 h-4 inline mr-2" />
+                                                <div className="text-sm text-[#1c1b1b]/70 px-4 font-display font-medium">
+                                                    <User className="w-4 h-4 inline mr-2 text-[#112E81]" />
                                                     {user.email}
                                                 </div>
-                                                <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full font-display">
+                                                <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full font-display border-[#112E81]/20 text-[#112E81] hover:bg-[#112E81]/5">
                                                     <LogOut className="w-4 h-4 mr-2" />
                                                     Sign Out
                                                 </Button>
@@ -504,7 +481,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                         ) : (
                                             <Button
                                                 onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
-                                                className="w-full rounded-full py-6 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-black font-bold font-display shadow-lg hover:shadow-xl transition-all duration-300"
+                                                className="w-full rounded px-6 py-5 bg-[#112E81] hover:shadow-lg text-white font-semibold font-display shadow-sm transition-all duration-300"
                                             >
                                                 Login or Register
                                             </Button>
