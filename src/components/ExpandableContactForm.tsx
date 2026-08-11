@@ -138,35 +138,35 @@ export function ExpandableContactForm() {
             {/* Trigger Section - Enhanced Design */}
             <div className="relative flex min-h-[600px] flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-20">
                 {/* Decorative elements */}
-                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#112E81]/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-[#112E81]/10 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#112E81]/10 border border-[#112E81]/30 rounded-full"
                     >
-                        <Sparkles className="w-4 h-4 text-primary" />
-                        <span className="text-primary text-sm font-medium">Free Consultation</span>
+                        <Sparkles className="w-4 h-4 text-[#112E81]" />
+                        <span className="text-[#112E81] text-sm font-medium">Free Consultation</span>
                     </motion.div>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-white max-w-3xl"
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-[#00195c] max-w-3xl"
                     >
                         Let's Build Something{" "}
-                        <span className="text-primary">Amazing</span>
+                        <span className="text-[#112E81]">Amazing</span>
                     </motion.h2>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-base sm:text-lg md:text-xl leading-relaxed text-white/70 max-w-2xl px-4"
+                        className="text-base sm:text-lg md:text-xl leading-relaxed text-[#444651] max-w-2xl px-4"
                     >
                         Transform your business with intelligent automation.
                         Tell us about your project and we'll respond within 24 hours.
@@ -178,12 +178,12 @@ export function ExpandableContactForm() {
                         transition={{ duration: 0.6, delay: 0.3 }}
                     >
                         <ExpandableScreenTrigger>
-                            <div className="group relative bg-primary rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-black tracking-tight hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-primary/40 cursor-pointer">
+                            <div className="group relative bg-[#112E81] rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-white tracking-tight hover:bg-[#112E81]/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-[#112E81]/40 cursor-pointer">
                                 <span className="relative z-10 flex items-center gap-3">
                                     <MessageSquare className="w-5 h-5" />
                                     Start Your Journey
                                 </span>
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-light to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#112E81] to-[#4647AE] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             </div>
                         </ExpandableScreenTrigger>
                     </motion.div>
@@ -193,14 +193,14 @@ export function ExpandableContactForm() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.5 }}
-                        className="flex items-center gap-6 text-white/50 text-sm"
+                        className="flex items-center gap-6 text-[#444651] text-sm"
                     >
                         <span className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-primary" />
+                            <CheckCircle2 className="w-4 h-4 text-[#112E81]" />
                             No spam, ever
                         </span>
                         <span className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-primary" />
+                            <CheckCircle2 className="w-4 h-4 text-[#112E81]" />
                             Response in 24h
                         </span>
                     </motion.div>
@@ -208,20 +208,20 @@ export function ExpandableContactForm() {
             </div>
 
             {/* Expanded Form Section - Enhanced Design */}
-            <ExpandableScreenContent className="bg-gradient-to-br from-primary via-primary to-[#C9A227]">
+            <ExpandableScreenContent className="bg-gradient-to-br from-[#112E81] to-[#4647AE]">
                 <div className="relative z-10 flex flex-col lg:flex-row h-full w-full max-w-[1200px] mx-auto items-stretch p-6 sm:p-10 lg:p-16 gap-8 lg:gap-12">
 
                     {/* Left side - Benefits */}
                     <div className="flex-1 flex flex-col justify-center space-y-6 w-full">
                         <div>
-                            <span className="inline-flex items-center gap-2 px-3 py-1 bg-black/10 rounded-full text-black/70 text-xs font-medium mb-4">
+                            <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-white/90 text-xs font-medium mb-4">
                                 <Zap className="w-3 h-3" />
                                 Quick & Easy
                             </span>
-                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-black leading-tight tracking-tight">
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight">
                                 Get Your Free
                                 <br />
-                                <span className="text-black/80">Strategy Session</span>
+                                <span className="text-white/80">Strategy Session</span>
                             </h2>
                         </div>
 
@@ -250,30 +250,30 @@ export function ExpandableContactForm() {
                                     transition={{ delay: i * 0.1 }}
                                     className="flex gap-4 items-start"
                                 >
-                                    <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center text-black">
+                                    <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white">
                                         {item.icon}
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-black text-base">{item.title}</p>
-                                        <p className="text-black/70 text-sm">{item.desc}</p>
+                                        <p className="font-semibold text-white text-base">{item.title}</p>
+                                        <p className="text-white/80 text-sm">{item.desc}</p>
                                     </div>
                                 </motion.div>
                             ))}
                         </div>
 
                         {/* Testimonial */}
-                        <div className="pt-6 mt-4 border-t border-black/10">
-                            <div className="bg-black/5 rounded-2xl p-5">
-                                <p className="text-black/90 text-lg leading-relaxed mb-4 italic">
+                        <div className="pt-6 mt-4 border-t border-white/20">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5">
+                                <p className="text-white/90 text-lg leading-relaxed mb-4 italic">
                                     "Automation Alchemists transformed our operations. We saved 40+ hours per week through their automation solutions."
                                 </p>
                                 <div className="flex items-center gap-3">
-                                    <div className="w-11 h-11 rounded-full bg-black/20 flex items-center justify-center text-black font-bold text-sm">
+                                    <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
                                         SC
                                     </div>
                                     <div>
-                                        <p className="text-black font-semibold text-sm">Sarah Chen</p>
-                                        <p className="text-black/60 text-xs">CEO, TechFlow Solutions</p>
+                                        <p className="text-white font-semibold text-sm">Sarah Chen</p>
+                                        <p className="text-white/70 text-xs">CEO, TechFlow Solutions</p>
                                     </div>
                                 </div>
                             </div>
@@ -435,7 +435,7 @@ export function ExpandableContactForm() {
                                         <Button
                                             type="submit"
                                             disabled={isLoading}
-                                            className="w-full h-14 rounded-xl bg-gradient-to-r from-gray-900 to-black text-white font-semibold text-base hover:from-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group"
+                                            className="w-full h-14 rounded-xl bg-gradient-to-r from-[#112E81] to-[#4647AE] text-white font-semibold text-base hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group"
                                         >
                                             {isLoading ? (
                                                 <span className="flex items-center gap-2">
