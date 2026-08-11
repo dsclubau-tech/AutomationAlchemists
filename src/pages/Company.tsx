@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
-import { Search, PenTool, Hammer, TrendingUp, Brain, PencilRuler, Cog, Route } from "lucide-react";
+import { Search, PenTool, Hammer, TrendingUp, Brain, PencilRuler, Cog, Route, Quote } from "lucide-react";
 
 const Company = () => {
-    const [activeStep, setActiveStep] = useState<number | null>(null);
+    const [activeStep, setActiveStep] = useState<number | null>(0);
 
     return (
         <div className="min-h-screen bg-[#AACCD6] text-[#1c1b1b] overflow-x-hidden antialiased">
@@ -68,129 +68,111 @@ const Company = () => {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white rounded-2xl p-8 md:p-12 border-t-4 border-[#112E81] shadow-sm max-w-6xl mx-auto"
+                            className="max-w-6xl mx-auto"
                         >
-                            <div className="flex items-center gap-4 mb-16">
-                                <Route className="w-8 h-8 text-[#112E81]" />
-                                <div>
-                                    <h3 className="font-display text-2xl font-bold text-[#112E81]">Our Process</h3>
-                                    <p className="text-[#444651] text-sm">A clear path from problem to solution</p>
+                            <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
+                                {/* Left Side: Clickable Steps */}
+                                <div className="flex flex-col gap-4 w-full md:w-5/12">
+                                    {[
+                                        { id: 0, num: '01', title: 'Learn your business', icon: Search },
+                                        { id: 1, num: '02', title: 'Design a solution', icon: PenTool },
+                                        { id: 2, num: '03', title: 'Build and implement', icon: Hammer },
+                                        { id: 3, num: '04', title: 'Support & scale', icon: TrendingUp },
+                                    ].map((step) => (
+                                        <button 
+                                            key={step.id}
+                                            onClick={() => setActiveStep(step.id)}
+                                            onMouseEnter={() => setActiveStep(step.id)}
+                                            className={`w-full flex items-center gap-6 p-6 rounded-2xl border-2 transition-all duration-300 text-left relative overflow-hidden ${
+                                                activeStep === step.id 
+                                                ? 'bg-[#112E81] border-[#112E81] shadow-xl md:translate-x-4' 
+                                                : 'bg-white border-transparent hover:border-[#112E81]/30 hover:bg-white/60 shadow-sm'
+                                            }`}
+                                        >
+                                            <div className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                                                activeStep === step.id ? 'bg-[#D4AF37] text-[#112E81]' : 'bg-[#112E81]/10 text-[#112E81]'
+                                            }`}>
+                                                <step.icon className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <span className={`text-xs font-bold tracking-widest uppercase mb-1 block transition-colors ${
+                                                    activeStep === step.id ? 'text-[#D4AF37]' : 'text-[#112E81]/60'
+                                                }`}>Step {step.num}</span>
+                                                <h4 className={`text-xl font-bold font-display transition-colors ${
+                                                    activeStep === step.id ? 'text-white' : 'text-[#1c1b1b]'
+                                                }`}>{step.title}</h4>
+                                            </div>
+                                        </button>
+                                    ))}
                                 </div>
-                            </div>
-                            
-                            {/* Workflow Diagram */}
-                            <div className="relative">
-                                {/* Connecting Line */}
-                                <div className="absolute top-[28px] left-8 right-8 h-0.5 bg-[#112E81]/10 hidden md:block z-0"></div>
-                                <div 
-                                    className="absolute top-[28px] left-8 h-0.5 bg-[#D4AF37] hidden md:block z-0 transition-all duration-500 ease-out"
-                                    style={{ width: activeStep !== null ? `${(activeStep / 3) * 100}%` : '0%' }}
-                                ></div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 relative z-10">
-                                    {/* Step 1 */}
-                                    <div 
-                                        className="relative group cursor-pointer"
-                                        onMouseEnter={() => setActiveStep(0)}
-                                        onMouseLeave={() => setActiveStep(null)}
-                                    >
-                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 transition-all duration-300 mx-auto md:mx-0 ${activeStep === 0 ? 'bg-[#112E81] text-[#D4AF37] scale-110 shadow-lg' : 'bg-white border-2 border-[#112E81]/20 text-[#112E81] group-hover:border-[#112E81]/50'}`}>
-                                            <Search className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-center md:text-left">
-                                            <h4 className={`text-xs font-semibold mb-2 font-display uppercase tracking-wider transition-colors ${activeStep === 0 ? 'text-[#D4AF37]' : 'text-[#112E81]/60'}`}>Step 01</h4>
-                                            <p className={`font-display text-lg font-bold leading-tight transition-colors ${activeStep === 0 ? 'text-[#112E81]' : 'text-[#1c1b1b]'}`}>Learn your business and challenges</p>
-                                        </div>
-                                        <AnimatePresence>
+                                {/* Right Side: Dynamic Content */}
+                                <div className="w-full md:w-7/12">
+                                    <div className="bg-white rounded-3xl p-10 lg:p-14 shadow-xl border-t-4 border-[#D4AF37] h-full min-h-[350px] relative overflow-hidden flex flex-col justify-center">
+                                        
+                                        <AnimatePresence mode="wait">
                                             {activeStep === 0 && (
                                                 <motion.div 
-                                                    initial={{ opacity: 0, y: 10 }}
+                                                    key="step0"
+                                                    initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 10 }}
-                                                    className="mt-4 text-[#444651] text-sm leading-relaxed"
+                                                    exit={{ opacity: 0, y: -20 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="relative z-10"
                                                 >
-                                                    We dive deep into your daily operations to identify bottlenecks, repetitive tasks, and areas ripe for automation. We map out your exact current workflow.
+                                                    <Search className="absolute -bottom-10 -right-10 w-48 h-48 text-[#112E81] opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-[#112E81] font-display mb-6 leading-tight">Learn your business and challenges</h3>
+                                                    <p className="text-[#444651] text-lg lg:text-xl leading-relaxed">
+                                                        We dive deep into your daily operations to identify bottlenecks, repetitive tasks, and areas ripe for automation. We map out your exact current workflow so we understand perfectly how you operate.
+                                                    </p>
                                                 </motion.div>
                                             )}
-                                        </AnimatePresence>
-                                    </div>
-
-                                    {/* Step 2 */}
-                                    <div 
-                                        className="relative group cursor-pointer"
-                                        onMouseEnter={() => setActiveStep(1)}
-                                        onMouseLeave={() => setActiveStep(null)}
-                                    >
-                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 transition-all duration-300 mx-auto md:mx-0 ${activeStep === 1 ? 'bg-[#112E81] text-[#D4AF37] scale-110 shadow-lg' : 'bg-white border-2 border-[#112E81]/20 text-[#112E81] group-hover:border-[#112E81]/50'}`}>
-                                            <PenTool className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-center md:text-left">
-                                            <h4 className={`text-xs font-semibold mb-2 font-display uppercase tracking-wider transition-colors ${activeStep === 1 ? 'text-[#D4AF37]' : 'text-[#112E81]/60'}`}>Step 02</h4>
-                                            <p className={`font-display text-lg font-bold leading-tight transition-colors ${activeStep === 1 ? 'text-[#112E81]' : 'text-[#1c1b1b]'}`}>Design a solution that fits</p>
-                                        </div>
-                                        <AnimatePresence>
                                             {activeStep === 1 && (
                                                 <motion.div 
-                                                    initial={{ opacity: 0, y: 10 }}
+                                                    key="step1"
+                                                    initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 10 }}
-                                                    className="mt-4 text-[#444651] text-sm leading-relaxed"
+                                                    exit={{ opacity: 0, y: -20 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="relative z-10"
                                                 >
-                                                    Our architects draft a tailored automation blueprint. We select the right tools and APIs, ensuring the new system scales seamlessly with your business.
+                                                    <PenTool className="absolute -bottom-10 -right-10 w-48 h-48 text-[#112E81] opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-[#112E81] font-display mb-6 leading-tight">Design a solution that fits</h3>
+                                                    <p className="text-[#444651] text-lg lg:text-xl leading-relaxed">
+                                                        Our architects draft a tailored automation blueprint. We meticulously select the right tools, APIs, and infrastructure, ensuring the new system scales seamlessly alongside your business growth.
+                                                    </p>
                                                 </motion.div>
                                             )}
-                                        </AnimatePresence>
-                                    </div>
-
-                                    {/* Step 3 */}
-                                    <div 
-                                        className="relative group cursor-pointer"
-                                        onMouseEnter={() => setActiveStep(2)}
-                                        onMouseLeave={() => setActiveStep(null)}
-                                    >
-                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 transition-all duration-300 mx-auto md:mx-0 ${activeStep === 2 ? 'bg-[#112E81] text-[#D4AF37] scale-110 shadow-lg' : 'bg-white border-2 border-[#112E81]/20 text-[#112E81] group-hover:border-[#112E81]/50'}`}>
-                                            <Hammer className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-center md:text-left">
-                                            <h4 className={`text-xs font-semibold mb-2 font-display uppercase tracking-wider transition-colors ${activeStep === 2 ? 'text-[#D4AF37]' : 'text-[#112E81]/60'}`}>Step 03</h4>
-                                            <p className={`font-display text-lg font-bold leading-tight transition-colors ${activeStep === 2 ? 'text-[#112E81]' : 'text-[#1c1b1b]'}`}>Build and implement it right</p>
-                                        </div>
-                                        <AnimatePresence>
                                             {activeStep === 2 && (
                                                 <motion.div 
-                                                    initial={{ opacity: 0, y: 10 }}
+                                                    key="step2"
+                                                    initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 10 }}
-                                                    className="mt-4 text-[#444651] text-sm leading-relaxed"
+                                                    exit={{ opacity: 0, y: -20 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="relative z-10"
                                                 >
-                                                    We develop the custom integrations and bots. Everything is rigorously tested in a sandbox environment before a smooth, zero-downtime deployment.
+                                                    <Hammer className="absolute -bottom-10 -right-10 w-48 h-48 text-[#112E81] opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-[#112E81] font-display mb-6 leading-tight">Build and implement it right</h3>
+                                                    <p className="text-[#444651] text-lg lg:text-xl leading-relaxed">
+                                                        We develop your custom integrations and bots. Everything is rigorously tested in a secure sandbox environment before a smooth, zero-downtime deployment into your live workspace.
+                                                    </p>
                                                 </motion.div>
                                             )}
-                                        </AnimatePresence>
-                                    </div>
-
-                                    {/* Step 4 */}
-                                    <div 
-                                        className="relative group cursor-pointer"
-                                        onMouseEnter={() => setActiveStep(3)}
-                                        onMouseLeave={() => setActiveStep(null)}
-                                    >
-                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 transition-all duration-300 mx-auto md:mx-0 ${activeStep === 3 ? 'bg-[#112E81] text-[#D4AF37] scale-110 shadow-lg' : 'bg-white border-2 border-[#112E81]/20 text-[#112E81] group-hover:border-[#112E81]/50'}`}>
-                                            <TrendingUp className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-center md:text-left">
-                                            <h4 className={`text-xs font-semibold mb-2 font-display uppercase tracking-wider transition-colors ${activeStep === 3 ? 'text-[#D4AF37]' : 'text-[#112E81]/60'}`}>Step 04</h4>
-                                            <p className={`font-display text-lg font-bold leading-tight transition-colors ${activeStep === 3 ? 'text-[#112E81]' : 'text-[#1c1b1b]'}`}>Support you as you grow</p>
-                                        </div>
-                                        <AnimatePresence>
                                             {activeStep === 3 && (
                                                 <motion.div 
-                                                    initial={{ opacity: 0, y: 10 }}
+                                                    key="step3"
+                                                    initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 10 }}
-                                                    className="mt-4 text-[#444651] text-sm leading-relaxed"
+                                                    exit={{ opacity: 0, y: -20 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="relative z-10"
                                                 >
-                                                    Post-launch, we monitor the systems 24/7. As your business grows, we continuously optimize the automation to handle increased volume effortlessly.
+                                                    <TrendingUp className="absolute -bottom-10 -right-10 w-48 h-48 text-[#112E81] opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-[#112E81] font-display mb-6 leading-tight">Support you as you grow</h3>
+                                                    <p className="text-[#444651] text-lg lg:text-xl leading-relaxed">
+                                                        Post-launch, we monitor your systems 24/7. As your business volume increases, we continuously optimize and tweak the automation so that it handles increased loads effortlessly.
+                                                    </p>
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
@@ -202,15 +184,19 @@ const Company = () => {
                 </section>
 
                 {/* Slogan Section */}
-                <section className="py-24 px-4 sm:px-6 md:px-12 bg-[#AACCD6] border-y border-[#112E81]/10">
-                    <div className="max-w-4xl mx-auto">
+                <section className="py-32 px-4 sm:px-6 md:px-12 bg-[#AACCD6]">
+                    <div className="max-w-5xl mx-auto text-center relative">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#112E81] opacity-5 pointer-events-none">
+                            <Quote className="w-64 h-64" />
+                        </div>
                         <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="bg-white rounded-xl p-8 md:p-12 border-l-4 border-[#112E81] shadow-sm"
+                            transition={{ duration: 0.7 }}
+                            className="relative z-10"
                         >
-                            <blockquote className="text-lg md:text-xl text-[#112E81] italic relative z-10 font-display font-medium leading-relaxed">
+                            <blockquote className="text-2xl md:text-3xl lg:text-4xl text-[#112E81] font-display font-medium leading-tight md:leading-snug">
                                 "We are very serious about business automation in 2026. Manual repetitive tasks should be out of fashion by now but it isn't. Productivity inflation is a thing. We want to see people reach their potential by giving them more time on their hands and making their business flow effortless. We will hold hands with clients as they achieve what they want and benefit the world"
                             </blockquote>
                         </motion.div>
