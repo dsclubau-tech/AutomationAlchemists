@@ -180,7 +180,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
             <div className="container mx-auto px-4 sm:px-6 md:px-12 py-3 sm:py-4 max-w-7xl">
                 <div className="flex items-center justify-between h-12 sm:h-14">
                     <Link to="/" className="flex items-center space-x-3 group">
-                        <img src={logo} alt="Automation Alchemists Logo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain transition-all duration-500 group-hover:rotate-[360deg] filter drop-shadow-md" />
+                        <img src={logo} alt="Automation Alchemists Logo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain transition-all duration-500 group-hover:rotate-[360deg] mix-blend-multiply" />
                         <span className="hidden sm:block text-lg sm:text-xl md:text-2xl font-bold text-[#112E81] font-display">Automation Alchemists</span>
                     </Link>
 
