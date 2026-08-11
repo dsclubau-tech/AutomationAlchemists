@@ -70,7 +70,7 @@ const Company = () => {
                                 className="md:col-span-4 md:row-span-2 bg-[#AACCD6] rounded-2xl p-8 border-2 border-[#112E81]/20 shadow-sm flex flex-col justify-between group hover:border-[#112E81]/50 transition-colors"
                             >
                                 <div>
-                                    <Route className="w-10 h-10 text-[#D4AF37] mb-4" />
+                                    <Route className="w-10 h-10 text-[#112E81] mb-4" />
                                     <h3 className="font-display text-2xl font-bold text-[#112E81] mb-2">Our Process</h3>
                                     <p className="text-base text-[#112E81]/80 font-display">A clear path from problem to solution</p>
                                 </div>
@@ -144,7 +144,7 @@ const Company = () => {
                             className="space-y-8 sticky top-28"
                         >
                             <div>
-                                <span className="text-[#D4AF37] text-sm font-semibold uppercase tracking-wider mb-2 block font-display">Our Mission</span>
+                                <span className="text-[#112E81] text-sm font-semibold uppercase tracking-wider mb-2 block font-display">Our Mission</span>
                                 <h2 className="font-display text-3xl md:text-4xl font-bold text-[#112E81]">Empowering Businesses Through Intelligent Automation</h2>
                             </div>
                             <p className="text-lg text-[#112E81]/80 font-display">
@@ -153,7 +153,7 @@ const Company = () => {
                             <p className="text-base text-[#112E81]/80 font-display">
                                 From streamlining daily operations to building custom software solutions, we're here to help you focus on what matters most—growing your business.
                             </p>
-                            <div className="bg-white/20 rounded-xl p-8 border-l-4 border-[#112E81]">
+                            <div className="bg-white rounded-xl p-8 border-l-4 border-[#112E81] shadow-sm">
                                 <blockquote className="text-lg text-[#112E81] italic relative z-10 font-display font-medium leading-relaxed">
                                     "We are very serious about business automation in 2026. Manual repetitive tasks should be out of fashion by now but it isn't. Productivity inflation is a thing. We want to see people reach their potential by giving them more time on their hands and making their business flow effortless. We will hold hands with clients as they achieve what they want and benefit the world"
                                 </blockquote>

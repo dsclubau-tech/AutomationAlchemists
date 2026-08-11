@@ -196,15 +196,13 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                             Services
                         </Link>
                         
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 ${location.pathname.startsWith('/tools') ? 'text-[#112E81] border-b-2 border-[#112E81] pb-1' : 'text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90'}`}>
-                                    Tools
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[320px] bg-white border-[#112E81]/20 text-[#1c1b1b] rounded-xl p-0 z-[200] shadow-lg" align="start" sideOffset={8}>
+                        <div className="relative group">
+                            <Link to="/tools" onClick={(e) => handleNavClick(e, '/tools')} className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 py-4 ${location.pathname.startsWith('/tools') ? 'text-[#112E81] border-b-2 border-[#112E81]' : 'text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90'}`}>
+                                Tools
+                            </Link>
+                            <div className="absolute top-full left-0 w-[320px] bg-white border border-[#112E81]/20 text-[#1c1b1b] rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[200] overflow-hidden">
                                 <div className="px-4 py-3 border-b border-[#112E81]/10">
-                                    <p className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider font-display">
+                                    <p className="text-xs font-semibold text-[#00195c] uppercase tracking-wider font-display">
                                         Our Tools
                                     </p>
                                 </div>
@@ -212,29 +210,20 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     {toolsData.map(tool => {
                                         const Icon = tool.icon;
                                         return (
-                                            <DropdownMenuItem asChild key={tool.id} className="cursor-pointer font-display rounded-lg px-3 py-3 hover:bg-[#AACCD6]/30 focus:bg-[#AACCD6]/30 flex items-start gap-3">
-                                                <Link to={`/tools/${tool.slug}`} className="flex items-start gap-3 w-full">
-                                                    <div className="mt-0.5 bg-[#112E81]/10 p-1.5 rounded-md text-[#112E81] shrink-0">
-                                                        {Icon ? <Icon className="w-4 h-4" /> : <img src="/images/rccp-logo.png" alt={tool.name} className="w-4 h-4 object-contain" />}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-[#112E81] text-sm">{tool.name}</p>
-                                                        <p className="text-xs text-[#1c1b1b]/70 line-clamp-1">{tool.shortDescription}</p>
-                                                    </div>
-                                                </Link>
-                                            </DropdownMenuItem>
+                                            <Link key={tool.id} to={`/tools/${tool.slug}`} className="cursor-pointer font-display rounded-lg px-3 py-3 hover:bg-[#AACCD6]/30 focus:bg-[#AACCD6]/30 flex items-start gap-3 w-full transition-colors">
+                                                <div className="mt-0.5 bg-[#112E81]/10 p-1.5 rounded-md text-[#112E81] shrink-0">
+                                                    {Icon ? <Icon className="w-4 h-4" /> : <img src="/images/rccp-logo.png" alt={tool.name} className="w-4 h-4 object-contain" />}
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-[#112E81] text-sm">{tool.name}</p>
+                                                    <p className="text-xs text-[#1c1b1b]/70 line-clamp-1">{tool.shortDescription}</p>
+                                                </div>
+                                            </Link>
                                         )
                                     })}
                                 </div>
-                                <div className="p-2 border-t border-[#112E81]/10">
-                                    <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 flex justify-center hover:bg-[#AACCD6]/30 focus:bg-[#AACCD6]/30">
-                                        <Link to="/tools" className="text-sm font-medium text-[#112E81] w-full text-center">
-                                            View all tools →
-                                        </Link>
-                                    </DropdownMenuItem>
-                                </div>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                            </div>
+                        </div>
 
                         <Link to="/contact" onClick={(e) => handleNavClick(e, '/contact')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/contact' ? 'text-[#112E81] border-b-2 border-[#112E81] pb-1' : 'text-[#112E81]/80 hover:text-[#112E81] hover:opacity-90'}`}>
                             Contact
@@ -439,18 +428,15 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                 </Link>
                                 
                                 <div className="py-2">
-                                    <div className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider mb-3 font-display">
+                                    <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="block text-xs font-semibold text-[#00195c] uppercase tracking-wider mb-3 font-display">
                                         Our Tools
-                                    </div>
+                                    </Link>
                                     <div className="pl-4 border-l-2 border-[#112E81]/20 space-y-4">
                                         {toolsData.map(tool => (
                                             <Link key={tool.id} to={`/tools/${tool.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="block text-[#112E81]/80 hover:text-[#112E81] transition-colors font-display text-sm font-medium">
                                                 {tool.name}
                                             </Link>
                                         ))}
-                                        <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="block text-[#D4AF37] hover:text-[#D4AF37]/80 transition-colors font-display text-sm font-bold pt-2">
-                                            View all tools →
-                                        </Link>
                                     </div>
                                 </div>
 
