@@ -95,15 +95,6 @@ const Index = () => {
 
         <Testimonials />
 
-        <section className="py-16 md:py-20">
-          <div className="container mx-auto px-6">
-            <div className="max-w-[700px] mx-auto text-center bg-transparent">
-              <p className="text-white text-lg md:text-xl font-display leading-relaxed">
-                "We're a team who build custom automation systems and digital tools, helping businesses cut manual work, streamline operations, and scale faster."
-              </p>
-            </div>
-          </div>
-        </section>
 
         <Footer />
       </div>

@@ -40,8 +40,53 @@ const Company = () => {
                             <span className="text-primary"> Reality</span>
                         </h1>
                         <p className="text-lg sm:text-xl text-text-muted leading-relaxed font-display max-w-3xl mx-auto">
-                            We're a team of passionate technologists, designers, and strategists dedicated to helping businesses
-                            harness the power of automation and digital transformation.
+                            We're a team who build custom automation systems and digital tools, helping businesses cut manual work, streamline operations, and scale faster.
+                        </p>
+                    </motion.div>
+                </section>
+
+                {/* Automation Manifesto Section */}
+                <section className="py-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="max-w-[800px] mx-auto text-center space-y-12"
+                    >
+                        <blockquote className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#D4AF37] italic font-display leading-tight">
+                            "We are very serious about business automation in 2026. Manual repetitive tasks should be out of fashion by now but it isn't. Productivity inflation is a thing. We want to see people reach their potential by giving them more time on their hands and making their business flow effortless. We will hold hands with clients as they achieve what they want and benefit the world"
+                        </blockquote>
+                        
+                        <div className="space-y-6 text-left md:text-center">
+                            <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">
+                                We Take Automation Seriously
+                            </h2>
+                            <p className="text-lg text-white/90 leading-relaxed font-display">
+                                Manual, repetitive work should have gone out of fashion years ago. Instead, businesses are drowning in more of it than ever — we call it productivity inflation: more tools, more software, and somehow less time.
+                            </p>
+                            <p className="text-lg text-white/90 leading-relaxed font-display">
+                                We exist to reverse that. Every hour of manual work we eliminate is an hour back in your hands to think, to grow, to build the business you actually set out to build. We don't disappear after launch. We stay hands-on with every client, all the way to the result they came for.
+                            </p>
+                        </div>
+                    </motion.div>
+                </section>
+
+                {/* Enthusiasts Section */}
+                <section className="py-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="max-w-[800px] mx-auto text-center space-y-8"
+                    >
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#D4AF37] italic font-display">
+                            "Built by enthusiasts, driven by goals"
+                        </h2>
+                        
+                        <p className="text-lg text-white/90 leading-relaxed font-display">
+                            We have built successful automation workflows and SaaS tools tested on our own business. We believe everything is possible when most people will say it's not. We don't shy away from creativity and growth and we want to see business put some real impact on the world.
                         </p>
                     </motion.div>
                 </section>
@@ -59,15 +104,18 @@ const Company = () => {
                             <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
                             
                             {/* Card 1 */}
-                            <a href="https://rccp.automationalchemists.com" target="_blank" rel="noreferrer" className="flex-none w-[280px] h-[180px] bg-[#111] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all p-6 flex flex-col justify-between snap-start group">
-                                <div className="flex justify-between items-start">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center p-1 overflow-hidden">
-                                        <img src="/images/rccp-logo.png" alt="RCCP Logo" className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display='none'; }} />
-                                    </div>
-                                </div>
-                                <div>
+                            <a href="https://rccp.automationalchemists.com" target="_blank" rel="noreferrer" 
+                               className="flex-none w-[280px] h-[180px] rounded-[12px] border border-primary/20 hover:border-[#D4AF37] transition-all flex flex-col justify-end snap-start group relative overflow-hidden"
+                               style={{
+                                   backgroundImage: "url('/images/rccp-logo.png')",
+                                   backgroundSize: "cover",
+                                   backgroundPosition: "center",
+                                   backgroundRepeat: "no-repeat"
+                               }}>
+                                <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.55)" }}></div>
+                                <div className="relative z-10 p-6 w-full">
                                     <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-primary transition-colors">Return Converter × CP Bot</h3>
-                                    <p className="text-text-muted text-sm font-display">Order Fulfilment & Returns</p>
+                                    <p className="text-white/90 text-sm font-display">Order Fulfilment & Returns</p>
                                 </div>
                             </a>
 
@@ -228,51 +276,7 @@ const Company = () => {
                     </motion.div>
                 </section>
 
-                {/* Automation Manifesto Section */}
-                <section className="py-12">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="max-w-[800px] mx-auto text-center space-y-12"
-                    >
-                        <blockquote className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#D4AF37] italic font-display leading-tight">
-                            "We are very serious about business automation in 2026. Manual repetitive tasks should be out of fashion by now but it isn't. Productivity inflation is a thing. We want to see people reach their potential by giving them more time on their hands and making their business flow effortless. We will hold hands with clients as they achieve what they want and benefit the world"
-                        </blockquote>
-                        
-                        <div className="space-y-6 text-left md:text-center">
-                            <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">
-                                We Take Automation Seriously
-                            </h2>
-                            <p className="text-lg text-white/90 leading-relaxed font-display">
-                                Manual, repetitive work should have gone out of fashion years ago. Instead, businesses are drowning in more of it than ever — we call it productivity inflation: more tools, more software, and somehow less time.
-                            </p>
-                            <p className="text-lg text-white/90 leading-relaxed font-display">
-                                We exist to reverse that. Every hour of manual work we eliminate is an hour back in your hands to think, to grow, to build the business you actually set out to build. We don't disappear after launch. We stay hands-on with every client, all the way to the result they came for.
-                            </p>
-                        </div>
-                    </motion.div>
-                </section>
 
-                {/* Enthusiasts Section */}
-                <section className="py-8">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="max-w-[800px] mx-auto text-center space-y-8"
-                    >
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#D4AF37] italic font-display">
-                            "Built by enthusiasts, driven by goals"
-                        </h2>
-                        
-                        <p className="text-lg text-white/90 leading-relaxed font-display">
-                            We have built successful automation workflows and SaaS tools tested on our own business. We believe everything is possible when most people will say it's not. We don't shy away from creativity and growth and we want to see business put some real impact on the world.
-                        </p>
-                    </motion.div>
-                </section>
 
                 {/* CTA Section */}
                 <section className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30 rounded-3xl p-8 sm:p-12 text-center">
