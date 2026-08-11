@@ -129,7 +129,7 @@ const ToolCard = ({
                         </Button>
                         <Button asChild className="bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
                             <a href="/#">
-                                Unlock CP Bot — A$9/mo
+                                Unlock CP Bot — AUD $9/mo
                             </a>
                         </Button>
                     </div>

@@ -102,7 +102,14 @@ const Tools = () => {
                                         <span className="bg-[#dce1ff] text-[#112E81] px-2 py-1 rounded text-xs font-semibold">Paid</span>
                                     </div>
                                 </div>
-                                <h2 className="font-headline-md text-2xl font-bold text-[#1c1b1b] mb-3 group-hover:text-[#112E81] transition-colors">CP Bot & Return Converter</h2>
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 bg-[#112E81]/10 rounded-xl">
+                                        <img src="/images/rccp-logo.png" alt="Return Converter x CopyPaste Bot" className="w-8 h-8 object-contain" />
+                                    </div>
+                                    <h2 className="font-headline-md text-2xl font-bold transition-colors group-hover:opacity-80">
+                                        <span className="text-[#3354f4]">Return Converter</span> <span className="text-[#888] font-normal mx-0.5">x</span> <span className="text-[#00839e]">CopyPaste Bot</span>
+                                    </h2>
+                                </div>
                                 <p className="font-body-md text-base text-[#444651] mb-6">One-click eBay to Amazon order fulfilment plus instant return label generation — two tools in one platform.</p>
                                 <ul className="space-y-3 mb-8">
                                     <li className="flex items-start gap-3">
@@ -124,13 +131,18 @@ const Tools = () => {
                                 </ul>
                             </div>
                             <div className="mt-auto border-t border-[#757683]/30 pt-6 relative z-10">
-                                <div className="flex justify-between items-center mb-6">
+                                <div className="flex justify-between items-center mb-6 px-1">
                                     <span className="font-label-md text-sm text-[#444651]">Return Converter: <strong className="text-[#1c1b1b]">Free</strong></span>
-                                    <span className="font-label-md text-sm text-[#444651]">CP Bot: <strong className="text-[#1c1b1b]">A$9/mo</strong></span>
+                                    <span className="font-label-md text-sm text-[#444651]">CP Bot: <strong className="text-[#1c1b1b]">AUD $9/mo</strong></span>
                                 </div>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <a className="flex-1 text-center py-2.5 px-4 rounded-lg border border-[#112E81] text-[#112E81] font-label-md text-sm font-semibold hover:bg-[#112E81]/5 transition-colors" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Use Free Tool →</a>
-                                    <a className="flex-1 text-center py-2.5 px-4 rounded-lg bg-[#112E81] text-white font-label-md text-sm font-semibold hover:bg-[#112E81]/90 transition-colors shadow-md" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Get CP Bot →</a>
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex flex-col xl:flex-row gap-3">
+                                        <a className="flex-1 text-center py-2.5 px-4 rounded-lg border border-[#112E81] text-[#112E81] font-label-md text-sm font-semibold hover:bg-[#112E81]/5 transition-colors" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Use Free Tool</a>
+                                        <a className="flex-1 text-center py-2.5 px-4 rounded-lg bg-[#112E81] text-white font-label-md text-sm font-semibold hover:bg-[#112E81]/90 transition-colors shadow-md" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Get CP Bot</a>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <Link to="/tools/rccp" className="text-[#112E81] font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
@@ -167,9 +179,9 @@ const Tools = () => {
                                 </ul>
                             </div>
                             <div className="mt-auto border-t border-[#757683]/30 pt-6 relative z-10">
-                                <div className="flex items-end mb-6">
-                                    <span className="font-headline-md text-2xl text-[#1c1b1b] font-bold">$19</span>
-                                    <span className="font-body-md text-base text-[#444651] ml-1 pb-1">/month</span>
+                                <div className="flex items-end gap-1 mb-6 border-t border-[#112E81]/10 pt-6">
+                                    <span className="font-headline-md text-2xl text-[#1c1b1b] font-bold">AUD $19</span>
+                                    <span className="font-label-md text-sm text-[#444651] mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
                                     <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-[#5152b9] text-white font-label-md text-sm font-semibold hover:bg-[#5152b9]/90 transition-colors shadow-md">Get access</button>
@@ -209,9 +221,9 @@ const Tools = () => {
                                 </ul>
                             </div>
                             <div className="mt-auto border-t border-[#757683]/30 pt-6 relative z-10">
-                                <div className="flex items-end mb-6">
-                                    <span className="font-headline-md text-2xl text-[#1c1b1b] font-bold">$7</span>
-                                    <span className="font-body-md text-base text-[#444651] ml-1 pb-1">/month</span>
+                                <div className="flex items-end gap-1 mb-6 border-t border-[#112E81]/10 pt-6">
+                                    <span className="font-headline-md text-2xl text-[#1c1b1b] font-bold">AUD $7</span>
+                                    <span className="font-label-md text-sm text-[#444651] mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
                                     <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-[#183a42] text-white font-label-md text-sm font-semibold hover:bg-[#183a42]/90 transition-colors shadow-md">Get access</button>
@@ -251,9 +263,9 @@ const Tools = () => {
                                 </ul>
                             </div>
                             <div className="mt-auto border-t border-[#757683]/30 pt-6 relative z-10">
-                                <div className="flex items-end mb-6">
-                                    <span className="font-headline-md text-2xl text-[#1c1b1b] font-bold">$5</span>
-                                    <span className="font-body-md text-base text-[#444651] ml-1 pb-1">/month</span>
+                                <div className="flex items-end gap-1 mb-6 border-t border-[#112E81]/10 pt-6">
+                                    <span className="font-headline-md text-2xl text-[#1c1b1b] font-bold">AUD $5</span>
+                                    <span className="font-label-md text-sm text-[#444651] mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
                                     <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-[#4259ac] text-white font-label-md text-sm font-semibold hover:bg-[#4259ac]/90 transition-colors shadow-md">Get access</button>

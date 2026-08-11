@@ -29,10 +29,9 @@ export const toolsData: ToolData[] = [
     {
         id: 'rccp',
         slug: 'rccp',
-        name: 'CP Bot & Return Converter',
+        name: 'Return Converter x CopyPaste Bot',
         category: 'Order Fulfilment & Returns',
         bannerBg: '#0d1117',
-        icon: Box,
         shortDescription: 'One-click eBay to Amazon order fulfilment plus instant return label generation — two tools in one platform.',
         fullDescription: 'CP Bot & Return Converter is an essential toolkit for Amazon-to-eBay dropshippers. It completely eliminates manual data entry by automatically copying your eBay customer\'s address and pasting it seamlessly into the Amazon checkout page with a single click. Additionally, generate compliant return shipping labels for your eBay customers, fully compatible with Amazon AU returns, without paying a cent for the Return Converter module.',
         features: [
@@ -41,7 +40,7 @@ export const toolsData: ToolData[] = [
             { title: 'History tracking', description: 'Fulfilment history and activity tracking', icon: 'line-chart' },
             { title: 'Cloud clipboard', description: 'Cloud clipboard for cross-device sync', icon: 'cloud' }
         ],
-        price: 'Return Converter: Free | CP Bot: A$9/mo',
+        price: 'Return Converter: Free | CP Bot: AUD $9/mo',
         isFree: false,
         howItWorks: [
             'Install the CP Bot Chrome extension or log in to the dashboard.',
@@ -67,7 +66,7 @@ export const toolsData: ToolData[] = [
             { title: 'Price monitoring', description: 'Get alerts when prices change on Amazon to protect your margins.', icon: 'line-chart' },
             { title: 'Inventory sync', description: 'Automatically update your stock levels when items go out of stock.', icon: 'refresh-cw' }
         ],
-        price: '$19/month',
+        price: 'AUD $19/month',
         isFree: false,
         howItWorks: [
             'Connect your eBay store securely via our dashboard.',
@@ -93,7 +92,7 @@ export const toolsData: ToolData[] = [
             { title: 'Discord integration', description: 'Push order notifications to a dedicated channel in your Discord server.', icon: 'hash' },
             { title: 'Real-time speed', description: 'Alerts are delivered in milliseconds, ensuring you can act fast.', icon: 'clock' }
         ],
-        price: '$7/month',
+        price: 'AUD $7/month',
         isFree: false,
         howItWorks: [
             'Link your eBay account in the Order Bot dashboard.',
@@ -119,7 +118,7 @@ export const toolsData: ToolData[] = [
             { title: 'Custom branding', description: 'Add your store\'s logo, address, and ABN to look highly professional.', icon: 'image' },
             { title: 'PDF export', description: 'Download ready-to-send PDF files that you can easily attach to messages.', icon: 'download' }
         ],
-        price: '$5/month',
+        price: 'AUD $5/month',
         isFree: false,
         howItWorks: [
             'Connect your store and upload your logo/branding details.',
