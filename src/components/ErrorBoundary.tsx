@@ -24,6 +24,23 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    const isChunkLoadError = 
+      error?.name === 'ChunkLoadError' || 
+      error?.message?.includes('Failed to fetch dynamically imported module') ||
+      error?.message?.includes('Importing a module script failed');
+      
+    if (isChunkLoadError) {
+      const lastReload = sessionStorage.getItem('vite_chunk_load_error_time');
+      const now = Date.now();
+      
+      // If we haven't reloaded in the last 10 seconds for a chunk error, force a hard reload
+      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+        sessionStorage.setItem('vite_chunk_load_error_time', now.toString());
+        window.location.reload();
+        return;
+      }
+    }
+
     errorTracker.logError(error, { errorInfo });
   }
 
