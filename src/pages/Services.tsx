@@ -1,53 +1,10 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 const Services = () => {
-    const { toast } = useToast();
-    const [email, setEmail] = useState('');
-    const [isSubscribing, setIsSubscribing] = useState(false);
 
-    const handleSubscribe = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email.trim()) return;
-
-        setIsSubscribing(true);
-        try {
-            const { error } = await supabase
-                .from('newsletter_subscribers')
-                .insert([{ email: email.trim() }]);
-
-            if (error) {
-                if (error.code === '23505') {
-                    toast({
-                        title: 'Already Subscribed',
-                        description: 'This email is already on our list!',
-                    });
-                } else {
-                    throw error;
-                }
-            } else {
-                toast({
-                    title: 'Subscribed!',
-                    description: 'Welcome to the newsletter. Check your inbox soon!',
-                });
-                setEmail('');
-            }
-        } catch (error) {
-            toast({
-                title: 'Error',
-                description: 'Failed to subscribe. Please try again.',
-                variant: 'destructive',
-            });
-        } finally {
-            setIsSubscribing(false);
-        }
-    };
 
     return (
         <div className="bg-[#aaccd6] text-[#1c1b1b] antialiased selection:bg-[#112E81] selection:text-white min-h-screen">
@@ -292,34 +249,7 @@ const Services = () => {
                 </section>
             </main>
 
-            {/* Newsletter Section */}
-            <section className="py-24 bg-white border-t border-[#c5c5d3]/30 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#112E81] to-transparent pointer-events-none"></div>
-                <div className="max-w-3xl mx-auto px-4 sm:px-6 md:px-12 text-center relative z-10">
-                    <h2 className="font-display text-3xl md:text-4xl font-bold text-[#00195c] mb-4">Stay Ahead of the Curve</h2>
-                    <p className="font-body-lg text-lg text-[#444651] mb-8">
-                        Get exclusive automation tips, workflow templates, and industry insights delivered to your inbox.
-                    </p>
-                    <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-                        <input 
-                            className="flex-1 px-4 py-3 border border-[#c5c5d3] rounded-lg focus:outline-none focus:border-[#AACCD6] focus:ring-2 focus:ring-[#AACCD6]/20 font-body-md text-base bg-[#fcf8f8]" 
-                            placeholder="Enter your email" 
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                        <button 
-                            className="bg-gradient-to-r from-[#112E81] to-[#4647AE] text-white px-8 py-3 rounded-lg font-semibold text-sm hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]" 
-                            type="submit"
-                            disabled={isSubscribing}
-                        >
-                            {isSubscribing ? <Loader2 className="w-5 h-5 animate-spin" /> : "Subscribe"}
-                        </button>
-                    </form>
-                    <p className="mt-4 font-medium text-xs text-[#757683]">No spam, unsubscribe anytime.</p>
-                </div>
-            </section>
+
 
             <Footer />
         </div>

@@ -2,30 +2,60 @@ import { useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+// ── Singleton auth state (shared across all useAuth consumers) ──
+let currentSession: Session | null = null;
+let initialized = false;
+const listeners: Set<(session: Session | null) => void> = new Set();
+
+function broadcast(session: Session | null) {
+  currentSession = session;
+  initialized = true;
+  listeners.forEach(fn => fn(session));
+}
+
+// Module-level listener — runs once when this module is first imported.
+// All components that call useAuth() share this single source of truth.
+supabase.auth.onAuthStateChange((_event, session) => {
+  broadcast(session);
+});
+
+supabase.auth.getSession().then(({ data: { session } }) => {
+  broadcast(session);
+});
+
+// Visibility change handler — re-validate session when user returns to tab.
+// Fixes the "inactive tab for 5+ minutes" bug where the token expires silently.
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+      const { data: { session } } = await supabase.auth.getSession();
+      broadcast(session);
+    }
+  });
+}
+
+// ── Hook ──
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(currentSession);
+  const [loading, setLoading] = useState(!initialized);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const listener = (s: Session | null) => {
+      setSession(s);
       setLoading(false);
-    });
+    };
+    listeners.add(listener);
 
-    return () => subscription.unsubscribe();
+    // If session was already resolved before this component mounted
+    if (initialized) {
+      setSession(currentSession);
+      setLoading(false);
+    }
+
+    return () => { listeners.delete(listener); };
   }, []);
+
+  const user: User | null = session?.user ?? null;
 
   const signUp = async (email: string, password: string, fullName?: string, metadata?: {
     country?: string;
@@ -59,7 +89,6 @@ export const useAuth = () => {
     });
     return { data, error };
   };
-
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();

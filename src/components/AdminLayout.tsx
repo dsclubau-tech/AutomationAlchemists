@@ -29,6 +29,7 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
         { path: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, description: 'User access' },
         { path: '/admin/tools', label: 'Tools & Status', icon: PenTool, description: 'Manage tools' },
         { path: '/admin/audit-log', label: 'Audit Log', icon: ActivitySquare, description: 'Admin actions' },
+        { path: '/admin/contact-submissions', label: 'Form Submissions', icon: Mail, description: 'Messages & files' },
         // Legacy pages preserved:
         { path: '/admin/contacts', label: 'Contact Settings', icon: MessageSquare, description: 'Contact page info' },
         { path: '/admin/content', label: 'Content', icon: FileText, description: 'Educational content' },

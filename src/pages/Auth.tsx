@@ -121,7 +121,15 @@ const Auth = () => {
     if (user) {
       const urlParams = new URLSearchParams(window.location.search);
       const redirectTarget = urlParams.get('redirect');
+      const isLogout = urlParams.get('logout');
       
+      if (redirectTarget === 'cpbot' && isLogout) {
+        // Logout flow from rccp — do NOT redirect back to rccp.
+        // Just navigate to AA homepage to break the loop.
+        navigate('/');
+        return;
+      }
+
       if (redirectTarget === 'cpbot') {
         // Already logged in — redirect to CP Bot with session tokens
         supabase.auth.getSession().then(({ data: { session } }) => {

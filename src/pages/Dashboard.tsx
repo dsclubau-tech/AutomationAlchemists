@@ -275,6 +275,13 @@ const Dashboard = () => {
     const [dbTools, setDbTools] = useState<DbTool[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
+    // Redirect unauthenticated users once session check is done
+    useEffect(() => {
+        if (!authLoading && !user) {
+            navigate('/auth');
+        }
+    }, [user, authLoading, navigate]);
+
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);

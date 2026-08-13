@@ -95,7 +95,7 @@ const validatePhone = (phoneNumber: string, currentCountry: string) => {
 
 const Account = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { toast } = useToast();
   
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -129,6 +129,7 @@ const Account = () => {
   const [activeSection, setActiveSection] = useState<'profile' | 'password' | 'none'>('none');
 
   useEffect(() => {
+    if (loading) return; // wait for session check before redirecting
     if (!user) {
       navigate('/auth');
       return;
@@ -169,7 +170,7 @@ const Account = () => {
     };
 
     fetchProfile();
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
