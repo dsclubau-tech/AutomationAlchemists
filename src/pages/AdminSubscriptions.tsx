@@ -55,6 +55,10 @@ const AdminSubscriptions = () => {
   const [grantToolSlug, setGrantToolSlug] = useState('cpbot');
   const [grantEndDate, setGrantEndDate] = useState('');
   const [grantReason, setGrantReason] = useState('');
+  const [grantStoreName, setGrantStoreName] = useState('');
+
+  // Tools that support store-level subscriptions
+  const MULTI_STORE_TOOLS = ['orderbot', 'listflow'];
 
   const { toast } = useToast();
 
@@ -195,12 +199,14 @@ const AdminSubscriptions = () => {
       toast({ title: 'Error', description: 'Email, Tool, and Reason are required', variant: 'destructive' });
       return;
     }
+    const isMultiStore = MULTI_STORE_TOOLS.includes(grantToolSlug);
+    if (isMultiStore && !grantStoreName.trim()) {
+      toast({ title: 'Error', description: 'Store Name is required for this tool', variant: 'destructive' });
+      return;
+    }
     setIsActionLoading(true);
     
     try {
-      // Look up user ID from email in our existing subs or users (this is a bit hacky, ideally we search users table)
-      // Since we need to pass target_user_id, let's query profiles by email via RPC or just pass email to a new RPC.
-      // Wait, admin_get_users has the email. Let's fetch the user id.
       const { data: usersData, error: usersError } = await supabase.rpc('admin_get_users');
       if (usersError) throw usersError;
       
@@ -210,26 +216,56 @@ const AdminSubscriptions = () => {
       }
 
       const endDateISO = grantEndDate ? new Date(grantEndDate).toISOString() : null;
+      const generatedStoreId = isMultiStore ? crypto.randomUUID() : null;
+
+      const payload: Record<string, any> = {
+        tool_slug: grantToolSlug,
+        reason: grantReason,
+        end_date: endDateISO
+      };
+
+      if (isMultiStore) {
+        payload.store_id = generatedStoreId;
+        payload.store_name = grantStoreName.trim();
+      }
 
       const { data, error } = await supabase.rpc('admin_execute_action', {
         p_action_type: 'grant_access',
         p_target_user_id: targetUser.id,
         p_target_email: targetUser.email,
-        p_payload: {
-          tool_slug: grantToolSlug,
-          reason: grantReason,
-          end_date: endDateISO
-        }
+        p_payload: payload
       });
       
       if (error) throw error;
+
+      // For multi-store tools, ensure the store exists in the stores registry
+      if (isMultiStore && generatedStoreId) {
+        const { data: existingStore } = await supabase
+          .from('stores')
+          .select('id')
+          .eq('user_id', targetUser.id)
+          .eq('store_name', grantStoreName.trim())
+          .single();
+
+        if (!existingStore) {
+          await supabase.from('stores').insert({
+            id: generatedStoreId,
+            user_id: targetUser.id,
+            email: targetUser.email,
+            store_name: grantStoreName.trim(),
+            connected_tools: [grantToolSlug],
+            is_active: true
+          });
+        }
+      }
       
       toast({ title: 'Success', description: 'Manual grant applied successfully' });
       setIsGrantModalOpen(false);
       setGrantEmail('');
       setGrantReason('');
       setGrantEndDate('');
-      fetchSubscriptions(); // Refresh to get the new record with its ID
+      setGrantStoreName('');
+      fetchSubscriptions();
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
@@ -489,6 +525,18 @@ const AdminSubscriptions = () => {
                 </SelectContent>
               </Select>
             </div>
+            {MULTI_STORE_TOOLS.includes(grantToolSlug) && (
+              <div className="space-y-2">
+                <Label>Store Name</Label>
+                <Input 
+                  placeholder="e.g. My eBay Store 1"
+                  value={grantStoreName} 
+                  onChange={e => setGrantStoreName(e.target.value)} 
+                  className="bg-background-dark border-primary/30 text-white"
+                />
+                <p className="text-xs text-text-muted">Required. A store_id UUID will be auto-generated.</p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Expiry Date (Optional)</Label>
               <Input 
