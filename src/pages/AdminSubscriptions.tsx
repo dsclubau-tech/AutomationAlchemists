@@ -29,6 +29,8 @@ interface AdminSubscription {
   created_at: string;
 }
 
+const MULTI_STORE_TOOLS = ['orderbot', 'listflow'];
+
 const AdminSubscriptions = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const userIdFilter = searchParams.get('user_id');
@@ -55,6 +57,7 @@ const AdminSubscriptions = () => {
   const [grantToolSlug, setGrantToolSlug] = useState('cpbot');
   const [grantEndDate, setGrantEndDate] = useState('');
   const [grantReason, setGrantReason] = useState('');
+  const [grantStoreName, setGrantStoreName] = useState('');
 
   const { toast } = useToast();
 
@@ -195,6 +198,12 @@ const AdminSubscriptions = () => {
       toast({ title: 'Error', description: 'Email, Tool, and Reason are required', variant: 'destructive' });
       return;
     }
+    
+    if (MULTI_STORE_TOOLS.includes(grantToolSlug) && !grantStoreName.trim()) {
+      toast({ title: 'Error', description: 'Store Name is required for this tool', variant: 'destructive' });
+      return;
+    }
+    
     setIsActionLoading(true);
     
     try {
@@ -210,6 +219,7 @@ const AdminSubscriptions = () => {
       }
 
       const endDateISO = grantEndDate ? new Date(grantEndDate).toISOString() : null;
+      const storeId = MULTI_STORE_TOOLS.includes(grantToolSlug) ? crypto.randomUUID() : undefined;
 
       const { data, error } = await supabase.rpc('admin_execute_action', {
         p_action_type: 'grant_access',
@@ -218,17 +228,42 @@ const AdminSubscriptions = () => {
         p_payload: {
           tool_slug: grantToolSlug,
           reason: grantReason,
-          end_date: endDateISO
+          end_date: endDateISO,
+          ...(storeId && {
+            store_id: storeId,
+            store_name: grantStoreName.trim()
+          })
         }
       });
       
       if (error) throw error;
+      
+      if (storeId && grantStoreName) {
+        const { data: existing } = await supabase
+          .from('stores')
+          .select('id')
+          .eq('user_id', targetUser.id)
+          .eq('store_name', grantStoreName.trim())
+          .maybeSingle();
+
+        if (!existing) {
+          await supabase.from('stores').insert({
+            id: storeId,
+            user_id: targetUser.id,
+            email: targetUser.email,
+            store_name: grantStoreName.trim(),
+            connected_tools: [grantToolSlug],
+            is_active: true
+          });
+        }
+      }
       
       toast({ title: 'Success', description: 'Manual grant applied successfully' });
       setIsGrantModalOpen(false);
       setGrantEmail('');
       setGrantReason('');
       setGrantEndDate('');
+      setGrantStoreName('');
       fetchSubscriptions(); // Refresh to get the new record with its ID
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
@@ -489,6 +524,20 @@ const AdminSubscriptions = () => {
                 </SelectContent>
               </Select>
             </div>
+            
+            {MULTI_STORE_TOOLS.includes(grantToolSlug) && (
+              <div className="space-y-2">
+                <Label>Store Name (required)</Label>
+                <Input 
+                  type="text"
+                  placeholder="e.g. My eBay Store 1"
+                  value={grantStoreName}
+                  onChange={e => setGrantStoreName(e.target.value)}
+                  className="bg-background-dark border-primary/30 text-white"
+                />
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label>Expiry Date (Optional)</Label>
               <Input 

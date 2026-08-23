@@ -119,27 +119,6 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const redirectTarget = urlParams.get('redirect');
-      const isLogout = urlParams.get('logout');
-      
-      if (redirectTarget === 'cpbot' && isLogout) {
-        // Logout flow from rccp — do NOT redirect back to rccp.
-        // Just navigate to AA homepage to break the loop.
-        navigate('/');
-        return;
-      }
-
-      if (redirectTarget === 'cpbot') {
-        // Already logged in — redirect to CP Bot with session tokens
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session) {
-            window.location.href = `https://rccp.automationalchemists.com/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
-          }
-        });
-        return;
-      }
-      
       navigate('/');
     }
   }, [user, navigate]);
@@ -228,10 +207,6 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    // Check for cross-app redirect (e.g. ?redirect=cpbot)
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirectTarget = urlParams.get('redirect');
-
     try {
       if (isSignUp) {
         const fullPhone = phone ? `${COUNTRY_DIAL_CODES[country]?.code || ''}${phone}` : undefined;
@@ -243,15 +218,6 @@ const Auth = () => {
         });
         if (error) throw error;
 
-        // Handle cross-app redirect after signup
-        if (redirectTarget === 'cpbot') {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            window.location.href = `https://rccp.automationalchemists.com/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
-            return;
-          }
-        }
-
         toast({
           title: 'Success!',
           description: 'Your account has been created successfully.',
@@ -260,15 +226,6 @@ const Auth = () => {
       } else {
         const { data, error } = await signIn(email, password);
         if (error) throw error;
-
-        // Handle cross-app redirect after signin
-        if (redirectTarget === 'cpbot') {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            window.location.href = `https://rccp.automationalchemists.com/auth/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
-            return;
-          }
-        }
 
         // Check if user is admin
         if (data?.user) {
