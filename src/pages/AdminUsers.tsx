@@ -141,25 +141,16 @@ const AdminUsers = () => {
     
     try {
       // Call Edge Function
-      const { data: session } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.session?.access_token}`
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('admin-actions', {
+        body: {
           action: 'delete_user',
           target_user_id: deleteUser.id,
           target_email: deleteUser.email
-        })
+        }
       });
       
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete user');
+      if (error) {
+        throw new Error(error.message || 'Failed to delete user');
       }
       
       setUsers(users.filter(u => u.id !== deleteUser.id));

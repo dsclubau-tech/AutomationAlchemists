@@ -1,7 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.0';
 
+const isProd = Deno.env.get('SUPABASE_URL')?.includes('supabase.co');
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': isProd ? 'https://automationalchemists.com' : '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
@@ -57,18 +58,34 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (action === 'delete_user' && target_user_id === user.id) {
+      return new Response(JSON.stringify({ error: 'Cannot delete your own account' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (action === 'delete_user') {
       if (!target_user_id) {
         return new Response(JSON.stringify({ error: 'target_user_id required' }), { status: 400, headers: corsHeaders });
       }
 
-      // A. Delete from subscriptions
-      await supabaseAdmin.from('subscriptions').delete().eq('user_id', target_user_id);
-      // B. Delete from profiles
-      await supabaseAdmin.from('profiles').delete().eq('id', target_user_id);
-      // C. Delete from auth.users
+      // 1. Delete DB records via transaction (subscriptions, profiles, stores)
+      const { error: rpcError } = await supabaseClient.rpc('admin_delete_user', {
+        p_target_user_id: target_user_id
+      });
+      
+      if (rpcError) {
+        throw new Error(`Database deletion transaction failed: ${rpcError.message}`);
+      }
+
+      // 2. Delete from auth.users via GoTrue API
       const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(target_user_id);
-      if (deleteAuthError) throw new Error(`Failed to delete auth user: ${deleteAuthError.message}`);
+      
+      if (deleteAuthError) {
+        console.error(`INCONSISTENCY ERROR: DB records deleted for user ${target_user_id}, but auth.users deletion failed.`, deleteAuthError);
+        throw new Error(`Database records were deleted, but failed to delete auth user: ${deleteAuthError.message}`);
+      }
     } else if (action === 'delete_subscription') {
       const { target_subscription_id } = body;
       if (!target_subscription_id) {
@@ -85,7 +102,7 @@ Deno.serve(async (req) => {
       .insert({
         admin_user_id: user.id,
         admin_email: user.email,
-        action: 'deleted_user',
+        action: action === 'delete_user' ? 'deleted_user' : 'deleted_subscription',
         target_user_id: target_user_id,
         target_email: target_email,
         details: body

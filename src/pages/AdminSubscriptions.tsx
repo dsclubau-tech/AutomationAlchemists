@@ -164,24 +164,16 @@ const AdminSubscriptions = () => {
     setIsActionLoading(true);
     
     try {
-      const { data: session } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.session?.access_token}`
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('admin-actions', {
+        body: {
           action: 'delete_subscription',
           target_user_id: deleteSub.user_id,
           target_email: deleteSub.user_email,
           target_subscription_id: deleteSub.id
-        })
+        }
       });
       
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Failed to delete subscription');
+      if (error) throw new Error(error.message || 'Failed to delete subscription');
       
       setSubscriptions(subscriptions.filter(s => s.id !== deleteSub.id));
       toast({ title: 'Deleted', description: `Subscription record removed permanently.` });
