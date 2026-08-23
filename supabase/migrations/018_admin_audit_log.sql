@@ -55,14 +55,18 @@ BEGIN
   ELSIF p_action_type = 'grant_access' THEN
     INSERT INTO public.subscriptions (
       user_id, 
+      email,
       product_slug, 
       status, 
       current_period_end, 
       manually_granted, 
       grant_reason, 
-      granted_by_admin_id
+      granted_by_admin_id,
+      store_id,
+      store_name
     ) VALUES (
       p_target_user_id,
+      p_target_email,
       p_payload->>'tool_slug',
       'active',
       CASE 
@@ -71,7 +75,9 @@ BEGIN
       END,
       true,
       p_payload->>'reason',
-      auth.uid()
+      auth.uid(),
+      NULLIF(p_payload->>'store_id', ''),
+      NULLIF(p_payload->>'store_name', '')
     );
 
   ELSIF p_action_type = 'revoke_access' THEN
