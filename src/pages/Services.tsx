@@ -7,7 +7,7 @@ const Services = () => {
 
 
     return (
-        <div className="bg-[#aaccd6] text-[#1c1b1b] antialiased selection:bg-[#112E81] selection:text-white min-h-screen">
+ <div className="bg-mint-50 text-teal-900 antialiased selection:bg-teal-600 selection:text-white min-h-screen">
             <SEOHead
                 title="Services - Automation Alchemists"
                 description="Explore our comprehensive automation services: Virtual Assistants, Workflow Automation, API Integration, and Custom software development."
@@ -16,14 +16,14 @@ const Services = () => {
             <Navigation />
 
             {/* Hero Section */}
-            <header className="pt-32 pb-24 px-4 sm:px-6 md:px-12 bg-[#112E81] text-white relative overflow-hidden">
+ <header className="pt-32 pb-24 px-4 sm:px-6 md:px-12 bg-teal-600 text-white relative overflow-hidden">
                 <div className="max-w-7xl mx-auto relative z-10 text-center md:text-left grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center">
                     <div>
                         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold mb-6">We Build Systems That Scale.</h1>
                         <p className="font-body-lg text-lg md:text-xl text-[#f6f3f2] mb-8 max-w-xl">
                             Stop trading time for money. We design custom automation workflows that handle your repetitive tasks, so you can focus on growth.
                         </p>
-                        <button className="bg-white text-[#112E81] px-8 py-4 rounded font-semibold text-sm hover:shadow-lg transition-all duration-300 border border-transparent hover:border-white">
+ <button className="bg-white text-teal-600 px-8 py-4 rounded font-semibold text-sm hover:shadow-lg transition-all duration-300 border border-transparent hover:border-white">
                             Explore Our Services
                         </button>
                     </div>
@@ -41,7 +41,7 @@ const Services = () => {
                 {/* Workflow Automation */}
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
                     <div className="md:col-span-6 space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#112E81]/10 text-[#112E81] rounded-full font-medium text-xs">
+ <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 text-teal-600 rounded-full font-medium text-xs">
                             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
                             Workflow Automation
                         </div>
@@ -49,11 +49,11 @@ const Services = () => {
                         <p className="font-body-md text-base text-[#444651]">
                             We design and implement automated workflows that eliminate repetitive manual tasks, reduce human error, and free your team to focus on high-value work. From automating internal approvals to connecting your CRM, invoicing, and reporting tools, every workflow is custom-built around how your business actually operates.
                         </p>
-                        <ul className="space-y-4 font-body-md text-base text-[#1c1b1b]">
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Process Mapping &amp; Optimization</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Custom Automation Workflows</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Third-Party Tool Integration</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Time &amp; Cost Savings Reports</li>
+ <ul className="space-y-4 font-body-md text-base text-teal-900">
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Process Mapping &amp; Optimization</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Custom Automation Workflows</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Third-Party Tool Integration</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Time &amp; Cost Savings Reports</li>
                         </ul>
                         <div className="mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow">
                             <h4 className="font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2"><span className="material-symbols-outlined">lightbulb</span> Quick Answer</h4>
@@ -66,9 +66,9 @@ const Services = () => {
                     <div className="md:col-span-6">
                         <div className="bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8">
                             <div className="flex flex-wrap gap-2 mb-6">
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Automation</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Efficiency</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Workflows</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Automation</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Efficiency</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Workflows</span>
                             </div>
                             <div className="h-64 rounded-lg overflow-hidden mb-6 relative">
                                 <div className="bg-cover bg-center w-full h-full" 
@@ -83,7 +83,7 @@ const Services = () => {
                 {/* Custom Business Tools */}
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
                     <div className="md:col-span-6 md:order-last space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#112E81]/10 text-[#112E81] rounded-full font-medium text-xs">
+ <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 text-teal-600 rounded-full font-medium text-xs">
                             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>build</span>
                             Custom Business Tools
                         </div>
@@ -91,11 +91,11 @@ const Services = () => {
                         <p className="font-body-md text-base text-[#444651]">
                             Off-the-shelf software rarely fits every part of your business. We build custom internal tools, dashboards, and applications designed around your exact workflows
                         </p>
-                        <ul className="space-y-4 font-body-md text-base text-[#1c1b1b]">
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Custom Dashboards &amp; Portals</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Internal Tool Development</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Scalable Architecture</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Ongoing Support &amp; Updates</li>
+ <ul className="space-y-4 font-body-md text-base text-teal-900">
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Custom Dashboards &amp; Portals</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Internal Tool Development</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Scalable Architecture</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Ongoing Support &amp; Updates</li>
                         </ul>
                         <div className="mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow">
                             <h4 className="font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2"><span className="material-symbols-outlined">lightbulb</span> Quick Answer</h4>
@@ -108,9 +108,9 @@ const Services = () => {
                     <div className="md:col-span-6 md:order-first">
                         <div className="bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8">
                             <div className="flex flex-wrap gap-2 mb-6">
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Dashboards</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Internal Tools</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Scalable</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Dashboards</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Internal Tools</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Scalable</span>
                             </div>
                             <div className="h-64 rounded-lg overflow-hidden mb-6 relative">
                                 <div className="bg-cover bg-center w-full h-full" 
@@ -125,7 +125,7 @@ const Services = () => {
                 {/* API Integration */}
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
                     <div className="md:col-span-6 space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#112E81]/10 text-[#112E81] rounded-full font-medium text-xs">
+ <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 text-teal-600 rounded-full font-medium text-xs">
                             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>hub</span>
                             API Integration
                         </div>
@@ -133,11 +133,11 @@ const Services = () => {
                         <p className="font-body-md text-base text-[#444651]">
                             Secure, real-time API integrations that connect your CRM, payment systems, and internal tools. Disconnected software creates duplicate data, wasted time, and costly mistakes. We connect your CRM, payment systems, marketing tools, and internal platforms through secure, reliable API integrations.
                         </p>
-                        <ul className="space-y-4 font-body-md text-base text-[#1c1b1b]">
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Third-Party API Connections</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Custom API Development</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Secure Data Syncing</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Real-Time System Updates</li>
+ <ul className="space-y-4 font-body-md text-base text-teal-900">
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Third-Party API Connections</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Custom API Development</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Secure Data Syncing</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Real-Time System Updates</li>
                         </ul>
                         <div className="mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow">
                             <h4 className="font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2"><span className="material-symbols-outlined">lightbulb</span> Quick Answer</h4>
@@ -150,9 +150,9 @@ const Services = () => {
                     <div className="md:col-span-6">
                         <div className="bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8">
                             <div className="flex flex-wrap gap-2 mb-6">
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">API</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Integration</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Data Sync</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">API</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Integration</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Data Sync</span>
                             </div>
                             <div className="h-64 rounded-lg overflow-hidden mb-6 relative">
                                 <div className="bg-cover bg-center w-full h-full" 
@@ -167,7 +167,7 @@ const Services = () => {
                 {/* SaaS Tools */}
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
                     <div className="md:col-span-6 md:order-last space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#112E81]/10 text-[#112E81] rounded-full font-medium text-xs">
+ <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 text-teal-600 rounded-full font-medium text-xs">
                             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>cloud</span>
                             SaaS Tools
                         </div>
@@ -175,11 +175,11 @@ const Services = () => {
                         <p className="font-body-md text-base text-[#444651]">
                             Whether you're launching a new product or scaling an existing platform, we design and build SaaS applications that are secure, scalable, and built for growth.
                         </p>
-                        <ul className="space-y-4 font-body-md text-base text-[#1c1b1b]">
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> MVP to Full-Scale Development</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Multi-Tenant Architecture</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Subscription &amp; Billing Systems</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Cloud-Native Infrastructure</li>
+ <ul className="space-y-4 font-body-md text-base text-teal-900">
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> MVP to Full-Scale Development</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Multi-Tenant Architecture</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Subscription &amp; Billing Systems</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Cloud-Native Infrastructure</li>
                         </ul>
                         <div className="mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow">
                             <h4 className="font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2"><span className="material-symbols-outlined">lightbulb</span> Quick Answer</h4>
@@ -192,9 +192,9 @@ const Services = () => {
                     <div className="md:col-span-6 md:order-first">
                         <div className="bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8">
                             <div className="flex flex-wrap gap-2 mb-6">
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">SaaS</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Cloud</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Subscriptions</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">SaaS</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Cloud</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Subscriptions</span>
                             </div>
                             <div className="h-64 rounded-lg overflow-hidden mb-6 relative">
                                 <div className="bg-cover bg-center w-full h-full" 
@@ -209,7 +209,7 @@ const Services = () => {
                 {/* Virtual Assistance */}
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
                     <div className="md:col-span-6 space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#112E81]/10 text-[#112E81] rounded-full font-medium text-xs">
+ <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 text-teal-600 rounded-full font-medium text-xs">
                             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>support_agent</span>
                             Virtual Assistance
                         </div>
@@ -217,11 +217,11 @@ const Services = () => {
                         <p className="font-body-md text-base text-[#444651]">
                             Free up hours in your week with skilled virtual assistant support tailored to your business. From inbox and calendar management to research, data entry, and customer support, our virtual assistants handle the day-to-day so you can focus on growth.
                         </p>
-                        <ul className="space-y-4 font-body-md text-base text-[#1c1b1b]">
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Admin &amp; Inbox Management</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Data Entry &amp; Research</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Customer Support Assistance</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-[#D4AF37]">check_circle</span> Flexible Hourly Plans</li>
+ <ul className="space-y-4 font-body-md text-base text-teal-900">
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Admin &amp; Inbox Management</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Data Entry &amp; Research</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Customer Support Assistance</li>
+ <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Flexible Hourly Plans</li>
                         </ul>
                         <div className="mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow">
                             <h4 className="font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2"><span className="material-symbols-outlined">lightbulb</span> Quick Answer</h4>
@@ -234,9 +234,9 @@ const Services = () => {
                     <div className="md:col-span-6">
                         <div className="bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8">
                             <div className="flex flex-wrap gap-2 mb-6">
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Virtual Assistant</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Support</span>
-                                <span className="px-3 py-1 bg-[#aaccd6]/30 text-[#00195c] font-medium text-xs rounded-full">Admin</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Virtual Assistant</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Support</span>
+                                <span className="px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full">Admin</span>
                             </div>
                             <div className="h-64 rounded-lg overflow-hidden mb-6 relative">
                                 <div className="bg-cover bg-center w-full h-full" 

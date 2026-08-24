@@ -302,12 +302,12 @@ const Account = () => {
   };
 
   const labelClass = "text-[11px] text-[#888] uppercase tracking-[0.5px] font-display mb-1.5 block font-semibold";
-  const inputClass = "w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display";
-  const selectClass = "w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display appearance-none cursor-pointer";
+  const inputClass = "w-full bg-teal-800 border border-teal-600/30 text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-teal-600 focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display";
+  const selectClass = "w-full bg-teal-800 border border-teal-600/30 text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-teal-600 focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display appearance-none cursor-pointer";
 
   if (isLoadingProfile) {
     return (
-      <div className="min-h-screen bg-[#111] pt-[120px] flex items-center justify-center">
+      <div className="min-h-screen bg-teal-900 pt-[120px] flex items-center justify-center">
         <Navigation hideAuthButton={true} />
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
@@ -317,7 +317,7 @@ const Account = () => {
   const passwordStrength = getPasswordStrength(newPassword);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-[100px] pb-24 font-display">
+    <div className="min-h-screen bg-teal-900 pt-[100px] pb-24 font-display">
       <Navigation hideAuthButton={true} />
 
       <div className="max-w-[680px] mx-auto px-6 w-full">
@@ -336,7 +336,7 @@ const Account = () => {
           {/* SECTION 1 - PROFILE */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-            className={`bg-[#111] rounded-xl p-6 md:p-8 border ${activeSection === 'profile' ? 'border-[#D4AF37]' : 'border-[#2a2a2a]'} transition-colors`}
+            className={`bg-teal-900 rounded-xl p-6 md:p-8 border ${activeSection === 'profile' ? 'border-teal-600' : 'border-teal-600/30'} transition-colors`}
             onFocus={() => setActiveSection('profile')}
             onBlur={(e) => {
               if (!e.currentTarget.contains(e.relatedTarget)) setActiveSection('none');
@@ -368,9 +368,9 @@ const Account = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="phone" className={labelClass}>Phone (Optional)</label>
-                  <div className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg h-11 flex items-center focus-within:border-[#D4AF37] focus-within:ring-1 focus-within:ring-[#D4AF37] transition-colors overflow-hidden">
+                  <div className="w-full bg-teal-800 border border-teal-600/30 rounded-lg h-11 flex items-center focus-within:border-teal-600 focus-within:ring-1 focus-within:ring-[#D4AF37] transition-colors overflow-hidden">
                     {COUNTRY_DIAL_CODES[country]?.code && (
-                      <div className="flex items-center px-3 border-r border-[#2a2a2a] text-[#888] h-full whitespace-nowrap bg-[#1a1a1a]">
+                      <div className="flex items-center px-3 border-r border-teal-600/30 text-[#888] h-full whitespace-nowrap bg-teal-800">
                         {COUNTRY_DIAL_CODES[country].code}
                       </div>
                     )}
@@ -423,7 +423,7 @@ const Account = () => {
           {/* SECTION 2 - CHANGE PASSWORD */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-            className={`bg-[#111] rounded-xl p-6 md:p-8 border ${activeSection === 'password' ? 'border-[#D4AF37]' : 'border-[#2a2a2a]'} transition-colors`}
+            className={`bg-teal-900 rounded-xl p-6 md:p-8 border ${activeSection === 'password' ? 'border-teal-600' : 'border-teal-600/30'} transition-colors`}
             onFocus={() => setActiveSection('password')}
             onBlur={(e) => {
               if (!e.currentTarget.contains(e.relatedTarget)) setActiveSection('none');
@@ -483,24 +483,24 @@ const Account = () => {
           {/* SECTION 3 - ACCOUNT INFO & DANGER ZONE */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-[#111] rounded-xl p-6 md:p-8 border border-[#2a2a2a]"
+            className="bg-teal-900 rounded-xl p-6 md:p-8 border border-teal-600/30"
           >
             <h2 className="text-xl font-bold text-white mb-6">Account Information</h2>
             
             <div className="space-y-4 mb-10">
-              <div className="flex justify-between items-center py-3 border-b border-[#2a2a2a]">
+              <div className="flex justify-between items-center py-3 border-b border-teal-600/30">
                 <span className="text-[#888] text-sm">Member since</span>
                 <span className="text-white font-medium">
                   {createdAt ? format(new Date(createdAt), 'MMMM yyyy') : 'Unknown'}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-3 border-b border-[#2a2a2a]">
+              <div className="flex justify-between items-center py-3 border-b border-teal-600/30">
                 <span className="text-[#888] text-sm">Account status</span>
                 <span className="text-white font-medium flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-green-500"></span> Active
                 </span>
               </div>
-              <div className="flex justify-between items-center py-3 border-b border-[#2a2a2a]">
+              <div className="flex justify-between items-center py-3 border-b border-teal-600/30">
                 <span className="text-[#888] text-sm">Terms accepted</span>
                 <span className="text-white font-medium">
                   {termsAcceptedAt ? `Accepted on ${format(new Date(termsAcceptedAt), 'dd MMMM yyyy')}` : 'Not accepted'}
@@ -532,7 +532,7 @@ const Account = () => {
               initial={{ opacity: 0, scale: 0.95 }} 
               animate={{ opacity: 1, scale: 1 }} 
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#111] border border-[#2a2a2a] rounded-xl w-full max-w-md p-6 shadow-2xl relative"
+              className="bg-teal-900 border border-teal-600/30 rounded-xl w-full max-w-md p-6 shadow-2xl relative"
             >
               <div className="flex items-center gap-3 mb-4 text-red-500">
                 <ShieldAlert className="w-6 h-6" />

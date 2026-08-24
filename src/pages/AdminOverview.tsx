@@ -105,59 +105,59 @@ const AdminOverview = () => {
             >
                 {/* Stats Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card className="border-primary/20 bg-surface-dark/50">
+                    <Card className="border-teal-600/30 bg-teal-800">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
                             <Users className="h-8 w-8 text-primary mb-2" />
                             <p className="text-sm text-text-muted mb-1">Total Users</p>
                             {isLoading ? (
                                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-text-main font-display">{stats.totalUsers}</h3>
+                                <h3 className="text-3xl font-bold text-white font-display">{stats.totalUsers}</h3>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card className="border-primary/20 bg-surface-dark/50">
+                    <Card className="border-teal-600/30 bg-teal-800">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
                             <CreditCard className="h-8 w-8 text-green-400 mb-2" />
                             <p className="text-sm text-text-muted mb-1">Active Subscriptions</p>
                             {isLoading ? (
                                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-text-main font-display">{stats.activeSubs}</h3>
+                                <h3 className="text-3xl font-bold text-white font-display">{stats.activeSubs}</h3>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card className="border-primary/20 bg-surface-dark/50">
+                    <Card className="border-teal-600/30 bg-teal-800">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
                             <Activity className="h-8 w-8 text-blue-400 mb-2" />
                             <p className="text-sm text-text-muted mb-1">Manual Grants</p>
                             {isLoading ? (
                                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-text-main font-display">{stats.manualGrants}</h3>
+                                <h3 className="text-3xl font-bold text-white font-display">{stats.manualGrants}</h3>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card className="border-primary/20 bg-surface-dark/50">
+                    <Card className="border-teal-600/30 bg-teal-800">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
                             <Wrench className="h-8 w-8 text-yellow-500 mb-2" />
                             <p className="text-sm text-text-muted mb-1">Tools in Maintenance</p>
                             {isLoading ? (
                                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-text-main font-display">{stats.maintenanceTools}</h3>
+                                <h3 className="text-3xl font-bold text-white font-display">{stats.maintenanceTools}</h3>
                             )}
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Recent Activity */}
-                <Card className="border-primary/20 bg-surface-dark/50">
+                <Card className="border-teal-600/30 bg-teal-800">
                     <CardHeader>
-                        <CardTitle className="text-text-main">Recent Activity</CardTitle>
+                        <CardTitle className="text-white">Recent Activity</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {isLoading ? (
@@ -170,10 +170,10 @@ const AdminOverview = () => {
                                 <p className="text-text-muted">No recent activity logged.</p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded-lg border border-primary/20">
+                            <div className="overflow-x-auto rounded-lg border border-teal-600/30">
                                 <Table>
                                     <TableHeader>
-                                        <TableRow className="border-primary/20 hover:bg-primary/5">
+                                        <TableRow className="border-teal-600/30 hover:bg-primary/5">
                                             <TableHead className="text-text-muted">Action</TableHead>
                                             <TableHead className="text-text-muted">Target</TableHead>
                                             <TableHead className="text-text-muted">Admin</TableHead>
@@ -182,13 +182,13 @@ const AdminOverview = () => {
                                     </TableHeader>
                                     <TableBody>
                                         {auditLogs.map((log) => (
-                                            <TableRow key={log.id} className="border-primary/20 hover:bg-primary/5">
+                                            <TableRow key={log.id} className="border-teal-600/30 hover:bg-primary/5">
                                                 <TableCell>
                                                     <Badge className={getActionColor(log.action)}>
                                                         {formatAction(log.action)}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="text-text-main">
+                                                <TableCell className="text-white">
                                                     {log.target_email || 'System'}
                                                 </TableCell>
                                                 <TableCell className="text-text-muted">

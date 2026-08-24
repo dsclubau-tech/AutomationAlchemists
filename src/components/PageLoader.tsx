@@ -25,13 +25,13 @@ const PageLoader = ({ pageName = '', minDisplayTime = 500 }: PageLoaderProps) =>
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="fixed inset-0 z-[9999] bg-[#aaccd6] flex flex-col items-center justify-center"
+                    className="fixed inset-0 z-[9999] bg-mint-50 flex flex-col items-center justify-center"
                 >
                     {/* Logo */}
                     <motion.img
                         src={logo}
                         alt="Automation Alchemists Logo"
-                        className="w-24 h-24 mb-4 mix-blend-multiply"
+                        className="w-24 h-24 mb-4"
                         animate={{ scale: [1, 1.05, 1] }}
                         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                     />

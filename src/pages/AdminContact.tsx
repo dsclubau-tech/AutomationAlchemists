@@ -112,9 +112,9 @@ const AdminContact = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <Card className="bg-surface-dark/50 border-primary/20">
+                <Card className="bg-teal-800 border-teal-600/30">
                     <CardHeader>
-                        <CardTitle className="text-text-main">Contact Page Settings</CardTitle>
+                        <CardTitle className="text-white">Contact Page Settings</CardTitle>
                         <CardDescription className="text-text-muted">Edit the contact information displayed on the public contact page</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -132,7 +132,7 @@ const AdminContact = () => {
                                             contact_address: { ...settings.contact_address, line1: e.target.value }
                                         })}
                                         placeholder="Address Line 1"
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                     <Input
                                         value={settings.contact_address.line2}
@@ -141,7 +141,7 @@ const AdminContact = () => {
                                             contact_address: { ...settings.contact_address, line2: e.target.value }
                                         })}
                                         placeholder="Address Line 2"
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                 </div>
                             </div>
@@ -156,7 +156,7 @@ const AdminContact = () => {
                                     value={settings.contact_email}
                                     onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
                                     placeholder="contact@example.com"
-                                    className="bg-background-dark border-primary/30 text-text-main"
+                                    className="bg-background-dark border-teal-600/30 text-white"
                                 />
                             </div>
 
@@ -170,7 +170,7 @@ const AdminContact = () => {
                                     value={settings.contact_phone}
                                     onChange={(e) => setSettings({ ...settings, contact_phone: e.target.value })}
                                     placeholder="+1 234 567 890"
-                                    className="bg-background-dark border-primary/30 text-text-main"
+                                    className="bg-background-dark border-teal-600/30 text-white"
                                 />
                             </div>
 
@@ -187,7 +187,7 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, weekdays: e.target.value }
                                         })}
                                         placeholder="Weekdays hours"
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                     <Input
                                         value={settings.business_hours.saturday}
@@ -196,7 +196,7 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, saturday: e.target.value }
                                         })}
                                         placeholder="Saturday hours"
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                     <Input
                                         value={settings.business_hours.sunday}
@@ -205,7 +205,7 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, sunday: e.target.value }
                                         })}
                                         placeholder="Sunday hours"
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                     <Input
                                         value={settings.business_hours.enterprise}
@@ -214,13 +214,13 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, enterprise: e.target.value }
                                         })}
                                         placeholder="Enterprise support note"
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-4 border-t border-primary/20">
+                        <div className="flex justify-end pt-4 border-t border-teal-600/30">
                             <Button
                                 onClick={saveSettings}
                                 disabled={isSaving}

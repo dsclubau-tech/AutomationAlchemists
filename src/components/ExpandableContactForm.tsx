@@ -138,18 +138,18 @@ export function ExpandableContactForm() {
             {/* Trigger Section - Enhanced Design */}
             <div className="relative flex min-h-[600px] flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-20">
                 {/* Decorative elements */}
-                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#112E81]/5 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-[#112E81]/10 rounded-full blur-2xl pointer-events-none" />
+ <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-teal-600/5 rounded-full blur-3xl pointer-events-none" />
+ <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-teal-600/10 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#112E81]/10 border border-[#112E81]/30 rounded-full"
+ className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 border border-teal-800/30 rounded-full"
                     >
-                        <Sparkles className="w-4 h-4 text-[#112E81]" />
-                        <span className="text-[#112E81] text-sm font-medium">Free Consultation</span>
+ <Sparkles className="w-4 h-4 text-teal-600" />
+ <span className="text-teal-600 text-sm font-medium">Free Consultation</span>
                     </motion.div>
 
                     <motion.h2
@@ -159,7 +159,7 @@ export function ExpandableContactForm() {
                         className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-[#00195c] max-w-3xl"
                     >
                         Let's Build Something{" "}
-                        <span className="text-[#112E81]">Amazing</span>
+ <span className="text-teal-600">Amazing</span>
                     </motion.h2>
 
                     <motion.p
@@ -178,7 +178,7 @@ export function ExpandableContactForm() {
                         transition={{ duration: 0.6, delay: 0.3 }}
                     >
                         <ExpandableScreenTrigger>
-                            <div className="group relative bg-[#112E81] rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-white tracking-tight hover:bg-[#112E81]/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-[#112E81]/40 cursor-pointer">
+ <div className="group relative bg-teal-800 rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-white tracking-tight hover:bg-teal-800/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-[#112E81]/40 cursor-pointer">
                                 <span className="relative z-10 flex items-center gap-3">
                                     <MessageSquare className="w-5 h-5" />
                                     Start Your Journey
@@ -196,11 +196,11 @@ export function ExpandableContactForm() {
                         className="flex items-center gap-6 text-[#444651] text-sm"
                     >
                         <span className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-[#112E81]" />
+ <CheckCircle2 className="w-4 h-4 text-teal-600" />
                             No spam, ever
                         </span>
                         <span className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-[#112E81]" />
+ <CheckCircle2 className="w-4 h-4 text-teal-600" />
                             Response in 24h
                         </span>
                     </motion.div>

@@ -39,11 +39,11 @@ const ToolDetail = () => {
 
     if (!tool) {
         return (
-            <div className="min-h-screen bg-[#aaccd6] text-[#1c1b1b] selection:bg-[#112E81] selection:text-white flex flex-col">
+ <div className="min-h-screen bg-mint-50 text-teal-900 selection:bg-teal-600 selection:text-white flex flex-col">
                 <Navigation />
                 <main className="flex-grow flex flex-col items-center justify-center pt-32 pb-24 text-center">
-                    <h1 className="text-4xl font-bold mb-6 text-[#112E81] font-display">Tool not found</h1>
-                    <Link to="/tools" className="text-[#112E81] hover:underline text-lg font-display">
+ <h1 className="text-4xl font-bold mb-6 text-teal-600 font-display">Tool not found</h1>
+ <Link to="/tools" className="text-teal-600 hover:underline text-lg font-display">
                         return to Tools page
                     </Link>
                 </main>
@@ -63,7 +63,7 @@ const ToolDetail = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#aaccd6] text-[#1c1b1b] selection:bg-[#112E81] selection:text-white flex flex-col">
+ <div className="min-h-screen bg-mint-50 text-teal-900 selection:bg-teal-600 selection:text-white flex flex-col">
             <SEOHead
                 title={`${tool.name} | Automation Alchemists`}
                 description={tool.shortDescription}
@@ -76,12 +76,12 @@ const ToolDetail = () => {
                 {/* Breadcrumbs */}
                 <div className="container mx-auto px-6 max-w-5xl mb-12">
                     <div className="flex items-center text-sm text-[#444651] font-display">
-                        <Link to="/tools" className="hover:text-[#112E81] transition-colors flex items-center">
+ <Link to="/tools" className="hover:text-teal-600 transition-colors flex items-center">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Tools
                         </Link>
                         <ChevronRight className="w-4 h-4 mx-2" />
-                        <span className="text-[#112E81] font-semibold">{tool.name}</span>
+ <span className="text-teal-600 font-semibold">{tool.name}</span>
                     </div>
                 </div>
 
@@ -91,7 +91,7 @@ const ToolDetail = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="bg-white border border-[#112E81]/20 rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-md"
+ className="bg-white border border-teal-800/20 rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-md"
                     >
                         {/* Background glow */}
                         <div 
@@ -102,11 +102,11 @@ const ToolDetail = () => {
                         <div className="flex flex-col md:flex-row gap-10 items-start relative z-10">
                             {/* Icon */}
                             <div className="shrink-0">
-                                <div className="w-24 h-24 md:w-32 md:h-32 bg-[#aaccd6]/20 border border-[#112E81]/20 rounded-2xl flex items-center justify-center shadow-lg shadow-[#112E81]/5">
+ <div className="w-24 h-24 md:w-32 md:h-32 bg-mint-50/20 border border-teal-800/20 rounded-2xl flex items-center justify-center shadow-lg shadow-[#112E81]/5">
                                     {tool.slug === 'rccp' ? (
                                         <img src="/images/rccp-logo.png" alt="CP Bot Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain" />
                                     ) : (
-                                        <HeroIcon className="w-12 h-12 md:w-16 md:h-16 text-[#112E81]" />
+ <HeroIcon className="w-12 h-12 md:w-16 md:h-16 text-teal-600" />
                                     )}
                                 </div>
                             </div>
@@ -124,7 +124,7 @@ const ToolDetail = () => {
                                             <span className="text-[#00839e]">CopyPaste Bot</span>
                                         </>
                                     ) : (
-                                        <span className="text-[#112E81]">{tool.name}</span>
+ <span className="text-teal-600">{tool.name}</span>
                                     )}
                                 </h1>
                                 <p className="text-[#444651] text-lg md:text-xl leading-relaxed mb-8 max-w-3xl font-display">
@@ -132,14 +132,14 @@ const ToolDetail = () => {
                                 </p>
                                 
                                 <div className="flex flex-col sm:flex-row items-center gap-6">
-                                    <div className="text-2xl font-bold text-[#1c1b1b] font-display">
+ <div className="text-2xl font-bold text-teal-900 font-display">
                                         {tool.price}
                                         {tool.isFree ? '' : <span className="text-sm text-[#444651] font-normal ml-1">/month</span>}
                                     </div>
                                     <Button 
                                         size="lg"
                                         onClick={handleGetAccess}
-                                        className="w-full sm:w-auto bg-[#112E81] hover:bg-[#112E81]/90 text-white shadow-md font-bold font-display px-8"
+ className="w-full sm:w-auto bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90  shadow-md font-bold font-display px-8"
                                     >
                                         {tool.isFree ? 'Use now free' : 'Get access'}
                                     </Button>
@@ -157,16 +157,16 @@ const ToolDetail = () => {
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true, margin: "-100px" }}
                     >
-                        <h2 className="text-3xl font-bold text-[#112E81] mb-10 font-display">What's included</h2>
+ <h2 className="text-3xl font-bold text-teal-600 mb-10 font-display">What's included</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {(tool.features ?? []).map((feature, i) => {
                                 const FeatureIcon = iconMap[feature.icon] || CheckCircle2;
                                 return (
-                                    <div key={i} className="bg-white border border-[#112E81]/10 rounded-2xl p-6 shadow-sm hover:border-[#112E81]/30 hover:shadow-md transition-all">
-                                        <div className="w-12 h-12 bg-[#112E81]/10 text-[#112E81] rounded-xl flex items-center justify-center mb-6">
+ <div key={i} className="bg-white border border-teal-800/10 rounded-2xl p-6 shadow-sm hover:border-teal-800/30 hover:shadow-md transition-all">
+ <div className="w-12 h-12 bg-teal-600/10 text-teal-600 rounded-xl flex items-center justify-center mb-6">
                                             <FeatureIcon className="w-6 h-6" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-[#1c1b1b] mb-3 font-display">{feature.title}</h3>
+ <h3 className="text-xl font-bold text-teal-900 mb-3 font-display">{feature.title}</h3>
                                         <p className="text-[#444651] leading-relaxed text-sm">
                                             {feature.description}
                                         </p>
@@ -185,11 +185,11 @@ const ToolDetail = () => {
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true, margin: "-100px" }}
                     >
-                        <h2 className="text-3xl font-bold text-[#112E81] mb-8 font-display">How it works</h2>
+ <h2 className="text-3xl font-bold text-teal-600 mb-8 font-display">How it works</h2>
                         <div className="space-y-6">
                             {(tool.howItWorks ?? []).map((step, i) => (
                                 <div key={i} className="flex gap-4">
-                                    <div className="shrink-0 w-8 h-8 rounded-full bg-[#112E81] text-white flex items-center justify-center font-bold font-display text-sm">
+ <div className="shrink-0 w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold font-display text-sm">
                                         {i + 1}
                                     </div>
                                     <p className="text-[#444651] mt-1">{step}</p>
@@ -205,8 +205,8 @@ const ToolDetail = () => {
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true, margin: "-100px" }}
                     >
-                        <h2 className="text-3xl font-bold text-[#112E81] mb-8 font-display">Built for</h2>
-                        <div className="bg-white border border-[#112E81]/10 shadow-sm rounded-2xl p-8">
+ <h2 className="text-3xl font-bold text-teal-600 mb-8 font-display">Built for</h2>
+ <div className="bg-white border border-teal-800/10 shadow-sm rounded-2xl p-8">
                             <p className="text-[#444651] leading-relaxed text-lg">
                                 {tool.builtFor ?? 'N/A'}
                             </p>
@@ -221,16 +221,16 @@ const ToolDetail = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
-                        className="bg-gradient-to-b from-white to-[#aaccd6]/30 border border-[#112E81]/10 shadow-sm rounded-3xl p-12"
+ className="bg-gradient-to-b from-white bg-mint-50/30 border border-teal-800/10 shadow-sm rounded-3xl p-12"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-[#112E81] mb-6 font-display">Ready to get started?</h2>
+ <h2 className="text-3xl md:text-4xl font-bold text-teal-600 mb-6 font-display">Ready to get started?</h2>
                         <p className="text-lg text-[#444651] mb-8 font-display">
                             Join Automation Alchemists and scale your eBay dropshipping business today.
                         </p>
                         <Button 
                             size="lg"
                             onClick={handleGetAccess}
-                            className="bg-[#112E81] hover:bg-[#112E81]/90 text-white shadow-md font-bold font-display px-10 py-6 text-lg"
+ className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90  shadow-md font-bold font-display px-10 py-6 text-lg"
                         >
                             {tool.isFree ? 'Start using free' : 'Get access now'}
                         </Button>

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const TermsOfUse = () => {
     return (
-        <div className="min-h-screen bg-[#aaccd6] text-[#1c1b1b] selection:bg-[#112E81] selection:text-white">
+ <div className="min-h-screen bg-mint-50 text-teal-900 selection:bg-teal-600 selection:text-white">
             <Navigation />
 
             <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden pt-20">
@@ -92,7 +92,7 @@ const TermsOfUse = () => {
                                 <h2 className="text-2xl font-bold text-[#00195c] mb-4 font-display">7. Contact Information</h2>
                                 <p className="text-sm text-[#444651] font-display leading-relaxed">
                                     If you have any questions about these Terms of Use, please contact us at{" "}
-                                    <a href="mailto:dsclub.au@outlook.com" className="text-[#112E81] hover:underline font-medium">
+ <a href="mailto:dsclub.au@outlook.com" className="text-teal-600 hover:underline font-medium">
                                         dsclub.au@outlook.com
                                     </a>
                                 </p>

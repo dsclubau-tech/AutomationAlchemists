@@ -282,16 +282,16 @@ const AdminSubscriptions = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-primary/20 bg-surface-dark/50">
+        <Card className="border-teal-600/30 bg-teal-800">
           <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2 text-text-main">
+              <CardTitle className="text-2xl flex items-center gap-2 text-white">
                 <CreditCard className="h-6 w-6 text-primary" />
                 Access Records
               </CardTitle>
               <CardDescription className="text-text-muted">
                 {userIdFilter && (
-                  <Badge variant="outline" className="mt-2 border-primary/30 text-primary flex items-center gap-1 w-fit">
+                  <Badge variant="outline" className="mt-2 border-teal-600/30 text-primary flex items-center gap-1 w-fit">
                     Filtered by User
                     <FilterX className="h-3 w-3 ml-1 cursor-pointer hover:text-white" onClick={clearUserIdFilter} />
                   </Badge>
@@ -301,10 +301,10 @@ const AdminSubscriptions = () => {
             
             <div className="flex items-center gap-4 w-full md:w-auto">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px] bg-background-dark border-primary/30">
+                <SelectTrigger className="w-[180px] bg-background-dark border-teal-600/30">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
-                <SelectContent className="bg-surface-dark border-primary/20">
+                <SelectContent className="bg-teal-900 border-teal-600/30">
                   <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
@@ -325,10 +325,10 @@ const AdminSubscriptions = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="rounded-lg border border-primary/20 overflow-x-auto">
+              <div className="rounded-lg border border-teal-600/30 overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-primary/20 hover:bg-primary/5">
+                    <TableRow className="border-teal-600/30 hover:bg-primary/5">
                       <TableHead className="text-text-muted">User Email</TableHead>
                       <TableHead className="text-text-muted">Tool</TableHead>
                       <TableHead className="text-text-muted">Status</TableHead>
@@ -346,11 +346,11 @@ const AdminSubscriptions = () => {
                       </TableRow>
                     ) : (
                       filteredSubs.map((sub) => (
-                        <TableRow key={sub.id} className="border-primary/20 hover:bg-primary/5">
-                          <TableCell className="font-medium text-text-main">
+                        <TableRow key={sub.id} className="border-teal-600/30 hover:bg-primary/5">
+                          <TableCell className="font-medium text-white">
                             {sub.user_email}
                           </TableCell>
-                          <TableCell className="text-text-main">
+                          <TableCell className="text-white">
                             {sub.product_slug}
                           </TableCell>
                           <TableCell>
@@ -373,7 +373,7 @@ const AdminSubscriptions = () => {
                                 </span>
                               </div>
                             ) : (
-                              <Badge variant="outline" className="border-primary/30 text-text-muted">Stripe</Badge>
+                              <Badge variant="outline" className="border-teal-600/30 text-text-muted">Stripe</Badge>
                             )}
                           </TableCell>
                           <TableCell className="text-right">
@@ -383,7 +383,7 @@ const AdminSubscriptions = () => {
                                   <MoreVertical className="h-4 w-4 text-text-muted" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-surface-dark border-primary/20">
+                              <DropdownMenuContent align="end" className="bg-teal-900 border-teal-600/30">
                                 <DropdownMenuItem onClick={() => {
                                   setEditDateSub(sub);
                                   setNewEndDate(sub.current_period_end ? new Date(sub.current_period_end).toISOString().split('T')[0] : '');
@@ -415,7 +415,7 @@ const AdminSubscriptions = () => {
 
       {/* Edit Date Modal */}
       <Dialog open={!!editDateSub} onOpenChange={(open) => !open && setEditDateSub(null)}>
-        <DialogContent className="bg-surface-dark border-primary/20 text-text-main">
+        <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
           <DialogHeader>
             <DialogTitle>Change Expiry Date</DialogTitle>
             <DialogDescription>
@@ -429,12 +429,12 @@ const AdminSubscriptions = () => {
                 type="date"
                 value={newEndDate} 
                 onChange={e => setNewEndDate(e.target.value)} 
-                className="bg-background-dark border-primary/30 text-white"
+                className="bg-background-dark border-teal-600/30 text-white"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDateSub(null)} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => setEditDateSub(null)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
             <Button onClick={handleDateEditSubmit} disabled={isActionLoading || !newEndDate} className="bg-primary hover:bg-primary/90 text-background-dark">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Date
@@ -445,7 +445,7 @@ const AdminSubscriptions = () => {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={!!deleteSub} onOpenChange={(open) => !open && setDeleteSub(null)}>
-        <DialogContent className="bg-surface-dark border-red-500/50 text-text-main">
+        <DialogContent className="bg-teal-900 border-red-500/50 text-white">
           <DialogHeader>
             <DialogTitle className="text-red-500 flex items-center gap-2">
               <Trash2 className="h-5 w-5" />
@@ -468,7 +468,7 @@ const AdminSubscriptions = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setDeleteSub(null); setDeleteConfirmation(''); }} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => { setDeleteSub(null); setDeleteConfirmation(''); }} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
             <Button 
               variant="destructive" 
               onClick={handleDeleteSubmit} 
@@ -484,7 +484,7 @@ const AdminSubscriptions = () => {
 
       {/* Manual Grant Modal */}
       <Dialog open={isGrantModalOpen} onOpenChange={setIsGrantModalOpen}>
-        <DialogContent className="bg-surface-dark border-primary/20 text-text-main sm:max-w-[425px]">
+        <DialogContent className="bg-teal-900 border-teal-600/30 text-white sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Manual Grant Access</DialogTitle>
             <DialogDescription>
@@ -499,16 +499,16 @@ const AdminSubscriptions = () => {
                 placeholder="user@example.com"
                 value={grantEmail} 
                 onChange={e => setGrantEmail(e.target.value)} 
-                className="bg-background-dark border-primary/30 text-white"
+                className="bg-background-dark border-teal-600/30 text-white"
               />
             </div>
             <div className="space-y-2">
               <Label>Tool</Label>
               <Select value={grantToolSlug} onValueChange={setGrantToolSlug}>
-                <SelectTrigger className="bg-background-dark border-primary/30">
+                <SelectTrigger className="bg-background-dark border-teal-600/30">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-surface-dark border-primary/20">
+                <SelectContent className="bg-teal-900 border-teal-600/30">
                   <SelectItem value="cpbot">CP Bot</SelectItem>
                   <SelectItem value="listflow">ListFlow</SelectItem>
                   <SelectItem value="orderbot">Order Bot</SelectItem>
@@ -524,7 +524,7 @@ const AdminSubscriptions = () => {
                   placeholder="e.g. My eBay Store 1"
                   value={grantStoreName} 
                   onChange={e => setGrantStoreName(e.target.value)} 
-                  className="bg-background-dark border-primary/30 text-white"
+                  className="bg-background-dark border-teal-600/30 text-white"
                 />
                 <p className="text-xs text-text-muted">Required. A store_id UUID will be auto-generated.</p>
               </div>
@@ -535,7 +535,7 @@ const AdminSubscriptions = () => {
                 type="date"
                 value={grantEndDate} 
                 onChange={e => setGrantEndDate(e.target.value)} 
-                className="bg-background-dark border-primary/30 text-white text-muted-foreground"
+                className="bg-background-dark border-teal-600/30 text-white text-muted-foreground"
               />
               <p className="text-xs text-text-muted">Leave empty for lifetime access.</p>
             </div>
@@ -545,12 +545,12 @@ const AdminSubscriptions = () => {
                 placeholder="e.g. VIP Client, Bug Compensation"
                 value={grantReason} 
                 onChange={e => setGrantReason(e.target.value)} 
-                className="bg-background-dark border-primary/30 text-white"
+                className="bg-background-dark border-teal-600/30 text-white"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsGrantModalOpen(false)} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => setIsGrantModalOpen(false)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
             <Button onClick={handleGrantSubmit} disabled={isActionLoading} className="bg-primary hover:bg-primary/90 text-background-dark">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Grant Access

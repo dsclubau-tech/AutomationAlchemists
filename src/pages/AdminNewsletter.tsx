@@ -158,9 +158,9 @@ const AdminNewsletter = () => {
                 transition={{ duration: 0.5 }}
                 className="space-y-6"
             >
-                <Card className="border-primary/20 bg-surface-dark/50">
+                <Card className="border-teal-600/30 bg-teal-800">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-text-main">
+                        <CardTitle className="flex items-center gap-2 text-white">
                             <Mail className="h-5 w-5 text-primary" />
                             Newsletter Subscribers
                         </CardTitle>
@@ -175,14 +175,14 @@ const AdminNewsletter = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={handleExportCSV}
-                                className="border-primary/30 text-text-main hover:bg-primary/10"
+                                className="border-teal-600/30 text-white hover:bg-primary/10"
                             >
                                 <FileDown className="h-4 w-4 mr-2" />
                                 Export {selectedSubscribers.size > 0 ? 'Selected' : 'All'}
                             </Button>
                             {selectedSubscribers.size > 0 && (
                                 <>
-                                    <span className="text-sm font-medium text-text-main">
+                                    <span className="text-sm font-medium text-white">
                                         {selectedSubscribers.size} selected
                                     </span>
                                     <Button
@@ -209,10 +209,10 @@ const AdminNewsletter = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded-lg border border-primary/20">
+                            <div className="overflow-x-auto rounded-lg border border-teal-600/30">
                                 <Table>
                                     <TableHeader>
-                                        <TableRow className="border-primary/20 hover:bg-primary/5">
+                                        <TableRow className="border-teal-600/30 hover:bg-primary/5">
                                             <TableHead className="w-12">
                                                 <Checkbox
                                                     checked={selectedSubscribers.size === subscribers.length}
@@ -228,7 +228,7 @@ const AdminNewsletter = () => {
                                         {subscribers.map((subscriber) => {
                                             const { date, time } = formatDateTime(subscriber.subscribed_at);
                                             return (
-                                                <TableRow key={subscriber.id} className="border-primary/20 hover:bg-primary/5">
+                                                <TableRow key={subscriber.id} className="border-teal-600/30 hover:bg-primary/5">
                                                     <TableCell>
                                                         <Checkbox
                                                             checked={selectedSubscribers.has(subscriber.id)}

@@ -97,6 +97,17 @@ export default {
                 "text-main": "#F5F5DC",
                 "text-muted": "#BAB59C",
                 "text-gold-muted": "#A38634",
+                // AA Teal/Yellow Theme
+                teal: {
+                    600: "#207680",
+                    800: "#104B54",
+                    900: "#0A363D",
+                },
+                mint: {
+                    50: "#EBF4F4",
+                },
+                "yellow-accent": "#FFD200",
+                white: "#FFFFFF",
             },
             fontFamily: {
                 bungee: ['"Bungee Shade"', "cursive"],

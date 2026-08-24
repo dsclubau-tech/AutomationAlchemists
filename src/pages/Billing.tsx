@@ -43,8 +43,8 @@ const Billing = () => {
                             <p className="text-muted-foreground">Manage your payment methods and tool subscriptions.</p>
                         </div>
                         
-                        <div className="bg-surface-dark border border-primary/20 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[300px]">
-                            <p className="text-xl text-primary font-display mb-4">Billing Portal Coming Soon</p>
+                        <div className="bg-teal-900 border border-teal-800 rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[300px]">
+                            <p className="text-xl text-teal-600 font-display mb-4">Billing Portal Coming Soon</p>
                             <p className="text-muted-foreground max-w-md mx-auto">
                                 We are currently integrating our billing provider. Soon you will be able to manage all your tool subscriptions and payment methods here.
                             </p>

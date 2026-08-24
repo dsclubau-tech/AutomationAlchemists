@@ -58,15 +58,15 @@ const getAppUrl = (slug: string): string => {
 };
 
 const SkeletonCard = () => (
-    <div className="bg-[#111] rounded-xl overflow-hidden border border-[#2a2a2a] animate-pulse">
+    <div className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 animate-pulse">
         <div className="h-[80px] bg-[#222]"></div>
         <div className="p-6 space-y-4">
-            <div className="h-6 bg-[#2a2a2a] rounded w-3/4"></div>
-            <div className="h-4 bg-[#2a2a2a] rounded w-full"></div>
-            <div className="h-4 bg-[#2a2a2a] rounded w-5/6"></div>
+            <div className="h-6 bg-teal-600/30 rounded w-3/4"></div>
+            <div className="h-4 bg-teal-600/30 rounded w-full"></div>
+            <div className="h-4 bg-teal-600/30 rounded w-5/6"></div>
             <div className="pt-4 flex items-center justify-between">
-                <div className="h-6 bg-[#2a2a2a] rounded w-24"></div>
-                <div className="h-10 bg-[#2a2a2a] rounded w-28"></div>
+                <div className="h-6 bg-teal-600/30 rounded w-24"></div>
+                <div className="h-10 bg-teal-600/30 rounded w-28"></div>
             </div>
         </div>
     </div>
@@ -90,14 +90,14 @@ const ToolCard = ({
     const Icon = getIconComponent(tool.slug);
     const [imageError, setImageError] = useState(false);
     
-    let bannerClass = 'bg-[#2a2a2a]';
+    let bannerClass = 'bg-teal-600/30';
     let badge = null;
     let button = null;
     let displayDescription = tool.short_description || tool.description;
 
     if (type === 'active') {
         if (tool.status === 'maintenance') {
-            bannerClass = 'bg-gradient-to-br from-[#1a1800] to-[#2a2500] border-yellow-500/20';
+            bannerClass = 'bg-teal-800 border-yellow-500/20';
             badge = (
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-500 text-xs font-semibold border border-yellow-500/20 uppercase tracking-wider">
                     <Wrench className="w-3 h-3" />
@@ -105,12 +105,12 @@ const ToolCard = ({
                 </div>
             );
             button = (
-                <Button disabled className="bg-[#2a2a2a] text-[#888] font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto">
+                <Button disabled className="bg-teal-600/30 text-[#888] font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto">
                     Currently Unavailable
                 </Button>
             );
         } else if (tool.slug === 'rccp') {
-            bannerClass = 'bg-gradient-to-br from-[#1a1200] to-[#2a1f00]';
+            bannerClass = 'bg-teal-800';
             if (!hasCpBotSub) {
                 displayDescription = "Return Converter is free. Upgrade to unlock CP Bot.";
                 badge = (
@@ -125,12 +125,12 @@ const ToolCard = ({
                 );
                 button = (
                     <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-2 w-full sm:w-auto">
-                        <Button asChild variant="outline" className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
+                        <Button asChild variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
                             <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                 Open Return Converter
                             </a>
                         </Button>
-                        <Button asChild className="bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
                             <a href="/#">
                                 Unlock CP Bot — AUD $9/mo
                             </a>
@@ -156,7 +156,7 @@ const ToolCard = ({
                     </div>
                 );
                 button = (
-                    <Button asChild className="bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                    <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                         <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                             Open Tools
                         </a>
@@ -164,7 +164,7 @@ const ToolCard = ({
                 );
             }
         } else {
-            bannerClass = 'bg-gradient-to-br from-[#1a1200] to-[#2a1f00]';
+            bannerClass = 'bg-teal-800';
             badge = (
                 <div className="flex flex-col gap-1 items-start">
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20">
@@ -179,7 +179,7 @@ const ToolCard = ({
                 </div>
             );
             button = (
-                <Button asChild className="bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                     <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                         Open {tool.name}
                     </a>
@@ -187,7 +187,7 @@ const ToolCard = ({
             );
         }
     } else if (type === 'available') {
-        bannerClass = 'bg-gradient-to-br from-[#1a1a1a] to-[#222]';
+        bannerClass = 'bg-teal-800';
         badge = (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-semibold border border-zinc-500/20">
                 <Lock className="w-3 h-3" />
@@ -195,11 +195,11 @@ const ToolCard = ({
             </div>
         );
         button = tool.status === 'maintenance' ? (
-            <Button disabled className="bg-[#2a2a2a] text-yellow-500 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto border border-yellow-500/20">
+            <Button disabled className="bg-teal-600/30 text-yellow-500 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto border border-yellow-500/20">
                 In Maintenance
             </Button>
         ) : (
-            <Button variant="outline" className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+            <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Buy now — AUD ${tool.price_monthly}/mo
             </Button>
         );
@@ -212,11 +212,11 @@ const ToolCard = ({
             </div>
         );
         button = isNotified ? (
-            <Button disabled className="bg-[#111] text-[#D4AF37] border border-[#D4AF37]/30 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
+            <Button disabled className="bg-teal-900 text-teal-600 border border-teal-600/30 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
                 ✓ You're on the list
             </Button>
         ) : (
-            <Button onClick={() => onNotify?.(tool)} className="bg-[#2a2a2a] hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+            <Button onClick={() => onNotify?.(tool)} className="bg-teal-600/30 hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Notify me
             </Button>
         );
@@ -226,7 +226,7 @@ const ToolCard = ({
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-[#111] rounded-xl overflow-hidden border ${tool.status === 'maintenance' && type === 'active' ? 'border-yellow-500/30' : 'border-[#2a2a2a]'} flex flex-col h-full`}
+            className={`bg-teal-900 rounded-xl overflow-hidden border ${tool.status === 'maintenance' && type === 'active' ? 'border-yellow-500/30' : 'border-teal-600/30'} flex flex-col h-full`}
         >
             <div className={`h-[80px] w-full flex items-center justify-center ${bannerClass} relative overflow-hidden`}>
                 <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
@@ -260,7 +260,7 @@ const ToolCard = ({
                     </div>
                 )}
                 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-[#2a2a2a] mt-auto">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
                     {badge}
                     {button}
                 </div>
@@ -347,7 +347,7 @@ const Dashboard = () => {
                         Sign in →
                     </Button>
                 ),
-                className: "bg-[#111] border-l-4 border-l-[#D4AF37] text-white",
+                className: "bg-teal-900 border-l-4 border-l-[#D4AF37] text-white",
                 duration: Infinity,
             });
             return;
@@ -370,7 +370,7 @@ const Dashboard = () => {
             toast({
                 title: "🔔 You're on the list!",
                 description: `We'll notify you the moment ${tool.name} launches.`,
-                className: "bg-[#111] border-none border-l-4 border-l-[#D4AF37] text-white bottom-right-slide",
+                className: "bg-teal-900 border-none border-l-4 border-l-[#D4AF37] text-white bottom-right-slide",
                 duration: 4000,
             });
         } catch (err) {
@@ -401,7 +401,7 @@ const Dashboard = () => {
             toast({
                 title: "Success",
                 description: "Store added. An admin will activate monitoring shortly.",
-                className: "bg-[#111] border-none border-l-4 border-l-[#D4AF37] text-white",
+                className: "bg-teal-900 border-none border-l-4 border-l-[#D4AF37] text-white",
             });
             
             // Re-fetch orderbotStores
@@ -452,7 +452,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-surface-dark flex flex-col">
+        <div className="min-h-screen bg-teal-900 flex flex-col">
             <SEOHead 
                 title="Your Dashboard | Automation Alchemists" 
                 description="Manage your tools and subscriptions." 
@@ -470,14 +470,14 @@ const Dashboard = () => {
                     {isLoading ? (
                         <div className="space-y-16">
                             <section>
-                                <div className="h-4 bg-[#2a2a2a] w-32 rounded mb-6 animate-pulse" />
+                                <div className="h-4 bg-teal-600/30 w-32 rounded mb-6 animate-pulse" />
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <SkeletonCard />
                                     <SkeletonCard />
                                 </div>
                             </section>
                             <section>
-                                <div className="h-4 bg-[#2a2a2a] w-48 rounded mb-6 animate-pulse" />
+                                <div className="h-4 bg-teal-600/30 w-48 rounded mb-6 animate-pulse" />
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <SkeletonCard />
                                     <SkeletonCard />
@@ -499,9 +499,9 @@ const Dashboard = () => {
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
-                                                        className="bg-[#111] rounded-xl overflow-hidden border border-[#2a2a2a] flex flex-col h-full"
+                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full"
                                                     >
-                                                        <div className="h-[80px] w-full flex items-center justify-center bg-gradient-to-br from-[#1a1200] to-[#2a1f00] relative overflow-hidden">
+                                                        <div className="h-[80px] w-full flex items-center justify-center bg-teal-800 relative overflow-hidden">
                                                             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
                                                             <Activity className="w-10 h-10 text-white/80 relative z-10" />
                                                         </div>
@@ -518,20 +518,20 @@ const Dashboard = () => {
 
                                                             <div className="space-y-3 mb-6 flex-grow">
                                                                 {orderbotStores?.stores?.map((store: any) => (
-                                                                    <div key={store.store_id} className="bg-[#1a1a1a] p-3 rounded-lg border border-[#2a2a2a]">
+                                                                    <div key={store.store_id} className="bg-teal-800 p-3 rounded-lg border border-teal-600/30">
                                                                         <div className="text-white font-medium mb-1">📦 {store.store_name}</div>
                                                                         <div className="text-[#888] text-xs mb-2">
                                                                             Active until {store.current_period_end ? new Date(store.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Lifetime'}
                                                                         </div>
-                                                                        <a href="https://orderbot.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="text-[#D4AF37] text-xs font-bold hover:underline">
+                                                                        <a href="https://orderbot.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="text-teal-600 text-xs font-bold hover:underline">
                                                                             Open →
                                                                         </a>
                                                                     </div>
                                                                 ))}
                                                             </div>
                                                             
-                                                            <div className="pt-4 border-t border-[#2a2a2a] mt-auto">
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="ghost" className="text-[#D4AF37] hover:text-[#c29f2f] hover:bg-[#D4AF37]/10 w-full font-bold">
+                                                            <div className="pt-4 border-t border-teal-600/30 mt-auto">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="ghost" className="text-teal-600 hover:text-teal-600 hover:bg-yellow-accent text-teal-900/10 w-full font-bold">
                                                                     + Add another store
                                                                 </Button>
                                                             </div>
@@ -565,9 +565,9 @@ const Dashboard = () => {
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
-                                                        className="bg-[#111] rounded-xl overflow-hidden border border-[#2a2a2a] flex flex-col h-full"
+                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full"
                                                     >
-                                                        <div className="h-[80px] w-full flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#222] relative overflow-hidden">
+                                                        <div className="h-[80px] w-full flex items-center justify-center bg-teal-800 relative overflow-hidden">
                                                             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
                                                             <Activity className="w-10 h-10 text-white/80 relative z-10" />
                                                         </div>
@@ -579,12 +579,12 @@ const Dashboard = () => {
                                                                 {tool.short_description || tool.description}
                                                             </p>
                                                             
-                                                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-[#2a2a2a] mt-auto">
+                                                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
                                                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-semibold border border-zinc-500/20">
                                                                     <Lock className="w-3 h-3" />
                                                                     Not purchased
                                                                 </div>
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                                                     Add your first store
                                                                 </Button>
                                                             </div>
@@ -627,7 +627,7 @@ const Dashboard = () => {
             </main>
             
             <Dialog open={showAddStoreModal} onOpenChange={setShowAddStoreModal}>
-                <DialogContent className="bg-surface-dark border-primary/20 text-text-main">
+                <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
                     <DialogHeader>
                         <DialogTitle>Add eBay Store</DialogTitle>
                     </DialogHeader>
@@ -638,13 +638,13 @@ const Dashboard = () => {
                                 placeholder="e.g. My eBay Store 1"
                                 value={newStoreName}
                                 onChange={e => setNewStoreName(e.target.value)}
-                                className="bg-background-dark border-primary/30 text-white"
+                                className="bg-background-dark border-teal-600/30 text-white"
                             />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowAddStoreModal(false)} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
-                        <Button onClick={handleAddStoreSubmit} disabled={addStoreLoading || !newStoreName.trim()} className="bg-[#D4AF37] hover:bg-[#c29f2f] text-black font-bold">
+                        <Button variant="outline" onClick={() => setShowAddStoreModal(false)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
+                        <Button onClick={handleAddStoreSubmit} disabled={addStoreLoading || !newStoreName.trim()} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold">
                             {addStoreLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Add Store
                         </Button>

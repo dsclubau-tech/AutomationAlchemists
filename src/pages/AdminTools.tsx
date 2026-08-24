@@ -178,9 +178,9 @@ const AdminTools = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-primary/20 bg-surface-dark/50">
+        <Card className="border-teal-600/30 bg-teal-800">
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2 text-text-main">
+            <CardTitle className="text-2xl flex items-center gap-2 text-white">
               <PenTool className="h-6 w-6 text-primary" />
               Platform Tools
             </CardTitle>
@@ -196,11 +196,11 @@ const AdminTools = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {tools.map((tool) => (
-                  <Card key={tool.id} className="border-primary/20 bg-background-dark">
+                  <Card key={tool.id} className="border-teal-600/30 bg-background-dark">
                     <CardContent className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="text-lg font-bold text-text-main font-display mb-1">{tool.name}</h3>
+                          <h3 className="text-lg font-bold text-white font-display mb-1">{tool.name}</h3>
                           <p className="text-sm text-text-muted">{tool.short_description}</p>
                         </div>
                         <Button 
@@ -212,7 +212,7 @@ const AdminTools = () => {
                             setEditPrice(tool.price_monthly);
                             setEditMessage(tool.maintenance_message || '');
                           }}
-                          className="border-primary/30 text-text-main hover:bg-primary/10 flex-shrink-0"
+                          className="border-teal-600/30 text-white hover:bg-primary/10 flex-shrink-0"
                         >
                           <Edit className="w-4 h-4 mr-2" /> Edit
                         </Button>
@@ -233,7 +233,7 @@ const AdminTools = () => {
                         
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-text-muted">Monthly Price:</span>
-                          <span className="text-sm font-medium text-text-main">AUD ${tool.price_monthly.toFixed(2)}</span>
+                          <span className="text-sm font-medium text-white">AUD ${tool.price_monthly.toFixed(2)}</span>
                         </div>
 
                         {tool.status === 'maintenance' && tool.maintenance_message && (
@@ -244,7 +244,7 @@ const AdminTools = () => {
                         )}
 
                         {tool.status === 'available' && waitlistCounts[tool.slug] > 0 && (
-                          <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
+                          <div className="mt-4 pt-4 border-t border-teal-600/30">
                             <Button 
                               onClick={() => setNotifyTool(tool)}
                               className="w-full bg-primary/20 text-primary hover:bg-primary hover:text-black transition-colors"
@@ -267,7 +267,7 @@ const AdminTools = () => {
 
       {/* Edit Tool Modal */}
       <Dialog open={!!editTool} onOpenChange={(open) => !open && setEditTool(null)}>
-        <DialogContent className="bg-surface-dark border-primary/20 text-text-main">
+        <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
           <DialogHeader>
             <DialogTitle>Edit Tool Settings</DialogTitle>
             <DialogDescription>
@@ -278,10 +278,10 @@ const AdminTools = () => {
             <div className="space-y-2">
               <Label>Status</Label>
               <Select value={editStatus} onValueChange={(v: Tool['status']) => setEditStatus(v)}>
-                <SelectTrigger className="bg-background-dark border-primary/30 text-white">
+                <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-surface-dark border-primary/20">
+                <SelectContent className="bg-teal-900 border-teal-600/30">
                   <SelectItem value="available">Available</SelectItem>
                   <SelectItem value="maintenance">Maintenance</SelectItem>
                   <SelectItem value="coming_soon">Coming Soon</SelectItem>
@@ -310,12 +310,12 @@ const AdminTools = () => {
                 min="0"
                 value={editPrice} 
                 onChange={e => setEditPrice(parseFloat(e.target.value) || 0)} 
-                className="bg-background-dark border-primary/30 text-white"
+                className="bg-background-dark border-teal-600/30 text-white"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditTool(null)} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => setEditTool(null)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
             <Button onClick={handleEditSubmit} disabled={isActionLoading} className="bg-primary hover:bg-primary/90 text-background-dark">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
@@ -326,7 +326,7 @@ const AdminTools = () => {
 
       {/* Notify All Confirmation Modal */}
       <Dialog open={!!notifyTool} onOpenChange={(open) => !open && setNotifyTool(null)}>
-        <DialogContent className="bg-surface-dark border-primary/20 text-text-main">
+        <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
           <DialogHeader>
             <DialogTitle>Send Launch Notifications</DialogTitle>
             <DialogDescription>
@@ -334,7 +334,7 @@ const AdminTools = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6">
-            <Button variant="outline" onClick={() => setNotifyTool(null)} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => setNotifyTool(null)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
             <Button onClick={handleNotifyAll} disabled={isNotifying} className="bg-primary hover:bg-primary/90 text-background-dark">
               {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Confirm & Notify

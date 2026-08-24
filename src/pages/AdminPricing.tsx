@@ -249,40 +249,40 @@ const AdminPricing = () => {
                                 Add Package
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-dark border-primary/20">
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-teal-900 border-teal-600/30">
                             <DialogHeader>
-                                <DialogTitle className="text-text-main">
+                                <DialogTitle className="text-white">
                                     {editingPackage ? 'Edit Package' : 'Add New Package'}
                                 </DialogTitle>
                             </DialogHeader>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name" className="text-text-main">Package Name *</Label>
+                                        <Label htmlFor="name" className="text-white">Package Name *</Label>
                                         <Input
                                             id="name"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             required
                                             placeholder="e.g., Starter, Professional"
-                                            className="bg-background-dark border-primary/30 text-text-main"
+                                            className="bg-background-dark border-teal-600/30 text-white"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="price" className="text-text-main">Price *</Label>
+                                        <Label htmlFor="price" className="text-white">Price *</Label>
                                         <Input
                                             id="price"
                                             value={price}
                                             onChange={(e) => setPrice(e.target.value)}
                                             required
                                             placeholder="e.g., Custom, $99/mo"
-                                            className="bg-background-dark border-primary/30 text-text-main"
+                                            className="bg-background-dark border-teal-600/30 text-white"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="description" className="text-text-main">Full Description *</Label>
+                                    <Label htmlFor="description" className="text-white">Full Description *</Label>
                                     <Textarea
                                         id="description"
                                         value={description}
@@ -290,41 +290,41 @@ const AdminPricing = () => {
                                         required
                                         placeholder="Detailed description of the package"
                                         rows={3}
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="shortDescription" className="text-text-main">Short Description</Label>
+                                    <Label htmlFor="shortDescription" className="text-white">Short Description</Label>
                                     <Input
                                         id="shortDescription"
                                         value={shortDescription}
                                         onChange={(e) => setShortDescription(e.target.value)}
                                         placeholder="Brief tagline for collapsed view"
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="features" className="text-text-main">Features (one per line)</Label>
+                                    <Label htmlFor="features" className="text-white">Features (one per line)</Label>
                                     <Textarea
                                         id="features"
                                         value={features}
                                         onChange={(e) => setFeatures(e.target.value)}
                                         placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
                                         rows={5}
-                                        className="bg-background-dark border-primary/30 text-text-main"
+                                        className="bg-background-dark border-teal-600/30 text-white"
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="icon" className="text-text-main">Icon</Label>
+                                        <Label htmlFor="icon" className="text-white">Icon</Label>
                                         <Select value={icon} onValueChange={setIcon}>
-                                            <SelectTrigger className="bg-background-dark border-primary/30 text-text-main">
+                                            <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-surface-dark border-primary/30">
+                                            <SelectContent className="bg-teal-900 border-teal-600/30">
                                                 {iconOptions.map((opt) => (
                                                     <SelectItem key={opt.value} value={opt.value}>
                                                         <div className="flex items-center gap-2">
@@ -337,35 +337,35 @@ const AdminPricing = () => {
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="ctaText" className="text-text-main">CTA Button Text</Label>
+                                        <Label htmlFor="ctaText" className="text-white">CTA Button Text</Label>
                                         <Input
                                             id="ctaText"
                                             value={ctaText}
                                             onChange={(e) => setCtaText(e.target.value)}
                                             placeholder="Get Started"
-                                            className="bg-background-dark border-primary/30 text-text-main"
+                                            className="bg-background-dark border-teal-600/30 text-white"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="badge" className="text-text-main">Badge Text</Label>
+                                        <Label htmlFor="badge" className="text-white">Badge Text</Label>
                                         <Input
                                             id="badge"
                                             value={badge}
                                             onChange={(e) => setBadge(e.target.value)}
                                             placeholder="e.g., Most Popular, New"
-                                            className="bg-background-dark border-primary/30 text-text-main"
+                                            className="bg-background-dark border-teal-600/30 text-white"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="badgeColor" className="text-text-main">Badge Color</Label>
+                                        <Label htmlFor="badgeColor" className="text-white">Badge Color</Label>
                                         <Select value={badgeColor} onValueChange={setBadgeColor}>
-                                            <SelectTrigger className="bg-background-dark border-primary/30 text-text-main">
+                                            <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-surface-dark border-primary/30">
+                                            <SelectContent className="bg-teal-900 border-teal-600/30">
                                                 {badgeColorOptions.map((opt) => (
                                                     <SelectItem key={opt.value} value={opt.value}>
                                                         {opt.label}
@@ -378,7 +378,7 @@ const AdminPricing = () => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="discountPercent" className="text-text-main flex items-center gap-2">
+                                        <Label htmlFor="discountPercent" className="text-white flex items-center gap-2">
                                             <Percent className="w-4 h-4 text-primary" />
                                             Discount Percentage
                                         </Label>
@@ -389,18 +389,18 @@ const AdminPricing = () => {
                                             max="100"
                                             value={discountPercent}
                                             onChange={(e) => setDiscountPercent(parseInt(e.target.value) || 0)}
-                                            className="bg-background-dark border-primary/30 text-text-main"
+                                            className="bg-background-dark border-teal-600/30 text-white"
                                         />
                                         <p className="text-xs text-text-muted">Set to 0 for no discount</p>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="displayOrder" className="text-text-main">Display Order</Label>
+                                        <Label htmlFor="displayOrder" className="text-white">Display Order</Label>
                                         <Input
                                             id="displayOrder"
                                             type="number"
                                             value={displayOrder}
                                             onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
-                                            className="bg-background-dark border-primary/30 text-text-main"
+                                            className="bg-background-dark border-teal-600/30 text-white"
                                         />
                                         <p className="text-xs text-text-muted">Lower numbers appear first</p>
                                     </div>
@@ -413,7 +413,7 @@ const AdminPricing = () => {
                                             checked={isPopular}
                                             onCheckedChange={setIsPopular}
                                         />
-                                        <Label htmlFor="isPopular" className="text-text-main">Mark as Popular</Label>
+                                        <Label htmlFor="isPopular" className="text-white">Mark as Popular</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <Switch
@@ -421,7 +421,7 @@ const AdminPricing = () => {
                                             checked={isActive}
                                             onCheckedChange={setIsActive}
                                         />
-                                        <Label htmlFor="isActive" className="text-text-main">Active</Label>
+                                        <Label htmlFor="isActive" className="text-white">Active</Label>
                                     </div>
                                 </div>
 
@@ -433,7 +433,7 @@ const AdminPricing = () => {
                                             setIsDialogOpen(false);
                                             resetForm();
                                         }}
-                                        className="border-primary/30 text-text-main hover:bg-primary/10"
+                                        className="border-teal-600/30 text-white hover:bg-primary/10"
                                     >
                                         Cancel
                                     </Button>
@@ -459,14 +459,14 @@ const AdminPricing = () => {
                             <Loader2 className="w-8 h-8 animate-spin text-primary" />
                         </div>
                     ) : packages.length === 0 ? (
-                        <Card className="border-primary/20 bg-surface-dark/50">
+                        <Card className="border-teal-600/30 bg-teal-800">
                             <CardContent className="py-12 text-center">
                                 <p className="text-text-muted">No pricing packages yet. Create your first package!</p>
                             </CardContent>
                         </Card>
                     ) : (
                         packages.map((pkg) => (
-                            <Card key={pkg.id} className={`border-primary/20 bg-surface-dark/50 ${!pkg.is_active ? 'opacity-50' : ''}`}>
+                            <Card key={pkg.id} className={`border-teal-600/30 bg-teal-800 ${!pkg.is_active ? 'opacity-50' : ''}`}>
                                 <CardHeader>
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-start gap-4">
@@ -475,7 +475,7 @@ const AdminPricing = () => {
                                             </div>
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <CardTitle className="text-text-main">{pkg.name}</CardTitle>
+                                                    <CardTitle className="text-white">{pkg.name}</CardTitle>
                                                     <span className="text-xl font-bold text-primary">{pkg.price}</span>
                                                     {pkg.discount_percent && pkg.discount_percent > 0 && (
                                                         <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
@@ -507,7 +507,7 @@ const AdminPricing = () => {
                                                 size="sm"
                                                 variant="outline"
                                                 onClick={() => handleEdit(pkg)}
-                                                className="border-primary/30 text-text-main hover:bg-primary/10"
+                                                className="border-teal-600/30 text-white hover:bg-primary/10"
                                             >
                                                 <Edit className="w-4 h-4" />
                                             </Button>

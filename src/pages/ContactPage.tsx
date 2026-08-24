@@ -71,7 +71,7 @@ const ContactPage = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#aaccd6] text-[#1c1b1b] antialiased selection:bg-[#112E81] selection:text-white overflow-x-hidden">
+ <div className="min-h-screen bg-mint-50 text-teal-900 antialiased selection:bg-teal-600 selection:text-white overflow-x-hidden">
             <SEOHead
                 title="Contact"
                 description="Get in touch with Automation Alchemists. We're ready to help transform your business with automation, AI, and custom solutions."
@@ -95,9 +95,9 @@ const ContactPage = () => {
 
                             <div className="mt-8 rounded-2xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow border border-[#c5c5d3]/30 bg-white p-8">
                                 <h3 className="text-xl font-bold text-[#00195c] font-display">Direct Coordinates</h3>
-                                <div className="mt-6 space-y-6 text-[#1c1b1b]">
+ <div className="mt-6 space-y-6 text-teal-900">
                                     <div className="flex items-start gap-4">
-                                        <MapPin className="mt-1 text-[#112E81] w-5 h-5" />
+ <MapPin className="mt-1 text-teal-600 w-5 h-5" />
                                         <div>
                                             <p className="font-semibold font-display">Address</p>
                                             <p className="text-[#444651] font-display">
@@ -106,14 +106,14 @@ const ContactPage = () => {
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
-                                        <Mail className="mt-1 text-[#112E81] w-5 h-5" />
+ <Mail className="mt-1 text-teal-600 w-5 h-5" />
                                         <div>
                                             <p className="font-semibold font-display">Email</p>
                                             <p className="text-[#444651] font-display">{settings.email}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
-                                        <Phone className="mt-1 text-[#112E81] w-5 h-5" />
+ <Phone className="mt-1 text-teal-600 w-5 h-5" />
                                         <div>
                                             <p className="font-semibold font-display">Phone</p>
                                             <p className="text-[#444651] font-display">{settings.phone}</p>
@@ -129,7 +129,7 @@ const ContactPage = () => {
                                     <p>{settings.hours.weekdays}</p>
                                     <p>{settings.hours.saturday}</p>
                                     <p>{settings.hours.sunday}</p>
-                                    <p className="text-[#112E81] mt-4 font-bold">{settings.hours.enterprise}</p>
+ <p className="text-teal-600 mt-4 font-bold">{settings.hours.enterprise}</p>
                                 </div>
                             </div>
                         </div>

@@ -230,11 +230,11 @@ const AdminContactSubmissions = () => {
         transition={{ duration: 0.5 }}
         className="space-y-6"
       >
-        <Card className="border-primary/20 bg-surface-dark/50">
+        <Card className="border-teal-600/30 bg-teal-800">
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <CardTitle className="flex items-center gap-2 text-text-main">
+                <CardTitle className="flex items-center gap-2 text-white">
                   <Mail className="h-5 w-5 text-primary" />
                   Contact Form Submissions
                 </CardTitle>
@@ -257,7 +257,7 @@ const AdminContactSubmissions = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleBulkExport}
-                  className="border-primary/30 text-text-main hover:bg-primary/10"
+                  className="border-teal-600/30 text-white hover:bg-primary/10"
                 >
                   <FileDown className="h-4 w-4 mr-2" />
                   Export CSV
@@ -278,10 +278,10 @@ const AdminContactSubmissions = () => {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-primary/20">
+              <div className="overflow-x-auto rounded-lg border border-teal-600/30">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-primary/20 hover:bg-primary/5">
+                    <TableRow className="border-teal-600/30 hover:bg-primary/5">
                       <TableHead className="w-12">
                         <Checkbox
                           checked={selectedContacts.size === contacts.length}
@@ -299,14 +299,14 @@ const AdminContactSubmissions = () => {
                   </TableHeader>
                   <TableBody>
                     {contacts.map((contact) => (
-                      <TableRow key={contact.id} className="border-primary/20 hover:bg-primary/5">
+                      <TableRow key={contact.id} className="border-teal-600/30 hover:bg-primary/5">
                         <TableCell>
                           <Checkbox
                             checked={selectedContacts.has(contact.id)}
                             onCheckedChange={() => toggleContactSelection(contact.id)}
                           />
                         </TableCell>
-                        <TableCell className="font-medium text-text-main">
+                        <TableCell className="font-medium text-white">
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-text-muted" />
                             {contact.name}
@@ -363,7 +363,7 @@ const AdminContactSubmissions = () => {
                                 setSelectedContact(contact);
                                 setViewDialogOpen(true);
                               }}
-                              className="h-8 w-8 text-text-muted hover:text-text-main"
+                              className="h-8 w-8 text-text-muted hover:text-white"
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
@@ -386,9 +386,9 @@ const AdminContactSubmissions = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-primary/20 bg-surface-dark/50">
+        <Card className="border-teal-600/30 bg-teal-800">
           <CardHeader>
-            <CardTitle className="text-text-main">Quick Tips</CardTitle>
+            <CardTitle className="text-white">Quick Tips</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-text-muted">
             <p>• Click on email addresses to compose a reply</p>
@@ -401,7 +401,7 @@ const AdminContactSubmissions = () => {
 
       {/* View Contact Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-surface-dark border-primary/20 text-text-main max-w-2xl">
+        <DialogContent className="bg-teal-900 border-teal-600/30 text-white max-w-2xl">
           <DialogHeader>
             <DialogTitle>Contact Details</DialogTitle>
             <DialogDescription className="text-text-muted">View and manage this contact submission</DialogDescription>
@@ -411,24 +411,24 @@ const AdminContactSubmissions = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-text-muted">Name</Label>
-                  <p className="text-text-main font-medium">{selectedContact.name}</p>
+                  <p className="text-white font-medium">{selectedContact.name}</p>
                 </div>
                 <div>
                   <Label className="text-text-muted">Email</Label>
-                  <p className="text-text-main">{selectedContact.email}</p>
+                  <p className="text-white">{selectedContact.email}</p>
                 </div>
                 <div>
                   <Label className="text-text-muted">Use Case</Label>
-                  <p className="text-text-main">{selectedContact.use_case || '-'}</p>
+                  <p className="text-white">{selectedContact.use_case || '-'}</p>
                 </div>
                 <div>
                   <Label className="text-text-muted">Team Size</Label>
-                  <p className="text-text-main">{selectedContact.team_size || '-'}</p>
+                  <p className="text-white">{selectedContact.team_size || '-'}</p>
                 </div>
               </div>
               <div>
                 <Label className="text-text-muted">Message</Label>
-                <p className="text-text-main whitespace-pre-wrap bg-background-dark p-4 rounded-lg mt-2 border border-primary/20">
+                <p className="text-white whitespace-pre-wrap bg-background-dark p-4 rounded-lg mt-2 border border-teal-600/30">
                   {selectedContact.message}
                 </p>
               </div>
@@ -442,7 +442,7 @@ const AdminContactSubmissions = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => downloadAttachment(path)}
-                        className="border-primary/30 text-primary hover:bg-primary/10"
+                        className="border-teal-600/30 text-primary hover:bg-primary/10"
                       >
                         <Paperclip className="h-4 w-4 mr-2" />
                         Download {idx + 1}
@@ -451,7 +451,7 @@ const AdminContactSubmissions = () => {
                   </div>
                 </div>
               )}
-              <div className="flex items-center justify-between pt-4 border-t border-primary/20">
+              <div className="flex items-center justify-between pt-4 border-t border-teal-600/30">
                 <div className="flex items-center gap-3">
                   <Label className="text-text-muted">Status</Label>
                   <Select
@@ -461,10 +461,10 @@ const AdminContactSubmissions = () => {
                       setSelectedContact({ ...selectedContact, status: value });
                     }}
                   >
-                    <SelectTrigger className="w-32 bg-background-dark border-primary/30">
+                    <SelectTrigger className="w-32 bg-background-dark border-teal-600/30">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-surface-dark border-primary/20">
+                    <SelectContent className="bg-teal-900 border-teal-600/30">
                       <SelectItem value="new">New</SelectItem>
                       <SelectItem value="read">Read</SelectItem>
                       <SelectItem value="replied">Replied</SelectItem>

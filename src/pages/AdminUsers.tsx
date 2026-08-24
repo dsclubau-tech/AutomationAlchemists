@@ -171,10 +171,10 @@ const AdminUsers = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-primary/20 bg-surface-dark/50">
+        <Card className="border-teal-600/30 bg-teal-800">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2 text-text-main">
+              <CardTitle className="text-2xl flex items-center gap-2 text-white">
                 <Users className="h-6 w-6 text-primary" />
                 Registered Users
               </CardTitle>
@@ -189,7 +189,7 @@ const AdminUsers = () => {
                 placeholder="Search name or email..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-background-dark border-primary/30"
+                className="pl-9 bg-background-dark border-teal-600/30"
               />
             </div>
           </CardHeader>
@@ -199,10 +199,10 @@ const AdminUsers = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="rounded-lg border border-primary/20 overflow-hidden">
+              <div className="rounded-lg border border-teal-600/30 overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-primary/20 hover:bg-primary/5">
+                    <TableRow className="border-teal-600/30 hover:bg-primary/5">
                       <TableHead className="text-text-muted">User</TableHead>
                       <TableHead className="text-text-muted">Email</TableHead>
                       <TableHead className="text-text-muted">Created</TableHead>
@@ -219,10 +219,10 @@ const AdminUsers = () => {
                       </TableRow>
                     ) : (
                       filteredUsers.map((userItem) => (
-                        <TableRow key={userItem.id} className="border-primary/20 hover:bg-primary/5">
+                        <TableRow key={userItem.id} className="border-teal-600/30 hover:bg-primary/5">
                           <TableCell>
                             <div className="flex flex-col">
-                              <span className="font-medium text-text-main flex items-center gap-2">
+                              <span className="font-medium text-white flex items-center gap-2">
                                 <User className="h-4 w-4 text-primary" />
                                 {userItem.full_name || 'No name'}
                               </span>
@@ -242,9 +242,9 @@ const AdminUsers = () => {
                           </TableCell>
                           <TableCell>
                             {userItem.is_admin ? (
-                              <Badge className="bg-primary/20 text-primary border-primary/30">Admin</Badge>
+                              <Badge className="bg-primary/20 text-primary border-teal-600/30">Admin</Badge>
                             ) : (
-                              <Badge variant="outline" className="border-primary/30 text-text-muted">User</Badge>
+                              <Badge variant="outline" className="border-teal-600/30 text-text-muted">User</Badge>
                             )}
                           </TableCell>
                           <TableCell className="text-right">
@@ -254,7 +254,7 @@ const AdminUsers = () => {
                                   <MoreVertical className="h-4 w-4 text-text-muted" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-surface-dark border-primary/20">
+                              <DropdownMenuContent align="end" className="bg-teal-900 border-teal-600/30">
                                 <DropdownMenuItem onClick={() => {
                                   setEditUser(userItem);
                                   setEditFullName(userItem.full_name || '');
@@ -290,7 +290,7 @@ const AdminUsers = () => {
 
       {/* Edit User Modal */}
       <Dialog open={!!editUser} onOpenChange={(open) => !open && setEditUser(null)}>
-        <DialogContent className="bg-surface-dark border-primary/20 text-text-main">
+        <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
           <DialogHeader>
             <DialogTitle>Edit Profile</DialogTitle>
             <DialogDescription>Updating details for {editUser?.email}</DialogDescription>
@@ -301,7 +301,7 @@ const AdminUsers = () => {
               <Input 
                 value={editFullName} 
                 onChange={e => setEditFullName(e.target.value)} 
-                className="bg-background-dark border-primary/30 text-white"
+                className="bg-background-dark border-teal-600/30 text-white"
               />
             </div>
             <div className="space-y-2">
@@ -309,12 +309,12 @@ const AdminUsers = () => {
               <Input 
                 value={editPhone} 
                 onChange={e => setEditPhone(e.target.value)} 
-                className="bg-background-dark border-primary/30 text-white"
+                className="bg-background-dark border-teal-600/30 text-white"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditUser(null)} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => setEditUser(null)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
             <Button onClick={handleEditSubmit} disabled={isActionLoading} className="bg-primary hover:bg-primary/90 text-background-dark">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
@@ -325,7 +325,7 @@ const AdminUsers = () => {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={!!deleteUser} onOpenChange={(open) => !open && setDeleteUser(null)}>
-        <DialogContent className="bg-surface-dark border-red-500/50 text-text-main">
+        <DialogContent className="bg-teal-900 border-red-500/50 text-white">
           <DialogHeader>
             <DialogTitle className="text-red-500 flex items-center gap-2">
               <ShieldAlert className="h-5 w-5" />
@@ -349,7 +349,7 @@ const AdminUsers = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setDeleteUser(null); setDeleteConfirmation(''); }} className="border-primary/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => { setDeleteUser(null); setDeleteConfirmation(''); }} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
             <Button 
               variant="destructive" 
               onClick={handleDeleteSubmit} 

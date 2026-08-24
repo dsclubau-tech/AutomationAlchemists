@@ -269,7 +269,7 @@ const Auth = () => {
   const selectClass = "w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display appearance-none cursor-pointer shadow-sm";
 
   return (
-    <div className="min-h-screen w-full flex bg-[#aaccd6] overflow-hidden flex-col md:flex-row pt-[80px]">
+    <div className="min-h-screen w-full flex bg-mint-50 overflow-hidden flex-col md:flex-row pt-[80px]">
       <Navigation hideAuthButton={true} />
       {/* LEFT PANEL */}
       <div className="hidden md:flex w-[45%] flex-col relative overflow-hidden bg-[#112E81] text-white p-12 justify-center pb-20 shadow-2xl z-10">
@@ -279,8 +279,8 @@ const Auth = () => {
         <div className="relative z-10 max-w-md mx-auto w-full">
           {/* Logo & Brand */}
           <Link to="/" className="flex items-center gap-3 mb-12 group w-fit">
-            <img src={logo} alt="Automation Alchemists" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform mix-blend-screen" />
-            <span className="text-2xl font-bold text-white font-display tracking-tight group-hover:text-[#D4AF37] transition-colors">Automation Alchemists</span>
+            <img src={logo} alt="Automation Alchemists" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+            <span className="text-2xl font-bold text-white font-display tracking-tight group-hover:text-teal-600 transition-colors">Automation Alchemists</span>
           </Link>
           
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 font-display leading-tight tracking-tight">Turn ideas into<br/>working software</h1>
@@ -289,19 +289,19 @@ const Auth = () => {
           
           <div className="space-y-5 font-display">
             <div className="flex items-center gap-4 text-white/90">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-yellow-accent text-teal-900" />
               <span className="font-medium">Web & App Development</span>
             </div>
             <div className="flex items-center gap-4 text-white/90">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-yellow-accent text-teal-900" />
               <span className="font-medium">Flutter & Android</span>
             </div>
             <div className="flex items-center gap-4 text-white/90">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-yellow-accent text-teal-900" />
               <span className="font-medium">SaaS Products</span>
             </div>
             <div className="flex items-center gap-4 text-white/90">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-yellow-accent text-teal-900" />
               <span className="font-medium">Workflow Automation</span>
             </div>
           </div>
@@ -315,7 +315,7 @@ const Auth = () => {
           {/* Mobile Logo */}
           <div className="md:hidden flex items-center gap-3 mb-10">
             <Link to="/" className="flex items-center gap-3 group">
-              <img src={logo} alt="Automation Alchemists" className="w-10 h-10 object-contain mix-blend-multiply" />
+              <img src={logo} alt="Automation Alchemists" className="w-10 h-10 object-contain" />
               <span className="text-xl font-bold text-[#00195c] font-display tracking-tight">Automation Alchemists</span>
             </Link>
           </div>

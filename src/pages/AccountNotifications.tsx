@@ -177,7 +177,7 @@ const AccountNotifications = () => {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-[#111] pt-[120px] flex items-center justify-center">
+      <div className="min-h-screen bg-teal-900 pt-[120px] flex items-center justify-center">
         <Navigation hideAuthButton={true} />
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
@@ -185,7 +185,7 @@ const AccountNotifications = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-[100px] pb-24 font-display">
+    <div className="min-h-screen bg-teal-900 pt-[100px] pb-24 font-display">
       <Navigation hideAuthButton={true} />
 
       <div className="max-w-[680px] mx-auto px-6 w-full">
@@ -210,7 +210,7 @@ const AccountNotifications = () => {
 
             <div className="space-y-4">
               {notifications.length === 0 ? (
-                <div className="bg-[#111] rounded-xl p-8 border border-[#2a2a2a] text-center flex flex-col items-center justify-center">
+                <div className="bg-teal-900 rounded-xl p-8 border border-teal-600/30 text-center flex flex-col items-center justify-center">
                   <Bell className="w-12 h-12 text-[#444] mb-4" />
                   <h3 className="text-lg font-bold text-white mb-2">No launch alerts set up</h3>
                   <p className="text-[#888] mb-6 max-w-sm">
@@ -228,7 +228,7 @@ const AccountNotifications = () => {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className={`bg-[#111] rounded-xl p-6 border-y border-r border-[#2a2a2a] border-l-4 ${notif.notified ? 'border-l-[#4caf50]' : 'border-l-[#D4AF37]'}`}
+                      className={`bg-teal-900 rounded-xl p-6 border-y border-r border-teal-600/30 border-l-4 ${notif.notified ? 'border-l-[#4caf50]' : 'border-l-[#D4AF37]'}`}
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex-1">
@@ -243,7 +243,7 @@ const AccountNotifications = () => {
                           
                           {notif.notified ? (
                             <div className="mb-2">
-                              <p className="text-[#4caf50] font-medium text-sm">🎉 This tool has launched!</p>
+                              <p className="text-emerald-500 font-medium text-sm">🎉 This tool has launched!</p>
                               {notif.notified_at && (
                                 <p className="text-[#888] text-xs mt-1">Notified on {format(new Date(notif.notified_at), 'dd MMM yyyy')}</p>
                               )}
@@ -265,7 +265,7 @@ const AccountNotifications = () => {
                           {notif.notified ? (
                             <Button 
                               onClick={() => window.open(`/tools/${notif.tool_slug}`, '_blank')} 
-                              className="bg-[#2a2a2a] hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm w-full sm:w-auto"
+                              className="bg-teal-600/30 hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm w-full sm:w-auto"
                             >
                               Open {notif.tool_name} →
                             </Button>
@@ -291,12 +291,12 @@ const AccountNotifications = () => {
           {/* SECTION 2 - PREFERENCES */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-[#111] rounded-xl p-6 md:p-8 border border-[#2a2a2a]"
+            className="bg-teal-900 rounded-xl p-6 md:p-8 border border-teal-600/30"
           >
             <h2 className="text-xl font-bold text-white mb-6">Notification Preferences</h2>
             
             <div className="space-y-6">
-              <div className="flex items-center justify-between py-3 border-b border-[#2a2a2a]">
+              <div className="flex items-center justify-between py-3 border-b border-teal-600/30">
                 <div className="flex flex-col gap-1 pr-4">
                   <Label htmlFor="notify-launches" className="text-white font-medium text-base">Notify me when new tools launch</Label>
                   <span className="text-[#888] text-sm">Receive alerts about new features and product releases.</span>

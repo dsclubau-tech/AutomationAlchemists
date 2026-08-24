@@ -125,10 +125,10 @@ const AdminAuditLog = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-primary/20 bg-surface-dark/50">
+        <Card className="border-teal-600/30 bg-teal-800">
           <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2 text-text-main">
+              <CardTitle className="text-2xl flex items-center gap-2 text-white">
                 <ActivitySquare className="h-6 w-6 text-primary" />
                 Action History
               </CardTitle>
@@ -144,11 +144,11 @@ const AdminAuditLog = () => {
                   placeholder="Search admin, target, action..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 bg-background-dark border-primary/30 text-white"
+                  className="pl-9 bg-background-dark border-teal-600/30 text-white"
                 />
               </div>
               
-              <Button onClick={handleExportCSV} variant="outline" className="border-primary/30 text-text-main hover:bg-primary/10 flex-shrink-0">
+              <Button onClick={handleExportCSV} variant="outline" className="border-teal-600/30 text-white hover:bg-primary/10 flex-shrink-0">
                 <FileDown className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
@@ -160,10 +160,10 @@ const AdminAuditLog = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="rounded-lg border border-primary/20 overflow-hidden">
+              <div className="rounded-lg border border-teal-600/30 overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-primary/20 hover:bg-primary/5">
+                    <TableRow className="border-teal-600/30 hover:bg-primary/5">
                       <TableHead className="text-text-muted">Date</TableHead>
                       <TableHead className="text-text-muted">Admin</TableHead>
                       <TableHead className="text-text-muted">Action</TableHead>
@@ -180,10 +180,10 @@ const AdminAuditLog = () => {
                       </TableRow>
                     ) : (
                       filteredLogs.map((log) => (
-                        <TableRow key={log.id} className="border-primary/20 hover:bg-primary/5">
+                        <TableRow key={log.id} className="border-teal-600/30 hover:bg-primary/5">
                           <TableCell>
                             <div className="flex flex-col text-sm">
-                              <span className="text-text-main flex items-center gap-1">
+                              <span className="text-white flex items-center gap-1">
                                 <Calendar className="h-3 w-3 text-text-muted" />
                                 {new Date(log.created_at).toLocaleDateString()}
                               </span>
@@ -192,7 +192,7 @@ const AdminAuditLog = () => {
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell className="text-text-main font-medium">
+                          <TableCell className="text-white font-medium">
                             {log.admin_email}
                           </TableCell>
                           <TableCell>
@@ -226,7 +226,7 @@ const AdminAuditLog = () => {
 
       {/* JSON Viewer Modal */}
       <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
-        <DialogContent className="bg-surface-dark border-primary/20 text-text-main max-w-2xl">
+        <DialogContent className="bg-teal-900 border-teal-600/30 text-white max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-primary" />
@@ -237,7 +237,7 @@ const AdminAuditLog = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <pre className="bg-background-dark p-4 rounded-lg border border-primary/20 overflow-x-auto text-sm text-green-400 font-mono">
+            <pre className="bg-background-dark p-4 rounded-lg border border-teal-600/30 overflow-x-auto text-sm text-green-400 font-mono">
               {JSON.stringify(selectedLog?.details, null, 2)}
             </pre>
           </div>

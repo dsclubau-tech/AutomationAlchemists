@@ -61,7 +61,7 @@ const Testimonials = () => {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#112E81] mb-4 font-display">
+ <h2 className="text-3xl md:text-4xl font-bold text-teal-600 mb-4 font-display">
                         What Our Clients Say
                     </h2>
                     <p className="text-[#444651] max-w-2xl mx-auto font-display">
@@ -78,21 +78,21 @@ const Testimonials = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -50 }}
                                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                                className="bg-white border border-[#112E81]/10 rounded-2xl p-8 md:p-12 shadow-sm"
+ className="bg-white border border-teal-800/10 rounded-2xl p-8 md:p-12 shadow-sm"
                             >
-                                <Quote className="w-12 h-12 text-[#112E81]/30 mb-6" />
+ <Quote className="w-12 h-12 text-teal-600/30 mb-6" />
 
-                                <p className="text-lg md:text-xl text-[#1c1b1b] mb-8 font-display leading-relaxed">
+ <p className="text-lg md:text-xl text-teal-900 mb-8 font-display leading-relaxed">
                                     "{currentTestimonial.content}"
                                 </p>
 
                                 <div className="flex items-center justify-between flex-wrap gap-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-full bg-[#112E81]/10 flex items-center justify-center text-[#112E81] font-bold text-xl">
+ <div className="w-14 h-14 rounded-full bg-teal-600/10 flex items-center justify-center text-teal-600 font-bold text-xl">
                                             {currentTestimonial.name.charAt(0)}
                                         </div>
                                         <div>
-                                            <h4 className="text-[#112E81] font-semibold font-display">{currentTestimonial.name}</h4>
+ <h4 className="text-teal-600 font-semibold font-display">{currentTestimonial.name}</h4>
                                             <p className="text-[#444651] text-sm font-display">
                                                 {currentTestimonial.role} at {currentTestimonial.company}
                                             </p>
@@ -101,7 +101,7 @@ const Testimonials = () => {
 
                                     <div className="flex gap-1">
                                         {[...Array(currentTestimonial.rating)].map((_, i) => (
-                                            <Star key={i} className="w-5 h-5 text-[#D4AF37] fill-[#D4AF37]" />
+ <Star key={i} className="w-5 h-5 text-teal-600 fill-[#D4AF37]" />
                                         ))}
                                     </div>
                                 </div>
@@ -116,8 +116,8 @@ const Testimonials = () => {
                                 key={index}
                                 onClick={() => setActiveIndex(index)}
                                 className={`h-2 min-h-0 rounded-full transition-all duration-300 ${index === activeIndex
-                                    ? "bg-[#112E81] w-6"
-                                    : "bg-[#112E81]/30 hover:bg-[#112E81]/50 w-2"
+ ? "bg-teal-600 w-6"
+ : "bg-teal-600/30 hover:bg-teal-600/50 w-2"
                                     }`}
                                 aria-label={`View testimonial ${index + 1}`}
                             />
