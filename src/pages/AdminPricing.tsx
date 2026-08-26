@@ -244,45 +244,45 @@ const AdminPricing = () => {
                 <div className="flex justify-end mb-6">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button onClick={resetForm} className="bg-primary hover:bg-primary/90 text-background-dark">
+                            <Button onClick={resetForm} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                                 <Plus className="w-4 h-4 mr-2" />
                                 Add Package
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-teal-900 border-teal-600/30">
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white text-teal-900 border border-teal-600/20 shadow-2xl border-teal-600/20">
                             <DialogHeader>
-                                <DialogTitle className="text-white">
+                                <DialogTitle className="text-teal-900 font-display">
                                     {editingPackage ? 'Edit Package' : 'Add New Package'}
                                 </DialogTitle>
                             </DialogHeader>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name" className="text-white">Package Name *</Label>
+                                        <Label htmlFor="name" className="text-teal-900 font-semibold">Package Name *</Label>
                                         <Input
                                             id="name"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             required
                                             placeholder="e.g., Starter, Professional"
-                                            className="bg-background-dark border-teal-600/30 text-white"
+                                            className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="price" className="text-white">Price *</Label>
+                                        <Label htmlFor="price" className="text-teal-900 font-semibold">Price *</Label>
                                         <Input
                                             id="price"
                                             value={price}
                                             onChange={(e) => setPrice(e.target.value)}
                                             required
                                             placeholder="e.g., Custom, $99/mo"
-                                            className="bg-background-dark border-teal-600/30 text-white"
+                                            className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="description" className="text-white">Full Description *</Label>
+                                    <Label htmlFor="description" className="text-teal-900 font-semibold">Full Description *</Label>
                                     <Textarea
                                         id="description"
                                         value={description}
@@ -290,41 +290,41 @@ const AdminPricing = () => {
                                         required
                                         placeholder="Detailed description of the package"
                                         rows={3}
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="shortDescription" className="text-white">Short Description</Label>
+                                    <Label htmlFor="shortDescription" className="text-teal-900 font-semibold">Short Description</Label>
                                     <Input
                                         id="shortDescription"
                                         value={shortDescription}
                                         onChange={(e) => setShortDescription(e.target.value)}
                                         placeholder="Brief tagline for collapsed view"
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="features" className="text-white">Features (one per line)</Label>
+                                    <Label htmlFor="features" className="text-teal-900 font-semibold">Features (one per line)</Label>
                                     <Textarea
                                         id="features"
                                         value={features}
                                         onChange={(e) => setFeatures(e.target.value)}
                                         placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
                                         rows={5}
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="icon" className="text-white">Icon</Label>
+                                        <Label htmlFor="icon" className="text-teal-900 font-semibold">Icon</Label>
                                         <Select value={icon} onValueChange={setIcon}>
-                                            <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                                            <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-teal-900 border-teal-600/30">
+                                            <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                                 {iconOptions.map((opt) => (
                                                     <SelectItem key={opt.value} value={opt.value}>
                                                         <div className="flex items-center gap-2">
@@ -337,35 +337,35 @@ const AdminPricing = () => {
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="ctaText" className="text-white">CTA Button Text</Label>
+                                        <Label htmlFor="ctaText" className="text-teal-900 font-semibold">CTA Button Text</Label>
                                         <Input
                                             id="ctaText"
                                             value={ctaText}
                                             onChange={(e) => setCtaText(e.target.value)}
                                             placeholder="Get Started"
-                                            className="bg-background-dark border-teal-600/30 text-white"
+                                            className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="badge" className="text-white">Badge Text</Label>
+                                        <Label htmlFor="badge" className="text-teal-900 font-semibold">Badge Text</Label>
                                         <Input
                                             id="badge"
                                             value={badge}
                                             onChange={(e) => setBadge(e.target.value)}
                                             placeholder="e.g., Most Popular, New"
-                                            className="bg-background-dark border-teal-600/30 text-white"
+                                            className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="badgeColor" className="text-white">Badge Color</Label>
+                                        <Label htmlFor="badgeColor" className="text-teal-900 font-semibold">Badge Color</Label>
                                         <Select value={badgeColor} onValueChange={setBadgeColor}>
-                                            <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                                            <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-teal-900 border-teal-600/30">
+                                            <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                                 {badgeColorOptions.map((opt) => (
                                                     <SelectItem key={opt.value} value={opt.value}>
                                                         {opt.label}
@@ -378,8 +378,8 @@ const AdminPricing = () => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="discountPercent" className="text-white flex items-center gap-2">
-                                            <Percent className="w-4 h-4 text-primary" />
+                                        <Label htmlFor="discountPercent" className="text-teal-900 font-semibold flex items-center gap-2">
+                                            <Percent className="w-4 h-4 text-teal-600" />
                                             Discount Percentage
                                         </Label>
                                         <Input
@@ -389,20 +389,20 @@ const AdminPricing = () => {
                                             max="100"
                                             value={discountPercent}
                                             onChange={(e) => setDiscountPercent(parseInt(e.target.value) || 0)}
-                                            className="bg-background-dark border-teal-600/30 text-white"
+                                            className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                         />
-                                        <p className="text-xs text-text-muted">Set to 0 for no discount</p>
+                                        <p className="text-xs text-teal-900/70">Set to 0 for no discount</p>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="displayOrder" className="text-white">Display Order</Label>
+                                        <Label htmlFor="displayOrder" className="text-teal-900 font-semibold">Display Order</Label>
                                         <Input
                                             id="displayOrder"
                                             type="number"
                                             value={displayOrder}
                                             onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
-                                            className="bg-background-dark border-teal-600/30 text-white"
+                                            className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                         />
-                                        <p className="text-xs text-text-muted">Lower numbers appear first</p>
+                                        <p className="text-xs text-teal-900/70">Lower numbers appear first</p>
                                     </div>
                                 </div>
 
@@ -413,7 +413,7 @@ const AdminPricing = () => {
                                             checked={isPopular}
                                             onCheckedChange={setIsPopular}
                                         />
-                                        <Label htmlFor="isPopular" className="text-white">Mark as Popular</Label>
+                                        <Label htmlFor="isPopular" className="text-teal-900 font-semibold">Mark as Popular</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <Switch
@@ -421,7 +421,7 @@ const AdminPricing = () => {
                                             checked={isActive}
                                             onCheckedChange={setIsActive}
                                         />
-                                        <Label htmlFor="isActive" className="text-white">Active</Label>
+                                        <Label htmlFor="isActive" className="text-teal-900 font-semibold">Active</Label>
                                     </div>
                                 </div>
 
@@ -433,11 +433,11 @@ const AdminPricing = () => {
                                             setIsDialogOpen(false);
                                             resetForm();
                                         }}
-                                        className="border-teal-600/30 text-white hover:bg-primary/10"
+                                        className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                                     >
                                         Cancel
                                     </Button>
-                                    <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-background-dark">
+                                    <Button type="submit" disabled={isSubmitting} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                                         {isSubmitting ? (
                                             <>
                                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -456,27 +456,27 @@ const AdminPricing = () => {
                 <div className="grid gap-4">
                     {isLoading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
                         </div>
                     ) : packages.length === 0 ? (
-                        <Card className="border-teal-600/30 bg-teal-800">
+                        <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                             <CardContent className="py-12 text-center">
-                                <p className="text-text-muted">No pricing packages yet. Create your first package!</p>
+                                <p className="text-teal-900/70">No pricing packages yet. Create your first package!</p>
                             </CardContent>
                         </Card>
                     ) : (
                         packages.map((pkg) => (
-                            <Card key={pkg.id} className={`border-teal-600/30 bg-teal-800 ${!pkg.is_active ? 'opacity-50' : ''}`}>
+                            <Card key={pkg.id} className={`border border-teal-600/20 bg-white shadow-sm ${!pkg.is_active ? 'opacity-50' : ''}`}>
                                 <CardHeader>
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-start gap-4">
-                                            <div className="text-primary">
+                                            <div className="text-teal-600">
                                                 {getIcon(pkg.icon)}
                                             </div>
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <CardTitle className="text-white">{pkg.name}</CardTitle>
-                                                    <span className="text-xl font-bold text-primary">{pkg.price}</span>
+                                                    <CardTitle className="text-teal-900 font-display">{pkg.name}</CardTitle>
+                                                    <span className="text-xl font-bold text-teal-600">{pkg.price}</span>
                                                     {pkg.discount_percent && pkg.discount_percent > 0 && (
                                                         <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
                                                             {pkg.discount_percent}% OFF
@@ -498,8 +498,8 @@ const AdminPricing = () => {
                                                         </Badge>
                                                     )}
                                                 </div>
-                                                <p className="text-sm text-text-muted">{pkg.short_description || pkg.description}</p>
-                                                <p className="text-xs text-text-muted">Order: {pkg.display_order} • {pkg.features?.length || 0} features</p>
+                                                <p className="text-sm text-teal-900/70">{pkg.short_description || pkg.description}</p>
+                                                <p className="text-xs text-teal-900/70">Order: {pkg.display_order} • {pkg.features?.length || 0} features</p>
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
@@ -507,7 +507,7 @@ const AdminPricing = () => {
                                                 size="sm"
                                                 variant="outline"
                                                 onClick={() => handleEdit(pkg)}
-                                                className="border-teal-600/30 text-white hover:bg-primary/10"
+                                                className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                                             >
                                                 <Edit className="w-4 h-4" />
                                             </Button>

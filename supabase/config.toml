@@ -1,1 +1,7 @@
-project_id = "zgsjgzyagyiqcnectzqb"
+project_id = "tdevgrwmafwrsmeymjzd"
+
+[functions.admin-actions]
+verify_jwt = true
+
+[functions.entitlement-check]
+verify_jwt = false

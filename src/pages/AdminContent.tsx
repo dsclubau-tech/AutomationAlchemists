@@ -216,52 +216,52 @@ const AdminContent = () => {
         <div className="flex justify-end mb-6">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} className="bg-primary hover:bg-primary/90 text-background-dark">
+              <Button onClick={resetForm} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Content
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-teal-900 border-teal-600/30">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white text-teal-900 border border-teal-600/20 shadow-2xl border-teal-600/20">
               <DialogHeader>
-                <DialogTitle className="text-white">
+                <DialogTitle className="text-teal-900 font-display">
                   {editingContent ? 'Edit Content' : 'Add New Content'}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-white">Title *</Label>
+                  <Label htmlFor="title" className="text-teal-900 font-semibold">Title *</Label>
                   <Input
                     id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
                     placeholder="Enter content title"
-                    className="bg-background-dark border-teal-600/30 text-white"
+                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-white">Description</Label>
+                  <Label htmlFor="description" className="text-teal-900 font-semibold">Description</Label>
                   <Textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Brief description of the content"
                     rows={3}
-                    className="bg-background-dark border-teal-600/30 text-white"
+                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contentType" className="text-white">Content Type *</Label>
+                  <Label htmlFor="contentType" className="text-teal-900 font-semibold">Content Type *</Label>
                   <Select
                     value={contentType}
                     onValueChange={(value) => setContentType(value as 'video' | 'animation' | 'text')}
                   >
-                    <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                    <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-teal-900 border-teal-600/30">
+                    <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                       <SelectItem value="text">Text / Paragraph</SelectItem>
                       <SelectItem value="video">Video</SelectItem>
                       <SelectItem value="animation">Animation / GIF</SelectItem>
@@ -271,16 +271,16 @@ const AdminContent = () => {
 
                 {contentType === 'video' && (
                   <div className="space-y-2">
-                    <Label htmlFor="videoFile" className="text-white">Upload Video</Label>
+                    <Label htmlFor="videoFile" className="text-teal-900 font-semibold">Upload Video</Label>
                     <Input
                       id="videoFile"
                       type="file"
                       accept="video/*"
                       onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                      className="bg-background-dark border-teal-600/30 text-white"
+                      className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                     />
                     {editingContent?.video_url && !videoFile && (
-                      <p className="text-sm text-text-muted">
+                      <p className="text-sm text-teal-900/70">
                         Current video will be kept if no new file is uploaded
                       </p>
                     )}
@@ -289,7 +289,7 @@ const AdminContent = () => {
 
                 {contentType === 'text' && (
                   <div className="space-y-2">
-                    <Label htmlFor="contentText" className="text-white">Content Text *</Label>
+                    <Label htmlFor="contentText" className="text-teal-900 font-semibold">Content Text *</Label>
                     <Textarea
                       id="contentText"
                       value={contentText}
@@ -297,35 +297,35 @@ const AdminContent = () => {
                       required={contentType === 'text'}
                       placeholder="Enter the text content / explanation"
                       rows={8}
-                      className="bg-background-dark border-teal-600/30 text-white"
+                      className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                     />
                   </div>
                 )}
 
                 {contentType === 'animation' && (
                   <div className="space-y-2">
-                    <Label htmlFor="videoFile" className="text-white">Upload Animation / GIF</Label>
+                    <Label htmlFor="videoFile" className="text-teal-900 font-semibold">Upload Animation / GIF</Label>
                     <Input
                       id="videoFile"
                       type="file"
                       accept="image/gif,video/*"
                       onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                      className="bg-background-dark border-teal-600/30 text-white"
+                      className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                     />
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="displayOrder" className="text-white">Display Order</Label>
+                  <Label htmlFor="displayOrder" className="text-teal-900 font-semibold">Display Order</Label>
                   <Input
                     id="displayOrder"
                     type="number"
                     value={displayOrder}
                     onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
                     placeholder="0"
-                    className="bg-background-dark border-teal-600/30 text-white"
+                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                   />
-                  <p className="text-xs text-text-muted">Lower numbers appear first</p>
+                  <p className="text-xs text-teal-900/70">Lower numbers appear first</p>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -334,7 +334,7 @@ const AdminContent = () => {
                     checked={published}
                     onCheckedChange={setPublished}
                   />
-                  <Label htmlFor="published" className="text-white">Published</Label>
+                  <Label htmlFor="published" className="text-teal-900 font-semibold">Published</Label>
                 </div>
 
                 <div className="flex gap-2 justify-end">
@@ -345,11 +345,11 @@ const AdminContent = () => {
                       setIsDialogOpen(false);
                       resetForm();
                     }}
-                    className="border-teal-600/30 text-white hover:bg-primary/10"
+                    className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-background-dark">
+                  <Button type="submit" disabled={isSubmitting} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -368,23 +368,23 @@ const AdminContent = () => {
         <div className="grid gap-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
             </div>
           ) : contents.length === 0 ? (
-            <Card className="border-teal-600/30 bg-teal-800">
+            <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
               <CardContent className="py-12 text-center">
-                <p className="text-text-muted">No content yet. Create your first educational content!</p>
+                <p className="text-teal-900/70">No content yet. Create your first educational content!</p>
               </CardContent>
             </Card>
           ) : (
             contents.map((content) => (
-              <Card key={content.id} className="border-teal-600/30 bg-teal-800">
+              <Card key={content.id} className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-primary">{getContentIcon(content.content_type)}</span>
-                        <CardTitle className="text-white">{content.title}</CardTitle>
+                        <span className="text-teal-600">{getContentIcon(content.content_type)}</span>
+                        <CardTitle className="text-teal-900 font-display">{content.title}</CardTitle>
                         {!content.published && (
                           <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded">
                             Draft
@@ -392,16 +392,16 @@ const AdminContent = () => {
                         )}
                       </div>
                       {content.description && (
-                        <p className="text-sm text-text-muted">{content.description}</p>
+                        <p className="text-sm text-teal-900/70">{content.description}</p>
                       )}
-                      <p className="text-xs text-text-muted">Order: {content.display_order}</p>
+                      <p className="text-xs text-teal-900/70">Order: {content.display_order}</p>
                     </div>
                     <div className="flex gap-2">
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleEdit(content)}
-                        className="border-teal-600/30 text-white hover:bg-primary/10"
+                        className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>

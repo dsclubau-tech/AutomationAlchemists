@@ -158,13 +158,13 @@ const AdminNewsletter = () => {
                 transition={{ duration: 0.5 }}
                 className="space-y-6"
             >
-                <Card className="border-teal-600/30 bg-teal-800">
+                <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-white">
-                            <Mail className="h-5 w-5 text-primary" />
+                        <CardTitle className="flex items-center gap-2 text-teal-900 font-display">
+                            <Mail className="h-5 w-5 text-teal-600" />
                             Newsletter Subscribers
                         </CardTitle>
-                        <CardDescription className="text-text-muted">
+                        <CardDescription className="text-teal-900/70">
                             Total subscribers: {subscribers.length}
                         </CardDescription>
                     </CardHeader>
@@ -175,7 +175,7 @@ const AdminNewsletter = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={handleExportCSV}
-                                className="border-teal-600/30 text-white hover:bg-primary/10"
+                                className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                             >
                                 <FileDown className="h-4 w-4 mr-2" />
                                 Export {selectedSubscribers.size > 0 ? 'Selected' : 'All'}
@@ -199,29 +199,29 @@ const AdminNewsletter = () => {
 
                         {isLoading ? (
                             <div className="flex justify-center py-12">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
                             </div>
                         ) : subscribers.length === 0 ? (
                             <div className="text-center py-12">
-                                <Mail className="h-12 w-12 mx-auto text-text-muted mb-4" />
-                                <p className="text-text-muted">
+                                <Mail className="h-12 w-12 mx-auto text-teal-900/70 mb-4" />
+                                <p className="text-teal-900/70">
                                     No newsletter subscribers yet
                                 </p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto rounded-lg border border-teal-600/30">
                                 <Table>
-                                    <TableHeader>
-                                        <TableRow className="border-teal-600/30 hover:bg-primary/5">
+                                    <TableHeader className="bg-mint-50/50">
+                                        <TableRow className="border-b border-teal-600/10 hover:bg-teal-600/5 transition-colors">
                                             <TableHead className="w-12">
                                                 <Checkbox
                                                     checked={selectedSubscribers.size === subscribers.length}
                                                     onCheckedChange={toggleAllSubscribers}
                                                 />
                                             </TableHead>
-                                            <TableHead className="text-text-muted">Email</TableHead>
-                                            <TableHead className="text-text-muted">Date</TableHead>
-                                            <TableHead className="text-text-muted">Time</TableHead>
+                                            <TableHead className="text-teal-900 font-bold">Email</TableHead>
+                                            <TableHead className="text-teal-900 font-bold">Date</TableHead>
+                                            <TableHead className="text-teal-900 font-bold">Time</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -238,20 +238,20 @@ const AdminNewsletter = () => {
                                                     <TableCell>
                                                         <a
                                                             href={`mailto:${subscriber.email}`}
-                                                            className="text-primary hover:underline flex items-center gap-2"
+                                                            className="text-teal-600 hover:underline flex items-center gap-2"
                                                         >
                                                             <Mail className="h-4 w-4" />
                                                             {subscriber.email}
                                                         </a>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="flex items-center gap-2 text-sm text-text-muted">
+                                                        <div className="flex items-center gap-2 text-sm text-teal-900/70">
                                                             <Calendar className="h-4 w-4" />
                                                             {date}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="flex items-center gap-2 text-sm text-text-muted">
+                                                        <div className="flex items-center gap-2 text-sm text-teal-900/70">
                                                             <Clock className="h-4 w-4" />
                                                             {time}
                                                         </div>

@@ -4,53 +4,69 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
-import { Search, PenTool, Hammer, TrendingUp, Brain, PencilRuler, Cog, Route, Quote } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
+import { Search, PenTool, Hammer, TrendingUp, Quote } from "lucide-react";
 
 const Company = () => {
     const [activeStep, setActiveStep] = useState<number | null>(0);
 
     return (
- <div className="min-h-screen bg-teal-900 text-white overflow-x-hidden antialiased">
+        <div className="min-h-screen bg-mint-50 text-teal-900 selection:bg-teal-600 selection:text-white overflow-x-hidden antialiased">
+            <SEOHead
+                title="Company | Automation Alchemists"
+                description="We build custom automation systems and digital tools, helping businesses cut manual work, streamline operations, and scale faster."
+                keywords="Automation Alchemists, company, about us, business automation, custom software"
+            />
             <PageLoader pageName="Company" />
             <Navigation />
 
-            <main className="pt-20">
-                {/* Hero Section */}
- <section className="bg-teal-900 text-white pt-24 pb-32 px-4 sm:px-6 md:px-12 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto relative z-10 grid md:grid-cols-2 gap-12 items-center">
-                        <motion.div 
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8 }}
-                            className="flex flex-col gap-6"
-                        >
- <span className="text-teal-600 text-sm font-semibold uppercase tracking-wider font-display">About Automation Alchemists</span>
-                            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">Transforming Vision Into Reality</h1>
-                            <p className="text-lg text-[#A1A1AA] max-w-xl font-display">
+            <main className="pt-28 pb-20">
+                {/* Hero Section - Teal Banner Card on Mint Canvas */}
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 mb-20">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="bg-teal-800 text-white rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl relative overflow-hidden grid md:grid-cols-2 gap-12 items-center"
+                    >
+                        {/* Decorative background glows */}
+                        <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent pointer-events-none"></div>
+                        <div className="absolute -top-24 -right-24 w-96 h-96 bg-teal-600/30 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                        <div className="flex flex-col gap-6 relative z-10">
+                            <span className="inline-block py-1 px-3 rounded-full bg-white/10 text-white font-label-sm text-xs uppercase tracking-wider w-fit border border-white/20 backdrop-blur-sm">
+                                About Automation Alchemists
+                            </span>
+                            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+                                Transforming Vision Into Reality
+                            </h1>
+                            <p className="text-lg text-white/80 max-w-xl font-display leading-relaxed">
                                 We're a team who build custom automation systems and digital tools, helping businesses cut manual work, streamline operations, and scale faster.
                             </p>
-                        </motion.div>
+                        </div>
+                        
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
- className="relative h-[400px] w-full rounded-2xl overflow-hidden border border-teal-800 shadow-2xl backdrop-blur-sm bg-teal-800"
+                            className="relative h-[320px] sm:h-[380px] w-full rounded-2xl overflow-hidden border border-white/20 shadow-2xl backdrop-blur-sm bg-teal-900/60 z-10"
                         >
                             <img alt="Team working" className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAul0Z76sg_D7C-8UXWRqouP5wAPWI-BkxBb7HK-I6TgreeYPKD6evg-wJQz3A6yJnIXDvAS65vYMJRW0ojNLRYmNickOmNPyRQwancWaZGwmEtaGN8fNkhdHP6fJQhhLpr9aFE-02IbUJMxSZNGG8MQReXGLoDROReNoKk1fbNShA6lZUAlbnqtzsmEKsIxU62q4QSmIvIJg-EUY2z2yFlQWeai7Aa1eAd4XkEoe1I3ha4gN6XO8Yxtg"/>
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10] to-transparent opacity-60"></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-teal-950/80 to-transparent"></div>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 </section>
 
-                {/* Our Process Section (Bento Grid) */}
- <section className="pt-24 pb-4 px-4 sm:px-6 md:px-12 bg-teal-900">
+                {/* Our Process Section (Interactive Bento Grid on Mint Canvas) */}
+                <section className="py-12 px-4 sm:px-6 md:px-12">
                     <div className="max-w-7xl mx-auto">
                         <div className="text-center mb-16">
                             <motion.h2 
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4"
+                                className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-teal-900 mb-4"
                             >
                                 Simple, Scalable Business Automation
                             </motion.h2>
@@ -59,20 +75,21 @@ const Company = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
-                                className="text-lg text-[#A1A1AA] max-w-3xl mx-auto font-display"
+                                className="text-lg text-teal-900/80 max-w-3xl mx-auto font-display"
                             >
                                 Most businesses can't access enterprise-level technology — until now. We build workflow automation and custom software that's practical, affordable, and built for companies of any size. Whether you need to streamline daily operations or build custom tools from scratch, we handle the technical work so you can focus on growing your business.
                             </motion.p>
                         </div>
+
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             className="max-w-6xl mx-auto"
                         >
-                            <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
+                            <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-stretch">
                                 {/* Left Side: Clickable Steps */}
-                                <div className="flex flex-col gap-4 w-full md:w-5/12">
+                                <div className="flex flex-col gap-4 w-full md:w-5/12 justify-center">
                                     {[
                                         { id: 0, num: '01', title: 'Learn your business', icon: Search },
                                         { id: 1, num: '02', title: 'Design a solution', icon: PenTool },
@@ -85,30 +102,30 @@ const Company = () => {
                                             onMouseEnter={() => setActiveStep(step.id)}
                                             className={`w-full flex items-center gap-6 p-6 rounded-2xl border transition-all duration-300 text-left relative overflow-hidden ${
                                                 activeStep === step.id 
- ? 'bg-teal-800 border-teal-800 shadow-xl md:translate-x-4' 
- : 'bg-teal-800 border-teal-800 hover:border-teal-800/50 hover:bg-teal-800 shadow-sm'
+                                                    ? 'bg-teal-800 border-teal-800 text-white shadow-xl md:translate-x-4' 
+                                                    : 'bg-white border-teal-600/20 text-teal-900 hover:border-teal-600/40 hover:bg-white/90 shadow-sm'
                                             }`}
                                         >
                                             <div className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center transition-colors duration-300 ${
- activeStep === step.id ? 'bg-teal-600 text-white' : 'bg-teal-800 text-[#A1A1AA]'
+                                                activeStep === step.id ? 'bg-teal-600 text-white' : 'bg-teal-600/10 text-teal-600'
                                             }`}>
                                                 <step.icon className="w-6 h-6" />
                                             </div>
                                             <div>
                                                 <span className={`text-xs font-bold tracking-widest uppercase mb-1 block transition-colors ${
- activeStep === step.id ? 'text-teal-600' : 'text-[#A1A1AA]'
+                                                    activeStep === step.id ? 'text-yellow-accent' : 'text-teal-600'
                                                 }`}>Step {step.num}</span>
                                                 <h4 className={`text-xl font-bold font-display transition-colors ${
-                                                    activeStep === step.id ? 'text-white' : 'text-[#A1A1AA]'
+                                                    activeStep === step.id ? 'text-white' : 'text-teal-900'
                                                 }`}>{step.title}</h4>
                                             </div>
                                         </button>
                                     ))}
                                 </div>
 
-                                {/* Right Side: Dynamic Content */}
+                                {/* Right Side: Dynamic Content Panel in Clean White Container */}
                                 <div className="w-full md:w-7/12">
- <div className="bg-teal-800 rounded-3xl p-10 lg:p-14 shadow-xl border-t-4 border-teal-800 h-full min-h-[350px] relative overflow-hidden flex flex-col justify-center">
+                                    <div className="bg-white rounded-3xl p-10 lg:p-14 shadow-xl border border-teal-600/20 border-t-4 border-t-teal-600 h-full min-h-[350px] relative overflow-hidden flex flex-col justify-center">
                                         
                                         <AnimatePresence mode="wait">
                                             {activeStep === 0 && (
@@ -120,9 +137,9 @@ const Company = () => {
                                                     transition={{ duration: 0.3 }}
                                                     className="relative z-10"
                                                 >
- <Search className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-10 pointer-events-none" />
-                                                    <h3 className="text-3xl lg:text-4xl font-bold text-white font-display mb-6 leading-tight">Learn your business and challenges</h3>
-                                                    <p className="text-[#A1A1AA] text-lg lg:text-xl leading-relaxed">
+                                                    <Search className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-teal-900 font-display mb-6 leading-tight">Learn your business and challenges</h3>
+                                                    <p className="text-teal-900/80 text-lg lg:text-xl leading-relaxed">
                                                         We dive deep into your daily operations to identify bottlenecks, repetitive tasks, and areas ripe for automation. We map out your exact current workflow so we understand perfectly how you operate.
                                                     </p>
                                                 </motion.div>
@@ -136,9 +153,9 @@ const Company = () => {
                                                     transition={{ duration: 0.3 }}
                                                     className="relative z-10"
                                                 >
- <PenTool className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-10 pointer-events-none" />
-                                                    <h3 className="text-3xl lg:text-4xl font-bold text-white font-display mb-6 leading-tight">Design a solution that fits</h3>
-                                                    <p className="text-[#A1A1AA] text-lg lg:text-xl leading-relaxed">
+                                                    <PenTool className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-teal-900 font-display mb-6 leading-tight">Design a solution that fits</h3>
+                                                    <p className="text-teal-900/80 text-lg lg:text-xl leading-relaxed">
                                                         Our architects draft a tailored automation blueprint. We meticulously select the right tools, APIs, and infrastructure, ensuring the new system scales seamlessly alongside your business growth.
                                                     </p>
                                                 </motion.div>
@@ -152,9 +169,9 @@ const Company = () => {
                                                     transition={{ duration: 0.3 }}
                                                     className="relative z-10"
                                                 >
- <Hammer className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-10 pointer-events-none" />
-                                                    <h3 className="text-3xl lg:text-4xl font-bold text-white font-display mb-6 leading-tight">Build and implement it right</h3>
-                                                    <p className="text-[#A1A1AA] text-lg lg:text-xl leading-relaxed">
+                                                    <Hammer className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-teal-900 font-display mb-6 leading-tight">Build and implement it right</h3>
+                                                    <p className="text-teal-900/80 text-lg lg:text-xl leading-relaxed">
                                                         We develop your custom integrations and bots. Everything is rigorously tested in a secure sandbox environment before a smooth, zero-downtime deployment into your live workspace.
                                                     </p>
                                                 </motion.div>
@@ -168,9 +185,9 @@ const Company = () => {
                                                     transition={{ duration: 0.3 }}
                                                     className="relative z-10"
                                                 >
- <TrendingUp className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-10 pointer-events-none" />
-                                                    <h3 className="text-3xl lg:text-4xl font-bold text-white font-display mb-6 leading-tight">Support you as you grow</h3>
-                                                    <p className="text-[#A1A1AA] text-lg lg:text-xl leading-relaxed">
+                                                    <TrendingUp className="absolute -bottom-10 -right-10 w-48 h-48 text-teal-600 opacity-5 pointer-events-none" />
+                                                    <h3 className="text-3xl lg:text-4xl font-bold text-teal-900 font-display mb-6 leading-tight">Support you as you grow</h3>
+                                                    <p className="text-teal-900/80 text-lg lg:text-xl leading-relaxed">
                                                         Post-launch, we monitor your systems 24/7. As your business volume increases, we continuously optimize and tweak the automation so that it handles increased loads effortlessly.
                                                     </p>
                                                 </motion.div>
@@ -183,17 +200,17 @@ const Company = () => {
                     </div>
                 </section>
 
-                {/* Slogan Section */}
- <section className="pt-4 pb-32 px-4 sm:px-6 md:px-12 bg-teal-900">
+                {/* Slogan Banner Section */}
+                <section className="py-16 px-4 sm:px-6 md:px-12">
                     <div className="max-w-5xl mx-auto text-center relative">
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.95 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.7 }}
- className="relative z-10 bg-teal-800 rounded-3xl p-10 md:p-14 shadow-xl overflow-hidden border border-teal-800"
+                            className="relative z-10 bg-teal-800 text-white rounded-3xl p-10 md:p-14 shadow-2xl overflow-hidden border border-teal-600/30"
                         >
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-teal-600 opacity-10 pointer-events-none">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-5 pointer-events-none">
                                 <Quote className="w-64 h-64" />
                             </div>
                             <blockquote className="text-2xl md:text-3xl lg:text-4xl text-white font-display font-medium leading-tight md:leading-snug relative z-10">
@@ -203,15 +220,15 @@ const Company = () => {
                     </div>
                 </section>
 
-                {/* Serious About Automation Section */}
- <section className="py-24 px-4 sm:px-6 md:px-12 bg-teal-800 text-white relative overflow-hidden border-y border-teal-800">
+                {/* Serious About Automation Section (White Cards on Mint Background) */}
+                <section className="py-20 px-4 sm:px-6 md:px-12">
                     <div className="max-w-7xl mx-auto relative z-10">
                         <div className="text-center mb-16">
                             <motion.h2 
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4"
+                                className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-teal-900 mb-4"
                             >
                                 We Take Automation Seriously
                             </motion.h2>
@@ -220,22 +237,22 @@ const Company = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
- className="text-teal-600 text-sm md:text-base font-display uppercase tracking-widest font-semibold"
+                                className="text-teal-600 text-sm md:text-base font-display uppercase tracking-widest font-semibold"
                             >
                                 The automation manifesto
                             </motion.p>
                         </div>
                         
-                        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-20">
+                        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
                             <motion.div 
                                 initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
- className="bg-teal-800 border border-teal-800 p-8 md:p-10 rounded-2xl relative overflow-hidden group hover:border-teal-800/50 transition-colors"
+                                className="bg-white border border-teal-600/20 p-8 md:p-10 rounded-2xl relative overflow-hidden group hover:border-teal-600/40 transition-colors shadow-sm"
                             >
- <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-600"></div>
-                                <h3 className="text-xl md:text-2xl font-bold text-white mb-4 font-display">The Problem: Productivity Inflation</h3>
-                                <p className="text-[#A1A1AA] text-lg leading-relaxed font-display">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-600"></div>
+                                <h3 className="text-xl md:text-2xl font-bold text-teal-900 mb-4 font-display">The Problem: Productivity Inflation</h3>
+                                <p className="text-teal-900/80 text-lg leading-relaxed font-display">
                                     Manual, repetitive work should have gone out of fashion years ago. Instead, businesses are drowning in more of it than ever: more tools, more software, and somehow less time.
                                 </p>
                             </motion.div>
@@ -245,11 +262,11 @@ const Company = () => {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
- className="bg-teal-800 border border-teal-800 p-8 md:p-10 rounded-2xl relative overflow-hidden group hover:border-teal-800/50 transition-colors"
+                                className="bg-white border border-teal-600/20 p-8 md:p-10 rounded-2xl relative overflow-hidden group hover:border-teal-600/40 transition-colors shadow-sm"
                             >
- <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-600"></div>
-                                <h3 className="text-xl md:text-2xl font-bold text-white mb-4 font-display">Our Solution: Real Time Savings</h3>
-                                <p className="text-[#A1A1AA] text-lg leading-relaxed font-display">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-600"></div>
+                                <h3 className="text-xl md:text-2xl font-bold text-teal-900 mb-4 font-display">Our Solution: Real Time Savings</h3>
+                                <p className="text-teal-900/80 text-lg leading-relaxed font-display">
                                     We exist to reverse that. Every hour of manual work we eliminate is an hour back in your hands to think, to grow, and to build. We don't disappear after launch — we stay hands-on with every client.
                                 </p>
                             </motion.div>
@@ -262,14 +279,14 @@ const Company = () => {
                             transition={{ delay: 0.2 }}
                             className="max-w-4xl mx-auto"
                         >
- <div className="bg-teal-800 border border-teal-800/30 p-10 md:p-14 rounded-3xl text-center relative overflow-hidden shadow-2xl backdrop-blur-sm">
- <div className="absolute -top-6 -left-6 text-teal-600 opacity-20 transform -scale-x-100">
+                            <div className="bg-white border border-teal-600/20 p-10 md:p-14 rounded-3xl text-center relative overflow-hidden shadow-md">
+                                <div className="absolute -top-6 -left-6 text-teal-600/10 transform -scale-x-100 pointer-events-none">
                                     <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                                     </svg>
                                 </div>
- <h3 className="font-display text-2xl md:text-4xl font-bold text-teal-600 mb-6 relative z-10">"Built by enthusiasts, driven by goals"</h3>
-                                <p className="text-lg md:text-xl text-[#A1A1AA] font-display leading-relaxed relative z-10 max-w-2xl mx-auto">
+                                <h3 className="font-display text-2xl md:text-4xl font-bold text-teal-900 mb-6 relative z-10">"Built by enthusiasts, driven by goals"</h3>
+                                <p className="text-lg md:text-xl text-teal-900/80 font-display leading-relaxed relative z-10 max-w-2xl mx-auto">
                                     We have built successful automation workflows and SaaS tools tested on our own business. We believe everything is possible when most people will say it's not. We don't shy away from creativity and growth and we want to see business put some real impact on the world.
                                 </p>
                             </div>
@@ -278,22 +295,22 @@ const Company = () => {
                 </section>
 
                 {/* CTA Section */}
- <section className="py-32 px-4 sm:px-6 md:px-12 bg-teal-900 text-center">
+                <section className="py-16 px-4 sm:px-6 md:px-12 text-center">
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         className="max-w-3xl mx-auto"
                     >
-                        <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">Ready to Transform Your Business?</h2>
-                        <p className="text-lg text-[#A1A1AA] mb-12 font-display">
+                        <h2 className="font-display text-4xl md:text-5xl font-bold text-teal-900 mb-6">Ready to Transform Your Business?</h2>
+                        <p className="text-lg text-teal-900/80 mb-12 font-display">
                             Let's discuss how we can help automate your operations and accelerate your growth.
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
- <Link className="inline-flex justify-center items-center px-8 py-4 bg-yellow-accent text-teal-900 rounded-lg font-semibold text-sm hover:bg-yellow-accent/90 hover:shadow-lg hover:shadow-yellow-accent/20 transition-all duration-300 active:scale-95 font-display" to="/contact">
+                            <Link className="inline-flex justify-center items-center px-8 py-4 bg-yellow-accent text-teal-900 rounded-lg font-semibold text-sm hover:bg-yellow-accent/90 hover:shadow-lg hover:shadow-yellow-accent/20 transition-all duration-300 active:scale-95 font-display" to="/contact">
                                 Get Started
                             </Link>
- <Link className="inline-flex justify-center items-center px-8 py-4 bg-teal-800 border border-teal-800 text-white rounded-lg font-semibold text-sm hover:bg-teal-800 transition-colors active:scale-95 font-display" to="/services">
+                            <Link className="inline-flex justify-center items-center px-8 py-4 bg-white border border-teal-600/30 text-teal-900 rounded-lg font-semibold text-sm hover:bg-white/80 transition-colors active:scale-95 font-display shadow-sm" to="/services">
                                 View Services
                             </Link>
                         </div>

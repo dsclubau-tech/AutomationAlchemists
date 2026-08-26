@@ -90,9 +90,9 @@ const AdminOverview = () => {
     };
 
     const getActionColor = (action: string) => {
-        if (action.includes('delete') || action.includes('revoke')) return 'bg-red-500/20 text-red-400 border-red-500/30';
-        if (action.includes('grant') || action.includes('create')) return 'bg-green-500/20 text-green-400 border-green-500/30';
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        if (action.includes('delete') || action.includes('revoke')) return 'bg-red-500/10 text-red-600 border border-red-500/20';
+        if (action.includes('grant') || action.includes('create')) return 'bg-green-500/10 text-green-600 border border-green-500/20';
+        return 'bg-teal-600/10 text-teal-600 border border-teal-600/20';
     };
 
     return (
@@ -105,98 +105,106 @@ const AdminOverview = () => {
             >
                 {/* Stats Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card className="border-teal-600/30 bg-teal-800">
+                    <Card className="border border-teal-600/20 bg-white shadow-sm hover:shadow-md transition-shadow">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                            <Users className="h-8 w-8 text-primary mb-2" />
-                            <p className="text-sm text-text-muted mb-1">Total Users</p>
+                            <div className="p-3 bg-teal-600/10 rounded-2xl mb-3 text-teal-600">
+                                <Users className="h-6 w-6" />
+                            </div>
+                            <p className="text-sm font-medium text-teal-900/70 mb-1">Total Users</p>
                             {isLoading ? (
-                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-white font-display">{stats.totalUsers}</h3>
+                                <h3 className="text-3xl font-bold text-teal-900 font-display">{stats.totalUsers}</h3>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card className="border-teal-600/30 bg-teal-800">
+                    <Card className="border border-teal-600/20 bg-white shadow-sm hover:shadow-md transition-shadow">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                            <CreditCard className="h-8 w-8 text-green-400 mb-2" />
-                            <p className="text-sm text-text-muted mb-1">Active Subscriptions</p>
+                            <div className="p-3 bg-green-500/10 rounded-2xl mb-3 text-green-600">
+                                <CreditCard className="h-6 w-6" />
+                            </div>
+                            <p className="text-sm font-medium text-teal-900/70 mb-1">Active Subscriptions</p>
                             {isLoading ? (
-                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-white font-display">{stats.activeSubs}</h3>
+                                <h3 className="text-3xl font-bold text-teal-900 font-display">{stats.activeSubs}</h3>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card className="border-teal-600/30 bg-teal-800">
+                    <Card className="border border-teal-600/20 bg-white shadow-sm hover:shadow-md transition-shadow">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                            <Activity className="h-8 w-8 text-blue-400 mb-2" />
-                            <p className="text-sm text-text-muted mb-1">Manual Grants</p>
+                            <div className="p-3 bg-teal-600/10 rounded-2xl mb-3 text-teal-600">
+                                <Activity className="h-6 w-6" />
+                            </div>
+                            <p className="text-sm font-medium text-teal-900/70 mb-1">Manual Grants</p>
                             {isLoading ? (
-                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-white font-display">{stats.manualGrants}</h3>
+                                <h3 className="text-3xl font-bold text-teal-900 font-display">{stats.manualGrants}</h3>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card className="border-teal-600/30 bg-teal-800">
+                    <Card className="border border-teal-600/20 bg-white shadow-sm hover:shadow-md transition-shadow">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                            <Wrench className="h-8 w-8 text-yellow-500 mb-2" />
-                            <p className="text-sm text-text-muted mb-1">Tools in Maintenance</p>
+                            <div className="p-3 bg-amber-500/10 rounded-2xl mb-3 text-amber-600">
+                                <Wrench className="h-6 w-6" />
+                            </div>
+                            <p className="text-sm font-medium text-teal-900/70 mb-1">Tools in Maintenance</p>
                             {isLoading ? (
-                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
                             ) : (
-                                <h3 className="text-3xl font-bold text-white font-display">{stats.maintenanceTools}</h3>
+                                <h3 className="text-3xl font-bold text-teal-900 font-display">{stats.maintenanceTools}</h3>
                             )}
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Recent Activity */}
-                <Card className="border-teal-600/30 bg-teal-800">
-                    <CardHeader>
-                        <CardTitle className="text-white">Recent Activity</CardTitle>
+                <Card className="border border-teal-600/20 bg-white shadow-sm">
+                    <CardHeader className="border-b border-teal-600/10 pb-4">
+                        <CardTitle className="text-xl font-bold text-teal-900 font-display">Recent Activity</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-4">
                         {isLoading ? (
                             <div className="flex items-center justify-center py-12">
-                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
                             </div>
                         ) : auditLogs.length === 0 ? (
                             <div className="text-center py-12">
-                                <Activity className="h-12 w-12 mx-auto text-text-muted mb-4" />
-                                <p className="text-text-muted">No recent activity logged.</p>
+                                <Activity className="h-12 w-12 mx-auto text-teal-900/40 mb-4" />
+                                <p className="text-teal-900/70 font-medium">No recent activity logged.</p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded-lg border border-teal-600/30">
+                            <div className="overflow-x-auto rounded-xl border border-teal-600/20">
                                 <Table>
-                                    <TableHeader>
-                                        <TableRow className="border-teal-600/30 hover:bg-primary/5">
-                                            <TableHead className="text-text-muted">Action</TableHead>
-                                            <TableHead className="text-text-muted">Target</TableHead>
-                                            <TableHead className="text-text-muted">Admin</TableHead>
-                                            <TableHead className="text-text-muted">Date</TableHead>
+                                    <TableHeader className="bg-mint-50/50">
+                                        <TableRow className="border-b border-teal-600/20">
+                                            <TableHead className="text-teal-900 font-bold">Action</TableHead>
+                                            <TableHead className="text-teal-900 font-bold">Target</TableHead>
+                                            <TableHead className="text-teal-900 font-bold">Admin</TableHead>
+                                            <TableHead className="text-teal-900 font-bold">Date</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {auditLogs.map((log) => (
-                                            <TableRow key={log.id} className="border-teal-600/30 hover:bg-primary/5">
+                                            <TableRow key={log.id} className="border-b border-teal-600/10 hover:bg-teal-600/5 transition-colors">
                                                 <TableCell>
                                                     <Badge className={getActionColor(log.action)}>
                                                         {formatAction(log.action)}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="text-white">
+                                                <TableCell className="font-medium text-teal-900">
                                                     {log.target_email || 'System'}
                                                 </TableCell>
-                                                <TableCell className="text-text-muted">
+                                                <TableCell className="text-teal-900/70">
                                                     {log.admin_email}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="flex items-center gap-2 text-sm text-text-muted">
-                                                        <Calendar className="h-4 w-4" />
+                                                    <div className="flex items-center gap-2 text-sm text-teal-900/70">
+                                                        <Calendar className="h-4 w-4 text-teal-600" />
                                                         {new Date(log.created_at).toLocaleString()}
                                                     </div>
                                                 </TableCell>

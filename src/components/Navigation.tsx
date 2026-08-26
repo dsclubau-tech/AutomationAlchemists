@@ -186,23 +186,23 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-6 xl:gap-8">
-                        <button onClick={() => scrollToSection("home")} className="text-[#A1A1AA] hover:text-white transition-all duration-300 font-display text-sm font-semibold">
+                        <button onClick={() => scrollToSection("home")} className="text-mint-50/70 hover:text-white transition-all duration-300 font-display text-sm font-semibold">
                             Home
                         </button>
-                        <Link to="/company" onClick={(e) => handleNavClick(e, '/company')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/company' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-[#A1A1AA] hover:text-white'}`}>
+                        <Link to="/company" onClick={(e) => handleNavClick(e, '/company')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/company' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-mint-50/70 hover:text-white'}`}>
                             Company
                         </Link>
-                        <Link to="/services" onClick={(e) => handleNavClick(e, '/services')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/services' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-[#A1A1AA] hover:text-white'}`}>
+                        <Link to="/services" onClick={(e) => handleNavClick(e, '/services')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/services' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-mint-50/70 hover:text-white'}`}>
                             Services
                         </Link>
                         
                         <div className="relative group">
-                            <Link to="/tools" onClick={(e) => handleNavClick(e, '/tools')} className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 py-4 ${location.pathname.startsWith('/tools') ? 'text-white border-b-2 border-teal-600' : 'text-[#A1A1AA] hover:text-white'}`}>
+                            <Link to="/tools" onClick={(e) => handleNavClick(e, '/tools')} className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 py-4 ${location.pathname.startsWith('/tools') ? 'text-white border-b-2 border-teal-600' : 'text-mint-50/70 hover:text-white'}`}>
                                 Tools
                             </Link>
                             <div className="absolute top-full left-0 w-[320px] bg-teal-900 border border-teal-800 text-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[200] overflow-hidden">
                                 <div className="px-4 py-3 border-b border-teal-800">
-                                    <p className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider font-display">
+                                    <p className="text-xs font-semibold text-mint-50/70 uppercase tracking-wider font-display">
                                         Our Tools
                                     </p>
                                 </div>
@@ -216,7 +216,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-white text-sm">{tool.name}</p>
-                                                    <p className="text-xs text-[#A1A1AA] line-clamp-1">{tool.shortDescription}</p>
+                                                    <p className="text-xs text-mint-50/70 line-clamp-1">{tool.shortDescription}</p>
                                                 </div>
                                             </Link>
                                         )
@@ -225,11 +225,11 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                             </div>
                         </div>
 
-                        <Link to="/contact" onClick={(e) => handleNavClick(e, '/contact')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/contact' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-[#A1A1AA] hover:text-white'}`}>
+                        <Link to="/contact" onClick={(e) => handleNavClick(e, '/contact')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/contact' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-mint-50/70 hover:text-white'}`}>
                             Contact
                         </Link>
                         {isAdmin && (
-                            <Link to="/admin" onClick={(e) => handleNavClick(e, '/admin')} className="text-[#A1A1AA] hover:text-teal-600 transition-colors font-display text-sm font-bold flex items-center gap-1">
+                            <Link to="/admin" onClick={(e) => handleNavClick(e, '/admin')} className="text-mint-50/70 hover:text-teal-600 transition-colors font-display text-sm font-bold flex items-center gap-1">
                                 <Shield className="h-4 w-4" />
                                 Admin
                             </Link>
@@ -252,7 +252,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                             <p className="text-sm font-bold text-white font-display">
                                                 Hello, {displayFullName.split(' ')[0]}
                                             </p>
-                                            <p className="text-xs text-[#A1A1AA] font-display truncate">
+                                            <p className="text-xs text-mint-50/70 font-display truncate">
                                                 {user.email}
                                             </p>
                                         </div>
@@ -287,12 +287,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                         {/* Admin Section - Only for admins */}
                                         {isAdmin && (
                                             <div className="p-2">
-                                                <p className="px-2 py-1.5 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">
+                                                <p className="px-2 py-1.5 text-xs font-semibold text-mint-50/70 uppercase tracking-wider">
                                                     Admin
                                                 </p>
                                                 <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
                                                     <Link to="/admin" onClick={() => { }} className="block w-full flex items-center">
-                                                        <Shield className="mr-2 h-4 w-4 text-[#A1A1AA]" />
+                                                        <Shield className="mr-2 h-4 w-4 text-mint-50/70" />
                                                         <span>Admin Dashboard</span>
                                                     </Link>
                                                 </DropdownMenuItem>
@@ -337,7 +337,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                         <p className="text-sm font-bold text-white font-display">
                                             Hello, {displayFullName.split(' ')[0]}
                                         </p>
-                                        <p className="text-xs text-[#A1A1AA] font-display truncate">
+                                        <p className="text-xs text-mint-50/70 font-display truncate">
                                             {user.email}
                                         </p>
                                     </div>
@@ -372,12 +372,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     {/* Admin Section - Only for admins */}
                                     {isAdmin && (
                                         <div className="p-2">
-                                            <p className="px-2 py-1.5 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">
+                                            <p className="px-2 py-1.5 text-xs font-semibold text-mint-50/70 uppercase tracking-wider">
                                                 Admin
                                             </p>
                                             <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
                                                 <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center">
-                                                    <Shield className="mr-2 h-4 w-4 text-[#A1A1AA]" />
+                                                    <Shield className="mr-2 h-4 w-4 text-mint-50/70" />
                                                     <span>Admin Dashboard</span>
                                                 </Link>
                                             </DropdownMenuItem>
@@ -428,12 +428,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                 </Link>
                                 
                                 <div className="py-2">
-                                    <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="block text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider mb-3 font-display">
+                                    <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="block text-xs font-semibold text-mint-50/70 uppercase tracking-wider mb-3 font-display">
                                         Our Tools
                                     </Link>
                                     <div className="pl-4 border-l-2 border-teal-800 space-y-4">
                                         {toolsData.map(tool => (
-                                            <Link key={tool.id} to={`/tools/${tool.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="block text-[#A1A1AA] hover:text-white transition-colors font-display text-sm font-medium">
+                                            <Link key={tool.id} to={`/tools/${tool.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="block text-mint-50/70 hover:text-white transition-colors font-display text-sm font-medium">
                                                 {tool.name}
                                             </Link>
                                         ))}
@@ -444,7 +444,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     Contact
                                 </Link>
                                 {isAdmin && (
-                                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-[#A1A1AA] hover:text-teal-600 font-semibold transition-colors py-2 font-display flex items-center gap-2">
+                                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-mint-50/70 hover:text-teal-600 font-semibold transition-colors py-2 font-display flex items-center gap-2">
                                         <Shield className="h-4 w-4" />
                                         Admin Dashboard
                                     </Link>
@@ -455,7 +455,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     <div className="pt-4 border-t border-teal-800 space-y-4">
                                         {user ? (
                                             <>
-                                                <div className="text-sm text-[#A1A1AA] px-4 font-display font-medium">
+                                                <div className="text-sm text-mint-50/70 px-4 font-display font-medium">
                                                     <User className="w-4 h-4 inline mr-2 text-teal-600" />
                                                     {user.email}
                                                 </div>

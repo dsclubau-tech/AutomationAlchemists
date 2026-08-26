@@ -11,98 +11,94 @@
 
 @layer base {
     :root {
-        /* QGX Color Palette - Light Mode (fallback) */
-        --primary: 43 77% 52%;
-        /* #D4AF37 - Gold */
-        --primary-light: 51 100% 50%;
-        /* #FFD700 - Bright Gold */
-        --background-light: 0 0% 98%;
-        --background-dark: 0 0% 2%;
-        /* #050505 */
-        --surface-dark: 0 0% 7%;
-        /* #111111 */
-        --text-main: 60 56% 91%;
-        /* #F5F5DC - Beige */
-        --text-muted: 48 23% 68%;
-        /* #BAB59C */
-        --text-gold-muted: 43 51% 42%;
-        /* #A38634 */
+        /* AA Color Palette */
+        --primary: 49 100% 50%;
+        /* #FFD200 - Yellow Accent */
+        --primary-light: 49 100% 65%;
+        /* #FFE04D */
+        --background-light: 180 22% 96%;
+        --background-dark: 188 72% 14%;
+        /* #0A363D - Deep Dark Teal */
+        --surface-dark: 188 68% 20%;
+        /* #104B54 - Card Teal */
+        --text-main: 180 22% 94%;
+        /* #EBF4F4 - Mint 50 */
+        --text-muted: 215 16% 65%;
+        /* #94A3B8 */
+        --text-gold-muted: 188 60% 31%;
+        /* #207680 - Teal 600 */
 
         /* Theme colors */
-        --background: 0 0% 98%;
-        --foreground: 43 77% 52%;
+        --background: 188 72% 14%;
+        --foreground: 180 22% 94%;
 
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 7%;
+        --card: 188 68% 20%;
+        --card-foreground: 180 22% 94%;
 
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 7%;
+        --popover: 188 72% 14%;
+        --popover-foreground: 180 22% 94%;
 
-        --primary-foreground: 0 0% 0%;
+        --primary-foreground: 188 72% 14%;
 
-        --secondary: 0 0% 15%;
-        --secondary-foreground: 43 77% 52%;
+        --secondary: 188 60% 31%;
+        --secondary-foreground: 180 22% 94%;
 
-        --muted: 0 0% 95%;
-        --muted-foreground: 0 0% 40%;
+        --muted: 188 68% 20%;
+        --muted-foreground: 215 16% 65%;
 
-        --accent: 43 77% 52%;
-        --accent-foreground: 0 0% 0%;
+        --accent: 49 100% 50%;
+        --accent-foreground: 188 72% 14%;
 
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 100%;
 
-        --border: 0 0% 85%;
-        --input: 0 0% 85%;
-        --ring: 43 77% 52%;
+        --border: 188 60% 31% / 0.3;
+        --input: 188 72% 14%;
+        --ring: 49 100% 50%;
 
-        --radius: 0.25rem;
+        --radius: 0.375rem;
 
-        --shadow-elegant: 0 10px 40px -10px rgba(212, 175, 55, 0.4);
-        --shadow-card: 0 4px 20px -4px rgba(0, 0, 0, 0.15);
-        --shadow-singularity: 0 25px 50px -12px rgba(212, 175, 55, 0.1), 0 10px 20px -10px rgba(212, 175, 55, 0.08);
+        --shadow-elegant: 0 10px 40px -10px rgba(10, 54, 61, 0.4);
+        --shadow-card: 0 4px 20px -4px rgba(0, 0, 0, 0.25);
+        --shadow-singularity: 0 25px 50px -12px rgba(255, 210, 0, 0.1), 0 10px 20px -10px rgba(255, 210, 0, 0.08);
     }
 
     .dark {
-        /* QGX Dark Mode - Primary Theme */
-        --background: 0 0% 2%;
-        /* #050505 - Deep black */
-        --foreground: 60 56% 91%;
-        /* #F5F5DC - Light beige text */
+        /* AA Dark Mode */
+        --background: 188 72% 14%;
+        /* #0A363D - Deep Dark Teal */
+        --foreground: 180 22% 94%;
+        /* #EBF4F4 - Mint 50 */
 
-        --card: 0 0% 7%;
-        /* #111111 */
-        --card-foreground: 60 56% 91%;
+        --card: 188 68% 20%;
+        /* #104B54 - Card Teal */
+        --card-foreground: 180 22% 94%;
 
-        --popover: 0 0% 7%;
-        --popover-foreground: 60 56% 91%;
+        --popover: 188 72% 14%;
+        --popover-foreground: 180 22% 94%;
 
-        --primary: 43 77% 52%;
-        /* #D4AF37 - Gold */
-        --primary-foreground: 0 0% 0%;
+        --primary: 49 100% 50%;
+        /* #FFD200 - Yellow Accent */
+        --primary-foreground: 188 72% 14%;
 
-        --secondary: 0 0% 15%;
-        --secondary-foreground: 60 56% 91%;
+        --secondary: 188 60% 31%;
+        --secondary-foreground: 180 22% 94%;
 
-        --muted: 0 0% 10%;
-        --muted-foreground: 48 23% 68%;
-        /* #BAB59C */
+        --muted: 188 68% 20%;
+        --muted-foreground: 215 16% 65%;
 
-        --accent: 51 100% 50%;
-        /* #FFD700 - Bright gold */
-        --accent-foreground: 0 0% 0%;
+        --accent: 49 100% 50%;
+        --accent-foreground: 188 72% 14%;
 
         --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 60 56% 91%;
+        --destructive-foreground: 180 22% 94%;
 
-        --border: 43 77% 52% / 0.2;
-        /* Gold with 20% opacity */
-        --input: 0 0% 6%;
-        /* #0F0F0F */
-        --ring: 43 77% 52%;
+        --border: 188 60% 31% / 0.3;
+        --input: 188 72% 14%;
+        --ring: 49 100% 50%;
 
-        --shadow-elegant: 0 10px 40px -10px rgba(212, 175, 55, 0.5);
-        --shadow-card: 0 4px 20px -4px rgba(212, 175, 55, 0.2);
+        --shadow-elegant: 0 10px 40px -10px rgba(10, 54, 61, 0.5);
+        --shadow-card: 0 4px 20px -4px rgba(0, 0, 0, 0.3);
     }
 }
 

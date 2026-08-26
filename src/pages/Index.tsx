@@ -117,7 +117,7 @@ const Index = () => {
                       </div>
                       <div>
  <h3 className="text-teal-900 font-bold font-display text-lg mb-1 group-hover:text-teal-600 transition-colors">ListFlow</h3>
-                          <p className="text-[#444651] text-sm font-display">Product Management</p>
+                          <p className="text-teal-900/80 text-sm font-display">Product Management</p>
                       </div>
                   </Link>
 
@@ -131,7 +131,7 @@ const Index = () => {
                       </div>
                       <div>
  <h3 className="text-teal-900 font-bold font-display text-lg mb-1 group-hover:text-teal-600 transition-colors">Order Bot</h3>
-                          <p className="text-[#444651] text-sm font-display">Notifications</p>
+                          <p className="text-teal-900/80 text-sm font-display">Notifications</p>
                       </div>
                   </Link>
 
@@ -145,7 +145,7 @@ const Index = () => {
                       </div>
                       <div>
  <h3 className="text-teal-900 font-bold font-display text-lg mb-1 group-hover:text-teal-600 transition-colors">Invoice Generator</h3>
-                          <p className="text-[#444651] text-sm font-display">Invoicing</p>
+                          <p className="text-teal-900/80 text-sm font-display">Invoicing</p>
                       </div>
                   </Link>
                 </div>
@@ -171,7 +171,7 @@ const Index = () => {
  <h2 className="text-4xl md:text-5xl font-bold text-teal-600 mb-6 font-display">
                 Our Services
               </h2>
-              <p className="text-lg text-[#444651] max-w-3xl mx-auto mb-12 font-display">
+              <p className="text-lg text-teal-900/80 max-w-3xl mx-auto mb-12 font-display">
                 Comprehensive solutions tailored to meet your unique business needs
               </p>
               <Link to="/services">

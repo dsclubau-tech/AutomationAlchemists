@@ -146,27 +146,27 @@ export function ExpandableContactForm() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
- className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 border border-teal-800/30 rounded-full"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 border border-teal-800/30 rounded-full"
                     >
- <Sparkles className="w-4 h-4 text-teal-600" />
- <span className="text-teal-600 text-sm font-medium">Free Consultation</span>
+                        <Sparkles className="w-4 h-4 text-teal-600" />
+                        <span className="text-teal-600 text-sm font-medium">Free Consultation</span>
                     </motion.div>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-[#00195c] max-w-3xl"
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-teal-900 max-w-3xl"
                     >
                         Let's Build Something{" "}
- <span className="text-teal-600">Amazing</span>
+                        <span className="text-teal-600">Amazing</span>
                     </motion.h2>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-base sm:text-lg md:text-xl leading-relaxed text-[#444651] max-w-2xl px-4"
+                        className="text-base sm:text-lg md:text-xl leading-relaxed text-teal-900/80 max-w-2xl px-4"
                     >
                         Transform your business with intelligent automation.
                         Tell us about your project and we'll respond within 24 hours.
@@ -178,12 +178,12 @@ export function ExpandableContactForm() {
                         transition={{ duration: 0.6, delay: 0.3 }}
                     >
                         <ExpandableScreenTrigger>
- <div className="group relative bg-teal-800 rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-white tracking-tight hover:bg-teal-800/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-[#112E81]/40 cursor-pointer">
+                            <div className="group relative bg-teal-800 rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-white tracking-tight hover:bg-teal-800/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-teal-900/40 cursor-pointer">
                                 <span className="relative z-10 flex items-center gap-3">
                                     <MessageSquare className="w-5 h-5" />
                                     Start Your Journey
                                 </span>
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#112E81] to-[#4647AE] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-teal-800 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             </div>
                         </ExpandableScreenTrigger>
                     </motion.div>
@@ -193,14 +193,14 @@ export function ExpandableContactForm() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.5 }}
-                        className="flex items-center gap-6 text-[#444651] text-sm"
+                        className="flex items-center gap-6 text-teal-900/80 text-sm"
                     >
                         <span className="flex items-center gap-2">
- <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                            <CheckCircle2 className="w-4 h-4 text-teal-600" />
                             No spam, ever
                         </span>
                         <span className="flex items-center gap-2">
- <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                            <CheckCircle2 className="w-4 h-4 text-teal-600" />
                             Response in 24h
                         </span>
                     </motion.div>
@@ -208,7 +208,7 @@ export function ExpandableContactForm() {
             </div>
 
             {/* Expanded Form Section - Enhanced Design */}
-            <ExpandableScreenContent className="bg-gradient-to-br from-[#112E81] to-[#4647AE]">
+            <ExpandableScreenContent className="bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900">
                 <div className="relative z-10 flex flex-col lg:flex-row h-full w-full max-w-[1200px] mx-auto items-stretch p-6 sm:p-10 lg:p-16 gap-8 lg:gap-12">
 
                     {/* Left side - Benefits */}
@@ -435,7 +435,7 @@ export function ExpandableContactForm() {
                                         <Button
                                             type="submit"
                                             disabled={isLoading}
-                                            className="w-full h-14 rounded-xl bg-gradient-to-r from-[#112E81] to-[#4647AE] text-white font-semibold text-base hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group"
+                                            className="w-full h-14 rounded-xl bg-yellow-accent text-teal-900 font-semibold text-base hover:bg-yellow-accent/90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group"
                                         >
                                             {isLoading ? (
                                                 <span className="flex items-center gap-2">

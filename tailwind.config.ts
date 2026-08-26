@@ -90,21 +90,25 @@ export default {
                     primary: "#0F0", // Evil Green
                     secondary: "#4B0082", // Dark Purple
                 },
-                // QGX Theme Colors
-                "primary-light": "#FFD700",
-                "background-dark": "#050505",
-                "surface-dark": "#111111",
-                "text-main": "#F5F5DC",
-                "text-muted": "#BAB59C",
-                "text-gold-muted": "#A38634",
-                // AA Teal/Yellow Theme
+                // AA Teal / Yellow / Mint Theme Tokens
+                "primary-light": "#FFD200",
+                "background-dark": "#0A363D", // Deep Dark Teal (teal-900)
+                "surface-dark": "#104B54",    // Card Dark Teal (teal-800)
+                "text-main": "#EBF4F4",       // Mint 50
+                "text-muted": "#94A3B8",      // Mint Muted
+                "text-gold-muted": "#207680", // Teal 600
                 teal: {
+                    500: "#2A8E9A",
                     600: "#207680",
+                    700: "#18606B",
                     800: "#104B54",
                     900: "#0A363D",
+                    950: "#062327",
                 },
                 mint: {
                     50: "#EBF4F4",
+                    100: "#D6E8E8",
+                    200: "#B5D6D6",
                 },
                 "yellow-accent": "#FFD200",
                 white: "#FFFFFF",

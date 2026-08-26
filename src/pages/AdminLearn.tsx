@@ -486,7 +486,7 @@ const AdminLearn = () => {
         <AdminLayout title="Learn Content" description="Manage categories and articles for the Learn page">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 bg-background-dark mb-6">
+                    <TabsList className="grid w-full grid-cols-3 bg-white border-teal-600/20 text-teal-900 mb-6">
                         <TabsTrigger value="articles" className="data-[state=active]:bg-primary/20">Articles</TabsTrigger>
                         <TabsTrigger value="categories" className="data-[state=active]:bg-primary/20">Categories</TabsTrigger>
                         <TabsTrigger value="reviews" className="data-[state=active]:bg-primary/20">Reviews</TabsTrigger>
@@ -497,17 +497,17 @@ const AdminLearn = () => {
                         <div className="flex justify-end mb-6">
                             <Dialog open={isArtDialogOpen} onOpenChange={setIsArtDialogOpen}>
                                 <DialogTrigger asChild>
-                                    <Button onClick={resetArticleForm} className="bg-primary hover:bg-primary/90 text-background-dark">
+                                    <Button onClick={resetArticleForm} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                                         <Plus className="w-4 h-4 mr-2" /> New Article
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-teal-900 border-teal-600/30">
+                                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white text-teal-900 border border-teal-600/20 shadow-2xl border-teal-600/20">
                                     <DialogHeader>
-                                        <DialogTitle className="text-white">{editingArticle ? 'Edit Article' : 'New Article'}</DialogTitle>
+                                        <DialogTitle className="text-teal-900 font-display">{editingArticle ? 'Edit Article' : 'New Article'}</DialogTitle>
                                     </DialogHeader>
                                     <form onSubmit={handleArticleSubmit} className="space-y-4">
                                         <Tabs defaultValue="basic" className="w-full">
-                                            <TabsList className="grid w-full grid-cols-3 bg-background-dark">
+                                            <TabsList className="grid w-full grid-cols-3 bg-white border-teal-600/20 text-teal-900">
                                                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
                                                 <TabsTrigger value="media">Media</TabsTrigger>
                                                 <TabsTrigger value="content">Content</TabsTrigger>
@@ -516,22 +516,22 @@ const AdminLearn = () => {
                                             <TabsContent value="basic" className="space-y-4 mt-4">
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-2">
-                                                        <Label className="text-white">Title *</Label>
-                                                        <Input value={artTitle} onChange={(e) => { setArtTitle(e.target.value); if (!editingArticle) setArtSlug(generateSlug(e.target.value)); }} required className="bg-background-dark border-teal-600/30 text-white" placeholder="Article title" />
+                                                        <Label className="text-teal-900 font-semibold">Title *</Label>
+                                                        <Input value={artTitle} onChange={(e) => { setArtTitle(e.target.value); if (!editingArticle) setArtSlug(generateSlug(e.target.value)); }} required className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" placeholder="Article title" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-white">Slug</Label>
-                                                        <Input value={artSlug} onChange={(e) => setArtSlug(e.target.value)} className="bg-background-dark border-teal-600/30 text-white" placeholder="article-slug" />
+                                                        <Label className="text-teal-900 font-semibold">Slug</Label>
+                                                        <Input value={artSlug} onChange={(e) => setArtSlug(e.target.value)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" placeholder="article-slug" />
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-2">
-                                                        <Label className="text-white">Category</Label>
+                                                        <Label className="text-teal-900 font-semibold">Category</Label>
                                                         <Select value={artCategoryId} onValueChange={setArtCategoryId}>
-                                                            <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                                                            <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white">
                                                                 <SelectValue placeholder="Select category" />
                                                             </SelectTrigger>
-                                                            <SelectContent className="bg-teal-900 border-teal-600/30">
+                                                            <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                                                 {categories.filter(c => c.slug !== 'all').map(cat => (
                                                                     <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                                                                 ))}
@@ -539,31 +539,31 @@ const AdminLearn = () => {
                                                         </Select>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-white">Author</Label>
-                                                        <Input value={artAuthor} onChange={(e) => setArtAuthor(e.target.value)} className="bg-background-dark border-teal-600/30 text-white" placeholder="Author name" />
+                                                        <Label className="text-teal-900 font-semibold">Author</Label>
+                                                        <Input value={artAuthor} onChange={(e) => setArtAuthor(e.target.value)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" placeholder="Author name" />
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label className="text-white">Excerpt</Label>
-                                                    <Textarea value={artExcerpt} onChange={(e) => setArtExcerpt(e.target.value)} className="bg-background-dark border-teal-600/30 text-white" rows={2} placeholder="Brief description for cards" />
+                                                    <Label className="text-teal-900 font-semibold">Excerpt</Label>
+                                                    <Textarea value={artExcerpt} onChange={(e) => setArtExcerpt(e.target.value)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" rows={2} placeholder="Brief description for cards" />
                                                 </div>
                                                 <div className="grid grid-cols-3 gap-4">
                                                     <div className="space-y-2">
-                                                        <Label className="text-white">Read Time</Label>
-                                                        <Input value={artReadTime} onChange={(e) => setArtReadTime(e.target.value)} className="bg-background-dark border-teal-600/30 text-white" placeholder="5 min read" />
+                                                        <Label className="text-teal-900 font-semibold">Read Time</Label>
+                                                        <Input value={artReadTime} onChange={(e) => setArtReadTime(e.target.value)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" placeholder="5 min read" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label className="text-white">Display Order</Label>
-                                                        <Input type="number" value={artOrder} onChange={(e) => setArtOrder(parseInt(e.target.value) || 0)} className="bg-background-dark border-teal-600/30 text-white" />
+                                                        <Label className="text-teal-900 font-semibold">Display Order</Label>
+                                                        <Input type="number" value={artOrder} onChange={(e) => setArtOrder(parseInt(e.target.value) || 0)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" />
                                                     </div>
                                                     <div className="space-y-4 pt-6">
                                                         <div className="flex items-center gap-2">
                                                             <Switch checked={artFeatured} onCheckedChange={setArtFeatured} />
-                                                            <Label className="text-white">Featured</Label>
+                                                            <Label className="text-teal-900 font-semibold">Featured</Label>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <Switch checked={artPublished} onCheckedChange={setArtPublished} />
-                                                            <Label className="text-white">Published</Label>
+                                                            <Label className="text-teal-900 font-semibold">Published</Label>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -573,14 +573,14 @@ const AdminLearn = () => {
                                                 {/* Featured Image Section */}
                                                 <div className="space-y-3">
                                                     <div className="flex items-center justify-between">
-                                                        <Label className="text-white flex items-center gap-2"><Image className="w-4 h-4" /> Featured Image</Label>
-                                                        <div className="flex gap-1 bg-background-dark rounded-lg p-1 border border-teal-600/30">
+                                                        <Label className="text-teal-900 font-semibold flex items-center gap-2"><Image className="w-4 h-4" /> Featured Image</Label>
+                                                        <div className="flex gap-1 bg-white border-teal-600/20 text-teal-900 rounded-lg p-1 border border-teal-600/20">
                                                             <Button
                                                                 type="button"
                                                                 size="sm"
                                                                 variant={imageUploadMode === 'url' ? 'default' : 'ghost'}
                                                                 onClick={() => setImageUploadMode('url')}
-                                                                className={`h-7 px-3 text-xs ${imageUploadMode === 'url' ? 'bg-primary text-black' : 'text-text-muted'}`}
+                                                                className={`h-7 px-3 text-xs ${imageUploadMode === 'url' ? 'bg-primary text-black' : 'text-teal-900/70'}`}
                                                             >
                                                                 <Link className="w-3 h-3 mr-1" /> URL
                                                             </Button>
@@ -589,7 +589,7 @@ const AdminLearn = () => {
                                                                 size="sm"
                                                                 variant={imageUploadMode === 'upload' ? 'default' : 'ghost'}
                                                                 onClick={() => setImageUploadMode('upload')}
-                                                                className={`h-7 px-3 text-xs ${imageUploadMode === 'upload' ? 'bg-primary text-black' : 'text-text-muted'}`}
+                                                                className={`h-7 px-3 text-xs ${imageUploadMode === 'upload' ? 'bg-primary text-black' : 'text-teal-900/70'}`}
                                                             >
                                                                 <Upload className="w-3 h-3 mr-1" /> Upload
                                                             </Button>
@@ -600,14 +600,14 @@ const AdminLearn = () => {
                                                         <Input
                                                             value={artFeaturedImage}
                                                             onChange={(e) => setArtFeaturedImage(e.target.value)}
-                                                            className="bg-background-dark border-teal-600/30 text-white"
+                                                            className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                                             placeholder="https://example.com/image.jpg"
                                                         />
                                                     ) : (
                                                         <div className="flex items-center gap-3">
-                                                            <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-background-dark border-2 border-dashed border-teal-600/30 rounded-lg cursor-pointer hover:border-teal-600/30 transition-colors">
-                                                                <Upload className="w-5 h-5 text-primary" />
-                                                                <span className="text-text-muted text-sm">{isUploading ? 'Uploading...' : 'Click to upload image'}</span>
+                                                            <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-teal-600/20 text-teal-900 border-2 border-dashed border-teal-600/20 rounded-lg cursor-pointer hover:border-teal-600/20 transition-colors">
+                                                                <Upload className="w-5 h-5 text-teal-600" />
+                                                                <span className="text-teal-900/70 text-sm">{isUploading ? 'Uploading...' : 'Click to upload image'}</span>
                                                                 <input
                                                                     type="file"
                                                                     accept="image/*"
@@ -629,14 +629,14 @@ const AdminLearn = () => {
                                                 {/* Video Section */}
                                                 <div className="space-y-3">
                                                     <div className="flex items-center justify-between">
-                                                        <Label className="text-white flex items-center gap-2"><Video className="w-4 h-4" /> Video</Label>
-                                                        <div className="flex gap-1 bg-background-dark rounded-lg p-1 border border-teal-600/30">
+                                                        <Label className="text-teal-900 font-semibold flex items-center gap-2"><Video className="w-4 h-4" /> Video</Label>
+                                                        <div className="flex gap-1 bg-white border-teal-600/20 text-teal-900 rounded-lg p-1 border border-teal-600/20">
                                                             <Button
                                                                 type="button"
                                                                 size="sm"
                                                                 variant={videoUploadMode === 'url' ? 'default' : 'ghost'}
                                                                 onClick={() => setVideoUploadMode('url')}
-                                                                className={`h-7 px-3 text-xs ${videoUploadMode === 'url' ? 'bg-primary text-black' : 'text-text-muted'}`}
+                                                                className={`h-7 px-3 text-xs ${videoUploadMode === 'url' ? 'bg-primary text-black' : 'text-teal-900/70'}`}
                                                             >
                                                                 <Link className="w-3 h-3 mr-1" /> URL
                                                             </Button>
@@ -645,7 +645,7 @@ const AdminLearn = () => {
                                                                 size="sm"
                                                                 variant={videoUploadMode === 'upload' ? 'default' : 'ghost'}
                                                                 onClick={() => setVideoUploadMode('upload')}
-                                                                className={`h-7 px-3 text-xs ${videoUploadMode === 'upload' ? 'bg-primary text-black' : 'text-text-muted'}`}
+                                                                className={`h-7 px-3 text-xs ${videoUploadMode === 'upload' ? 'bg-primary text-black' : 'text-teal-900/70'}`}
                                                             >
                                                                 <Upload className="w-3 h-3 mr-1" /> Upload
                                                             </Button>
@@ -657,16 +657,16 @@ const AdminLearn = () => {
                                                             <Input
                                                                 value={artVideoUrl}
                                                                 onChange={(e) => setArtVideoUrl(e.target.value)}
-                                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                                                 placeholder="https://youtube.com/watch?v=... or direct video URL"
                                                             />
-                                                            <p className="text-xs text-text-muted mt-1">Supports YouTube, Vimeo, or direct video URLs</p>
+                                                            <p className="text-xs text-teal-900/70 mt-1">Supports YouTube, Vimeo, or direct video URLs</p>
                                                         </div>
                                                     ) : (
                                                         <div className="flex items-center gap-3">
-                                                            <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-background-dark border-2 border-dashed border-teal-600/30 rounded-lg cursor-pointer hover:border-teal-600/30 transition-colors">
-                                                                <Upload className="w-5 h-5 text-primary" />
-                                                                <span className="text-text-muted text-sm">{isUploading ? 'Uploading...' : 'Click to upload video'}</span>
+                                                            <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-teal-600/20 text-teal-900 border-2 border-dashed border-teal-600/20 rounded-lg cursor-pointer hover:border-teal-600/20 transition-colors">
+                                                                <Upload className="w-5 h-5 text-teal-600" />
+                                                                <span className="text-teal-900/70 text-sm">{isUploading ? 'Uploading...' : 'Click to upload video'}</span>
                                                                 <input
                                                                     type="file"
                                                                     accept="video/*"
@@ -679,17 +679,17 @@ const AdminLearn = () => {
                                                     )}
 
                                                     {artVideoUrl && (
-                                                        <p className="text-xs text-primary">Video URL set: {artVideoUrl.substring(0, 50)}...</p>
+                                                        <p className="text-xs text-teal-600">Video URL set: {artVideoUrl.substring(0, 50)}...</p>
                                                     )}
                                                 </div>
 
                                                 {/* Additional Images */}
                                                 <div className="space-y-2">
-                                                    <Label className="text-white">Additional Images (one URL per line)</Label>
+                                                    <Label className="text-teal-900 font-semibold">Additional Images (one URL per line)</Label>
                                                     <Textarea
                                                         value={artImages}
                                                         onChange={(e) => setArtImages(e.target.value)}
-                                                        className="bg-background-dark border-teal-600/30 text-white"
+                                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                                         rows={4}
                                                         placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
                                                     />
@@ -698,9 +698,9 @@ const AdminLearn = () => {
 
                                             <TabsContent value="content" className="space-y-4 mt-4">
                                                 <div className="space-y-2">
-                                                    <Label className="text-white">Article Content</Label>
-                                                    <Textarea value={artContent} onChange={(e) => setArtContent(e.target.value)} className="bg-background-dark border-teal-600/30 text-white font-mono text-sm" rows={20} placeholder="Write your article content here..." />
-                                                    <p className="text-xs text-text-muted">Use line breaks for paragraphs. HTML is supported.</p>
+                                                    <Label className="text-teal-900 font-semibold">Article Content</Label>
+                                                    <Textarea value={artContent} onChange={(e) => setArtContent(e.target.value)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900 font-mono text-sm" rows={20} placeholder="Write your article content here..." />
+                                                    <p className="text-xs text-teal-900/70">Use line breaks for paragraphs. HTML is supported.</p>
                                                 </div>
                                             </TabsContent>
                                         </Tabs>
@@ -717,28 +717,28 @@ const AdminLearn = () => {
 
                         <div className="grid gap-4">
                             {isArtLoading ? (
-                                <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                                <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
                             ) : articles.length === 0 ? (
-                                <Card className="border-teal-600/30 bg-teal-800"><CardContent className="py-12 text-center"><p className="text-text-muted">No articles yet. Create your first article!</p></CardContent></Card>
+                                <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm"><CardContent className="py-12 text-center"><p className="text-teal-900/70">No articles yet. Create your first article!</p></CardContent></Card>
                             ) : (
                                 articles.map(article => (
-                                    <Card key={article.id} className="border-teal-600/30 bg-teal-800">
+                                    <Card key={article.id} className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                                         <CardHeader>
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-start gap-4">
                                                     {article.featured_image ? (
                                                         <img src={article.featured_image} alt="" className="w-20 h-14 object-cover rounded-lg border border-teal-600/30" />
                                                     ) : (
-                                                        <div className="w-20 h-14 bg-primary/10 rounded-lg flex items-center justify-center"><FileText className="w-6 h-6 text-primary" /></div>
+                                                        <div className="w-20 h-14 bg-primary/10 rounded-lg flex items-center justify-center"><FileText className="w-6 h-6 text-teal-600" /></div>
                                                     )}
                                                     <div className="space-y-1">
-                                                        <CardTitle className="text-white flex items-center gap-2">
+                                                        <CardTitle className="text-teal-900 font-display flex items-center gap-2">
                                                             {article.title}
                                                             {article.is_featured && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
                                                             {!article.is_published && <Badge variant="outline" className="text-yellow-500 border-yellow-500/50">Draft</Badge>}
                                                         </CardTitle>
-                                                        <p className="text-sm text-text-muted line-clamp-1">{article.excerpt}</p>
-                                                        <div className="flex items-center gap-3 text-xs text-text-muted">
+                                                        <p className="text-sm text-teal-900/70 line-clamp-1">{article.excerpt}</p>
+                                                        <div className="flex items-center gap-3 text-xs text-teal-900/70">
                                                             <span>{getCategoryName(article.category_id)}</span>
                                                             {article.author && <span>by {article.author}</span>}
                                                             {article.read_time && <span>{article.read_time}</span>}
@@ -771,35 +771,35 @@ const AdminLearn = () => {
                         <div className="flex justify-end mb-6">
                             <Dialog open={isCatDialogOpen} onOpenChange={setIsCatDialogOpen}>
                                 <DialogTrigger asChild>
-                                    <Button onClick={resetCategoryForm} className="bg-primary hover:bg-primary/90 text-background-dark">
+                                    <Button onClick={resetCategoryForm} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                                         <Plus className="w-4 h-4 mr-2" /> New Category
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-lg bg-teal-900 border-teal-600/30">
+                                <DialogContent className="max-w-lg bg-white text-teal-900 border border-teal-600/20 shadow-2xl border-teal-600/20">
                                     <DialogHeader>
-                                        <DialogTitle className="text-white">{editingCategory ? 'Edit Category' : 'New Category'}</DialogTitle>
+                                        <DialogTitle className="text-teal-900 font-display">{editingCategory ? 'Edit Category' : 'New Category'}</DialogTitle>
                                     </DialogHeader>
                                     <form onSubmit={handleCategorySubmit} className="space-y-4">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label className="text-white">Name *</Label>
-                                                <Input value={catName} onChange={(e) => { setCatName(e.target.value); if (!editingCategory) setCatSlug(generateSlug(e.target.value)); }} required className="bg-background-dark border-teal-600/30 text-white" />
+                                                <Label className="text-teal-900 font-semibold">Name *</Label>
+                                                <Input value={catName} onChange={(e) => { setCatName(e.target.value); if (!editingCategory) setCatSlug(generateSlug(e.target.value)); }} required className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label className="text-white">Slug</Label>
-                                                <Input value={catSlug} onChange={(e) => setCatSlug(e.target.value)} className="bg-background-dark border-teal-600/30 text-white" />
+                                                <Label className="text-teal-900 font-semibold">Slug</Label>
+                                                <Input value={catSlug} onChange={(e) => setCatSlug(e.target.value)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" />
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-white">Description</Label>
-                                            <Textarea value={catDescription} onChange={(e) => setCatDescription(e.target.value)} className="bg-background-dark border-teal-600/30 text-white" rows={2} />
+                                            <Label className="text-teal-900 font-semibold">Description</Label>
+                                            <Textarea value={catDescription} onChange={(e) => setCatDescription(e.target.value)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" rows={2} />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label className="text-white">Icon</Label>
+                                                <Label className="text-teal-900 font-semibold">Icon</Label>
                                                 <Select value={catIcon} onValueChange={setCatIcon}>
-                                                    <SelectTrigger className="bg-background-dark border-teal-600/30 text-white"><SelectValue /></SelectTrigger>
-                                                    <SelectContent className="bg-teal-900 border-teal-600/30">
+                                                    <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white"><SelectValue /></SelectTrigger>
+                                                    <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                                         {iconOptions.map(opt => (
                                                             <SelectItem key={opt.value} value={opt.value}>
                                                                 <div className="flex items-center gap-2"><opt.icon className="w-4 h-4" />{opt.label}</div>
@@ -809,13 +809,13 @@ const AdminLearn = () => {
                                                 </Select>
                                             </div>
                                             <div className="space-y-2">
-                                                <Label className="text-white">Display Order</Label>
-                                                <Input type="number" value={catOrder} onChange={(e) => setCatOrder(parseInt(e.target.value) || 0)} className="bg-background-dark border-teal-600/30 text-white" />
+                                                <Label className="text-teal-900 font-semibold">Display Order</Label>
+                                                <Input type="number" value={catOrder} onChange={(e) => setCatOrder(parseInt(e.target.value) || 0)} className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900" />
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Switch checked={catActive} onCheckedChange={setCatActive} />
-                                            <Label className="text-white">Active</Label>
+                                            <Label className="text-teal-900 font-semibold">Active</Label>
                                         </div>
                                         <div className="flex gap-2 justify-end pt-4 border-t border-teal-600/30">
                                             <Button type="button" variant="outline" onClick={() => { setIsCatDialogOpen(false); resetCategoryForm(); }} className="border-teal-600/30">Cancel</Button>
@@ -830,22 +830,22 @@ const AdminLearn = () => {
 
                         <div className="grid gap-4">
                             {isCatLoading ? (
-                                <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                                <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
                             ) : categories.length === 0 ? (
-                                <Card className="border-teal-600/30 bg-teal-800"><CardContent className="py-12 text-center"><p className="text-text-muted">No categories yet.</p></CardContent></Card>
+                                <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm"><CardContent className="py-12 text-center"><p className="text-teal-900/70">No categories yet.</p></CardContent></Card>
                             ) : (
                                 categories.map(cat => (
-                                    <Card key={cat.id} className="border-teal-600/30 bg-teal-800">
+                                    <Card key={cat.id} className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                                         <CardHeader>
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="text-primary">{getIcon(cat.icon)}</div>
+                                                    <div className="text-teal-600">{getIcon(cat.icon)}</div>
                                                     <div>
-                                                        <CardTitle className="text-white flex items-center gap-2">
+                                                        <CardTitle className="text-teal-900 font-display flex items-center gap-2">
                                                             {cat.name}
                                                             {!cat.is_active && <Badge variant="outline" className="text-yellow-500 border-yellow-500/50">Inactive</Badge>}
                                                         </CardTitle>
-                                                        <p className="text-sm text-text-muted">{cat.description}</p>
+                                                        <p className="text-sm text-teal-900/70">{cat.description}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2">
@@ -894,13 +894,13 @@ const AdminLearn = () => {
                             {/* Comments List */}
                             {isCommentsLoading ? (
                                 <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                    <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
                                 </div>
                             ) : filteredComments.length === 0 ? (
-                                <Card className="border-teal-600/30 bg-teal-800">
+                                <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                                     <CardContent className="py-12 text-center">
-                                        <MessageCircle className="w-12 h-12 mx-auto mb-4 text-text-muted opacity-50" />
-                                        <p className="text-text-muted">
+                                        <MessageCircle className="w-12 h-12 mx-auto mb-4 text-teal-900/70 opacity-50" />
+                                        <p className="text-teal-900/70">
                                             {commentFilter === 'pending' ? 'No pending comments.' :
                                                 commentFilter === 'approved' ? 'No approved comments.' :
                                                     'No comments yet. Comments will appear here when users submit them on articles.'}
@@ -910,14 +910,14 @@ const AdminLearn = () => {
                             ) : (
                                 <div className="grid gap-4">
                                     {filteredComments.map(comment => (
-                                        <Card key={comment.id} className={`border-teal-600/30 bg-teal-800 ${!comment.is_approved ? 'border-l-4 border-l-yellow-500' : ''}`}>
+                                        <Card key={comment.id} className={`border border-teal-600/20 bg-white shadow-sm ${!comment.is_approved ? 'border-l-4 border-l-yellow-500' : ''}`}>
                                             <CardContent className="p-5">
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-3 mb-2">
-                                                            <span className="font-semibold text-white">{comment.author_name}</span>
+                                                            <span className="font-semibold text-teal-900">{comment.author_name}</span>
                                                             {comment.author_email && (
-                                                                <span className="text-sm text-text-muted">({comment.author_email})</span>
+                                                                <span className="text-sm text-teal-900/70">({comment.author_email})</span>
                                                             )}
                                                             {!comment.is_approved && (
                                                                 <Badge variant="outline" className="text-yellow-500 border-yellow-500/50">Pending</Badge>
@@ -927,8 +927,8 @@ const AdminLearn = () => {
                                                             )}
                                                         </div>
                                                         <p className="text-white mb-3">{comment.content}</p>
-                                                        <div className="flex items-center gap-4 text-sm text-text-muted">
-                                                            <span>On: <span className="text-primary">{getArticleTitle(comment.article_id)}</span></span>
+                                                        <div className="flex items-center gap-4 text-sm text-teal-900/70">
+                                                            <span>On: <span className="text-teal-600">{getArticleTitle(comment.article_id)}</span></span>
                                                             <span>{new Date(comment.created_at).toLocaleDateString()}</span>
                                                             {comment.likes_count > 0 && (
                                                                 <span>❤️ {comment.likes_count}</span>

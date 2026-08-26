@@ -85,22 +85,22 @@ const ContactPage = () => {
                     <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
                         <div className="flex flex-col">
                             <div className="mb-8">
-                                <h1 className="text-4xl font-bold tracking-[-0.033em] text-[#00195c] lg:text-5xl font-display">
+                                <h1 className="text-4xl font-bold tracking-[-0.033em] text-teal-900 lg:text-5xl font-display">
                                     Open a Quantum Channel
                                 </h1>
-                                <p className="mt-3 text-base font-normal text-[#444651] font-display">
+                                <p className="mt-3 text-base font-normal text-teal-900/80 font-display">
                                     Initiate a dialogue to reshape your operational reality.
                                 </p>
                             </div>
 
-                            <div className="mt-8 rounded-2xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow border border-[#c5c5d3]/30 bg-white p-8">
-                                <h3 className="text-xl font-bold text-[#00195c] font-display">Direct Coordinates</h3>
+                            <div className="mt-8 rounded-2xl shadow-sm hover:shadow-[0px_4px_20px_rgba(10,54,61,0.05)] transition-shadow border border-teal-600/20 bg-white p-8">
+                                <h3 className="text-xl font-bold text-teal-900 font-display">Direct Coordinates</h3>
  <div className="mt-6 space-y-6 text-teal-900">
                                     <div className="flex items-start gap-4">
  <MapPin className="mt-1 text-teal-600 w-5 h-5" />
                                         <div>
                                             <p className="font-semibold font-display">Address</p>
-                                            <p className="text-[#444651] font-display">
+                                            <p className="text-teal-900/80 font-display">
                                                 {settings.address.line1}<br />{settings.address.line2}
                                             </p>
                                         </div>
@@ -109,23 +109,23 @@ const ContactPage = () => {
  <Mail className="mt-1 text-teal-600 w-5 h-5" />
                                         <div>
                                             <p className="font-semibold font-display">Email</p>
-                                            <p className="text-[#444651] font-display">{settings.email}</p>
+                                            <p className="text-teal-900/80 font-display">{settings.email}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
  <Phone className="mt-1 text-teal-600 w-5 h-5" />
                                         <div>
                                             <p className="font-semibold font-display">Phone</p>
-                                            <p className="text-[#444651] font-display">{settings.phone}</p>
+                                            <p className="text-teal-900/80 font-display">{settings.phone}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Business Hours */}
-                            <div className="mt-8 rounded-2xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow border border-[#c5c5d3]/30 bg-white p-8">
-                                <h3 className="text-xl font-bold text-[#00195c] font-display mb-4">Temporal Availability</h3>
-                                <div className="space-y-2 text-sm text-[#444651] font-display">
+                            <div className="mt-8 rounded-2xl shadow-sm hover:shadow-[0px_4px_20px_rgba(10,54,61,0.05)] transition-shadow border border-teal-600/20 bg-white p-8">
+                                <h3 className="text-xl font-bold text-teal-900 font-display mb-4">Temporal Availability</h3>
+                                <div className="space-y-2 text-sm text-teal-900/80 font-display">
                                     <p>{settings.hours.weekdays}</p>
                                     <p>{settings.hours.saturday}</p>
                                     <p>{settings.hours.sunday}</p>

@@ -81,7 +81,7 @@ const About = () => {
  <h2 className="text-teal-600 text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-6 font-display">
               About Automation Alchemists
             </h2>
-            <p className="text-[#444651] text-sm sm:text-base font-normal leading-relaxed max-w-3xl font-display">
+            <p className="text-teal-900/80 text-sm sm:text-base font-normal leading-relaxed max-w-3xl font-display">
               When your vision outgrows the limits of vibe-coded prototypes, we step in.
               You define the idea; we build, package, and deploy the full product end-to-end.
               The result: a polished, launch-ready solution built to scale and built to earn.
@@ -116,7 +116,7 @@ const About = () => {
                       stat.value
                     )}
                   </h2>
-                  <p className="text-[#444651] text-xs sm:text-sm font-normal leading-relaxed font-display">{stat.label}</p>
+                  <p className="text-teal-900/80 text-xs sm:text-sm font-normal leading-relaxed font-display">{stat.label}</p>
                 </div>
               </motion.div>
             );

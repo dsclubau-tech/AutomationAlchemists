@@ -165,7 +165,7 @@ const AdminTools = () => {
       case 'coming_soon':
         return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 flex items-center gap-1 w-fit"><Clock className="w-3 h-3"/> Coming Soon</Badge>;
       case 'hidden':
-        return <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30 flex items-center gap-1 w-fit"><EyeOff className="w-3 h-3"/> Hidden</Badge>;
+        return <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30 flex items-center gap-1 w-fit"><EyeOff className="w-3 h-3"/> Hidden</Badge>;
       default:
         return null;
     }
@@ -178,30 +178,30 @@ const AdminTools = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-teal-600/30 bg-teal-800">
-          <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2 text-white">
-              <PenTool className="h-6 w-6 text-primary" />
+        <Card className="border border-teal-600/20 bg-white shadow-sm">
+          <CardHeader className="border-b border-teal-600/10 pb-4">
+            <CardTitle className="text-2xl flex items-center gap-2 text-teal-900 font-display">
+              <PenTool className="h-6 w-6 text-teal-600" />
               Platform Tools
             </CardTitle>
-            <CardDescription className="text-text-muted">
+            <CardDescription className="text-teal-900/70">
               Changing a tool's status will immediately affect how it appears on user dashboards.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {tools.map((tool) => (
-                  <Card key={tool.id} className="border-teal-600/30 bg-background-dark">
+                  <Card key={tool.id} className="border border-teal-600/20 bg-mint-50/40 hover:border-teal-600/40 shadow-sm transition-all">
                     <CardContent className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="text-lg font-bold text-white font-display mb-1">{tool.name}</h3>
-                          <p className="text-sm text-text-muted">{tool.short_description}</p>
+                          <h3 className="text-lg font-bold text-teal-900 font-display mb-1">{tool.name}</h3>
+                          <p className="text-sm text-teal-900/70">{tool.short_description}</p>
                         </div>
                         <Button 
                           variant="outline" 
@@ -212,42 +212,42 @@ const AdminTools = () => {
                             setEditPrice(tool.price_monthly);
                             setEditMessage(tool.maintenance_message || '');
                           }}
-                          className="border-teal-600/30 text-white hover:bg-primary/10 flex-shrink-0"
+                          className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10 flex-shrink-0"
                         >
-                          <Edit className="w-4 h-4 mr-2" /> Edit
+                          <Edit className="w-4 h-4 mr-2 text-teal-600" /> Edit
                         </Button>
                       </div>
                       
                       {waitlistCounts[tool.slug] > 0 && (
-                        <div className="flex items-center gap-1.5 text-sm text-[#888] mb-4">
-                          <Users className="w-4 h-4 text-primary" />
+                        <div className="flex items-center gap-1.5 text-sm text-teal-900/70 mb-4">
+                          <Users className="w-4 h-4 text-teal-600" />
                           {waitlistCounts[tool.slug]} users waiting
                         </div>
                       )}
                       
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-text-muted">Status:</span>
+                          <span className="text-sm text-teal-900/70">Status:</span>
                           {getStatusBadge(tool.status)}
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-text-muted">Monthly Price:</span>
-                          <span className="text-sm font-medium text-white">AUD ${tool.price_monthly.toFixed(2)}</span>
+                          <span className="text-sm text-teal-900/70">Monthly Price:</span>
+                          <span className="text-sm font-semibold text-teal-900">AUD ${tool.price_monthly.toFixed(2)}</span>
                         </div>
 
                         {tool.status === 'maintenance' && tool.maintenance_message && (
-                          <div className="mt-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
-                            <span className="text-xs font-semibold text-yellow-500 block mb-1">Maintenance Message:</span>
-                            <span className="text-sm text-yellow-400/90">{tool.maintenance_message}</span>
+                          <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <span className="text-xs font-semibold text-amber-700 block mb-1">Maintenance Message:</span>
+                            <span className="text-sm text-amber-800">{tool.maintenance_message}</span>
                           </div>
                         )}
 
                         {tool.status === 'available' && waitlistCounts[tool.slug] > 0 && (
-                          <div className="mt-4 pt-4 border-t border-teal-600/30">
+                          <div className="mt-4 pt-4 border-t border-teal-600/10">
                             <Button 
                               onClick={() => setNotifyTool(tool)}
-                              className="w-full bg-primary/20 text-primary hover:bg-primary hover:text-black transition-colors"
+                              className="w-full bg-teal-600/10 text-teal-900 hover:bg-teal-600 hover:text-white transition-colors"
                               size="sm"
                             >
                               <Bell className="w-4 h-4 mr-2" />
@@ -267,21 +267,21 @@ const AdminTools = () => {
 
       {/* Edit Tool Modal */}
       <Dialog open={!!editTool} onOpenChange={(open) => !open && setEditTool(null)}>
-        <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
+        <DialogContent className="bg-white border border-teal-600/20 text-teal-900 shadow-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Tool Settings</DialogTitle>
-            <DialogDescription>
-              Configure settings for <strong className="text-white">{editTool?.name}</strong>
+            <DialogTitle className="text-xl font-bold font-display text-teal-900">Edit Tool Settings</DialogTitle>
+            <DialogDescription className="text-teal-900/70">
+              Configure settings for <strong className="text-teal-900">{editTool?.name}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Status</Label>
+              <Label className="text-teal-900 font-semibold">Status</Label>
               <Select value={editStatus} onValueChange={(v: Tool['status']) => setEditStatus(v)}>
-                <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                <SelectTrigger className="bg-white border-teal-600/20 text-teal-900">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-teal-900 border-teal-600/30">
+                <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                   <SelectItem value="available">Available</SelectItem>
                   <SelectItem value="maintenance">Maintenance</SelectItem>
                   <SelectItem value="coming_soon">Coming Soon</SelectItem>
@@ -292,31 +292,31 @@ const AdminTools = () => {
             
             {editStatus === 'maintenance' && (
               <div className="space-y-2">
-                <Label>Maintenance Message</Label>
+                <Label className="text-teal-900 font-semibold">Maintenance Message</Label>
                 <Textarea 
                   placeholder="e.g. We are currently upgrading our servers. Back in 1 hour."
                   value={editMessage} 
                   onChange={e => setEditMessage(e.target.value)} 
-                  className="bg-background-dark border-yellow-500/50 text-white focus:border-yellow-500"
+                  className="bg-white border-amber-300 text-teal-900 focus:border-amber-500"
                 />
               </div>
             )}
 
             <div className="space-y-2">
-              <Label>Monthly Price (AUD $)</Label>
+              <Label className="text-teal-900 font-semibold">Monthly Price (AUD $)</Label>
               <Input 
                 type="number"
                 step="0.01"
                 min="0"
                 value={editPrice} 
                 onChange={e => setEditPrice(parseFloat(e.target.value) || 0)} 
-                className="bg-background-dark border-teal-600/30 text-white"
+                className="bg-white border-teal-600/20 text-teal-900"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditTool(null)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
-            <Button onClick={handleEditSubmit} disabled={isActionLoading} className="bg-primary hover:bg-primary/90 text-background-dark">
+            <Button variant="outline" onClick={() => setEditTool(null)} className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10">Cancel</Button>
+            <Button onClick={handleEditSubmit} disabled={isActionLoading} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>
@@ -326,16 +326,16 @@ const AdminTools = () => {
 
       {/* Notify All Confirmation Modal */}
       <Dialog open={!!notifyTool} onOpenChange={(open) => !open && setNotifyTool(null)}>
-        <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
+        <DialogContent className="bg-white border border-teal-600/20 text-teal-900 shadow-2xl">
           <DialogHeader>
-            <DialogTitle>Send Launch Notifications</DialogTitle>
-            <DialogDescription>
-              <strong className="text-white">{notifyTool?.name}</strong> is now available. Send launch notification to all <strong className="text-white">{notifyTool ? waitlistCounts[notifyTool.slug] : 0}</strong> users on the waitlist?
+            <DialogTitle className="text-xl font-bold font-display text-teal-900">Send Launch Notifications</DialogTitle>
+            <DialogDescription className="text-teal-900/70">
+              <strong className="text-teal-900">{notifyTool?.name}</strong> is now available. Send launch notification to all <strong className="text-teal-900">{notifyTool ? waitlistCounts[notifyTool.slug] : 0}</strong> users on the waitlist?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6">
-            <Button variant="outline" onClick={() => setNotifyTool(null)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
-            <Button onClick={handleNotifyAll} disabled={isNotifying} className="bg-primary hover:bg-primary/90 text-background-dark">
+            <Button variant="outline" onClick={() => setNotifyTool(null)} className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10">Cancel</Button>
+            <Button onClick={handleNotifyAll} disabled={isNotifying} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
               {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Confirm & Notify
             </Button>

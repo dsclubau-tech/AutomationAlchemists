@@ -230,15 +230,15 @@ const AdminContactSubmissions = () => {
         transition={{ duration: 0.5 }}
         className="space-y-6"
       >
-        <Card className="border-teal-600/30 bg-teal-800">
+        <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <CardTitle className="flex items-center gap-2 text-white">
-                  <Mail className="h-5 w-5 text-primary" />
+                <CardTitle className="flex items-center gap-2 text-teal-900 font-display">
+                  <Mail className="h-5 w-5 text-teal-600" />
                   Contact Form Submissions
                 </CardTitle>
-                <CardDescription className="text-text-muted">
+                <CardDescription className="text-teal-900/70">
                   Total submissions: {contacts.length}
                 </CardDescription>
               </div>
@@ -257,7 +257,7 @@ const AdminContactSubmissions = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleBulkExport}
-                  className="border-teal-600/30 text-white hover:bg-primary/10"
+                  className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                 >
                   <FileDown className="h-4 w-4 mr-2" />
                   Export CSV
@@ -268,33 +268,33 @@ const AdminContactSubmissions = () => {
           <CardContent>
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
               </div>
             ) : contacts.length === 0 ? (
               <div className="text-center py-12">
-                <Mail className="h-12 w-12 mx-auto text-text-muted mb-4" />
-                <p className="text-text-muted">
+                <Mail className="h-12 w-12 mx-auto text-teal-900/70 mb-4" />
+                <p className="text-teal-900/70">
                   No contact form submissions yet
                 </p>
               </div>
             ) : (
               <div className="overflow-x-auto rounded-lg border border-teal-600/30">
                 <Table>
-                  <TableHeader>
-                    <TableRow className="border-teal-600/30 hover:bg-primary/5">
+                  <TableHeader className="bg-mint-50/50">
+                    <TableRow className="border-b border-teal-600/10 hover:bg-teal-600/5 transition-colors">
                       <TableHead className="w-12">
                         <Checkbox
                           checked={selectedContacts.size === contacts.length}
                           onCheckedChange={toggleAllContacts}
                         />
                       </TableHead>
-                      <TableHead className="text-text-muted">Name</TableHead>
-                      <TableHead className="text-text-muted">Email</TableHead>
-                      <TableHead className="text-text-muted">Use Case</TableHead>
-                      <TableHead className="text-text-muted">Status</TableHead>
-                      <TableHead className="text-text-muted">Attachments</TableHead>
-                      <TableHead className="text-text-muted">Date</TableHead>
-                      <TableHead className="text-text-muted text-right">Actions</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Name</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Email</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Use Case</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Status</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Attachments</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Date</TableHead>
+                      <TableHead className="text-teal-900/70 text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -306,21 +306,21 @@ const AdminContactSubmissions = () => {
                             onCheckedChange={() => toggleContactSelection(contact.id)}
                           />
                         </TableCell>
-                        <TableCell className="font-medium text-white">
+                        <TableCell className="font-medium text-teal-900">
                           <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-text-muted" />
+                            <User className="h-4 w-4 text-teal-900/70" />
                             {contact.name}
                           </div>
                         </TableCell>
                         <TableCell>
                           <a
                             href={`mailto:${contact.email}`}
-                            className="text-primary hover:underline"
+                            className="text-teal-600 hover:underline"
                           >
                             {contact.email}
                           </a>
                         </TableCell>
-                        <TableCell className="text-text-muted">
+                        <TableCell className="text-teal-900/70">
                           {contact.use_case || '-'}
                         </TableCell>
                         <TableCell>
@@ -337,7 +337,7 @@ const AdminContactSubmissions = () => {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => downloadAttachment(path)}
-                                  className="h-auto p-1 text-primary hover:bg-primary/10"
+                                  className="h-auto p-1 text-teal-600 hover:bg-primary/10"
                                 >
                                   <Paperclip className="h-3 w-3 mr-1" />
                                   <Download className="h-3 w-3" />
@@ -345,11 +345,11 @@ const AdminContactSubmissions = () => {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-text-muted">None</span>
+                            <span className="text-teal-900/70">None</span>
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2 text-sm text-text-muted">
+                          <div className="flex items-center gap-2 text-sm text-teal-900/70">
                             <Calendar className="h-4 w-4" />
                             {new Date(contact.created_at).toLocaleDateString()}
                           </div>
@@ -363,7 +363,7 @@ const AdminContactSubmissions = () => {
                                 setSelectedContact(contact);
                                 setViewDialogOpen(true);
                               }}
-                              className="h-8 w-8 text-text-muted hover:text-white"
+                              className="h-8 w-8 text-teal-900/70 hover:text-white"
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
@@ -371,7 +371,7 @@ const AdminContactSubmissions = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => deleteContact(contact.id)}
-                              className="h-8 w-8 text-text-muted hover:text-red-400"
+                              className="h-8 w-8 text-teal-900/70 hover:text-red-400"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -386,11 +386,11 @@ const AdminContactSubmissions = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-teal-600/30 bg-teal-800">
+        <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-white">Quick Tips</CardTitle>
+            <CardTitle className="text-teal-900 font-display">Quick Tips</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-text-muted">
+          <CardContent className="space-y-2 text-sm text-teal-900/70">
             <p>• Click on email addresses to compose a reply</p>
             <p>• Use the eye icon to view full details and update status</p>
             <p>• Use the attachment download buttons to view uploaded files</p>
@@ -401,40 +401,40 @@ const AdminContactSubmissions = () => {
 
       {/* View Contact Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-teal-900 border-teal-600/30 text-white max-w-2xl">
+        <DialogContent className="bg-white text-teal-900 border border-teal-600/20 shadow-2xl border-teal-600/20 text-teal-900 max-w-2xl">
           <DialogHeader>
             <DialogTitle>Contact Details</DialogTitle>
-            <DialogDescription className="text-text-muted">View and manage this contact submission</DialogDescription>
+            <DialogDescription className="text-teal-900/70">View and manage this contact submission</DialogDescription>
           </DialogHeader>
           {selectedContact && (
             <div className="space-y-4 mt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-text-muted">Name</Label>
+                  <Label className="text-teal-900/70">Name</Label>
                   <p className="text-white font-medium">{selectedContact.name}</p>
                 </div>
                 <div>
-                  <Label className="text-text-muted">Email</Label>
+                  <Label className="text-teal-900/70">Email</Label>
                   <p className="text-white">{selectedContact.email}</p>
                 </div>
                 <div>
-                  <Label className="text-text-muted">Use Case</Label>
+                  <Label className="text-teal-900/70">Use Case</Label>
                   <p className="text-white">{selectedContact.use_case || '-'}</p>
                 </div>
                 <div>
-                  <Label className="text-text-muted">Team Size</Label>
+                  <Label className="text-teal-900/70">Team Size</Label>
                   <p className="text-white">{selectedContact.team_size || '-'}</p>
                 </div>
               </div>
               <div>
-                <Label className="text-text-muted">Message</Label>
-                <p className="text-white whitespace-pre-wrap bg-background-dark p-4 rounded-lg mt-2 border border-teal-600/30">
+                <Label className="text-teal-900/70">Message</Label>
+                <p className="text-teal-900 whitespace-pre-wrap bg-white border-teal-600/20 text-teal-900 p-4 rounded-lg mt-2 border border-teal-600/20">
                   {selectedContact.message}
                 </p>
               </div>
               {selectedContact.attachments && selectedContact.attachments.length > 0 && (
                 <div>
-                  <Label className="text-text-muted">Attachments</Label>
+                  <Label className="text-teal-900/70">Attachments</Label>
                   <div className="flex gap-2 mt-2">
                     {selectedContact.attachments.map((path, idx) => (
                       <Button
@@ -442,7 +442,7 @@ const AdminContactSubmissions = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => downloadAttachment(path)}
-                        className="border-teal-600/30 text-primary hover:bg-primary/10"
+                        className="border-teal-600/30 text-teal-600 hover:bg-primary/10"
                       >
                         <Paperclip className="h-4 w-4 mr-2" />
                         Download {idx + 1}
@@ -453,7 +453,7 @@ const AdminContactSubmissions = () => {
               )}
               <div className="flex items-center justify-between pt-4 border-t border-teal-600/30">
                 <div className="flex items-center gap-3">
-                  <Label className="text-text-muted">Status</Label>
+                  <Label className="text-teal-900/70">Status</Label>
                   <Select
                     value={selectedContact.status || 'new'}
                     onValueChange={(value) => {
@@ -461,10 +461,10 @@ const AdminContactSubmissions = () => {
                       setSelectedContact({ ...selectedContact, status: value });
                     }}
                   >
-                    <SelectTrigger className="w-32 bg-background-dark border-teal-600/30">
+                    <SelectTrigger className="w-32 bg-white border-teal-600/20 text-teal-900 border-teal-600/30">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-teal-900 border-teal-600/30">
+                    <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                       <SelectItem value="new">New</SelectItem>
                       <SelectItem value="read">Read</SelectItem>
                       <SelectItem value="replied">Replied</SelectItem>
@@ -472,7 +472,7 @@ const AdminContactSubmissions = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="text-text-muted text-sm">
+                <div className="text-teal-900/70 text-sm">
                   Submitted: {new Date(selectedContact.created_at).toLocaleString()}
                 </div>
               </div>

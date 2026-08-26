@@ -99,7 +99,7 @@ const AdminContact = () => {
         return (
             <AdminLayout title="Contact Settings" description="Manage contact page information">
                 <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
                 </div>
             </AdminLayout>
         );
@@ -112,15 +112,15 @@ const AdminContact = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <Card className="bg-teal-800 border-teal-600/30">
+                <Card className="bg-white border border-teal-600/20 shadow-sm border-teal-600/20">
                     <CardHeader>
-                        <CardTitle className="text-white">Contact Page Settings</CardTitle>
-                        <CardDescription className="text-text-muted">Edit the contact information displayed on the public contact page</CardDescription>
+                        <CardTitle className="text-teal-900 font-display">Contact Page Settings</CardTitle>
+                        <CardDescription className="text-teal-900/70">Edit the contact information displayed on the public contact page</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-primary mb-2">
+                                <div className="flex items-center gap-2 text-teal-600 mb-2">
                                     <MapPin className="w-5 h-5" />
                                     <Label className="text-lg font-semibold">Address</Label>
                                 </div>
@@ -132,7 +132,7 @@ const AdminContact = () => {
                                             contact_address: { ...settings.contact_address, line1: e.target.value }
                                         })}
                                         placeholder="Address Line 1"
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                     <Input
                                         value={settings.contact_address.line2}
@@ -141,13 +141,13 @@ const AdminContact = () => {
                                             contact_address: { ...settings.contact_address, line2: e.target.value }
                                         })}
                                         placeholder="Address Line 2"
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-primary mb-2">
+                                <div className="flex items-center gap-2 text-teal-600 mb-2">
                                     <Mail className="w-5 h-5" />
                                     <Label className="text-lg font-semibold">Email</Label>
                                 </div>
@@ -156,12 +156,12 @@ const AdminContact = () => {
                                     value={settings.contact_email}
                                     onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
                                     placeholder="contact@example.com"
-                                    className="bg-background-dark border-teal-600/30 text-white"
+                                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                 />
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-primary mb-2">
+                                <div className="flex items-center gap-2 text-teal-600 mb-2">
                                     <Phone className="w-5 h-5" />
                                     <Label className="text-lg font-semibold">Phone</Label>
                                 </div>
@@ -170,12 +170,12 @@ const AdminContact = () => {
                                     value={settings.contact_phone}
                                     onChange={(e) => setSettings({ ...settings, contact_phone: e.target.value })}
                                     placeholder="+1 234 567 890"
-                                    className="bg-background-dark border-teal-600/30 text-white"
+                                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                 />
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-primary mb-2">
+                                <div className="flex items-center gap-2 text-teal-600 mb-2">
                                     <Clock className="w-5 h-5" />
                                     <Label className="text-lg font-semibold">Business Hours</Label>
                                 </div>
@@ -187,7 +187,7 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, weekdays: e.target.value }
                                         })}
                                         placeholder="Weekdays hours"
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                     <Input
                                         value={settings.business_hours.saturday}
@@ -196,7 +196,7 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, saturday: e.target.value }
                                         })}
                                         placeholder="Saturday hours"
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                     <Input
                                         value={settings.business_hours.sunday}
@@ -205,7 +205,7 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, sunday: e.target.value }
                                         })}
                                         placeholder="Sunday hours"
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                     <Input
                                         value={settings.business_hours.enterprise}
@@ -214,7 +214,7 @@ const AdminContact = () => {
                                             business_hours: { ...settings.business_hours, enterprise: e.target.value }
                                         })}
                                         placeholder="Enterprise support note"
-                                        className="bg-background-dark border-teal-600/30 text-white"
+                                        className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                     />
                                 </div>
                             </div>
@@ -224,7 +224,7 @@ const AdminContact = () => {
                             <Button
                                 onClick={saveSettings}
                                 disabled={isSaving}
-                                className="bg-primary text-background-dark hover:bg-primary/90"
+                                className="bg-yellow-accent text-teal-900 font-semibold hover:bg-yellow-accent/90 shadow-sm"
                             >
                                 {isSaving ? (
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

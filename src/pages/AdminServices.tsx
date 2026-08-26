@@ -270,20 +270,20 @@ const AdminServices = () => {
                 <div className="flex justify-end mb-6">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button onClick={resetForm} className="bg-primary hover:bg-primary/90 text-background-dark">
+                            <Button onClick={resetForm} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                                 <Plus className="w-4 h-4 mr-2" />
                                 Add Service
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-teal-900 border-teal-600/30">
+                        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white text-teal-900 border border-teal-600/20 shadow-2xl border-teal-600/20">
                             <DialogHeader>
-                                <DialogTitle className="text-white">
+                                <DialogTitle className="text-teal-900 font-display">
                                     {editingService ? 'Edit Service' : 'Add New Service'}
                                 </DialogTitle>
                             </DialogHeader>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <Tabs defaultValue="basic" className="w-full">
-                                    <TabsList className="grid w-full grid-cols-3 bg-background-dark">
+                                    <TabsList className="grid w-full grid-cols-3 bg-white border-teal-600/20 text-teal-900">
                                         <TabsTrigger value="basic" className="data-[state=active]:bg-primary/20">Basic Info</TabsTrigger>
                                         <TabsTrigger value="media" className="data-[state=active]:bg-primary/20">Media</TabsTrigger>
                                         <TabsTrigger value="content" className="data-[state=active]:bg-primary/20">Detailed Content</TabsTrigger>
@@ -293,42 +293,42 @@ const AdminServices = () => {
                                     <TabsContent value="basic" className="space-y-4 mt-4">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="title" className="text-white">Service Title *</Label>
+                                                <Label htmlFor="title" className="text-teal-900 font-semibold">Service Title *</Label>
                                                 <Input
                                                     id="title"
                                                     value={title}
                                                     onChange={(e) => handleTitleChange(e.target.value)}
                                                     required
                                                     placeholder="e.g., Web Development"
-                                                    className="bg-background-dark border-teal-600/30 text-white"
+                                                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="slug" className="text-white">URL Slug</Label>
+                                                <Label htmlFor="slug" className="text-teal-900 font-semibold">URL Slug</Label>
                                                 <Input
                                                     id="slug"
                                                     value={slug}
                                                     onChange={(e) => setSlug(e.target.value)}
                                                     placeholder="web-development"
-                                                    className="bg-background-dark border-teal-600/30 text-white"
+                                                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                                 />
-                                                <p className="text-xs text-text-muted">Auto-generated from title. Used in URL: /services/{slug || 'your-slug'}</p>
+                                                <p className="text-xs text-teal-900/70">Auto-generated from title. Used in URL: /services/{slug || 'your-slug'}</p>
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="shortDescription" className="text-white">Short Description</Label>
+                                            <Label htmlFor="shortDescription" className="text-teal-900 font-semibold">Short Description</Label>
                                             <Input
                                                 id="shortDescription"
                                                 value={shortDescription}
                                                 onChange={(e) => setShortDescription(e.target.value)}
                                                 placeholder="Brief one-line description for cards"
-                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="description" className="text-white">Main Description *</Label>
+                                            <Label htmlFor="description" className="text-teal-900 font-semibold">Main Description *</Label>
                                             <Textarea
                                                 id="description"
                                                 value={description}
@@ -336,55 +336,55 @@ const AdminServices = () => {
                                                 required
                                                 placeholder="Full description of the service..."
                                                 rows={4}
-                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="features" className="text-white">Features (one per line, max 4 recommended)</Label>
+                                            <Label htmlFor="features" className="text-teal-900 font-semibold">Features (one per line, max 4 recommended)</Label>
                                             <Textarea
                                                 id="features"
                                                 value={features}
                                                 onChange={(e) => setFeatures(e.target.value)}
                                                 placeholder="Feature 1&#10;Feature 2&#10;Feature 3&#10;Feature 4"
                                                 rows={4}
-                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="quote" className="text-white">Quote (for section display)</Label>
+                                            <Label htmlFor="quote" className="text-teal-900 font-semibold">Quote (for section display)</Label>
                                             <Input
                                                 id="quote"
                                                 value={quote}
                                                 onChange={(e) => setQuote(e.target.value)}
                                                 placeholder="e.g., Stop bragging about working 80 hours..."
-                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                             />
-                                            <p className="text-xs text-text-muted">Inspirational quote displayed in the service section.</p>
+                                            <p className="text-xs text-teal-900/70">Inspirational quote displayed in the service section.</p>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="visualTags" className="text-white">Visual Tags (one per line)</Label>
+                                            <Label htmlFor="visualTags" className="text-teal-900 font-semibold">Visual Tags (one per line)</Label>
                                             <Textarea
                                                 id="visualTags"
                                                 value={visualTags}
                                                 onChange={(e) => setVisualTags(e.target.value)}
                                                 placeholder="Zapier&#10;Make&#10;n8n&#10;AI Agents"
                                                 rows={3}
-                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                             />
-                                            <p className="text-xs text-text-muted">Tags shown in the visual element (e.g., tool names, integrations).</p>
+                                            <p className="text-xs text-teal-900/70">Tags shown in the visual element (e.g., tool names, integrations).</p>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="icon" className="text-white">Icon</Label>
+                                                <Label htmlFor="icon" className="text-teal-900 font-semibold">Icon</Label>
                                                 <Select value={icon} onValueChange={setIcon}>
-                                                    <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                                                    <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-teal-900 border-teal-600/30">
+                                                    <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                                         {iconOptions.map((opt) => (
                                                             <SelectItem key={opt.value} value={opt.value}>
                                                                 <div className="flex items-center gap-2">
@@ -397,12 +397,12 @@ const AdminServices = () => {
                                                 </Select>
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="gradient" className="text-white">Color Theme</Label>
+                                                <Label htmlFor="gradient" className="text-teal-900 font-semibold">Color Theme</Label>
                                                 <Select value={colorGradient} onValueChange={setColorGradient}>
-                                                    <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                                                    <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-teal-900 border-teal-600/30">
+                                                    <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                                         {gradientOptions.map((opt) => (
                                                             <SelectItem key={opt.value} value={opt.value}>
                                                                 {opt.label}
@@ -415,22 +415,22 @@ const AdminServices = () => {
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="displayOrder" className="text-white">Display Order</Label>
+                                                <Label htmlFor="displayOrder" className="text-teal-900 font-semibold">Display Order</Label>
                                                 <Input
                                                     id="displayOrder"
                                                     type="number"
                                                     value={displayOrder}
                                                     onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
-                                                    className="bg-background-dark border-teal-600/30 text-white"
+                                                    className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="isActive" className="text-white">Status</Label>
+                                                <Label htmlFor="isActive" className="text-teal-900 font-semibold">Status</Label>
                                                 <Select value={isActive ? 'active' : 'draft'} onValueChange={(v) => setIsActive(v === 'active')}>
-                                                    <SelectTrigger className="bg-background-dark border-teal-600/30 text-white">
+                                                    <SelectTrigger className="bg-white border-teal-600/20 text-teal-900 border-teal-600/30 text-white">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-teal-900 border-teal-600/30">
+                                                    <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                                         <SelectItem value="active">Active</SelectItem>
                                                         <SelectItem value="draft">Draft</SelectItem>
                                                     </SelectContent>
@@ -442,7 +442,7 @@ const AdminServices = () => {
                                     {/* Media Tab */}
                                     <TabsContent value="media" className="space-y-4 mt-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="videoUrl" className="text-white flex items-center gap-2">
+                                            <Label htmlFor="videoUrl" className="text-teal-900 font-semibold flex items-center gap-2">
                                                 <Video className="w-4 h-4" />
                                                 Video URL
                                             </Label>
@@ -451,13 +451,13 @@ const AdminServices = () => {
                                                 value={videoUrl}
                                                 onChange={(e) => setVideoUrl(e.target.value)}
                                                 placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
-                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                             />
-                                            <p className="text-xs text-text-muted">Supports YouTube and Vimeo URLs. Will be embedded on the service detail page.</p>
+                                            <p className="text-xs text-teal-900/70">Supports YouTube and Vimeo URLs. Will be embedded on the service detail page.</p>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="images" className="text-white flex items-center gap-2">
+                                            <Label htmlFor="images" className="text-teal-900 font-semibold flex items-center gap-2">
                                                 <Image className="w-4 h-4" />
                                                 Image URLs (one per line)
                                             </Label>
@@ -467,17 +467,17 @@ const AdminServices = () => {
                                                 onChange={(e) => setImages(e.target.value)}
                                                 placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
                                                 rows={5}
-                                                className="bg-background-dark border-teal-600/30 text-white"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                                             />
-                                            <p className="text-xs text-text-muted">Add image URLs to display in a gallery on the service detail page.</p>
+                                            <p className="text-xs text-teal-900/70">Add image URLs to display in a gallery on the service detail page.</p>
                                         </div>
 
                                         {images && images.split('\n').filter(i => i.trim()).length > 0 && (
                                             <div className="space-y-2">
-                                                <Label className="text-white">Image Preview</Label>
+                                                <Label className="text-teal-900 font-semibold">Image Preview</Label>
                                                 <div className="grid grid-cols-3 gap-2">
                                                     {images.split('\n').filter(i => i.trim()).map((img, idx) => (
-                                                        <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-teal-600/30 bg-background-dark">
+                                                        <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-teal-600/20 bg-white border-teal-600/20 text-teal-900">
                                                             <img src={img.trim()} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" onError={(e) => {
                                                                 (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"/><text x="12" y="14" text-anchor="middle" font-size="6" fill="%23666">Error</text></svg>';
                                                             }} />
@@ -491,16 +491,16 @@ const AdminServices = () => {
                                     {/* Detailed Content Tab */}
                                     <TabsContent value="content" className="space-y-4 mt-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="detailedContent" className="text-white">Detailed Content</Label>
+                                            <Label htmlFor="detailedContent" className="text-teal-900 font-semibold">Detailed Content</Label>
                                             <Textarea
                                                 id="detailedContent"
                                                 value={detailedContent}
                                                 onChange={(e) => setDetailedContent(e.target.value)}
                                                 placeholder="Add detailed content for the service page. This will be displayed in the 'About This Service' section.&#10;&#10;You can write multiple paragraphs here.&#10;&#10;Use line breaks to separate sections."
                                                 rows={12}
-                                                className="bg-background-dark border-teal-600/30 text-white font-mono text-sm"
+                                                className="bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900 font-mono text-sm"
                                             />
-                                            <p className="text-xs text-text-muted">This content appears on the service detail page. Use multiple lines to create paragraphs.</p>
+                                            <p className="text-xs text-teal-900/70">This content appears on the service detail page. Use multiple lines to create paragraphs.</p>
                                         </div>
                                     </TabsContent>
                                 </Tabs>
@@ -513,11 +513,11 @@ const AdminServices = () => {
                                             setIsDialogOpen(false);
                                             resetForm();
                                         }}
-                                        className="border-teal-600/30 text-white hover:bg-primary/10"
+                                        className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                                     >
                                         Cancel
                                     </Button>
-                                    <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-background-dark">
+                                    <Button type="submit" disabled={isSubmitting} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                                         {isSubmitting ? (
                                             <>
                                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -536,37 +536,37 @@ const AdminServices = () => {
                 <div className="grid gap-4">
                     {isLoading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
                         </div>
                     ) : services.length === 0 ? (
-                        <Card className="border-teal-600/30 bg-teal-800">
+                        <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                             <CardContent className="py-12 text-center">
-                                <p className="text-text-muted">No services yet. Create your first service!</p>
+                                <p className="text-teal-900/70">No services yet. Create your first service!</p>
                             </CardContent>
                         </Card>
                     ) : (
                         services.map((service) => (
-                            <Card key={service.id} className="border-teal-600/30 bg-teal-800">
+                            <Card key={service.id} className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
                                 <CardHeader>
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-start gap-4">
-                                            <div className="text-primary">
+                                            <div className="text-teal-600">
                                                 {getIcon(service.icon)}
                                             </div>
                                             <div className="space-y-1">
-                                                <CardTitle className="text-white flex items-center gap-2">
+                                                <CardTitle className="text-teal-900 font-display flex items-center gap-2">
                                                     {service.title}
                                                     {service.is_active === false && (
                                                         <span className="text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-500 rounded">Draft</span>
                                                     )}
                                                 </CardTitle>
-                                                <p className="text-sm text-text-muted line-clamp-2">{service.short_description || service.description}</p>
-                                                <div className="flex items-center gap-4 text-xs text-text-muted">
+                                                <p className="text-sm text-teal-900/70 line-clamp-2">{service.short_description || service.description}</p>
+                                                <div className="flex items-center gap-4 text-xs text-teal-900/70">
                                                     <span>{service.features?.length || 0} features</span>
                                                     {service.video_url && <span className="flex items-center gap-1"><Video className="w-3 h-3" /> Video</span>}
                                                     {service.images && service.images.length > 0 && <span className="flex items-center gap-1"><Image className="w-3 h-3" /> {service.images.length} images</span>}
                                                     {service.slug && (
-                                                        <a href={`/services/${service.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary hover:underline">
+                                                        <a href={`/services/${service.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-teal-600 hover:underline">
                                                             <ExternalLink className="w-3 h-3" /> View
                                                         </a>
                                                     )}
@@ -578,7 +578,7 @@ const AdminServices = () => {
                                                 size="sm"
                                                 variant="outline"
                                                 onClick={() => handleEdit(service)}
-                                                className="border-teal-600/30 text-white hover:bg-primary/10"
+                                                className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10"
                                             >
                                                 <Edit className="w-4 h-4" />
                                             </Button>

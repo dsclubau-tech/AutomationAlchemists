@@ -58,6 +58,25 @@ const AdminSubscriptions = () => {
   const [grantEndDate, setGrantEndDate] = useState('');
   const [grantReason, setGrantReason] = useState('');
   const [grantStoreName, setGrantStoreName] = useState('');
+  const [registeredUsers, setRegisteredUsers] = useState<Array<{ id: string; email: string; full_name: string | null }>>([]);
+  const [showEmailSuggestions, setShowEmailSuggestions] = useState(false);
+
+  useEffect(() => {
+    if (isGrantModalOpen) {
+      supabase.rpc('admin_get_users').then(({ data }) => {
+        if (data) setRegisteredUsers(data);
+      });
+    } else {
+      setShowEmailSuggestions(false);
+    }
+  }, [isGrantModalOpen]);
+
+  const emailSuggestions = grantEmail.trim()
+    ? registeredUsers.filter(u =>
+        u.email.toLowerCase().includes(grantEmail.toLowerCase()) ||
+        (u.full_name && u.full_name.toLowerCase().includes(grantEmail.toLowerCase()))
+      )
+    : [];
 
 
   const { toast } = useToast();
@@ -269,6 +288,7 @@ const AdminSubscriptions = () => {
     switch (status) {
       case 'active': return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'inactive': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'expired': return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'canceled': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
       case 'past_due': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
@@ -282,18 +302,18 @@ const AdminSubscriptions = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-teal-600/30 bg-teal-800">
-          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4">
+        <Card className="border border-teal-600/20 bg-white shadow-sm">
+          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-teal-600/10">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2 text-white">
-                <CreditCard className="h-6 w-6 text-primary" />
+              <CardTitle className="text-2xl flex items-center gap-2 text-teal-900 font-display">
+                <CreditCard className="h-6 w-6 text-teal-600" />
                 Access Records
               </CardTitle>
-              <CardDescription className="text-text-muted">
+              <CardDescription className="text-teal-900/70">
                 {userIdFilter && (
-                  <Badge variant="outline" className="mt-2 border-teal-600/30 text-primary flex items-center gap-1 w-fit">
+                  <Badge variant="outline" className="mt-2 border-teal-600/30 text-teal-900 flex items-center gap-1 w-fit">
                     Filtered by User
-                    <FilterX className="h-3 w-3 ml-1 cursor-pointer hover:text-white" onClick={clearUserIdFilter} />
+                    <FilterX className="h-3 w-3 ml-1 cursor-pointer hover:text-teal-600" onClick={clearUserIdFilter} />
                   </Badge>
                 )}
               </CardDescription>
@@ -301,56 +321,57 @@ const AdminSubscriptions = () => {
             
             <div className="flex items-center gap-4 w-full md:w-auto">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px] bg-background-dark border-teal-600/30">
+                <SelectTrigger className="w-[180px] bg-white border-teal-600/20 text-teal-900 shadow-sm">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
-                <SelectContent className="bg-teal-900 border-teal-600/30">
+                <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                   <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
                   <SelectItem value="canceled">Canceled</SelectItem>
                   <SelectItem value="past_due">Past Due</SelectItem>
                 </SelectContent>
               </Select>
               
-              <Button onClick={() => setIsGrantModalOpen(true)} className="bg-primary hover:bg-primary/90 text-background-dark">
+              <Button onClick={() => setIsGrantModalOpen(true)} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Manual Grant
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
               </div>
             ) : (
-              <div className="rounded-lg border border-teal-600/30 overflow-x-auto">
+              <div className="rounded-xl border border-teal-600/20 overflow-x-auto">
                 <Table>
-                  <TableHeader>
-                    <TableRow className="border-teal-600/30 hover:bg-primary/5">
-                      <TableHead className="text-text-muted">User Email</TableHead>
-                      <TableHead className="text-text-muted">Tool</TableHead>
-                      <TableHead className="text-text-muted">Status</TableHead>
-                      <TableHead className="text-text-muted">Expires</TableHead>
-                      <TableHead className="text-text-muted">Type</TableHead>
-                      <TableHead className="text-text-muted text-right">Actions</TableHead>
+                  <TableHeader className="bg-mint-50/50">
+                    <TableRow className="border-b border-teal-600/20">
+                      <TableHead className="text-teal-900 font-bold">User Email</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Tool</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Status</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Expires</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Type</TableHead>
+                      <TableHead className="text-teal-900 font-bold text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredSubs.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-text-muted">
+                        <TableCell colSpan={6} className="text-center py-8 text-teal-900/60 font-medium">
                           No subscriptions found.
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredSubs.map((sub) => (
-                        <TableRow key={sub.id} className="border-teal-600/30 hover:bg-primary/5">
-                          <TableCell className="font-medium text-white">
+                        <TableRow key={sub.id} className="border-b border-teal-600/10 hover:bg-teal-600/5 transition-colors">
+                          <TableCell className="font-medium text-teal-900">
                             {sub.user_email}
                           </TableCell>
-                          <TableCell className="text-white">
+                          <TableCell className="text-teal-900 font-medium">
                             {sub.product_slug}
                           </TableCell>
                           <TableCell>
@@ -358,45 +379,45 @@ const AdminSubscriptions = () => {
                               {sub.status.toUpperCase()}
                             </Badge>
                             {sub.cancel_at_period_end && (
-                              <Badge variant="outline" className="ml-2 border-orange-500/30 text-orange-400">Cancels Soon</Badge>
+                              <Badge variant="outline" className="ml-2 border-orange-500/30 text-orange-600 bg-orange-50">Cancels Soon</Badge>
                             )}
                           </TableCell>
-                          <TableCell className="text-text-muted">
+                          <TableCell className="text-teal-900/70">
                             {sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : 'Lifetime'}
                           </TableCell>
                           <TableCell>
                             {sub.manually_granted ? (
                               <div className="flex flex-col">
-                                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 w-fit">Manual</Badge>
-                                <span className="text-xs text-text-muted mt-1 truncate max-w-[120px]" title={sub.grant_reason || ''}>
+                                <Badge className="bg-purple-500/10 text-purple-700 border border-purple-500/20 w-fit">Manual</Badge>
+                                <span className="text-xs text-teal-900/60 mt-1 truncate max-w-[120px]" title={sub.grant_reason || ''}>
                                   {sub.grant_reason}
                                 </span>
                               </div>
                             ) : (
-                              <Badge variant="outline" className="border-teal-600/30 text-text-muted">Stripe</Badge>
+                              <Badge variant="outline" className="border-teal-600/30 text-teal-900/70">Stripe</Badge>
                             )}
                           </TableCell>
                           <TableCell className="text-right">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreVertical className="h-4 w-4 text-text-muted" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-teal-900 hover:bg-teal-600/10">
+                                  <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-teal-900 border-teal-600/30">
+                              <DropdownMenuContent align="end" className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                                 <DropdownMenuItem onClick={() => {
                                   setEditDateSub(sub);
                                   setNewEndDate(sub.current_period_end ? new Date(sub.current_period_end).toISOString().split('T')[0] : '');
-                                }} className="cursor-pointer">
-                                  <CalendarIcon className="h-4 w-4 mr-2" /> Change Expiry Date
+                                }} className="cursor-pointer hover:bg-teal-600/10">
+                                  <CalendarIcon className="h-4 w-4 mr-2 text-teal-600" /> Change Expiry Date
                                 </DropdownMenuItem>
                                 {sub.status === 'active' && (
-                                  <DropdownMenuItem onClick={() => handleRevoke(sub)} className="cursor-pointer text-yellow-500 focus:text-yellow-500 focus:bg-yellow-500/10">
+                                  <DropdownMenuItem onClick={() => handleRevoke(sub)} className="cursor-pointer text-amber-600 focus:text-amber-700 focus:bg-amber-50">
                                     <Ban className="h-4 w-4 mr-2" /> Revoke Access
                                   </DropdownMenuItem>
                                 )}
-                                <DropdownMenuSeparator className="bg-primary/20" />
-                                <DropdownMenuItem onClick={() => setDeleteSub(sub)} className="cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-500/10">
+                                <DropdownMenuSeparator className="bg-teal-600/10" />
+                                <DropdownMenuItem onClick={() => setDeleteSub(sub)} className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50">
                                   <Trash2 className="h-4 w-4 mr-2" /> Delete Record
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -415,27 +436,27 @@ const AdminSubscriptions = () => {
 
       {/* Edit Date Modal */}
       <Dialog open={!!editDateSub} onOpenChange={(open) => !open && setEditDateSub(null)}>
-        <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
+        <DialogContent className="bg-white border border-teal-600/20 text-teal-900 shadow-2xl">
           <DialogHeader>
-            <DialogTitle>Change Expiry Date</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-bold font-display text-teal-900">Change Expiry Date</DialogTitle>
+            <DialogDescription className="text-teal-900/70">
               Update the end date for {editDateSub?.user_email}'s access to {editDateSub?.product_slug}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>New Expiry Date</Label>
+              <Label className="text-teal-900 font-semibold">New Expiry Date</Label>
               <Input 
                 type="date"
                 value={newEndDate} 
                 onChange={e => setNewEndDate(e.target.value)} 
-                className="bg-background-dark border-teal-600/30 text-white"
+                className="bg-white border-teal-600/20 text-teal-900 focus:border-teal-600"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDateSub(null)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
-            <Button onClick={handleDateEditSubmit} disabled={isActionLoading || !newEndDate} className="bg-primary hover:bg-primary/90 text-background-dark">
+            <Button variant="outline" onClick={() => setEditDateSub(null)} className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10">Cancel</Button>
+            <Button onClick={handleDateEditSubmit} disabled={isActionLoading || !newEndDate} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Date
             </Button>
@@ -445,35 +466,35 @@ const AdminSubscriptions = () => {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={!!deleteSub} onOpenChange={(open) => !open && setDeleteSub(null)}>
-        <DialogContent className="bg-teal-900 border-red-500/50 text-white">
+        <DialogContent className="bg-white border border-red-500/30 text-teal-900 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-red-500 flex items-center gap-2">
+            <DialogTitle className="text-red-600 flex items-center gap-2 font-display text-xl">
               <Trash2 className="h-5 w-5" />
               Delete Record
             </DialogTitle>
-            <DialogDescription className="text-text-muted">
+            <DialogDescription className="text-teal-900/70">
               This will permanently delete the subscription record from the database. 
               If this is an active Stripe subscription, it will not cancel it in Stripe!
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="text-red-400">Type "DELETE" to confirm</Label>
+              <Label className="text-red-600 font-semibold">Type "DELETE" to confirm</Label>
               <Input 
                 value={deleteConfirmation} 
                 onChange={e => setDeleteConfirmation(e.target.value)} 
-                className="bg-background-dark border-red-500/50 text-white"
+                className="bg-white border-red-500/30 text-teal-900 focus:border-red-500"
                 placeholder="DELETE"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setDeleteSub(null); setDeleteConfirmation(''); }} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
+            <Button variant="outline" onClick={() => { setDeleteSub(null); setDeleteConfirmation(''); }} className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10">Cancel</Button>
             <Button 
               variant="destructive" 
               onClick={handleDeleteSubmit} 
               disabled={deleteConfirmation !== 'DELETE' || isActionLoading}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-sm"
             >
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete Record
@@ -484,31 +505,65 @@ const AdminSubscriptions = () => {
 
       {/* Manual Grant Modal */}
       <Dialog open={isGrantModalOpen} onOpenChange={setIsGrantModalOpen}>
-        <DialogContent className="bg-teal-900 border-teal-600/30 text-white sm:max-w-[425px]">
+        <DialogContent className="bg-white border border-teal-600/20 text-teal-900 sm:max-w-[425px] shadow-2xl">
           <DialogHeader>
-            <DialogTitle>Manual Grant Access</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-bold font-display text-teal-900">Manual Grant Access</DialogTitle>
+            <DialogDescription className="text-teal-900/70">
               Grant a user free access to a tool.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>User Email</Label>
+            <div className="space-y-2 relative">
+              <Label className="text-teal-900 font-semibold">User Email</Label>
               <Input 
                 type="email"
-                placeholder="user@example.com"
+                placeholder="Search user email (e.g. fa...)"
                 value={grantEmail} 
-                onChange={e => setGrantEmail(e.target.value)} 
-                className="bg-background-dark border-teal-600/30 text-white"
+                onChange={e => {
+                  setGrantEmail(e.target.value);
+                  setShowEmailSuggestions(true);
+                }} 
+                onFocus={() => setShowEmailSuggestions(true)}
+                onBlur={() => {
+                  setTimeout(() => setShowEmailSuggestions(false), 200);
+                }} 
+                className="bg-white border-teal-600/20 text-teal-900 focus:border-teal-600"
+                autoComplete="off"
               />
+              {showEmailSuggestions && grantEmail.trim().length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 max-h-48 overflow-y-auto rounded-xl bg-white border border-teal-600/30 shadow-2xl py-1">
+                  {emailSuggestions.length === 0 ? (
+                    <div className="px-3 py-2 text-xs text-teal-900/60 italic">
+                      No matching registered users found
+                    </div>
+                  ) : (
+                    emailSuggestions.map(u => (
+                      <div
+                        key={u.id}
+                        className="px-3 py-2 text-sm cursor-pointer hover:bg-teal-600/10 flex flex-col transition-colors border-b border-teal-600/10 last:border-0"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setGrantEmail(u.email);
+                          setShowEmailSuggestions(false);
+                        }}
+                      >
+                        <span className="font-semibold text-teal-900">{u.email}</span>
+                        {u.full_name && (
+                          <span className="text-xs text-teal-900/60">{u.full_name}</span>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
             <div className="space-y-2">
-              <Label>Tool</Label>
+              <Label className="text-teal-900 font-semibold">Tool</Label>
               <Select value={grantToolSlug} onValueChange={setGrantToolSlug}>
-                <SelectTrigger className="bg-background-dark border-teal-600/30">
+                <SelectTrigger className="bg-white border-teal-600/20 text-teal-900">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-teal-900 border-teal-600/30">
+                <SelectContent className="bg-white border-teal-600/20 text-teal-900 shadow-xl">
                   <SelectItem value="cpbot">CP Bot</SelectItem>
                   <SelectItem value="listflow">ListFlow</SelectItem>
                   <SelectItem value="orderbot">Order Bot</SelectItem>
@@ -519,39 +574,39 @@ const AdminSubscriptions = () => {
             </div>
             {MULTI_STORE_TOOLS.includes(grantToolSlug) && (
               <div className="space-y-2">
-                <Label>Store Name</Label>
+                <Label className="text-teal-900 font-semibold">Store Name</Label>
                 <Input 
                   placeholder="e.g. My eBay Store 1"
                   value={grantStoreName} 
                   onChange={e => setGrantStoreName(e.target.value)} 
-                  className="bg-background-dark border-teal-600/30 text-white"
+                  className="bg-white border-teal-600/20 text-teal-900"
                 />
-                <p className="text-xs text-text-muted">Required. A store_id UUID will be auto-generated.</p>
+                <p className="text-xs text-teal-900/60">Required. A store_id UUID will be auto-generated.</p>
               </div>
             )}
             <div className="space-y-2">
-              <Label>Expiry Date (Optional)</Label>
+              <Label className="text-teal-900 font-semibold">Expiry Date (Optional)</Label>
               <Input 
                 type="date"
                 value={grantEndDate} 
                 onChange={e => setGrantEndDate(e.target.value)} 
-                className="bg-background-dark border-teal-600/30 text-white text-muted-foreground"
+                className="bg-white border-teal-600/20 text-teal-900"
               />
-              <p className="text-xs text-text-muted">Leave empty for lifetime access.</p>
+              <p className="text-xs text-teal-900/60">Leave empty for lifetime access.</p>
             </div>
             <div className="space-y-2">
-              <Label>Reason</Label>
+              <Label className="text-teal-900 font-semibold">Reason</Label>
               <Input 
                 placeholder="e.g. VIP Client, Bug Compensation"
                 value={grantReason} 
                 onChange={e => setGrantReason(e.target.value)} 
-                className="bg-background-dark border-teal-600/30 text-white"
+                className="bg-white border-teal-600/20 text-teal-900"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsGrantModalOpen(false)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
-            <Button onClick={handleGrantSubmit} disabled={isActionLoading} className="bg-primary hover:bg-primary/90 text-background-dark">
+            <Button variant="outline" onClick={() => setIsGrantModalOpen(false)} className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10">Cancel</Button>
+            <Button onClick={handleGrantSubmit} disabled={isActionLoading} className="bg-yellow-accent hover:bg-yellow-accent/90 text-teal-900 font-semibold shadow-sm">
               {isActionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Grant Access
             </Button>

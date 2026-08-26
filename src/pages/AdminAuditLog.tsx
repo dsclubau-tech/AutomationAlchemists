@@ -125,30 +125,30 @@ const AdminAuditLog = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-teal-600/30 bg-teal-800">
+        <Card className="border-teal-600/20 bg-white border border-teal-600/20 shadow-sm">
           <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2 text-white">
-                <ActivitySquare className="h-6 w-6 text-primary" />
+              <CardTitle className="text-2xl flex items-center gap-2 text-teal-900 font-display">
+                <ActivitySquare className="h-6 w-6 text-teal-600" />
                 Action History
               </CardTitle>
-              <CardDescription className="text-text-muted">
+              <CardDescription className="text-teal-900/70">
                 Showing {filteredLogs.length} of {logs.length} total records
               </CardDescription>
             </div>
             
             <div className="flex items-center gap-4 w-full md:w-auto">
               <div className="relative w-full md:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-900/70" />
                 <Input 
                   placeholder="Search admin, target, action..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 bg-background-dark border-teal-600/30 text-white"
+                  className="pl-9 bg-white border-teal-600/20 text-teal-900 border-teal-600/20 text-teal-900"
                 />
               </div>
               
-              <Button onClick={handleExportCSV} variant="outline" className="border-teal-600/30 text-white hover:bg-primary/10 flex-shrink-0">
+              <Button onClick={handleExportCSV} variant="outline" className="border-teal-600/30 text-teal-900 hover:bg-teal-600/10 flex-shrink-0">
                 <FileDown className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
@@ -157,24 +157,24 @@ const AdminAuditLog = () => {
           <CardContent>
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
               </div>
             ) : (
               <div className="rounded-lg border border-teal-600/30 overflow-hidden">
                 <Table>
-                  <TableHeader>
-                    <TableRow className="border-teal-600/30 hover:bg-primary/5">
-                      <TableHead className="text-text-muted">Date</TableHead>
-                      <TableHead className="text-text-muted">Admin</TableHead>
-                      <TableHead className="text-text-muted">Action</TableHead>
-                      <TableHead className="text-text-muted">Target</TableHead>
-                      <TableHead className="text-text-muted text-right">Details</TableHead>
+                  <TableHeader className="bg-mint-50/50">
+                    <TableRow className="border-b border-teal-600/10 hover:bg-teal-600/5 transition-colors">
+                      <TableHead className="text-teal-900 font-bold">Date</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Admin</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Action</TableHead>
+                      <TableHead className="text-teal-900 font-bold">Target</TableHead>
+                      <TableHead className="text-teal-900/70 text-right">Details</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredLogs.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-text-muted">
+                        <TableCell colSpan={5} className="text-center py-8 text-teal-900/70">
                           No audit logs found.
                         </TableCell>
                       </TableRow>
@@ -184,10 +184,10 @@ const AdminAuditLog = () => {
                           <TableCell>
                             <div className="flex flex-col text-sm">
                               <span className="text-white flex items-center gap-1">
-                                <Calendar className="h-3 w-3 text-text-muted" />
+                                <Calendar className="h-3 w-3 text-teal-900/70" />
                                 {new Date(log.created_at).toLocaleDateString()}
                               </span>
-                              <span className="text-xs text-text-muted ml-4">
+                              <span className="text-xs text-teal-900/70 ml-4">
                                 {new Date(log.created_at).toLocaleTimeString()}
                               </span>
                             </div>
@@ -200,7 +200,7 @@ const AdminAuditLog = () => {
                               {formatAction(log.action)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-text-muted">
+                          <TableCell className="text-teal-900/70">
                             {log.target_email || 'System'}
                           </TableCell>
                           <TableCell className="text-right">
@@ -208,7 +208,7 @@ const AdminAuditLog = () => {
                               variant="ghost" 
                               size="sm" 
                               onClick={() => setSelectedLog(log)}
-                              className="text-primary hover:bg-primary/10 hover:text-primary"
+                              className="text-teal-600 hover:bg-primary/10 hover:text-teal-600"
                             >
                               View JSON
                             </Button>
@@ -226,10 +226,10 @@ const AdminAuditLog = () => {
 
       {/* JSON Viewer Modal */}
       <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
-        <DialogContent className="bg-teal-900 border-teal-600/30 text-white max-w-2xl">
+        <DialogContent className="bg-white text-teal-900 border border-teal-600/20 shadow-2xl border-teal-600/20 text-teal-900 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldAlert className="h-5 w-5 text-primary" />
+              <ShieldAlert className="h-5 w-5 text-teal-600" />
               Action Payload
             </DialogTitle>
             <DialogDescription>
@@ -237,7 +237,7 @@ const AdminAuditLog = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <pre className="bg-background-dark p-4 rounded-lg border border-teal-600/30 overflow-x-auto text-sm text-green-400 font-mono">
+            <pre className="bg-white border-teal-600/20 text-teal-900 p-4 rounded-lg border border-teal-600/20 overflow-x-auto text-sm text-green-400 font-mono">
               {JSON.stringify(selectedLog?.details, null, 2)}
             </pre>
           </div>

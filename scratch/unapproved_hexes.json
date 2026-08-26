@@ -1,0 +1,2208 @@
+{
+  "src/components/About.tsx": [
+    {
+      "file": "src/components/About.tsx",
+      "line": 84,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] text-sm sm:text-base font-normal leading-relaxed max-w-3xl font-display\">"
+    },
+    {
+      "file": "src/components/About.tsx",
+      "line": 119,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] text-xs sm:text-sm font-normal leading-relaxed font-display\">{stat.label}</p>"
+    }
+  ],
+  "src/components/ExpandableContactForm.tsx": [
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 159,
+      "hex": "#00195c",
+      "text": "className=\"text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-[#00195c] max-w-3xl\""
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 169,
+      "hex": "#444651",
+      "text": "className=\"text-base sm:text-lg md:text-xl leading-relaxed text-[#444651] max-w-2xl px-4\""
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 181,
+      "hex": "#112E81",
+      "text": "<div className=\"group relative bg-teal-800 rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-white tracking-tight hover:bg-teal-800/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-[#112E81]/40 cursor-pointer\">"
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 186,
+      "hex": "#112E81",
+      "text": "<div className=\"absolute inset-0 rounded-full bg-gradient-to-r from-[#112E81] to-[#4647AE] opacity-0 group-hover:opacity-100 transition-opacity duration-300\" />"
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 186,
+      "hex": "#4647AE",
+      "text": "<div className=\"absolute inset-0 rounded-full bg-gradient-to-r from-[#112E81] to-[#4647AE] opacity-0 group-hover:opacity-100 transition-opacity duration-300\" />"
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 196,
+      "hex": "#444651",
+      "text": "className=\"flex items-center gap-6 text-[#444651] text-sm\""
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 211,
+      "hex": "#112E81",
+      "text": "<ExpandableScreenContent className=\"bg-gradient-to-br from-[#112E81] to-[#4647AE]\">"
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 211,
+      "hex": "#4647AE",
+      "text": "<ExpandableScreenContent className=\"bg-gradient-to-br from-[#112E81] to-[#4647AE]\">"
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 438,
+      "hex": "#112E81",
+      "text": "className=\"w-full h-14 rounded-xl bg-gradient-to-r from-[#112E81] to-[#4647AE] text-white font-semibold text-base hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group\""
+    },
+    {
+      "file": "src/components/ExpandableContactForm.tsx",
+      "line": 438,
+      "hex": "#4647AE",
+      "text": "className=\"w-full h-14 rounded-xl bg-gradient-to-r from-[#112E81] to-[#4647AE] text-white font-semibold text-base hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group\""
+    }
+  ],
+  "src/components/Footer.tsx": [
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 16,
+      "hex": "#e5e2e1",
+      "text": "<p className=\"font-display text-sm sm:text-base text-[#e5e2e1]/70 max-w-sm\">"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 20,
+      "hex": "#e5e2e1",
+      "text": "<a href=\"https://x.com/AAlchemists\" target=\"_blank\" rel=\"noopener noreferrer\" className=\"text-[#e5e2e1]/70 hover:text-white transition-colors\">"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 23,
+      "hex": "#e5e2e1",
+      "text": "<a href=\"https://www.linkedin.com/company/aalchemists\" target=\"_blank\" rel=\"noopener noreferrer\" className=\"text-[#e5e2e1]/70 hover:text-white transition-colors\">"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 26,
+      "hex": "#e5e2e1",
+      "text": "<a href=\"https://github.com/dsclubau-tech\" target=\"_blank\" rel=\"noopener noreferrer\" className=\"text-[#e5e2e1]/70 hover:text-white transition-colors\">"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 29,
+      "hex": "#e5e2e1",
+      "text": "<a href=\"mailto:dsclub.au@outlook.com\" className=\"text-[#e5e2e1]/70 hover:text-white transition-colors\">"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 38,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/services\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Our Services</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 39,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/services/vibe-to-app\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Vibe-to-App Execution</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 40,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/services/virtual-assistants\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">24/7 Virtual Assistants</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 41,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/services/workflow-automation\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Workflow Automation</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 42,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/tools\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">SaaS Tools</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 43,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/mission\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">The Mission</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 44,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/pricing\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Pricing</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 45,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/contact\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Contact</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 46,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/learn\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Learn</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 52,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/privacy\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Privacy Policy</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 53,
+      "hex": "#e5e2e1",
+      "text": "<Link to=\"/terms\" className=\"font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors\">Terms of Service</Link>"
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "line": 58,
+      "hex": "#e5e2e1",
+      "text": "<p className=\"font-display text-sm text-[#e5e2e1]/70\">"
+    }
+  ],
+  "src/components/Navigation.tsx": [
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 103,
+      "hex": "#1C2128",
+      "text": "<div className=\"absolute -top-1 -right-1 w-2.5 h-2.5 bg-yellow-accent text-teal-900 rounded-full border-2 border-[#1C2128]\" />"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 189,
+      "hex": "#A1A1AA",
+      "text": "<button onClick={() => scrollToSection(\"home\")} className=\"text-[#A1A1AA] hover:text-white transition-all duration-300 font-display text-sm font-semibold\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 192,
+      "hex": "#A1A1AA",
+      "text": "<Link to=\"/company\" onClick={(e) => handleNavClick(e, '/company')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/company' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-[#A1A1AA] hover:text-white'}`}>"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 195,
+      "hex": "#A1A1AA",
+      "text": "<Link to=\"/services\" onClick={(e) => handleNavClick(e, '/services')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/services' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-[#A1A1AA] hover:text-white'}`}>"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 200,
+      "hex": "#A1A1AA",
+      "text": "<Link to=\"/tools\" onClick={(e) => handleNavClick(e, '/tools')} className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 py-4 ${location.pathname.startsWith('/tools') ? 'text-white border-b-2 border-teal-600' : 'text-[#A1A1AA] hover:text-white'}`}>"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 205,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider font-display\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 219,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-xs text-[#A1A1AA] line-clamp-1\">{tool.shortDescription}</p>"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 228,
+      "hex": "#A1A1AA",
+      "text": "<Link to=\"/contact\" onClick={(e) => handleNavClick(e, '/contact')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/contact' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-[#A1A1AA] hover:text-white'}`}>"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 232,
+      "hex": "#A1A1AA",
+      "text": "<Link to=\"/admin\" onClick={(e) => handleNavClick(e, '/admin')} className=\"text-[#A1A1AA] hover:text-teal-600 transition-colors font-display text-sm font-bold flex items-center gap-1\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 255,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-xs text-[#A1A1AA] font-display truncate\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 290,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"px-2 py-1.5 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 295,
+      "hex": "#A1A1AA",
+      "text": "<Shield className=\"mr-2 h-4 w-4 text-[#A1A1AA]\" />"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 340,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-xs text-[#A1A1AA] font-display truncate\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 375,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"px-2 py-1.5 text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 380,
+      "hex": "#A1A1AA",
+      "text": "<Shield className=\"mr-2 h-4 w-4 text-[#A1A1AA]\" />"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 431,
+      "hex": "#A1A1AA",
+      "text": "<Link to=\"/tools\" onClick={() => setIsMobileMenuOpen(false)} className=\"block text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider mb-3 font-display\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 436,
+      "hex": "#A1A1AA",
+      "text": "<Link key={tool.id} to={`/tools/${tool.slug}`} onClick={() => setIsMobileMenuOpen(false)} className=\"block text-[#A1A1AA] hover:text-white transition-colors font-display text-sm font-medium\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 447,
+      "hex": "#A1A1AA",
+      "text": "<Link to=\"/admin\" onClick={() => setIsMobileMenuOpen(false)} className=\"text-[#A1A1AA] hover:text-teal-600 font-semibold transition-colors py-2 font-display flex items-center gap-2\">"
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "line": 458,
+      "hex": "#A1A1AA",
+      "text": "<div className=\"text-sm text-[#A1A1AA] px-4 font-display font-medium\">"
+    }
+  ],
+  "src/components/PageLoader.tsx": [
+    {
+      "file": "src/components/PageLoader.tsx",
+      "line": 40,
+      "hex": "#00195c",
+      "text": "<h1 className=\"text-[#00195c] text-2xl font-bold font-display tracking-tight mb-6\">"
+    },
+    {
+      "file": "src/components/PageLoader.tsx",
+      "line": 55,
+      "hex": "#112E81",
+      "text": "stroke=\"#112E81\""
+    },
+    {
+      "file": "src/components/PageLoader.tsx",
+      "line": 59,
+      "hex": "#112E81",
+      "text": "<circle cx=\"50\" cy=\"38\" r=\"12\" stroke=\"#112E81\" strokeWidth=\"2\" fill=\"none\" />"
+    },
+    {
+      "file": "src/components/PageLoader.tsx",
+      "line": 71,
+      "hex": "#112E81",
+      "text": "stroke=\"#112E81\""
+    },
+    {
+      "file": "src/components/PageLoader.tsx",
+      "line": 75,
+      "hex": "#112E81",
+      "text": "<circle cx=\"50\" cy=\"37\" r=\"10\" stroke=\"#112E81\" strokeWidth=\"2\" fill=\"none\" />"
+    },
+    {
+      "file": "src/components/PageLoader.tsx",
+      "line": 85,
+      "hex": "#444651",
+      "text": "className=\"text-[#444651] font-semibold text-sm font-display tracking-wide\""
+    }
+  ],
+  "src/components/Testimonials.tsx": [
+    {
+      "file": "src/components/Testimonials.tsx",
+      "line": 67,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] max-w-2xl mx-auto font-display\">"
+    },
+    {
+      "file": "src/components/Testimonials.tsx",
+      "line": 96,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] text-sm font-display\">"
+    },
+    {
+      "file": "src/components/Testimonials.tsx",
+      "line": 104,
+      "hex": "#D4AF37",
+      "text": "<Star key={i} className=\"w-5 h-5 text-teal-600 fill-[#D4AF37]\" />"
+    }
+  ],
+  "src/components/ui/chart.tsx": [
+    {
+      "file": "src/components/ui/chart.tsx",
+      "line": 48,
+      "hex": "#ccc",
+      "text": "\"flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none\","
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "line": 48,
+      "hex": "#ccc",
+      "text": "\"flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none\","
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "line": 48,
+      "hex": "#ccc",
+      "text": "\"flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none\","
+    }
+  ],
+  "src/data/tools.ts": [
+    {
+      "file": "src/data/tools.ts",
+      "line": 34,
+      "hex": "#0d1117",
+      "text": "bannerBg: '#0d1117',"
+    },
+    {
+      "file": "src/data/tools.ts",
+      "line": 60,
+      "hex": "#0a0d0a",
+      "text": "bannerBg: '#0a0d0a',"
+    },
+    {
+      "file": "src/data/tools.ts",
+      "line": 86,
+      "hex": "#0d0d0a",
+      "text": "bannerBg: '#0d0d0a',"
+    },
+    {
+      "file": "src/data/tools.ts",
+      "line": 112,
+      "hex": "#0a0d10",
+      "text": "bannerBg: '#0a0d10',"
+    }
+  ],
+  "src/pages/Account.tsx": [
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 304,
+      "hex": "#888",
+      "text": "const labelClass = \"text-[11px] text-[#888] uppercase tracking-[0.5px] font-display mb-1.5 block font-semibold\";"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 305,
+      "hex": "#444",
+      "text": "const inputClass = \"w-full bg-teal-800 border border-teal-600/30 text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-teal-600 focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display\";"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 305,
+      "hex": "#D4AF37",
+      "text": "const inputClass = \"w-full bg-teal-800 border border-teal-600/30 text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-teal-600 focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display\";"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 306,
+      "hex": "#444",
+      "text": "const selectClass = \"w-full bg-teal-800 border border-teal-600/30 text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-teal-600 focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display appearance-none cursor-pointer\";"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 306,
+      "hex": "#D4AF37",
+      "text": "const selectClass = \"w-full bg-teal-800 border border-teal-600/30 text-white placeholder-[#444] rounded-lg h-11 px-3 focus:border-teal-600 focus:ring-1 focus:ring-[#D4AF37] transition-colors outline-none font-display appearance-none cursor-pointer\";"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 324,
+      "hex": "#888",
+      "text": "<Link to=\"/dashboard\" className=\"inline-flex items-center text-[#888] hover:text-white mb-8 transition-colors text-sm\">"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 330,
+      "hex": "#888",
+      "text": "<div className=\"text-sm text-[#888] mb-2\">Account → Settings</div>"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 332,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888]\">Manage your profile and security</p>"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 371,
+      "hex": "#D4AF37",
+      "text": "<div className=\"w-full bg-teal-800 border border-teal-600/30 rounded-lg h-11 flex items-center focus-within:border-teal-600 focus-within:ring-1 focus-within:ring-[#D4AF37] transition-colors overflow-hidden\">"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 373,
+      "hex": "#888",
+      "text": "<div className=\"flex items-center px-3 border-r border-teal-600/30 text-[#888] h-full whitespace-nowrap bg-teal-800\">"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 384,
+      "hex": "#444",
+      "text": "className=\"flex-1 bg-transparent text-white placeholder-[#444] h-full px-3 outline-none min-w-0\""
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 411,
+      "hex": "#666",
+      "text": "<p className=\"text-[11px] text-[#666] mt-1.5\">Email cannot be changed. Contact support if needed.</p>"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 444,
+      "hex": "#888",
+      "text": "<button type=\"button\" onClick={() => setShowNewPassword(!showNewPassword)} className=\"absolute right-3 top-1/2 -translate-y-1/2 text-[#888] hover:text-white\">"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 465,
+      "hex": "#888",
+      "text": "<button type=\"button\" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className=\"absolute right-3 top-1/2 -translate-y-1/2 text-[#888] hover:text-white\">"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 492,
+      "hex": "#888",
+      "text": "<span className=\"text-[#888] text-sm\">Member since</span>"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 498,
+      "hex": "#888",
+      "text": "<span className=\"text-[#888] text-sm\">Account status</span>"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 504,
+      "hex": "#888",
+      "text": "<span className=\"text-[#888] text-sm\">Terms accepted</span>"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 516,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888] text-sm\">Permanently delete your account and all associated data. This cannot be undone.</p>"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 542,
+      "hex": "#bbb",
+      "text": "<p className=\"text-[#bbb] mb-6 text-sm\">"
+    },
+    {
+      "file": "src/pages/Account.tsx",
+      "line": 556,
+      "hex": "#888",
+      "text": "<Button variant=\"ghost\" onClick={() => { setShowDeleteModal(false); setDeleteInput(''); }} className=\"text-[#888] hover:text-white\">"
+    }
+  ],
+  "src/pages/AccountNotifications.tsx": [
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 192,
+      "hex": "#888",
+      "text": "<Link to=\"/dashboard\" className=\"inline-flex items-center text-[#888] hover:text-white mb-8 transition-colors text-sm\">"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 198,
+      "hex": "#888",
+      "text": "<div className=\"text-sm text-[#888] mb-2\">Account → Notifications</div>"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 200,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888]\">Manage your launch alerts and communication preferences</p>"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 209,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888] mb-6\">You'll be notified when these tools become available.</p>"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 214,
+      "hex": "#444",
+      "text": "<Bell className=\"w-12 h-12 text-[#444] mb-4\" />"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 216,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888] mb-6 max-w-sm\">"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 231,
+      "hex": "#4caf50",
+      "text": "className={`bg-teal-900 rounded-xl p-6 border-y border-r border-teal-600/30 border-l-4 ${notif.notified ? 'border-l-[#4caf50]' : 'border-l-[#D4AF37]'}`}"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 231,
+      "hex": "#D4AF37",
+      "text": "className={`bg-teal-900 rounded-xl p-6 border-y border-r border-teal-600/30 border-l-4 ${notif.notified ? 'border-l-[#4caf50]' : 'border-l-[#D4AF37]'}`}"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 238,
+      "hex": "#888",
+      "text": "<div className=\"flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-[#888] text-[10px] font-semibold\">"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 248,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888] text-xs mt-1\">Notified on {format(new Date(notif.notified_at), 'dd MMM yyyy')}</p>"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 252,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888] text-sm mb-3\">"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 268,
+      "hex": "#333",
+      "text": "className=\"bg-teal-600/30 hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm w-full sm:w-auto\""
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 302,
+      "hex": "#888",
+      "text": "<span className=\"text-[#888] text-sm\">Receive alerts about new features and product releases.</span>"
+    },
+    {
+      "file": "src/pages/AccountNotifications.tsx",
+      "line": 319,
+      "hex": "#888",
+      "text": "<span className=\"text-[#888] text-sm\">Receive important alerts regarding your subscription and account security.</span>"
+    }
+  ],
+  "src/pages/Auth.tsx": [
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 267,
+      "hex": "#444651",
+      "text": "const labelClass = \"text-[11px] text-[#444651] uppercase tracking-[0.5px] font-display mb-1.5 block font-semibold\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 268,
+      "hex": "#c5c5d3",
+      "text": "const inputClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 268,
+      "hex": "#1c1b1b",
+      "text": "const inputClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 268,
+      "hex": "#a0a0a0",
+      "text": "const inputClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 268,
+      "hex": "#112E81",
+      "text": "const inputClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 268,
+      "hex": "#112E81",
+      "text": "const inputClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 269,
+      "hex": "#c5c5d3",
+      "text": "const selectClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display appearance-none cursor-pointer shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 269,
+      "hex": "#1c1b1b",
+      "text": "const selectClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display appearance-none cursor-pointer shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 269,
+      "hex": "#a0a0a0",
+      "text": "const selectClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display appearance-none cursor-pointer shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 269,
+      "hex": "#112E81",
+      "text": "const selectClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display appearance-none cursor-pointer shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 269,
+      "hex": "#112E81",
+      "text": "const selectClass = \"w-full bg-white border border-[#c5c5d3] text-[#1c1b1b] placeholder-[#a0a0a0] rounded-lg h-11 px-3 focus:border-[#112E81] focus:ring-1 focus:ring-[#112E81] transition-colors outline-none font-display appearance-none cursor-pointer shadow-sm\";"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 275,
+      "hex": "#112E81",
+      "text": "<div className=\"hidden md:flex w-[45%] flex-col relative overflow-hidden bg-[#112E81] text-white p-12 justify-center pb-20 shadow-2xl z-10\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 314,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"w-full max-w-md bg-white p-8 rounded-2xl shadow-[0px_4px_20px_rgba(17,46,129,0.08)] border border-[#c5c5d3]/50\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 319,
+      "hex": "#00195c",
+      "text": "<span className=\"text-xl font-bold text-[#00195c] font-display tracking-tight\">Automation Alchemists</span>"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 329,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"flex items-center gap-2 mb-8 pb-4 border-b border-[#c5c5d3]/50\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 335,
+      "hex": "#112E81",
+      "text": "? 'bg-[#112E81] text-white font-bold shadow-md'"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 336,
+      "hex": "#444651",
+      "text": ": 'bg-transparent text-[#444651] hover:text-[#00195c] font-medium'"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 336,
+      "hex": "#00195c",
+      "text": ": 'bg-transparent text-[#444651] hover:text-[#00195c] font-medium'"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 346,
+      "hex": "#112E81",
+      "text": "? 'bg-[#112E81] text-white font-bold shadow-md'"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 347,
+      "hex": "#444651",
+      "text": ": 'bg-transparent text-[#444651] hover:text-[#00195c] font-medium'"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 347,
+      "hex": "#00195c",
+      "text": ": 'bg-transparent text-[#444651] hover:text-[#00195c] font-medium'"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 420,
+      "hex": "#a0a0a0",
+      "text": "className=\"absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a0a0] hover:text-[#112E81] transition-colors focus:outline-none\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 420,
+      "hex": "#112E81",
+      "text": "className=\"absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a0a0] hover:text-[#112E81] transition-colors focus:outline-none\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 442,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"w-full bg-white border border-[#c5c5d3] rounded-lg h-11 flex items-center focus-within:border-[#112E81] focus-within:ring-1 focus-within:ring-[#112E81] transition-colors overflow-hidden shadow-sm\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 442,
+      "hex": "#112E81",
+      "text": "<div className=\"w-full bg-white border border-[#c5c5d3] rounded-lg h-11 flex items-center focus-within:border-[#112E81] focus-within:ring-1 focus-within:ring-[#112E81] transition-colors overflow-hidden shadow-sm\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 442,
+      "hex": "#112E81",
+      "text": "<div className=\"w-full bg-white border border-[#c5c5d3] rounded-lg h-11 flex items-center focus-within:border-[#112E81] focus-within:ring-1 focus-within:ring-[#112E81] transition-colors overflow-hidden shadow-sm\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 444,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"flex items-center px-3 border-r border-[#c5c5d3] text-[#444651] h-full font-display whitespace-nowrap bg-[#f6f3f2]\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 444,
+      "hex": "#444651",
+      "text": "<div className=\"flex items-center px-3 border-r border-[#c5c5d3] text-[#444651] h-full font-display whitespace-nowrap bg-[#f6f3f2]\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 444,
+      "hex": "#f6f3f2",
+      "text": "<div className=\"flex items-center px-3 border-r border-[#c5c5d3] text-[#444651] h-full font-display whitespace-nowrap bg-[#f6f3f2]\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 461,
+      "hex": "#1c1b1b",
+      "text": "className=\"flex-1 bg-transparent text-[#1c1b1b] placeholder-[#a0a0a0] h-full px-3 outline-none font-display min-w-0\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 461,
+      "hex": "#a0a0a0",
+      "text": "className=\"flex-1 bg-transparent text-[#1c1b1b] placeholder-[#a0a0a0] h-full px-3 outline-none font-display min-w-0\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 501,
+      "hex": "#c5c5d3",
+      "text": "className=\"mt-1 h-4 w-4 rounded border-[#c5c5d3] bg-white text-[#112E81] focus:ring-[#112E81] focus:ring-offset-0 cursor-pointer accent-[#112E81]\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 501,
+      "hex": "#112E81",
+      "text": "className=\"mt-1 h-4 w-4 rounded border-[#c5c5d3] bg-white text-[#112E81] focus:ring-[#112E81] focus:ring-offset-0 cursor-pointer accent-[#112E81]\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 501,
+      "hex": "#112E81",
+      "text": "className=\"mt-1 h-4 w-4 rounded border-[#c5c5d3] bg-white text-[#112E81] focus:ring-[#112E81] focus:ring-offset-0 cursor-pointer accent-[#112E81]\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 501,
+      "hex": "#112E81",
+      "text": "className=\"mt-1 h-4 w-4 rounded border-[#c5c5d3] bg-white text-[#112E81] focus:ring-[#112E81] focus:ring-offset-0 cursor-pointer accent-[#112E81]\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 503,
+      "hex": "#444651",
+      "text": "<label htmlFor=\"termsAccepted\" className=\"text-[#444651] font-display text-sm leading-relaxed cursor-pointer select-none mt-[-2px]\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 505,
+      "hex": "#112E81",
+      "text": "<Link to=\"/terms\" target=\"_blank\" rel=\"noopener noreferrer\" className=\"text-[#112E81] hover:underline transition-colors font-medium\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 509,
+      "hex": "#112E81",
+      "text": "<Link to=\"/privacy\" target=\"_blank\" rel=\"noopener noreferrer\" className=\"text-[#112E81] hover:underline transition-colors font-medium\">"
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 521,
+      "hex": "#112E81",
+      "text": "className=\"w-full bg-[#112E81] hover:bg-[#00195c] text-white font-bold h-11 rounded-lg text-[14px] transition-colors font-display mt-2 shadow-md\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 521,
+      "hex": "#00195c",
+      "text": "className=\"w-full bg-[#112E81] hover:bg-[#00195c] text-white font-bold h-11 rounded-lg text-[14px] transition-colors font-display mt-2 shadow-md\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 535,
+      "hex": "#444651",
+      "text": "className=\"text-[13px] text-[#444651] hover:text-[#112E81] transition-colors font-display font-medium\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 535,
+      "hex": "#112E81",
+      "text": "className=\"text-[13px] text-[#444651] hover:text-[#112E81] transition-colors font-display font-medium\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 563,
+      "hex": "#444651",
+      "text": "className=\"text-[11px] text-[#444651] hover:text-[#112E81] font-medium transition-colors font-display\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 563,
+      "hex": "#112E81",
+      "text": "className=\"text-[11px] text-[#444651] hover:text-[#112E81] font-medium transition-colors font-display\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 581,
+      "hex": "#a0a0a0",
+      "text": "className=\"absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a0a0] hover:text-[#112E81] transition-colors focus:outline-none\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 581,
+      "hex": "#112E81",
+      "text": "className=\"absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a0a0] hover:text-[#112E81] transition-colors focus:outline-none\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 590,
+      "hex": "#112E81",
+      "text": "className=\"w-full bg-[#112E81] hover:bg-[#00195c] text-white font-bold h-11 rounded-lg text-[14px] transition-colors font-display mt-4 shadow-md\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 590,
+      "hex": "#00195c",
+      "text": "className=\"w-full bg-[#112E81] hover:bg-[#00195c] text-white font-bold h-11 rounded-lg text-[14px] transition-colors font-display mt-4 shadow-md\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 604,
+      "hex": "#444651",
+      "text": "className=\"text-[13px] text-[#444651] hover:text-[#112E81] transition-colors font-display font-medium\""
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 604,
+      "hex": "#112E81",
+      "text": "className=\"text-[13px] text-[#444651] hover:text-[#112E81] transition-colors font-display font-medium\""
+    }
+  ],
+  "src/pages/Company.tsx": [
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 29,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-lg text-[#A1A1AA] max-w-xl font-display\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 40,
+      "hex": "#0A0C10",
+      "text": "<div className=\"absolute inset-0 bg-gradient-to-t from-[#0A0C10] to-transparent opacity-60\"></div>"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 62,
+      "hex": "#A1A1AA",
+      "text": "className=\"text-lg text-[#A1A1AA] max-w-3xl mx-auto font-display\""
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 93,
+      "hex": "#A1A1AA",
+      "text": "activeStep === step.id ? 'bg-teal-600 text-white' : 'bg-teal-800 text-[#A1A1AA]'"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 99,
+      "hex": "#A1A1AA",
+      "text": "activeStep === step.id ? 'text-teal-600' : 'text-[#A1A1AA]'"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 102,
+      "hex": "#A1A1AA",
+      "text": "activeStep === step.id ? 'text-white' : 'text-[#A1A1AA]'"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 125,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-[#A1A1AA] text-lg lg:text-xl leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 141,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-[#A1A1AA] text-lg lg:text-xl leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 157,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-[#A1A1AA] text-lg lg:text-xl leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 173,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-[#A1A1AA] text-lg lg:text-xl leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 238,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-[#A1A1AA] text-lg leading-relaxed font-display\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 252,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-[#A1A1AA] text-lg leading-relaxed font-display\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 272,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-lg md:text-xl text-[#A1A1AA] font-display leading-relaxed relative z-10 max-w-2xl mx-auto\">"
+    },
+    {
+      "file": "src/pages/Company.tsx",
+      "line": 289,
+      "hex": "#A1A1AA",
+      "text": "<p className=\"text-lg text-[#A1A1AA] mb-12 font-display\">"
+    }
+  ],
+  "src/pages/ContactPage.tsx": [
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 88,
+      "hex": "#00195c",
+      "text": "<h1 className=\"text-4xl font-bold tracking-[-0.033em] text-[#00195c] lg:text-5xl font-display\">"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 91,
+      "hex": "#444651",
+      "text": "<p className=\"mt-3 text-base font-normal text-[#444651] font-display\">"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 96,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"mt-8 rounded-2xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow border border-[#c5c5d3]/30 bg-white p-8\">"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 97,
+      "hex": "#00195c",
+      "text": "<h3 className=\"text-xl font-bold text-[#00195c] font-display\">Direct Coordinates</h3>"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 103,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] font-display\">"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 112,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] font-display\">{settings.email}</p>"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 119,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] font-display\">{settings.phone}</p>"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 126,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"mt-8 rounded-2xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow border border-[#c5c5d3]/30 bg-white p-8\">"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 127,
+      "hex": "#00195c",
+      "text": "<h3 className=\"text-xl font-bold text-[#00195c] font-display mb-4\">Temporal Availability</h3>"
+    },
+    {
+      "file": "src/pages/ContactPage.tsx",
+      "line": 128,
+      "hex": "#444651",
+      "text": "<div className=\"space-y-2 text-sm text-[#444651] font-display\">"
+    }
+  ],
+  "src/pages/Dashboard.tsx": [
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 62,
+      "hex": "#222",
+      "text": "<div className=\"h-[80px] bg-[#222]\"></div>"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 108,
+      "hex": "#888",
+      "text": "<Button disabled className=\"bg-teal-600/30 text-[#888] font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto\">"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 152,
+      "hex": "#888",
+      "text": "<div className=\"text-[10px] text-[#888] font-medium\">"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 175,
+      "hex": "#888",
+      "text": "<div className=\"text-[10px] text-[#888] font-medium ml-1\">"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 219,
+      "hex": "#333",
+      "text": "<Button onClick={() => onNotify?.(tool)} className=\"bg-teal-600/30 hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto\">"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 252,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888] text-sm mb-4 leading-relaxed flex-grow\">"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 350,
+      "hex": "#D4AF37",
+      "text": "className: \"bg-teal-900 border-l-4 border-l-[#D4AF37] text-white\","
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 373,
+      "hex": "#D4AF37",
+      "text": "className: \"bg-teal-900 border-none border-l-4 border-l-[#D4AF37] text-white bottom-right-slide\","
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 404,
+      "hex": "#D4AF37",
+      "text": "className: \"bg-teal-900 border-none border-l-4 border-l-[#D4AF37] text-white\","
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 467,
+      "hex": "#888",
+      "text": "<p className=\"text-xl text-[#888] font-display\">Manage your tools and subscriptions.</p>"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 493,
+      "hex": "#888",
+      "text": "<h2 className=\"text-sm font-bold text-[#888] uppercase tracking-wider mb-6 font-display\">Active tools</h2>"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 523,
+      "hex": "#888",
+      "text": "<div className=\"text-[#888] text-xs mb-2\">"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 559,
+      "hex": "#888",
+      "text": "<h2 className=\"text-sm font-bold text-[#888] uppercase tracking-wider mb-6 font-display\">Available to purchase</h2>"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 578,
+      "hex": "#888",
+      "text": "<p className=\"text-[#888] text-sm mb-4 leading-relaxed flex-grow\">"
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "line": 610,
+      "hex": "#888",
+      "text": "<h2 className=\"text-sm font-bold text-[#888] uppercase tracking-wider mb-6 font-display\">Coming soon</h2>"
+    }
+  ],
+  "src/pages/Index.tsx": [
+    {
+      "file": "src/pages/Index.tsx",
+      "line": 120,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] text-sm font-display\">Product Management</p>"
+    },
+    {
+      "file": "src/pages/Index.tsx",
+      "line": 134,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] text-sm font-display\">Notifications</p>"
+    },
+    {
+      "file": "src/pages/Index.tsx",
+      "line": 148,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] text-sm font-display\">Invoicing</p>"
+    },
+    {
+      "file": "src/pages/Index.tsx",
+      "line": 174,
+      "hex": "#444651",
+      "text": "<p className=\"text-lg text-[#444651] max-w-3xl mx-auto mb-12 font-display\">"
+    }
+  ],
+  "src/pages/PrivacyPolicy.tsx": [
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 19,
+      "hex": "#00195c",
+      "text": "<span className=\"text-[#00195c]\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 23,
+      "hex": "#444651",
+      "text": "<p className=\"text-base md:text-xl text-[#444651] mb-8 max-w-3xl mx-auto font-display\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 32,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-[#c5c5d3]/30\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 41,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">1. Information We Collect</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 42,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display mb-4 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 45,
+      "hex": "#444651",
+      "text": "<ul className=\"list-disc list-inside text-sm text-[#444651] font-display space-y-2 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 55,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">2. How We Use Your Information</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 56,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display mb-4 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 59,
+      "hex": "#444651",
+      "text": "<ul className=\"list-disc list-inside text-sm text-[#444651] font-display space-y-2 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 69,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">3. Information Sharing</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 70,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 73,
+      "hex": "#444651",
+      "text": "<ul className=\"list-disc list-inside text-sm text-[#444651] font-display mt-2 space-y-2 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 82,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">4. Data Security</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 83,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 89,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">5. Cookies and Tracking</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 90,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 96,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">6. Your Rights</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 97,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display mb-4 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 100,
+      "hex": "#444651",
+      "text": "<ul className=\"list-disc list-inside text-sm text-[#444651] font-display space-y-2 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 110,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">7. Changes to This Policy</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 111,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 117,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">8. Contact Us</h2>"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 118,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 126,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"pt-8 border-t border-[#c5c5d3]/50\">"
+    },
+    {
+      "file": "src/pages/PrivacyPolicy.tsx",
+      "line": 127,
+      "hex": "#8c8e9b",
+      "text": "<p className=\"text-xs text-[#8c8e9b] font-display\">"
+    }
+  ],
+  "src/pages/Services.tsx": [
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 23,
+      "hex": "#f6f3f2",
+      "text": "<p className=\"font-body-lg text-lg md:text-xl text-[#f6f3f2] mb-8 max-w-xl\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 48,
+      "hex": "#00195c",
+      "text": "<h2 className=\"font-display text-3xl md:text-4xl font-bold text-[#00195c]\">Workflow Automation</h2>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 49,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651]\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 58,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 59,
+      "hex": "#00195c",
+      "text": "<h4 className=\"font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2\"><span className=\"material-symbols-outlined\">lightbulb</span> Quick Answer</h4>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 60,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-sm text-[#444651]\">Workflow automation is the use of software to perform repetitive business tasks — like data entry, approvals, and notifications.</p>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 62,
+      "hex": "#00195c",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 62,
+      "hex": "#4647AE",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 67,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 69,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Automation</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 70,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Efficiency</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 71,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Workflows</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 78,
+      "hex": "#00195c",
+      "text": "<h3 className=\"font-display font-semibold text-2xl text-[#00195c] mb-2\">Ready to transform your business</h3>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 90,
+      "hex": "#00195c",
+      "text": "<h2 className=\"font-display text-3xl md:text-4xl font-bold text-[#00195c]\">Custom Business Tools</h2>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 91,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651]\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 100,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 101,
+      "hex": "#00195c",
+      "text": "<h4 className=\"font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2\"><span className=\"material-symbols-outlined\">lightbulb</span> Quick Answer</h4>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 102,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-sm text-[#444651]\">A custom business tool is software built specifically for one company's workflows rather than a generic off-the-shelf product.</p>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 104,
+      "hex": "#00195c",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 104,
+      "hex": "#4647AE",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 109,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 111,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Dashboards</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 112,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Internal Tools</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 113,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Scalable</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 120,
+      "hex": "#00195c",
+      "text": "<h3 className=\"font-display font-semibold text-2xl text-[#00195c] mb-2\">Ready to transform your business</h3>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 132,
+      "hex": "#00195c",
+      "text": "<h2 className=\"font-display text-3xl md:text-4xl font-bold text-[#00195c]\">API Integration</h2>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 133,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651]\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 142,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 143,
+      "hex": "#00195c",
+      "text": "<h4 className=\"font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2\"><span className=\"material-symbols-outlined\">lightbulb</span> Quick Answer</h4>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 144,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-sm text-[#444651]\">API integration connects two or more software systems so they can automatically share data, eliminating manual data entry between platforms.</p>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 146,
+      "hex": "#00195c",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 146,
+      "hex": "#4647AE",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 151,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 153,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">API</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 154,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Integration</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 155,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Data Sync</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 162,
+      "hex": "#00195c",
+      "text": "<h3 className=\"font-display font-semibold text-2xl text-[#00195c] mb-2\">Ready to transform your business</h3>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 174,
+      "hex": "#00195c",
+      "text": "<h2 className=\"font-display text-3xl md:text-4xl font-bold text-[#00195c]\">SaaS Tools</h2>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 175,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651]\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 184,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 185,
+      "hex": "#00195c",
+      "text": "<h4 className=\"font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2\"><span className=\"material-symbols-outlined\">lightbulb</span> Quick Answer</h4>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 186,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-sm text-[#444651]\">SaaS (Software-as-a-Service) development is the process of building cloud-based software that customers access through subscriptions rather than one-time purchases.</p>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 188,
+      "hex": "#00195c",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 188,
+      "hex": "#4647AE",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 193,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 195,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">SaaS</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 196,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Cloud</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 197,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Subscriptions</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 204,
+      "hex": "#00195c",
+      "text": "<h3 className=\"font-display font-semibold text-2xl text-[#00195c] mb-2\">Ready to transform your business</h3>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 216,
+      "hex": "#00195c",
+      "text": "<h2 className=\"font-display text-3xl md:text-4xl font-bold text-[#00195c]\">Virtual Assistance</h2>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 217,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651]\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 226,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"mt-8 p-6 bg-white border border-[#c5c5d3]/30 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(17,46,129,0.04)] transition-shadow\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 227,
+      "hex": "#00195c",
+      "text": "<h4 className=\"font-semibold text-sm text-[#00195c] mb-2 flex items-center gap-2\"><span className=\"material-symbols-outlined\">lightbulb</span> Quick Answer</h4>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 228,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-sm text-[#444651]\">A virtual assistant is a remote professional who handles administrative, technical, or creative tasks for a business without being physically present.</p>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 230,
+      "hex": "#00195c",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 230,
+      "hex": "#4647AE",
+      "text": "<Link className=\"inline-flex items-center gap-2 mt-6 font-semibold text-sm text-[#00195c] hover:text-[#4647AE] transition-colors\" to=\"/contact\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 235,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"bg-white rounded-xl overflow-hidden border border-[#c5c5d3]/30 shadow-sm hover:shadow-lg transition-all duration-300 p-8\">"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 237,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Virtual Assistant</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 238,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Support</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 239,
+      "hex": "#00195c",
+      "text": "<span className=\"px-3 py-1 bg-mint-50/30 text-[#00195c] font-medium text-xs rounded-full\">Admin</span>"
+    },
+    {
+      "file": "src/pages/Services.tsx",
+      "line": 246,
+      "hex": "#00195c",
+      "text": "<h3 className=\"font-display font-semibold text-2xl text-[#00195c] mb-2\">Ready to transform your business</h3>"
+    }
+  ],
+  "src/pages/TermsOfUse.tsx": [
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 19,
+      "hex": "#00195c",
+      "text": "<span className=\"text-[#00195c]\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 23,
+      "hex": "#444651",
+      "text": "<p className=\"text-base md:text-xl text-[#444651] mb-8 max-w-3xl mx-auto font-display\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 32,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-[#c5c5d3]/30\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 41,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">1. Acceptance of Terms</h2>"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 42,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 48,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">2. Use License</h2>"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 49,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed mb-4\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 52,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 55,
+      "hex": "#444651",
+      "text": "<ul className=\"list-disc list-inside text-sm text-[#444651] font-display mt-2 space-y-2 leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 64,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">3. Service Description</h2>"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 65,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 71,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">4. User Responsibilities</h2>"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 72,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 78,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">5. Limitation of Liability</h2>"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 79,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 85,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">6. Revisions</h2>"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 86,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 92,
+      "hex": "#00195c",
+      "text": "<h2 className=\"text-2xl font-bold text-[#00195c] mb-4 font-display\">7. Contact Information</h2>"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 93,
+      "hex": "#444651",
+      "text": "<p className=\"text-sm text-[#444651] font-display leading-relaxed\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 101,
+      "hex": "#c5c5d3",
+      "text": "<div className=\"pt-8 border-t border-[#c5c5d3]/50\">"
+    },
+    {
+      "file": "src/pages/TermsOfUse.tsx",
+      "line": 102,
+      "hex": "#8c8e9b",
+      "text": "<p className=\"text-xs text-[#8c8e9b] font-display\">"
+    }
+  ],
+  "src/pages/ToolDetail.tsx": [
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 78,
+      "hex": "#444651",
+      "text": "<div className=\"flex items-center text-sm text-[#444651] font-display\">"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 99,
+      "hex": "#0d1117",
+      "text": "style={{ backgroundColor: tool.bannerBg === '#0d1117' || tool.bannerBg.startsWith('#0') ? '#aaccd6' : tool.bannerBg }}"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 99,
+      "hex": "#aaccd6",
+      "text": "style={{ backgroundColor: tool.bannerBg === '#0d1117' || tool.bannerBg.startsWith('#0') ? '#aaccd6' : tool.bannerBg }}"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 105,
+      "hex": "#112E81",
+      "text": "<div className=\"w-24 h-24 md:w-32 md:h-32 bg-mint-50/20 border border-teal-800/20 rounded-2xl flex items-center justify-center shadow-lg shadow-[#112E81]/5\">"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 116,
+      "hex": "#00195c",
+      "text": "<span className=\"text-[#00195c] text-sm font-bold tracking-widest uppercase mb-2 block font-display\">"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 122,
+      "hex": "#3354f4",
+      "text": "<span className=\"text-[#3354f4]\">Return Converter</span>"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 123,
+      "hex": "#888",
+      "text": "<span className=\"text-[#888] font-normal mx-2\">x</span>"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 124,
+      "hex": "#00839e",
+      "text": "<span className=\"text-[#00839e]\">CopyPaste Bot</span>"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 130,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] text-lg md:text-xl leading-relaxed mb-8 max-w-3xl font-display\">"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 137,
+      "hex": "#444651",
+      "text": "{tool.isFree ? '' : <span className=\"text-sm text-[#444651] font-normal ml-1\">/month</span>}"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 170,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] leading-relaxed text-sm\">"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 195,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] mt-1\">{step}</p>"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 210,
+      "hex": "#444651",
+      "text": "<p className=\"text-[#444651] leading-relaxed text-lg\">"
+    },
+    {
+      "file": "src/pages/ToolDetail.tsx",
+      "line": 227,
+      "hex": "#444651",
+      "text": "<p className=\"text-lg text-[#444651] mb-8 font-display\">"
+    }
+  ],
+  "src/pages/Tools.tsx": [
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 72,
+      "hex": "#c6e8f3",
+      "text": "<div className=\"absolute -bottom-24 -left-24 w-96 h-96 bg-[#c6e8f3]/30 rounded-full blur-3xl\"></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 94,
+      "hex": "#757683",
+      "text": "className=\"bg-white rounded-2xl p-8 border border-[#757683]/50 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden flex flex-col h-full\""
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 101,
+      "hex": "#444651",
+      "text": "<span className=\"bg-mint-50 text-[#444651] px-2 py-1 rounded text-xs font-semibold\">Free</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 102,
+      "hex": "#dce1ff",
+      "text": "<span className=\"bg-[#dce1ff] text-teal-600 px-2 py-1 rounded text-xs font-semibold\">Paid</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 110,
+      "hex": "#3354f4",
+      "text": "<span className=\"text-[#3354f4]\">Return Converter</span> <span className=\"text-[#888] font-normal mx-0.5\">x</span> <span className=\"text-[#00839e]\">CopyPaste Bot</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 110,
+      "hex": "#888",
+      "text": "<span className=\"text-[#3354f4]\">Return Converter</span> <span className=\"text-[#888] font-normal mx-0.5\">x</span> <span className=\"text-[#00839e]\">CopyPaste Bot</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 110,
+      "hex": "#00839e",
+      "text": "<span className=\"text-[#3354f4]\">Return Converter</span> <span className=\"text-[#888] font-normal mx-0.5\">x</span> <span className=\"text-[#00839e]\">CopyPaste Bot</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 113,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651] mb-6\">One-click eBay to Amazon order fulfilment plus instant return label generation — two tools in one platform.</p>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 117,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">One-click copy</strong> <span className=\"text-[#444651]\">- Copy eBay address to Amazon in one click</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 121,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Instant labels</strong> <span className=\"text-[#444651]\">- Generate eBay return labels instantly</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 125,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">History tracking</strong> <span className=\"text-[#444651]\">- Fulfilment history and activity tracking</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 129,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Cloud clipboard</strong> <span className=\"text-[#444651]\">- Cloud clipboard for cross-device sync</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 133,
+      "hex": "#757683",
+      "text": "<div className=\"mt-auto border-t border-[#757683]/30 pt-6 relative z-10\">"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 135,
+      "hex": "#444651",
+      "text": "<span className=\"font-label-md text-sm text-[#444651]\">Return Converter: <strong className=\"text-teal-900\">Free</strong></span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 136,
+      "hex": "#444651",
+      "text": "<span className=\"font-label-md text-sm text-[#444651]\">CP Bot: <strong className=\"text-teal-900\">AUD $9/mo</strong></span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 156,
+      "hex": "#757683",
+      "text": "className=\"bg-white rounded-2xl p-8 border border-[#757683]/50 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden flex flex-col h-full\""
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 162,
+      "hex": "#dce1ff",
+      "text": "<span className=\"bg-[#dce1ff] text-teal-600 px-2 py-1 rounded text-xs font-semibold\">Paid</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 165,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651] mb-6\">Track, list, and monitor products across eBay. A faster AutoDS alternative.</p>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 169,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Bulk listing</strong> <span className=\"text-[#444651]\">- Import and list dozens of products from Amazon to eBay in seconds.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 173,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Price monitoring</strong> <span className=\"text-[#444651]\">- Get alerts when prices change on Amazon to protect your margins.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 177,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Inventory sync</strong> <span className=\"text-[#444651]\">- Automatically update your stock levels when items go out of stock.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 181,
+      "hex": "#757683",
+      "text": "<div className=\"mt-auto border-t border-[#757683]/30 pt-6 relative z-10\">"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 184,
+      "hex": "#444651",
+      "text": "<span className=\"font-label-md text-sm text-[#444651] mb-1\">/month</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 199,
+      "hex": "#757683",
+      "text": "className=\"bg-white rounded-2xl p-8 border border-[#757683]/50 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden flex flex-col h-full\""
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 203,
+      "hex": "#183a42",
+      "text": "<span className=\"font-label-sm text-xs text-[#183a42] uppercase tracking-wider font-semibold\">Notifications</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 204,
+      "hex": "#dce1ff",
+      "text": "<span className=\"bg-[#dce1ff] text-teal-600 px-2 py-1 rounded text-xs font-semibold\">Paid</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 206,
+      "hex": "#183a42",
+      "text": "<h2 className=\"font-headline-md text-2xl font-bold text-teal-900 mb-3 group-hover:text-[#183a42] transition-colors\">Order Bot</h2>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 207,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651] mb-6\">Get instant WhatsApp or Discord alerts the moment you receive a new eBay order.</p>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 210,
+      "hex": "#183a42",
+      "text": "<CheckCircle className=\"text-[#183a42] w-5 h-5 flex-shrink-0 mt-0.5\" />"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 211,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">WhatsApp alerts</strong> <span className=\"text-[#444651]\">- Receive a message directly to your phone the instant a sale occurs.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 214,
+      "hex": "#183a42",
+      "text": "<CheckCircle className=\"text-[#183a42] w-5 h-5 flex-shrink-0 mt-0.5\" />"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 215,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Discord integration</strong> <span className=\"text-[#444651]\">- Push order notifications to a dedicated channel in your Discord server.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 218,
+      "hex": "#183a42",
+      "text": "<CheckCircle className=\"text-[#183a42] w-5 h-5 flex-shrink-0 mt-0.5\" />"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 219,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Real-time speed</strong> <span className=\"text-[#444651]\">- Alerts are delivered in milliseconds, ensuring you can act fast.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 223,
+      "hex": "#757683",
+      "text": "<div className=\"mt-auto border-t border-[#757683]/30 pt-6 relative z-10\">"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 226,
+      "hex": "#444651",
+      "text": "<span className=\"font-label-md text-sm text-[#444651] mb-1\">/month</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 229,
+      "hex": "#183a42",
+      "text": "<button onClick={handleGetAccess} className=\"flex-1 text-center py-2.5 px-4 rounded-lg bg-[#183a42] text-white font-label-md text-sm font-semibold hover:bg-[#183a42]/90 transition-colors shadow-md\">Get access</button>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 229,
+      "hex": "#183a42",
+      "text": "<button onClick={handleGetAccess} className=\"flex-1 text-center py-2.5 px-4 rounded-lg bg-[#183a42] text-white font-label-md text-sm font-semibold hover:bg-[#183a42]/90 transition-colors shadow-md\">Get access</button>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 230,
+      "hex": "#183a42",
+      "text": "<Link to=\"/tools/order-bot\" className=\"text-[#183a42] font-label-md text-sm font-semibold hover:underline flex items-center gap-1\">Learn more <ArrowRight className=\"w-4 h-4\" /></Link>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 241,
+      "hex": "#757683",
+      "text": "className=\"bg-white rounded-2xl p-8 border border-[#757683]/50 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden flex flex-col h-full\""
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 246,
+      "hex": "#dce1ff",
+      "text": "<span className=\"bg-[#dce1ff] text-teal-600 px-2 py-1 rounded text-xs font-semibold\">Paid</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 249,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-md text-base text-[#444651] mb-6\">Auto-generate professional invoices for your eBay sales in one click.</p>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 253,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">One-click creation</strong> <span className=\"text-[#444651]\">- Generate a full invoice directly from the order page instantly.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 257,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">Custom branding</strong> <span className=\"text-[#444651]\">- Add your store's logo, address, and ABN to look highly professional.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 261,
+      "hex": "#444651",
+      "text": "<div><strong className=\"text-teal-900\">PDF export</strong> <span className=\"text-[#444651]\">- Download ready-to-send PDF files that you can easily attach to messages.</span></div>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 265,
+      "hex": "#757683",
+      "text": "<div className=\"mt-auto border-t border-[#757683]/30 pt-6 relative z-10\">"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 268,
+      "hex": "#444651",
+      "text": "<span className=\"font-label-md text-sm text-[#444651] mb-1\">/month</span>"
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 287,
+      "hex": "#757683",
+      "text": "className=\"bg-white/60 backdrop-blur-md rounded-2xl p-12 text-center border border-[#757683]/30 shadow-sm relative overflow-hidden\""
+    },
+    {
+      "file": "src/pages/Tools.tsx",
+      "line": 292,
+      "hex": "#444651",
+      "text": "<p className=\"font-body-lg text-lg text-[#444651] mb-8\">"
+    }
+  ]
+}

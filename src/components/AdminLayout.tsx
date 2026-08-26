@@ -1,104 +1,93 @@
-import { useState, useEffect, useCallback, ReactNode } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Loader2, Shield, Mail, Users, FileText, DollarSign, LogOut, ChevronLeft, ChevronRight, Home, Briefcase, BookOpen, MessageSquare, Newspaper, Menu, X, CreditCard, PenTool, ActivitySquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { 
+    LayoutDashboard, 
+    Wrench, 
+    Briefcase, 
+    CreditCard, 
+    Users, 
+    GraduationCap, 
+    Mail, 
+    MessageSquare, 
+    FileText, 
+    LogOut, 
+    Menu, 
+    X, 
+    ChevronLeft, 
+    ChevronRight,
+    Shield,
+    Home,
+    Loader2
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdminLayoutProps {
-    children: ReactNode;
-    title?: string;
+    children: React.ReactNode;
+    title: string;
     description?: string;
 }
 
+const navItems = [
+    { path: "/admin", label: "Overview", icon: LayoutDashboard, description: "Dashboard & stats" },
+    { path: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard, description: "Manage access & plans" },
+    { path: "/admin/users", label: "Users", icon: Users, description: "User management" },
+    { path: "/admin/tools", label: "Tools", icon: Wrench, description: "Manage tool catalog" },
+    { path: "/admin/services", label: "Services", icon: Briefcase, description: "Manage services" },
+    { path: "/admin/pricing", label: "Pricing", icon: CreditCard, description: "Pricing & tiers" },
+    { path: "/admin/learn", label: "Learn", icon: GraduationCap, description: "Articles & guides" },
+    { path: "/admin/contact", label: "Contact", icon: MessageSquare, description: "Manage contact page" },
+    { path: "/admin/contact-submissions", label: "Submissions", icon: MessageSquare, description: "Contact form leads" },
+    { path: "/admin/newsletter", label: "Newsletter", icon: Mail, description: "Subscribers & campaigns" },
+    { path: "/admin/content", label: "Content", icon: FileText, description: "Hero & promo banners" },
+    { path: "/admin/audit-log", label: "Audit Log", icon: Shield, description: "Admin activity trail" },
+];
+
 const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { user, loading: authLoading, signOut } = useAuth();
-    const { toast } = useToast();
-    const navigate = useNavigate();
+    const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
     const location = useLocation();
+    const navigate = useNavigate();
+    const { user, signOut } = useAuth();
 
-    const navItems = [
-        { path: '/admin', label: 'Overview', icon: Shield, description: 'Stats & Activity' },
-        { path: '/admin/users', label: 'Users', icon: Users, description: 'Manage users' },
-        { path: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, description: 'User access' },
-        { path: '/admin/tools', label: 'Tools & Status', icon: PenTool, description: 'Manage tools' },
-        { path: '/admin/audit-log', label: 'Audit Log', icon: ActivitySquare, description: 'Admin actions' },
-        { path: '/admin/contact-submissions', label: 'Form Submissions', icon: Mail, description: 'Messages & files' },
-        // Legacy pages preserved:
-        { path: '/admin/contacts', label: 'Contact Settings', icon: MessageSquare, description: 'Contact page info' },
-        { path: '/admin/content', label: 'Content', icon: FileText, description: 'Educational content' },
-        { path: '/admin/pricing', label: 'Pricing Packages', icon: DollarSign, description: 'Pricing plans' },
-        { path: '/admin/services', label: 'Services Content', icon: Briefcase, description: 'Manage services' },
-        { path: '/admin/learn', label: 'Learn Articles', icon: BookOpen, description: 'Articles & categories' },
-        { path: '/admin/newsletter', label: 'Newsletter', icon: Newspaper, description: 'Newsletter subscribers' },
-    ];
-
-    // Close mobile menu on route change
+    // Check admin status
     useEffect(() => {
-        setMobileMenuOpen(false);
-    }, [location.pathname]);
+        const checkAdmin = async () => {
+            if (!user) {
+                navigate("/auth");
+                return;
+            }
 
-    const checkAdminStatus = useCallback(async () => {
-        if (!user) {
-            navigate('/auth');
-            return;
-        }
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("is_admin")
+                .eq("id", user.id)
+                .single();
 
-        try {
-            const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('is_admin')
-                .eq('id', user.id)
-                .maybeSingle();
-
-            if (profileError) throw profileError;
-
-            if (!profileData?.is_admin) {
-                // Silent redirect as requested
-                navigate('/');
+            if (error || !data?.is_admin) {
+                navigate("/");
                 return;
             }
 
             setIsAdmin(true);
-        } catch (error) {
-            console.error('Error checking admin status:', error);
-            toast({
-                title: 'Error',
-                description: error instanceof Error ? error.message : 'Failed to verify admin status',
-                variant: 'destructive',
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    }, [user, navigate, toast]);
+        };
 
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/auth');
-        }
-    }, [user, authLoading, navigate]);
-
-    useEffect(() => {
-        if (user) {
-            checkAdminStatus();
-        }
-    }, [user, checkAdminStatus]);
+        checkAdmin();
+    }, [user, navigate]);
 
     const handleSignOut = async () => {
         await signOut();
-        navigate('/');
+        navigate("/");
     };
 
-    if (authLoading || isLoading) {
+    // Show loading state while checking admin status
+    if (isAdmin === null) {
         return (
-            <div className="min-h-screen bg-background-dark flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="min-h-screen bg-mint-50 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
             </div>
         );
     }
@@ -110,17 +99,17 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
     const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
         <>
             {/* Header */}
-            <div className="p-4 border-b border-primary/20">
+            <div className="p-4 border-b border-teal-600/20 bg-white">
                 <Link to="/" className="flex items-center gap-3" onClick={() => isMobile && setMobileMenuOpen(false)}>
-                    <Shield className="h-8 w-8 text-primary flex-shrink-0" />
+                    <Shield className="h-8 w-8 text-teal-600 flex-shrink-0" />
                     {(!sidebarCollapsed || isMobile) && (
-                        <span className="text-lg font-bold text-text-main font-display">Admin Panel</span>
+                        <span className="text-lg font-bold text-teal-900 font-display">Admin Panel</span>
                     )}
                 </Link>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+            <nav className="flex-1 p-3 space-y-1 overflow-y-auto bg-white">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
@@ -131,18 +120,18 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
                             to={item.path}
                             onClick={() => isMobile && setMobileMenuOpen(false)}
                             className={cn(
-                                "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group",
+                                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group",
                                 isActive
-                                    ? "bg-primary/20 text-primary border border-primary/30"
-                                    : "text-text-muted hover:bg-primary/10 hover:text-text-main"
+                                    ? "bg-teal-800 text-white font-semibold shadow-sm"
+                                    : "text-teal-900/70 hover:bg-teal-600/10 hover:text-teal-900"
                             )}
                             title={sidebarCollapsed && !isMobile ? item.label : undefined}
                         >
-                            <Icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-primary" : "")} />
+                            <Icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-yellow-accent" : "text-teal-600")} />
                             {(!sidebarCollapsed || isMobile) && (
                                 <div className="flex flex-col">
-                                    <span className="font-medium text-sm">{item.label}</span>
-                                    <span className="text-xs text-text-muted/70">{item.description}</span>
+                                    <span className="font-medium text-sm leading-snug">{item.label}</span>
+                                    <span className={cn("text-[11px]", isActive ? "text-white/70" : "text-teal-900/50")}>{item.description}</span>
                                 </div>
                             )}
                         </Link>
@@ -151,35 +140,35 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
             </nav>
 
             {/* Footer */}
-            <div className="p-2 border-t border-primary/20 space-y-1">
+            <div className="p-3 border-t border-teal-600/20 bg-white space-y-1">
                 <Link
                     to="/"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-muted hover:bg-primary/10 hover:text-text-main transition-all"
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl text-teal-900/70 hover:bg-teal-600/10 hover:text-teal-900 transition-all font-display text-sm font-medium"
                     title={sidebarCollapsed && !isMobile ? "Back to Site" : undefined}
                     onClick={() => isMobile && setMobileMenuOpen(false)}
                 >
-                    <Home className="h-5 w-5" />
-                    {(!sidebarCollapsed || isMobile) && <span className="text-sm">Back to Site</span>}
+                    <Home className="h-5 w-5 text-teal-600" />
+                    {(!sidebarCollapsed || isMobile) && <span>Back to Site</span>}
                 </Link>
                 <Button
                     variant="ghost"
-                    className="w-full justify-start gap-3 text-text-muted hover:text-destructive hover:bg-destructive/10"
+                    className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
                     onClick={() => { handleSignOut(); if (isMobile) setMobileMenuOpen(false); }}
                     title={sidebarCollapsed && !isMobile ? "Sign Out" : undefined}
                 >
                     <LogOut className="h-5 w-5" />
-                    {(!sidebarCollapsed || isMobile) && <span className="text-sm">Sign Out</span>}
+                    {(!sidebarCollapsed || isMobile) && <span className="text-sm font-medium">Sign Out</span>}
                 </Button>
             </div>
         </>
     );
 
     return (
-        <div className="min-h-screen bg-background-dark flex">
+        <div className="min-h-screen bg-mint-50 text-teal-900 flex">
             {/* Mobile Menu Overlay */}
             {mobileMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
                     onClick={() => setMobileMenuOpen(false)}
                 />
             )}
@@ -187,7 +176,7 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
             {/* Mobile Sidebar */}
             <aside
                 className={cn(
-                    "fixed left-0 top-0 h-full bg-surface-dark border-r border-primary/20 flex flex-col transition-transform duration-300 z-50 w-64 md:hidden",
+                    "fixed left-0 top-0 h-full bg-white border-r border-teal-600/20 shadow-xl flex flex-col transition-transform duration-300 z-50 w-64 md:hidden",
                     mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
@@ -197,7 +186,7 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
             {/* Desktop Sidebar */}
             <aside
                 className={cn(
-                    "fixed left-0 top-0 h-full bg-surface-dark border-r border-primary/20 flex-col transition-all duration-300 z-50 hidden md:flex",
+                    "fixed left-0 top-0 h-full bg-white border-r border-teal-600/20 shadow-sm flex-col transition-all duration-300 z-50 hidden md:flex",
                     sidebarCollapsed ? "w-16" : "w-64"
                 )}
             >
@@ -206,7 +195,7 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
                 {/* Collapse Toggle - Desktop Only */}
                 <button
                     onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                    className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-surface-dark border border-primary/30 rounded-full flex items-center justify-center text-text-muted hover:text-primary hover:border-primary transition-all"
+                    className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border border-teal-600/30 rounded-full flex items-center justify-center text-teal-900 shadow-sm hover:text-teal-600 hover:border-teal-600 transition-all"
                 >
                     {sidebarCollapsed ? (
                         <ChevronRight className="h-4 w-4" />
@@ -219,38 +208,40 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
             {/* Main Content */}
             <main
                 className={cn(
-                    "flex-1 transition-all duration-300",
+                    "flex-1 transition-all duration-300 bg-mint-50 min-h-screen",
                     "ml-0 md:ml-64",
                     sidebarCollapsed && "md:ml-16"
                 )}
             >
                 {/* Header */}
-                <header className="sticky top-0 z-40 bg-background-dark/80 backdrop-blur-md border-b border-primary/20 px-4 md:px-8 py-4 md:py-6">
-                    <div className="flex items-center gap-4">
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-2 text-text-muted hover:text-text-main transition-colors"
-                        >
-                            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                        </button>
-                        <div>
-                            <h1 className="text-xl md:text-3xl font-bold text-text-main font-display">{title}</h1>
-                            {description && (
-                                <p className="text-text-muted mt-1 text-sm md:text-base">{description}</p>
-                            )}
+                <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-teal-600/20 px-4 md:px-8 py-4 md:py-6 shadow-sm">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            {/* Mobile Menu Button */}
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="md:hidden p-2 text-teal-900 hover:bg-teal-600/10 rounded-lg transition-colors"
+                            >
+                                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            </button>
+                            <div>
+                                <h1 className="text-xl md:text-3xl font-bold text-teal-900 font-display">{title}</h1>
+                                {description && (
+                                    <p className="text-teal-900/70 mt-1 text-sm md:text-base font-display">{description}</p>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-[#888]">
-                        <span className="hidden md:inline-block">{user?.email}</span>
-                        <Link to="/" className="hover:text-white transition-colors">
-                            Back to site
-                        </Link>
+                        <div className="flex items-center gap-4 text-sm text-teal-900/70 font-display">
+                            <span className="hidden md:inline-block bg-teal-600/10 text-teal-900 px-3 py-1.5 rounded-full font-medium text-xs">{user?.email}</span>
+                            <Link to="/" className="text-teal-600 hover:text-teal-800 font-semibold transition-colors flex items-center gap-1">
+                                Back to site
+                            </Link>
+                        </div>
                     </div>
                 </header>
 
                 {/* Page Content */}
-                <div className="p-4 md:p-8">
+                <div className="p-4 md:p-8 max-w-7xl mx-auto">
                     {children}
                 </div>
             </main>
