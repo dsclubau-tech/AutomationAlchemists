@@ -1,7 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
-import FileUpload from "@/components/FileUpload";
 import Footer from "@/components/Footer";
 import PageLoader from "@/components/PageLoader";
 import SEOHead from "@/components/SEOHead";
@@ -12,6 +11,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import SchemaMarkup from "@/components/SchemaMarkup";
+import { toolsData } from "@/data/tools";
 
 const Index = () => {
   // Handle hash navigation when page loads
@@ -31,7 +31,7 @@ const Index = () => {
   }, []);
 
   return (
- <div className="min-h-screen bg-mint-50 text-teal-900 time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white">
+    <div className="min-h-screen bg-mint-50 text-teal-900 time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white flex flex-col">
       <SEOHead
         title="Automation Alchemists — Custom Web Development, App Development & SaaS Automation Agency"
         description="Automation Alchemists is a global services platform specializing in web development, Android/Flutter app development, SaaS solutions, and automation consulting."
@@ -54,100 +54,86 @@ const Index = () => {
 
       <Hero />
 
-      {/* Main Content Wrapper with max-width */}
-      <div className="relative w-full max-w-7xl mx-auto flex flex-col gap-16 md:gap-24 pt-12">
-        {/* Broken Gold Line Divider */}
-        <div className="ml-auto w-[60%] my-2 px-6">
-          <div className="broken-gold-line h-[1.5px] opacity-40"></div>
-        </div>
-
+      {/* Main Content Wrapper */}
+      <main className="relative w-full max-w-7xl mx-auto flex flex-col">
         <About />
 
-        {/* Carousel Section */}
-        <section className="py-12 overflow-hidden">
-          <div className="container mx-auto px-6 mb-8 text-center">
- <h2 className="text-3xl md:text-4xl font-bold text-teal-600 font-display mb-4">
+        {/* Featured Tools Marquee Section */}
+        <section className="pt-16 md:pt-20 pb-0 overflow-hidden">
+          <div className="container mx-auto px-6 mb-6 text-center">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-teal-600 font-display mb-2">
               Featured Tools & Solutions
             </h2>
+            <p className="text-teal-900/80 text-sm sm:text-base font-display max-w-2xl mx-auto">
+              Proprietary automation tools built to scale operations and eliminate manual friction.
+            </p>
           </div>
-          
-          <div className="relative w-full overflow-hidden">
+
+          <div className="relative w-full overflow-hidden py-4">
             <style>{`
-              @keyframes scroll-carousel {
+              @keyframes marquee-scroll {
                 0% { transform: translateX(0); }
-                100% { transform: translateX(calc(-280px * 4 - 1.5rem * 4)); }
+                100% { transform: translateX(-50%); }
               }
-              .animate-infinite-scroll {
-                animation: scroll-carousel 20s linear infinite;
+              .animate-marquee-scroll {
+                display: flex;
                 width: max-content;
+                animation: marquee-scroll 25s linear infinite;
               }
-              .animate-infinite-scroll:hover {
+              .animate-marquee-scroll:hover {
                 animation-play-state: paused;
               }
-              .hide-scrollbar::-webkit-scrollbar { display: none; }
             `}</style>
-            
-            <div className="flex gap-6 animate-infinite-scroll hide-scrollbar pl-6">
-              {/* Duplicate the cards once to create the infinite loop effect */}
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex gap-6">
-                  {/* Card 1 */}
-                  <a href="https://rccp.automationalchemists.com" target="_blank" rel="noreferrer" 
- className="flex-none w-[280px] h-[180px] rounded-[12px] border border-teal-800/10 hover:border-teal-800/30 shadow-sm transition-all flex flex-col justify-end group relative overflow-hidden"
-                     style={{
-                         backgroundImage: "url('/images/rccp-logo.png')",
-                         backgroundSize: "cover",
-                         backgroundPosition: "center",
-                         backgroundRepeat: "no-repeat"
-                     }}>
-                      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.25)" }}></div>
-                      <div className="relative z-10 p-6 w-full">
-                          <h3 className="text-white font-bold font-display text-lg mb-1 group-hover:text-white/90 transition-colors drop-shadow-md">Return Converter × CP Bot</h3>
-                          <p className="text-white/90 text-sm font-display drop-shadow-md">Order Fulfilment & Returns</p>
-                      </div>
-                  </a>
 
-                  {/* Card 2 */}
- <Link to="/tools/listflow" className="flex-none w-[280px] h-[180px] bg-white rounded-[12px] border border-teal-800/10 hover:border-teal-800/30 hover:shadow-md transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
-                      <div className="flex justify-between items-start">
- <div className="w-10 h-10 rounded-lg bg-teal-600/10 flex items-center justify-center">
- <span className="text-teal-600 font-bold">✨</span>
-                          </div>
- <span className="bg-teal-600/10 text-teal-600 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
-                      </div>
-                      <div>
- <h3 className="text-teal-900 font-bold font-display text-lg mb-1 group-hover:text-teal-600 transition-colors">ListFlow</h3>
-                          <p className="text-teal-900/80 text-sm font-display">Product Management</p>
-                      </div>
-                  </Link>
+            {/* Gradient edge masks for smooth fade in/out */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 bg-gradient-to-r from-mint-50 to-transparent z-10" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 bg-gradient-to-l from-mint-50 to-transparent z-10" />
 
-                  {/* Card 3 */}
- <Link to="/tools/orderbot" className="flex-none w-[280px] h-[180px] bg-white rounded-[12px] border border-teal-800/10 hover:border-teal-800/30 hover:shadow-md transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
-                      <div className="flex justify-between items-start">
- <div className="w-10 h-10 rounded-lg bg-teal-600/10 flex items-center justify-center">
- <span className="text-teal-600 font-bold">⚡</span>
-                          </div>
- <span className="bg-teal-600/10 text-teal-600 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
-                      </div>
-                      <div>
- <h3 className="text-teal-900 font-bold font-display text-lg mb-1 group-hover:text-teal-600 transition-colors">Order Bot</h3>
-                          <p className="text-teal-900/80 text-sm font-display">Notifications</p>
-                      </div>
-                  </Link>
+            <div className="animate-marquee-scroll flex items-center gap-8 sm:gap-12 pl-6">
+              {/* Render tools duplicated for a seamless 50% translation loop */}
+              {[...Array(4)].map((_, loopIdx) => (
+                <div key={loopIdx} className="flex items-center gap-8 sm:gap-12 flex-shrink-0">
+                  {toolsData.map((tool) => {
+                    const Icon = tool.icon;
+                    const isExternal = tool.slug === 'rccp';
+                    const targetUrl = isExternal ? 'https://rccp.automationalchemists.com' : `/tools/${tool.slug}`;
 
-                  {/* Card 4 */}
- <Link to="/tools/invoicegen" className="flex-none w-[280px] h-[180px] bg-white rounded-[12px] border border-teal-800/10 hover:border-teal-800/30 hover:shadow-md transition-all p-6 flex flex-col justify-between group relative overflow-hidden">
-                      <div className="flex justify-between items-start">
- <div className="w-10 h-10 rounded-lg bg-teal-600/10 flex items-center justify-center">
- <span className="text-teal-600 font-bold">📄</span>
-                          </div>
- <span className="bg-teal-600/10 text-teal-600 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Coming Soon</span>
+                    const itemContent = (
+                      <div className="flex items-center gap-3 px-3 py-2 text-teal-900 group cursor-pointer whitespace-nowrap transition-colors">
+                        <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                          {tool.slug === 'rccp' ? (
+                            <img src="/images/rccp-logo.png" alt={tool.name} className="w-7 h-7 object-contain group-hover:scale-110 transition-transform" />
+                          ) : Icon ? (
+                            <Icon className="w-6 h-6 text-teal-600 group-hover:scale-110 transition-transform" />
+                          ) : null}
+                        </div>
+                        <span className="font-display font-semibold text-base sm:text-lg md:text-xl text-teal-900 group-hover:text-teal-600 transition-colors tracking-tight">
+                          {tool.name}
+                        </span>
+                        <span className="text-teal-600/30 text-xs ml-4 sm:ml-6">✦</span>
                       </div>
-                      <div>
- <h3 className="text-teal-900 font-bold font-display text-lg mb-1 group-hover:text-teal-600 transition-colors">Invoice Generator</h3>
-                          <p className="text-teal-900/80 text-sm font-display">Invoicing</p>
-                      </div>
-                  </Link>
+                    );
+
+                    return isExternal ? (
+                      <a
+                        key={`${loopIdx}-${tool.id}`}
+                        href={targetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block hover:opacity-90 transition-opacity"
+                      >
+                        {itemContent}
+                      </a>
+                    ) : (
+                      <Link
+                        key={`${loopIdx}-${tool.id}`}
+                        to={targetUrl}
+                        className="inline-block hover:opacity-90 transition-opacity"
+                      >
+                        {itemContent}
+                      </Link>
+                    );
+                  })}
                 </div>
               ))}
             </div>
@@ -155,12 +141,8 @@ const Index = () => {
         </section>
 
         {/* Services Preview Section */}
-        <section className="py-24">
+        <section className="pt-16 md:pt-20 pb-0">
           <div className="container mx-auto px-6">
-            <div className="ml-0 w-[50%] mb-12">
-              <div className="broken-gold-line h-[1.5px] opacity-40"></div>
-            </div>
-
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -168,14 +150,14 @@ const Index = () => {
               transition={{ duration: 0.6 }}
               className="text-center"
             >
- <h2 className="text-4xl md:text-5xl font-bold text-teal-600 mb-6 font-display">
+              <h2 className="text-3xl md:text-5xl font-bold text-teal-600 mb-4 font-display">
                 Our Services
               </h2>
-              <p className="text-lg text-teal-900/80 max-w-3xl mx-auto mb-12 font-display">
+              <p className="text-base sm:text-lg text-teal-900/80 max-w-3xl mx-auto mb-8 font-display">
                 Comprehensive solutions tailored to meet your unique business needs
               </p>
               <Link to="/services">
- <Button size="lg" className="group hover:scale-105 transition-transform bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 shadow-md font-bold font-display border-none">
+                <Button size="lg" className="group hover:scale-105 transition-transform bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 shadow-md font-bold font-display border-none px-6 py-3">
                   View All Services
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -185,8 +167,10 @@ const Index = () => {
         </section>
 
         <Testimonials />
+      </main>
 
-
+      {/* Full-width Footer */}
+      <div className="mt-16 md:mt-20">
         <Footer />
       </div>
     </div>

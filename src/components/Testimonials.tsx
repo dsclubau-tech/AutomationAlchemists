@@ -52,7 +52,7 @@ const Testimonials = () => {
     const currentTestimonial = testimonials[activeIndex];
 
     return (
-        <section className="py-20 bg-white/50">
+        <section className="pt-16 md:pt-20 pb-0">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}

@@ -65,18 +65,15 @@ const About = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="about" className="py-24" ref={ref}>
+    <section id="about" className="pt-16 md:pt-20 pb-0" ref={ref}>
       <div className="container mx-auto px-6">
-        {/* Section Header with Broken Gold Line */}
-        <div className="mb-16">
-          <div className="ml-0 w-1/2 mb-4">
-            <div className="broken-gold-line h-[1.5px] opacity-40"></div>
-          </div>
+        {/* Section Header */}
+        <div className="mb-8 md:mb-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.6 }}
-            className="text-left px-4"
+            className="text-left"
           >
  <h2 className="text-teal-600 text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-6 font-display">
               About Automation Alchemists
