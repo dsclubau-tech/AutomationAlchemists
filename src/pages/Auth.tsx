@@ -112,6 +112,7 @@ const Auth = () => {
   const [termsError, setTermsError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [touchedPassword, setTouchedPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
@@ -362,9 +363,9 @@ const Auth = () => {
                         value={password}
                         onChange={(e) => {
                           setPassword(e.target.value);
-                          if (touchedPassword) setPasswordErrors(validatePassword(e.target.value));
+                          if (touchedPassword) validatePassword(e.target.value);
                         }}
-                        onBlur={() => { setTouchedPassword(true); setPasswordErrors(validatePassword(password)); }}
+                        onBlur={() => { setTouchedPassword(true); validatePassword(password); }}
                         required
                         placeholder="••••••••"
                         className={`${inputClass} pr-10`}
