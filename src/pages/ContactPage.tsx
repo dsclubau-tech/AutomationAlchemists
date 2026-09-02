@@ -80,16 +80,16 @@ const ContactPage = () => {
             <PageLoader pageName="Contact" />
             <Navigation />
 
-            <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24">
-                <main className="py-16 sm:py-24">
+            <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 lg:pt-32">
+                <main className="pb-16 sm:pb-24">
                     <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
                         <div className="flex flex-col">
-                            <div className="mb-8">
-                                <h1 className="text-4xl font-bold tracking-[-0.033em] text-teal-900 lg:text-5xl font-display">
-                                    Open a Quantum Channel
+                            <div className="mb-8 bg-[#EEF7F5] rounded-2xl p-8 sm:p-12 text-center">
+                                <h1 className="text-4xl font-bold tracking-tight text-teal-900 lg:text-5xl font-display mb-3">
+                                    Let's Talk Automation
                                 </h1>
-                                <p className="mt-3 text-base font-normal text-teal-900/80 font-display">
-                                    Initiate a dialogue to reshape your operational reality.
+                                <p className="text-base sm:text-lg font-medium text-teal-600/80 font-display">
+                                    No sales pitch on the first call. Just a straight answer on whether automation fixes your problem.
                                 </p>
                             </div>
 

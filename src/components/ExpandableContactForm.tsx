@@ -152,15 +152,17 @@ export function ExpandableContactForm() {
                         <span className="text-teal-600 text-sm font-medium">Free Consultation</span>
                     </motion.div>
 
-                    <motion.h2
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-teal-900 max-w-3xl"
+                        className="bg-[#EEF7F5] rounded-[2rem] p-8 sm:p-10 md:p-12 mb-6 inline-block"
                     >
-                        Let's Build Something{" "}
-                        <span className="text-teal-600">Amazing</span>
-                    </motion.h2>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-[1.1] tracking-tight text-teal-900">
+                            Less Busywork.<br />
+                            More Business.
+                        </h2>
+                    </motion.div>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}

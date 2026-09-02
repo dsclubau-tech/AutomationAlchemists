@@ -50,10 +50,9 @@ const Company = () => {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
-                            className="relative h-[320px] sm:h-[380px] w-full rounded-2xl overflow-hidden border border-white/20 shadow-2xl backdrop-blur-sm bg-teal-900/60 z-10"
+                            className="relative h-[320px] sm:h-[380px] w-full rounded-2xl overflow-hidden shadow-2xl z-10"
                         >
-                            <img alt="Team working" className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAul0Z76sg_D7C-8UXWRqouP5wAPWI-BkxBb7HK-I6TgreeYPKD6evg-wJQz3A6yJnIXDvAS65vYMJRW0ojNLRYmNickOmNPyRQwancWaZGwmEtaGN8fNkhdHP6fJQhhLpr9aFE-02IbUJMxSZNGG8MQReXGLoDROReNoKk1fbNShA6lZUAlbnqtzsmEKsIxU62q4QSmIvIJg-EUY2z2yFlQWeai7Aa1eAd4XkEoe1I3ha4gN6XO8Yxtg"/>
-                            <div className="absolute inset-0 bg-gradient-to-t from-teal-950/80 to-transparent"></div>
+                            <img alt="Automation Alchemists Team" className="absolute inset-0 w-full h-full object-cover" src="/images/company-hero.jpg"/>
                         </motion.div>
                     </motion.div>
                 </section>
@@ -208,13 +207,10 @@ const Company = () => {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.7 }}
-                            className="relative z-10 bg-teal-800 text-white rounded-3xl p-10 md:p-14 shadow-2xl overflow-hidden border border-teal-600/30"
+                            className="relative z-10 bg-[#113E41] rounded-[2rem] p-10 sm:p-12 md:p-16 shadow-2xl overflow-hidden"
                         >
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-5 pointer-events-none">
-                                <Quote className="w-64 h-64" />
-                            </div>
-                            <blockquote className="text-2xl md:text-3xl lg:text-4xl text-white font-display font-medium leading-tight md:leading-snug relative z-10">
-                                "We are very serious about business automation in 2026. Manual repetitive tasks should be out of fashion by now but it isn't. Productivity inflation is a thing. We want to see people reach their potential by giving them more time on their hands and making their business flow effortless. We will hold hands with clients as they achieve what they want and benefit the world"
+                            <blockquote className="text-xl sm:text-2xl lg:text-[1.75rem] text-[#EEF7F5] font-display font-medium leading-[1.6] text-center relative z-10">
+                                "Most businesses are still doing by hand what software could do in seconds. We got tired of watching good teams burn hours on work a system should own. So we build the systems, and we stay hands-on until they actually run the way you need them to."
                             </blockquote>
                         </motion.div>
                     </div>
