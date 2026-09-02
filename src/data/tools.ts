@@ -40,7 +40,7 @@ export const toolsData: ToolData[] = [
             { title: 'History tracking', description: 'Fulfilment history and activity tracking', icon: 'line-chart' },
             { title: 'Cloud clipboard', description: 'Cloud clipboard for cross-device sync', icon: 'cloud' }
         ],
-        price: 'Return Converter: Free | CP Bot: AUD $9/mo',
+        price: 'AUD $19/month',
         isFree: false,
         howItWorks: [
             'Install the CP Bot Chrome extension or log in to the dashboard.',
@@ -60,14 +60,14 @@ export const toolsData: ToolData[] = [
         bannerBg: '#0a0d0a',
         icon: Sparkles,
         shortDescription: 'Track, list, and monitor products across eBay. A faster AutoDS alternative.',
-        fullDescription: "Built to move fast: import your listings in bulk, publish to eBay, and let ListFlow watch prices and stock while you focus on sourcing the next win. No bloat, no modules you'll never touch — just the tools eBay sellers actually use, including built-in market research so you know what similar listings are already selling for before you set a price.",
+        fullDescription: "Built to move fast: import your listings in bulk, publish to eBay, and let ListFlow watch prices and stock while you focus on sourcing the next win. No bloat, no modules you'll never touch, just the tools eBay sellers actually use, including built-in market research so you know what similar listings are already selling for before you set a price.",
         features: [
             { title: 'Bulk listing', description: 'Import and list dozens of products from Amazon to eBay in seconds.', icon: 'layers' },
             { title: 'Price monitoring', description: 'Get alerts when prices change on Amazon to protect your margins.', icon: 'line-chart' },
             { title: 'Inventory sync', description: 'Automatically update your stock levels when items go out of stock.', icon: 'refresh-cw' },
             { title: 'eBay Research', description: 'See what similar listings are actively selling for — active prices, sold comps, seller data — pulled straight from eBay\'s official API, so pricing decisions aren\'t a guess.', icon: 'search' }
         ],
-        price: 'AUD $19/month',
+        price: 'AUD $59/month',
         isFree: false,
         howItWorks: [
             'Connect your eBay store securely via our dashboard.',

@@ -148,7 +148,6 @@ const ToolDetail = () => {
                                 <div className="flex flex-col sm:flex-row items-center gap-6">
                                     <div className="text-2xl font-bold text-teal-900 font-display">
                                         {tool.price}
-                                        {tool.isFree ? '' : <span className="text-sm text-teal-900/80 font-normal ml-1">/month</span>}
                                     </div>
                                     <Button 
                                         size="lg"

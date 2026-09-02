@@ -122,7 +122,7 @@ const Tools = () => {
                             <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
                                 <div className="flex justify-between items-center mb-6 px-1">
                                     <span className="font-label-md text-sm text-teal-900/80">Return Converter: <strong className="text-teal-900">Free</strong></span>
-                                    <span className="font-label-md text-sm text-teal-900/80">CP Bot: <strong className="text-teal-900">AUD $9/mo</strong></span>
+                                    <span className="font-label-md text-sm text-teal-900/80">CP Bot: <strong className="text-teal-900">AUD $19/mo</strong></span>
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col xl:flex-row gap-3">
@@ -169,7 +169,7 @@ const Tools = () => {
                             </div>
                             <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
                                 <div className="flex items-end gap-1 mb-6 border-t border-teal-800/10 pt-6">
-                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD $19</span>
+                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD $59</span>
                                     <span className="font-label-md text-sm text-teal-900/80 mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
