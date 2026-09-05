@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,33 @@ const ToolDetail = () => {
     const { user } = useAuth();
     const { toast } = useToast();
 
-    const handleGetAccess = () => {
+    const [subscriptionCount, setSubscriptionCount] = useState<number | null>(null);
+    const [loadingCount, setLoadingCount] = useState(true);
+    const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+    useEffect(() => {
+        if (!user || !tool) {
+            setLoadingCount(false);
+            return;
+        }
+        const checkAccess = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_active_subscription_count', {
+                    p_product_slug: tool.slug
+                });
+                if (!error && data !== null) {
+                    setSubscriptionCount(data);
+                }
+            } catch (err) {
+                console.error('Error fetching subscription count:', err);
+            } finally {
+                setLoadingCount(false);
+            }
+        };
+        checkAccess();
+    }, [user, tool]);
+
+    const handleGetAccess = async () => {
         if (!user) {
             toast({
                 title: "Authentication Required",
@@ -55,7 +82,46 @@ const ToolDetail = () => {
             return;
         }
 
-        window.location.href = "/pricing";
+        if (tool?.isFree) {
+            window.location.href = "/pricing";
+            return;
+        }
+
+        try {
+            setCheckoutLoading(true);
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    product_slug: tool?.slug,
+                    quantity: 1
+                })
+            });
+
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to create checkout session');
+            }
+
+            if (result.url) {
+                window.location.href = result.url;
+            }
+        } catch (err: any) {
+            console.error(err);
+            toast({
+                title: "Checkout Error",
+                description: err.message,
+                variant: "destructive"
+            });
+        } finally {
+            setCheckoutLoading(false);
+        }
     };
 
     if (!tool) {
@@ -145,17 +211,44 @@ const ToolDetail = () => {
                                     {tool.fullDescription ?? 'No description available'}
                                 </p>
                                 
-                                <div className="flex flex-col sm:flex-row items-center gap-6">
-                                    <div className="text-2xl font-bold text-teal-900 font-display">
+                                <div className="flex flex-col xl:flex-row items-center gap-6">
+                                    <div className="text-2xl font-bold text-teal-900 font-display whitespace-nowrap">
                                         {tool.price}
                                     </div>
-                                    <Button 
-                                        size="lg"
-                                        onClick={handleGetAccess}
-                                        className="w-full sm:w-auto bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 shadow-md font-bold font-display px-8"
-                                    >
-                                        {tool.isFree ? 'Use now free' : 'Get access'}
-                                    </Button>
+                                    
+                                    {!loadingCount && subscriptionCount !== null && subscriptionCount > 0 ? (
+                                        <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto">
+                                            <div className="bg-mint-50 text-teal-900 px-6 py-3 rounded-lg border border-teal-600/20 font-bold font-display flex items-center justify-center whitespace-nowrap">
+                                                You have {subscriptionCount} active slot{subscriptionCount !== 1 ? 's' : ''}
+                                            </div>
+                                            <Link to={tool.appUrl || "/dashboard"} className="w-full sm:w-auto">
+                                                <Button 
+                                                    size="lg"
+                                                    className="w-full bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 shadow-md font-bold font-display px-8"
+                                                >
+                                                    Open Tool
+                                                </Button>
+                                            </Link>
+                                            <Link to="/billing" className="w-full sm:w-auto">
+                                                <Button 
+                                                    size="lg"
+                                                    variant="outline"
+                                                    className="w-full border-teal-600/30 text-teal-900 hover:bg-teal-600/10 font-bold font-display px-8 whitespace-nowrap"
+                                                >
+                                                    Manage Billing
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <Button 
+                                            size="lg"
+                                            onClick={handleGetAccess}
+                                            disabled={checkoutLoading}
+                                            className="w-full sm:w-auto bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 shadow-md font-bold font-display px-8"
+                                        >
+                                            {checkoutLoading ? 'Loading...' : (tool.isFree ? 'Use now free' : 'Get access')}
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         </div>
