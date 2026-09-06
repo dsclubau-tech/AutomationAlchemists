@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ArrowRight, CheckCircle } from "lucide-react";
@@ -7,10 +8,35 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import SchemaMarkup from "@/components/SchemaMarkup";
+import { supabase } from "@/integrations/supabase/client";
+
+interface DbTool {
+    slug: string;
+    status: 'coming_soon' | 'available' | 'maintenance' | 'hidden';
+    price_monthly: number;
+    maintenance_message: string | null;
+}
 
 const Tools = () => {
     const { user } = useAuth();
     const { toast } = useToast();
+    const [dbTools, setDbTools] = useState<Record<string, DbTool>>({});
+
+    useEffect(() => {
+        const fetchTools = async () => {
+            const { data, error } = await supabase
+                .from('tools')
+                .select('slug, status, price_monthly, maintenance_message')
+                .in('status', ['available', 'coming_soon', 'maintenance']);
+                
+            if (!error && data) {
+                const toolsMap: Record<string, DbTool> = {};
+                data.forEach(t => toolsMap[t.slug] = t as DbTool);
+                setDbTools(toolsMap);
+            }
+        };
+        fetchTools();
+    }, []);
 
     const handleGetAccess = () => {
         if (!user) {
@@ -26,6 +52,24 @@ const Tools = () => {
         }
 
         window.location.href = "/pricing";
+    };
+
+    const renderButton = (tool: DbTool, defaultAction: React.ReactNode) => {
+        if (tool.status === 'available') {
+            return defaultAction;
+        } else if (tool.status === 'maintenance') {
+            return (
+                <button disabled className="flex-1 text-center py-2.5 px-4 rounded-lg bg-teal-600/10 text-teal-900/60 font-label-md text-sm font-semibold cursor-not-allowed border border-teal-600/20">
+                    {tool.maintenance_message || "Under maintenance"}
+                </button>
+            );
+        } else {
+            return (
+                <button disabled className="flex-1 text-center py-2.5 px-4 rounded-lg bg-teal-600/10 text-teal-900/60 font-label-md text-sm font-semibold cursor-not-allowed border border-teal-600/20">
+                    Coming Soon
+                </button>
+            );
+        }
     };
 
     return (
@@ -75,6 +119,7 @@ const Tools = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         
                         {/* CP Bot Card */}
+                        {dbTools['rccp'] && (
                         <motion.div 
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -122,12 +167,12 @@ const Tools = () => {
                             <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
                                 <div className="flex justify-between items-center mb-6 px-1">
                                     <span className="font-label-md text-sm text-teal-900/80">Return Converter: <strong className="text-teal-900">Free</strong></span>
-                                    <span className="font-label-md text-sm text-teal-900/80">CP Bot: <strong className="text-teal-900">AUD $19/mo</strong></span>
+                                    <span className="font-label-md text-sm text-teal-900/80">CP Bot: <strong className="text-teal-900">AUD ${dbTools['rccp'].price_monthly}/mo</strong></span>
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col xl:flex-row gap-3">
                                         <a className="flex-1 text-center py-2.5 px-4 rounded-lg border border-teal-600 text-teal-600 font-label-md text-sm font-semibold hover:bg-teal-600/10 transition-colors" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Use Free Tool</a>
-                                        <a className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Get CP Bot</a>
+                                        {renderButton(dbTools['rccp'], <a className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Get CP Bot</a>)}
                                     </div>
                                     <div className="flex justify-end">
                                         <Link to="/tools/rccp" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
@@ -135,8 +180,10 @@ const Tools = () => {
                                 </div>
                             </div>
                         </motion.div>
+                        )}
 
                         {/* ListFlow Card */}
+                        {dbTools['listflow'] && (
                         <motion.div 
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -169,17 +216,19 @@ const Tools = () => {
                             </div>
                             <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
                                 <div className="flex items-end gap-1 mb-6 border-t border-teal-800/10 pt-6">
-                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD $59</span>
+                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD ${dbTools['listflow'].price_monthly}</span>
                                     <span className="font-label-md text-sm text-teal-900/80 mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
-                                    <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>
+                                    {renderButton(dbTools['listflow'], <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
                                     <Link to="/tools/listflow" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
                                 </div>
                             </div>
                         </motion.div>
+                        )}
 
                         {/* Order Bot Card */}
+                        {dbTools['orderbot'] && (
                         <motion.div 
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -211,17 +260,19 @@ const Tools = () => {
                             </div>
                             <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
                                 <div className="flex items-end gap-1 mb-6 border-t border-teal-800/10 pt-6">
-                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD $7</span>
+                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD ${dbTools['orderbot'].price_monthly}</span>
                                     <span className="font-label-md text-sm text-teal-900/80 mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
-                                    <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>
+                                    {renderButton(dbTools['orderbot'], <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
                                     <Link to="/tools/order-bot" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
                                 </div>
                             </div>
                         </motion.div>
+                        )}
 
                         {/* Invoice Generator Card */}
+                        {dbTools['invoicegen'] && (
                         <motion.div 
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -253,15 +304,16 @@ const Tools = () => {
                             </div>
                             <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
                                 <div className="flex items-end gap-1 mb-6 border-t border-teal-800/10 pt-6">
-                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD $5</span>
+                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">AUD ${dbTools['invoicegen'].price_monthly}</span>
                                     <span className="font-label-md text-sm text-teal-900/80 mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
-                                    <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>
+                                    {renderButton(dbTools['invoicegen'], <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
                                     <Link to="/tools/invoice-generator" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
                                 </div>
                             </div>
                         </motion.div>
+                        )}
                         
                     </div>
                 </section>
