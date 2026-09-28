@@ -75,7 +75,7 @@ const VirtualAssistance = () => {
               <Button asChild size="lg" className="bg-yellow-accent text-teal-900 [@media(hover:hover)]:hover:bg-yellow-accent/90 active:bg-yellow-accent/90 w-full sm:w-auto font-semibold focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
                 <Link to="/contact">Get Started</Link>
               </Button>
-              <Button onClick={scrollToFirstStory} variant="outline" size="lg" className="w-full sm:w-auto border-teal-600/20 text-teal-900 [@media(hover:hover)]:hover:bg-teal-900 [@media(hover:hover)]:hover:text-white active:bg-teal-900 active:text-white font-semibold focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-mint-50">
+              <Button onClick={scrollToFirstStory} variant="outline" size="lg" className="w-full sm:w-auto border-teal-600/20 text-teal-900 bg-transparent [@media(hover:hover)]:hover:bg-teal-900 [@media(hover:hover)]:hover:text-white active:bg-teal-900 active:text-white font-semibold focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-mint-50">
                 See How It Works
               </Button>
             </RevealBlock>
