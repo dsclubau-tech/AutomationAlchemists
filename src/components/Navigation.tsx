@@ -195,6 +195,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                         <Link to="/services" onClick={(e) => handleNavClick(e, '/services')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/services' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-mint-50/70 hover:text-white'}`}>
                             Services
                         </Link>
+                        <Link to="/virtual-assistance" onClick={(e) => handleNavClick(e, '/virtual-assistance')} className={`transition-all duration-300 font-display text-sm font-semibold ${location.pathname === '/virtual-assistance' ? 'text-white border-b-2 border-teal-600 pb-1' : 'text-mint-50/70 hover:text-white'}`}>
+                            Virtual Assistance
+                        </Link>
                         
                         <div className="relative group">
                             <Link to="/tools" onClick={(e) => handleNavClick(e, '/tools')} className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 py-4 ${location.pathname.startsWith('/tools') ? 'text-white border-b-2 border-teal-600' : 'text-mint-50/70 hover:text-white'}`}>
@@ -425,6 +428,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                 </Link>
                                 <Link to="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-white hover:text-teal-600 font-semibold transition-colors py-2 font-display">
                                     Services
+                                </Link>
+                                <Link to="/virtual-assistance" onClick={() => setIsMobileMenuOpen(false)} className="text-white hover:text-teal-600 font-semibold transition-colors py-2 font-display">
+                                    Virtual Assistance
                                 </Link>
                                 
                                 <div className="py-2">

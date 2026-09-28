@@ -8,18 +8,28 @@ import { Link } from "react-router-dom";
 const contactInfo = [
   {
     icon: Mail,
-    label: "Email",
-    value: "dsclub.au@outlook.com"
+    label: "General Inquiries",
+    value: <a href="mailto:contact@automationalchemists.com" className="hover:text-white transition-colors">contact@automationalchemists.com</a>
   },
   {
     icon: Phone,
-    label: "Phone",
-    value: "+61 404 242 373"
+    label: "WhatsApp (messages only)",
+    value: (
+      <div className="flex flex-col gap-1 mt-1">
+        <div>Australia: <a href="https://wa.me/61404242373" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline">+61 404 242 373</a></div>
+        <div>Bangladesh: <a href="https://wa.me/8801346831069" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline">+880 134 683 1069</a></div>
+      </div>
+    )
   },
   {
     icon: MapPin,
-    label: "Location",
-    value: "3/33-37 Warialda St, Kogarah NSW 2217"
+    label: "Offices",
+    value: (
+      <div className="flex flex-col gap-2 mt-1">
+        <div><strong className="text-white">Australia:</strong><br/>3/33-37 Warialda St, Kogarah NSW 2217</div>
+        <div><strong className="text-white">Bangladesh:</strong><br/>Room 315, 4th Floor, Al Rashid Market, Malopara, Rajshahi 6100</div>
+      </div>
+    )
   }
 ];
 
@@ -64,7 +74,7 @@ const Contact = () => {
                 <info.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary mt-1" />
                 <div>
                   <p className="font-semibold text-white text-sm sm:text-base font-display">{info.label}</p>
-                  <p className="text-white/70 text-xs sm:text-sm font-display break-words">{info.value}</p>
+                  <div className="text-white/70 text-xs sm:text-sm font-display break-words">{info.value}</div>
                 </div>
               </div>
             </motion.div>

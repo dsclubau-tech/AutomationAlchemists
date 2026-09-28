@@ -26,7 +26,7 @@ const Footer = () => {
  <a href="https://github.com/dsclubau-tech" target="_blank" rel="noopener noreferrer" className="text-[#e5e2e1]/70 hover:text-white transition-colors">
               <Github className="w-5 h-5" />
             </a>
- <a href="mailto:dsclub.au@outlook.com" className="text-[#e5e2e1]/70 hover:text-white transition-colors">
+ <a href="mailto:contact@automationalchemists.com" className="text-[#e5e2e1]/70 hover:text-white transition-colors">
               <Mail className="w-5 h-5" />
             </a>
           </div>

@@ -24,6 +24,7 @@ const Automation = lazy(() => import("./pages/Automation"));
 const Mission = lazy(() => import("./pages/Mission"));
 const Company = lazy(() => import("./pages/Company"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const VirtualAssistance = lazy(() => import("./pages/VirtualAssistance"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -78,6 +79,7 @@ const App = () => (
                 <Route path="/services/app-development" element={<AppDevelopment />} />
                 <Route path="/services/saas-development" element={<SaasDevelopment />} />
                 <Route path="/services/automation" element={<Automation />} />
+                <Route path="/virtual-assistance" element={<VirtualAssistance />} />
                 <Route path="/mission" element={<Mission />} />
                 <Route path="/pricing" element={<Navigate to="/" replace />} />
                 <Route path="/contact" element={<ContactPage />} />
