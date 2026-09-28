@@ -23,7 +23,7 @@ const Footer = () => {
           <p className="font-display text-sm sm:text-base text-[#e5e2e1]/70 max-w-sm">
             Alchemy for the automation era: ideas → apps → passive cashflow
           </p>
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-1 mt-4 -ml-3">
             {SOCIAL_LINKS.email && (
               <a href={SOCIAL_LINKS.email} aria-label="Email us" className="text-[#e5e2e1]/70 hover:text-white transition-colors flex items-center justify-center w-[44px] h-[44px]">
                 <Mail className="w-5 h-5" />
