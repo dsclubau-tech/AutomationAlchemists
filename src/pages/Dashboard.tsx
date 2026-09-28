@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { handleGetAccessLogic } from '@/pages/Tools';
+import { handleGetAccessLogic } from '@/lib/checkout';
 
 export interface DbTool {
     id: string;
