@@ -74,14 +74,17 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
       
       <div className={`space-y-4 text-lg font-display ${bodyClass}`}>
         {story.paragraphs.map((para, i) => (
-          <p key={i}>{para}</p>
+          <p key={i}>
+            {para.lead && <span className="font-bold font-display">{para.lead} </span>}
+            {para.text}
+          </p>
         ))}
       </div>
     </div>
   );
 
   const videoBlock = (
-    <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden shadow-lg bg-teal-900/5 flex items-center justify-center">
+    <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-teal-900/5 flex items-center justify-center">
       {story.videoSrc ? (
         <video
           ref={videoRef}
@@ -91,7 +94,7 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
           playsInline
           preload="metadata"
         >
-          <source src={story.videoSrc} type="video/mp4" />
+          <source src={`${story.videoSrc}#t=0.1`} type="video/mp4" />
         </video>
       ) : (
         <div className="flex flex-col items-center justify-center text-teal-900/40 p-8 text-center space-y-4">

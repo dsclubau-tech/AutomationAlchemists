@@ -1,5 +1,13 @@
 # Build Log
 
+## 2026-09-28 (v1.3.0 Virtual Assistance Polish)
+- Applied exact copy updates to `/virtual-assistance` stories, adding a bold `lead` prefix feature.
+- Extracted video dimensions (854x480 landscape) and updated `StorySection.tsx` to use `aspect-video` filling the column instead of vertical vertical capping.
+- Appended `#t=0.1` to video source URLs to force an initial frame in iOS Safari.
+- Configured edge caching for `/videos/(.*)` in `vercel.json` (max-age=86400, stale-while-revalidate=604800).
+- Bumped version to 1.3.0 and updated project state docs.
+Files touched: `src/data/virtualAssistance.ts`, `src/components/StorySection.tsx`, `vercel.json`, `CHANGELOG.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-09-28 — Front-end Fixes
 Requested: Three front-end fixes on the integrate-office-home branch. Remove Virtual Assistance section from Services page, update tools fallback prices, and wire up the Dashboard Buy Now buttons.
 Built:

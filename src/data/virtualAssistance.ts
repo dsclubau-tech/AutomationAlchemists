@@ -1,9 +1,14 @@
+export interface VirtualAssistanceStoryParagraph {
+  lead?: string;
+  text: string;
+}
+
 export interface VirtualAssistanceStory {
   id: string;
   step: number;
   label: string;
   title: string;
-  paragraphs: string[];
+  paragraphs: VirtualAssistanceStoryParagraph[];
   videoSrc?: string;
   posterSrc?: string;
   enabled: boolean;
@@ -13,11 +18,25 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
   {
     id: "story-1",
     step: 1,
-    label: "Send the task",
+    label: "Get started",
     title: "Send It to Someone Who'll Actually Get It Done",
     paragraphs: [
-      "No portals. No support tickets. No queue.",
-      "You send an email, a voice note, or a Slack message. We pick it up and handle it."
+      {
+        lead: "Reach out.",
+        text: "Send us a message, email us, or call. Explain your problem or plan in whatever level of detail you have."
+      },
+      {
+        lead: "Free consultation.",
+        text: "We talk through what you need and whether a virtual assistant is the right fit."
+      },
+      {
+        lead: "Real people, not a queue.",
+        text: "Your task goes to a real assistant who reads it and works on it."
+      },
+      {
+        lead: "Built by automation specialists.",
+        text: "We build automation systems for a living, so we know which work should stay with a person and which shouldn't."
+      }
     ],
     videoSrc: "/videos/va/va-01.mp4",
     enabled: true,
@@ -25,11 +44,12 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
   {
     id: "story-2",
     step: 2,
-    label: "Restore order",
-    title: "Hand Off the Mess. Get Back Order.",
+    label: "Hand it off",
+    title: "Hand It Off. They Run With It.",
     paragraphs: [
-      "Inbox zero isn't a myth. Data entry doesn't have to be your evening.",
-      "Our assistants thrive in the messy operational details so you can focus on building your business."
+      { text: "Skip the back-and-forth of explaining every step. Send it over as it is." },
+      { text: "A real assistant works through it, organizes it, and gets it into shape." },
+      { text: "They come to you only when something truly needs your call." }
     ],
     videoSrc: "/videos/va/va-02.mp4",
     enabled: true,
@@ -37,11 +57,13 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
   {
     id: "story-3",
     step: 3,
-    label: "Build momentum",
-    title: "One at a Time, It Adds Up",
+    label: "Clear the inbox",
+    title: "Every Message Answered, Every Task Closed",
     paragraphs: [
-      "Every task handed off is time bought back.",
-      "We provide the operational leverage you need to keep moving fast."
+      { text: "Customer questions and everyday requests land with a real assistant, not an inbox that piles up." },
+      { text: "They handle each one and confirm it's done, one after another." },
+      { text: "You stop being the bottleneck for every reply." },
+      { text: "Handled steadily, the inbox stays under control and your time goes back to the work that needs you." }
     ],
     videoSrc: "/videos/va/va-03.mp4",
     enabled: true,
@@ -49,12 +71,12 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
   {
     id: "story-4",
     step: 4,
-    label: "Stay organized",
-    title: "Keep the Details Under Control",
+    label: "Scale up",
+    title: "Scale and stay organized.",
     paragraphs: [
-      "Listings, orders, files and follow-ups pile up fast. A real assistant keeps track of all of it.",
-      "Details get checked, updates get made, and nothing slips through the cracks.",
-      "You always know where things stand without having to ask."
+      { text: "More listings, more messages, more moving parts: the workload doesn't wait until you're ready." },
+      { text: "Add real assistants as the business grows, without the cost and delay of hiring in-house." },
+      { text: "Your growth stays on your side of the screen, and the organizing stays on theirs. You focus on growing, and the work stays handled." }
     ],
     videoSrc: "/videos/va/va-04.mp4",
     enabled: true,
@@ -62,12 +84,12 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
   {
     id: "story-5",
     step: 5,
-    label: "Build the relationship",
-    title: "A Real Person Who Learns How You Work",
+    label: "Get time back",
+    title: "Buy Back Your Time",
     paragraphs: [
-      "The same assistant gets to know your business, your preferences and the way you like things done.",
-      "Over time, handoffs get faster and you explain less.",
-      "It feels less like outsourcing and more like having a teammate."
+      { text: "Hours spent on admin are hours you can't spend on anything else." },
+      { text: "A real assistant takes the routine, one task at a time, so those hours come back to you." },
+      { text: "What you do with them is up to you. Running a business shouldn't mean answering every message and chasing every task yourself. You stay in charge, without being everywhere." }
     ],
     videoSrc: "/videos/va/va-05.mp4",
     enabled: true,
