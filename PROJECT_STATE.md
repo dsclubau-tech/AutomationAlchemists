@@ -23,6 +23,9 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Multi-item single-checkout (Edge Function only supports one item per session currently).
 - Stripe Customer Portal integration for subscription management.
 
+## Turning on Checkout
+- To enable checkout globally (bypassing the admin-only guard), set the `CHECKOUT_ENABLED` secret to `"true"` in Supabase. No other code changes are needed.
+
 ## Known Issues
 - `npm run build` prerender step fails locally due to missing Puppeteer Chrome binary (not a code issue; build/vite step succeeds).
 - Puppeteer Chrome version mismatch on local dev machine.

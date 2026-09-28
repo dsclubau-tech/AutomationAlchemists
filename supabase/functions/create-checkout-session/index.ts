@@ -35,6 +35,30 @@ Deno.serve(async (req) => {
       });
     }
 
+    // SERVER-SIDE CHECKOUT ENABLED GUARD
+    if (Deno.env.get('CHECKOUT_ENABLED') !== 'true') {
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      });
+
+      const { data: profile, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile?.is_admin) {
+        return new Response(JSON.stringify({ error: 'Checkout is not available yet' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const body = await req.json();
     const { product_slug, quantity } = body;
 

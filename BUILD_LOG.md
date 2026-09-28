@@ -7,7 +7,8 @@ Built:
 - Updated `dbTools` fallback state in `Tools.tsx` to match live production prices (specifically updating `rccp` from 19 to 9).
 - Extracted `handleGetAccessLogic` in `Tools.tsx` and wired it to `Dashboard.tsx` "Buy now" buttons to ensure checkout feature flag parity across the app.
 - Added 301 permanent redirect from `/services/virtual-assistants` to `/virtual-assistance` in `vercel.json`.
-Files touched: `Services.tsx`, `Footer.tsx`, `App.tsx`, `prerender.js`, `generate-sitemap.js`, `Tools.tsx`, `Dashboard.tsx`, `CHANGELOG.md`, `vercel.json`.
+- Deployed server-side guard to `create-checkout-session` Edge Function to reject non-admin users with 403 when `CHECKOUT_ENABLED` is not 'true'.
+Files touched: `Services.tsx`, `Footer.tsx`, `App.tsx`, `prerender.js`, `generate-sitemap.js`, `Tools.tsx`, `Dashboard.tsx`, `CHANGELOG.md`, `vercel.json`, `supabase/functions/create-checkout-session/index.ts`.
 Deviations: The orphaned `VirtualAssistants.tsx` component was left intact, but its route was removed.
 
 ## 2026-09-28
