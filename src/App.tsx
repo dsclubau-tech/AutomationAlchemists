@@ -25,6 +25,7 @@ const Mission = lazy(() => import("./pages/Mission"));
 const Company = lazy(() => import("./pages/Company"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Cart = lazy(() => import("./pages/Cart")); // cart route
+const VirtualAssistance = lazy(() => import("./pages/VirtualAssistance"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -79,6 +80,7 @@ const App = () => (
                 <Route path="/services/app-development" element={<AppDevelopment />} />
                 <Route path="/services/saas-development" element={<SaasDevelopment />} />
                 <Route path="/services/automation" element={<Automation />} />
+                <Route path="/virtual-assistance" element={<VirtualAssistance />} />
                 <Route path="/mission" element={<Mission />} />
                 <Route path="/cart" element={import.meta.env.VITE_CHECKOUT_ENABLED === 'true' ? <Cart /> : <Navigate to="/contact" replace />} />
                 <Route path="/contact" element={<ContactPage />} />

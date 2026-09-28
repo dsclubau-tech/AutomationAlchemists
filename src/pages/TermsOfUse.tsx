@@ -92,8 +92,8 @@ const TermsOfUse = () => {
                                 <h2 className="text-2xl font-bold text-teal-900 mb-4 font-display">7. Contact Information</h2>
                                 <p className="text-sm text-teal-900/80 font-display leading-relaxed">
                                     If you have any questions about these Terms of Use, please contact us at{" "}
-                                    <a href="mailto:dsclub.au@outlook.com" className="text-teal-600 hover:underline font-medium">
-                                        dsclub.au@outlook.com
+                                    <a href="mailto:contact@automationalchemists.com" className="text-teal-600 hover:underline font-medium">
+                                        contact@automationalchemists.com
                                     </a>
                                 </p>
                             </div>

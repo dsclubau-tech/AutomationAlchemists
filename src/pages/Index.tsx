@@ -44,6 +44,25 @@ const Index = () => {
           url: "https://automationalchemists.com",
           logo: "https://automationalchemists.com/og-image.png",
           description: "Global services platform for web development, Android/Flutter app development, SaaS, and automation consulting.",
+          email: "contact@automationalchemists.com",
+          telephone: "+61-404-242-373",
+          address: [
+            {
+              "@type": "PostalAddress",
+              "streetAddress": "3/33-37 Warialda St",
+              "addressLocality": "Kogarah",
+              "addressRegion": "NSW",
+              "postalCode": "2217",
+              "addressCountry": "AU"
+            },
+            {
+              "@type": "PostalAddress",
+              "streetAddress": "Room 315, 4th Floor, Al Rashid Market, Malopara",
+              "addressLocality": "Rajshahi",
+              "postalCode": "6100",
+              "addressCountry": "BD"
+            }
+          ],
           sameAs: [
             "https://twitter.com/AAlchemists"
           ]
