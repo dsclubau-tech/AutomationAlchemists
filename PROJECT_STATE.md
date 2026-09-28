@@ -17,7 +17,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - **Caching headers**: `vercel.json` configured with `no-cache` for `index.html`, long-cache for hashed assets.
 
 ## In Progress
-- None. (Merged to main as v1.2.0, checkout hidden by flag and server guard).
+- Waiting for version confirmation to release Virtual Assistance page media updates.
 
 ## Not Started
 - Multi-item single-checkout (Edge Function only supports one item per session currently).

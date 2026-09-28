@@ -6,7 +6,6 @@ export interface VirtualAssistanceStory {
   paragraphs: string[];
   videoSrc?: string;
   posterSrc?: string;
-  ctaHref?: string;
   enabled: boolean;
 }
 
@@ -20,7 +19,7 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
       "No portals. No support tickets. No queue.",
       "You send an email, a voice note, or a Slack message. We pick it up and handle it."
     ],
-    ctaHref: "/contact",
+    videoSrc: "/videos/va/va-01.mp4",
     enabled: true,
   },
   {
@@ -32,7 +31,7 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
       "Inbox zero isn't a myth. Data entry doesn't have to be your evening.",
       "Our assistants thrive in the messy operational details so you can focus on building your business."
     ],
-    ctaHref: "/contact",
+    videoSrc: "/videos/va/va-02.mp4",
     enabled: true,
   },
   {
@@ -44,41 +43,34 @@ export const virtualAssistanceStories: VirtualAssistanceStory[] = [
       "Every task handed off is time bought back.",
       "We provide the operational leverage you need to keep moving fast."
     ],
-    ctaHref: "/contact",
+    videoSrc: "/videos/va/va-03.mp4",
     enabled: true,
   },
   {
     id: "story-4",
     step: 4,
-    label: "Scale seamlessly",
-    title: "Prepared for the next chapter",
+    label: "Stay organized",
+    title: "Keep the Details Under Control",
     paragraphs: [
-      "Placeholder content for scaling your operations."
+      "Listings, orders, files and follow-ups pile up fast. A real assistant keeps track of all of it.",
+      "Details get checked, updates get made, and nothing slips through the cracks.",
+      "You always know where things stand without having to ask."
     ],
-    ctaHref: "/contact",
-    enabled: false,
+    videoSrc: "/videos/va/va-04.mp4",
+    enabled: true,
   },
   {
     id: "story-5",
     step: 5,
-    label: "Advanced delegation",
-    title: "Leveling up your operations",
+    label: "Build the relationship",
+    title: "A Real Person Who Learns How You Work",
     paragraphs: [
-      "Placeholder content for advanced operations."
+      "The same assistant gets to know your business, your preferences and the way you like things done.",
+      "Over time, handoffs get faster and you explain less.",
+      "It feels less like outsourcing and more like having a teammate."
     ],
-    ctaHref: "/contact",
-    enabled: false,
-  },
-  {
-    id: "story-6",
-    step: 6,
-    label: "Maximum leverage",
-    title: "Unstoppable momentum",
-    paragraphs: [
-      "Placeholder content for ultimate leverage."
-    ],
-    ctaHref: "/contact",
-    enabled: false,
+    videoSrc: "/videos/va/va-05.mp4",
+    enabled: true,
   }
 ];
 

@@ -90,9 +90,9 @@ const VirtualAssistance = () => {
         </section>
 
         {/* Stories Section */}
-        <div className="flex flex-col space-y-8 pb-16 sm:pb-24">
+        <div className="flex flex-col w-full">
           {activeStories.map((story, index) => (
-            <div key={story.id} id={`story-section-${index}`}>
+            <div key={story.id} id={`story-section-${index}`} className="w-full">
               <StorySection story={story} index={index} />
             </div>
           ))}

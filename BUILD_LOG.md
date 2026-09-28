@@ -10,7 +10,13 @@ Built:
 - Deployed server-side guard to `create-checkout-session` Edge Function to reject non-admin users with 403 when `CHECKOUT_ENABLED` is not 'true'.
 - Refactored `handleGetAccessLogic` to `src/lib/checkout.ts`.
 - Merged to main as v1.2.0.
-Files touched: `Services.tsx`, `Footer.tsx`, `App.tsx`, `prerender.js`, `generate-sitemap.js`, `Tools.tsx`, `Dashboard.tsx`, `CHANGELOG.md`, `vercel.json`, `supabase/functions/create-checkout-session/index.ts`, `src/lib/checkout.ts`.
+
+## 2026-09-28 (Virtual Assistance Media)
+- Integrated 5 video stories into `/virtual-assistance` using alternating left/right layout on desktop and single-column on mobile.
+- Refactored `StorySection.tsx` to support alternating full-width background bands (`teal-900` and `mint-50`) without floating divider gaps.
+- Locked video aspect ratios to `9/16` and removed obsolete 'More details' links.
+- Prepared `va-01.mp4` through `va-05.mp4` in `public/videos/va/`.
+Files touched: `VirtualAssistance.tsx`, `StorySection.tsx`, `virtualAssistance.ts`.
 Deviations: The orphaned `VirtualAssistants.tsx` component was left intact, but its route was removed.
 
 ## 2026-09-28
