@@ -17,7 +17,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - **Caching headers**: `vercel.json` configured with `no-cache` for `index.html`, long-cache for hashed assets.
 
 ## In Progress
-- Finishing merge between office and home PC.
+- Final UI polish on `integrate-office-home` branch before Vercel preview testing.
 
 ## Not Started
 - Multi-item single-checkout (Edge Function only supports one item per session currently).
@@ -32,4 +32,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-09-28 — Merged office (cart/checkout, tools live wiring) and home PC (contact page redesign, virtual assistance standalone page).*
+*Last Updated: 2026-09-28 — Cleaned up stale Virtual Assistance references, aligned Dashboard tool cards with checkout feature flag logic, and updated local pricing fallbacks.*

@@ -1,5 +1,14 @@
 # Build Log
 
+## 2026-09-28 — Front-end Fixes
+Requested: Three front-end fixes on the integrate-office-home branch. Remove Virtual Assistance section from Services page, update tools fallback prices, and wire up the Dashboard Buy Now buttons.
+Built:
+- Removed Virtual Assistance section from `src/pages/Services.tsx` and repointed all stale links (`/services/virtual-assistants`) to `/virtual-assistance` in `Footer.tsx`, `prerender.js`, `generate-sitemap.js`, and `App.tsx`.
+- Updated `dbTools` fallback state in `Tools.tsx` to match live production prices (specifically updating `rccp` from 19 to 9).
+- Extracted `handleGetAccessLogic` in `Tools.tsx` and wired it to `Dashboard.tsx` "Buy now" buttons to ensure checkout feature flag parity across the app.
+Files touched: `Services.tsx`, `Footer.tsx`, `App.tsx`, `prerender.js`, `generate-sitemap.js`, `Tools.tsx`, `Dashboard.tsx`.
+Deviations: The orphaned `VirtualAssistants.tsx` component was left intact, but its route was removed.
+
 ## 2026-09-28
 - **Requested:** Update Contact page cards: remove business hours, redesign contact details card with icons and functional links. Audit repo for other business hours.
 - **Built:** 

@@ -37,7 +37,7 @@ const Footer = () => {
           <h4 className="font-display text-xs font-semibold text-white uppercase tracking-wider mb-2">Pages</h4>
  <Link to="/services" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">Our Services</Link>
  <Link to="/services/vibe-to-app" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">Vibe-to-App Execution</Link>
- <Link to="/services/virtual-assistants" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">24/7 Virtual Assistants</Link>
+ <Link to="/virtual-assistance" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">24/7 Virtual Assistants</Link>
  <Link to="/services/workflow-automation" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">Workflow Automation</Link>
  <Link to="/tools" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">SaaS Tools</Link>
  <Link to="/mission" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">The Mission</Link>

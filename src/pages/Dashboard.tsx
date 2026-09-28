@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { handleGetAccessLogic } from '@/pages/Tools';
 
 export interface DbTool {
     id: string;
@@ -78,7 +79,8 @@ const ToolCard = ({
     currentPeriodEnd,
     isNotified,
     onNotify,
-    hasCpBotSub
+    hasCpBotSub,
+    onBuyNow
 }: { 
     tool: DbTool; 
     type: 'active' | 'available' | 'coming_soon';
@@ -86,6 +88,7 @@ const ToolCard = ({
     isNotified?: boolean;
     onNotify?: (tool: DbTool) => void;
     hasCpBotSub?: boolean;
+    onBuyNow?: (slug: string) => void;
 }) => {
     const Icon = getIconComponent(tool.slug);
     const [imageError, setImageError] = useState(false);
@@ -199,7 +202,7 @@ const ToolCard = ({
                 In Maintenance
             </Button>
         ) : (
-            <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+            <Button onClick={() => onBuyNow?.(tool.slug)} variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Buy now — AUD ${tool.price_monthly}/mo
             </Button>
         );
@@ -597,6 +600,7 @@ const Dashboard = () => {
                                                     key={tool.id} 
                                                     tool={tool} 
                                                     type="available" 
+                                                    onBuyNow={(slug) => handleGetAccessLogic(slug, user, toast)}
                                                 />
                                             );
                                         })}

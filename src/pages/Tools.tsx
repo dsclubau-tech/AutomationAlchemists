@@ -17,11 +17,39 @@ interface DbTool {
     maintenance_message: string | null;
 }
 
+export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
+    if (import.meta.env.VITE_CHECKOUT_ENABLED !== 'true') {
+        window.location.href = "/contact";
+        return;
+    }
+
+    if (!user) {
+        toast({
+            title: "Authentication Required",
+            description: "Please sign in or create an account to get access to this tool.",
+            variant: "destructive"
+        });
+        setTimeout(() => {
+            window.location.href = "/auth";
+        }, 1500);
+        return;
+    }
+
+    const existingCartStr = localStorage.getItem('cart');
+    let cart = existingCartStr ? JSON.parse(existingCartStr) : [];
+    if (!cart.includes(slug)) {
+        cart.push(slug);
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    window.location.href = "/cart";
+};
+
 const Tools = () => {
     const { user } = useAuth();
     const { toast } = useToast();
     const [dbTools, setDbTools] = useState<Record<string, DbTool>>({
-        rccp: { slug: 'rccp', status: 'available', price_monthly: 19, maintenance_message: null },
+        rccp: { slug: 'rccp', status: 'available', price_monthly: 9, maintenance_message: null },
         listflow: { slug: 'listflow', status: 'coming_soon', price_monthly: 59, maintenance_message: null },
         orderbot: { slug: 'orderbot', status: 'available', price_monthly: 7, maintenance_message: null },
         invoicegen: { slug: 'invoicegen', status: 'coming_soon', price_monthly: 5, maintenance_message: null }
@@ -53,31 +81,7 @@ const Tools = () => {
     }, []);
 
     const handleGetAccess = (slug: string) => {
-        if (import.meta.env.VITE_CHECKOUT_ENABLED !== 'true') {
-            window.location.href = "/contact";
-            return;
-        }
-
-        if (!user) {
-            toast({
-                title: "Authentication Required",
-                description: "Please sign in or create an account to get access to this tool.",
-                variant: "destructive"
-            });
-            setTimeout(() => {
-                window.location.href = "/auth";
-            }, 1500);
-            return;
-        }
-
-        const existingCartStr = localStorage.getItem('cart');
-        let cart = existingCartStr ? JSON.parse(existingCartStr) : [];
-        if (!cart.includes(slug)) {
-            cart.push(slug);
-        }
-        localStorage.setItem('cart', JSON.stringify(cart));
-
-        window.location.href = "/cart";
+        handleGetAccessLogic(slug, user, toast);
     };
 
     const renderButton = (tool: DbTool, defaultAction: React.ReactNode) => {

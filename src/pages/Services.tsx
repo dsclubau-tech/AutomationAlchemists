@@ -203,47 +203,7 @@ const Services = () => {
                     </div>
                 </section>
 
-                {/* Virtual Assistance */}
-                <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
-                    <div className="md:col-span-6 space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600/10 text-teal-600 rounded-full font-medium text-xs">
-                            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>support_agent</span>
-                            Virtual Assistance
-                        </div>
-                        <h2 className="font-display text-3xl md:text-4xl font-bold text-teal-900">Virtual Assistance</h2>
-                        <p className="font-body-md text-base text-teal-900/80">
-                            Free up hours in your week with skilled virtual assistant support tailored to your business. From inbox and calendar management to research, data entry, and customer support, our virtual assistants handle the day-to-day so you can focus on growth.
-                        </p>
-                        <ul className="space-y-4 font-body-md text-base text-teal-900">
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Admin &amp; Inbox Management</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Data Entry &amp; Research</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Customer Support Assistance</li>
-                            <li className="flex items-start gap-3"><span className="material-symbols-outlined text-teal-600">check_circle</span> Flexible Hourly Plans</li>
-                        </ul>
-                        <div className="mt-8 p-6 bg-white border border-teal-600/20 rounded-xl shadow-sm hover:shadow-[0px_4px_20px_rgba(10,54,61,0.06)] transition-shadow">
-                            <h4 className="font-semibold text-sm text-teal-900 mb-2 flex items-center gap-2"><span className="material-symbols-outlined">lightbulb</span> Quick Answer</h4>
-                            <p className="font-body-md text-sm text-teal-900/80">A virtual assistant is a remote professional who handles administrative, technical, or creative tasks for a business without being physically present.</p>
-                        </div>
-                        <Link className="inline-flex items-center gap-2 mt-6 font-semibold text-sm text-teal-600 hover:text-teal-800 transition-colors" to="/contact">
-                            Get Started with Virtual Assistance <span className="material-symbols-outlined">arrow_forward</span>
-                        </Link>
-                    </div>
-                    <div className="md:col-span-6">
-                        <div className="bg-white rounded-xl overflow-hidden border border-teal-600/20 shadow-sm hover:shadow-lg transition-all duration-300 p-8">
-                            <div className="flex flex-wrap gap-2 mb-6">
-                                <span className="px-3 py-1 bg-teal-600/10 text-teal-600 font-medium text-xs rounded-full">Virtual Assistant</span>
-                                <span className="px-3 py-1 bg-teal-600/10 text-teal-600 font-medium text-xs rounded-full">Support</span>
-                                <span className="px-3 py-1 bg-teal-600/10 text-teal-600 font-medium text-xs rounded-full">Admin</span>
-                            </div>
-                            <div className="h-64 rounded-lg overflow-hidden mb-6 relative">
-                                <div className="bg-cover bg-center w-full h-full" 
-                                     title="A clean, modern workspace scene rendered in a minimalist 3D style. A floating digital calendar, glowing inbox icon, and subtle graph elements surround a sleek laptop, representing virtual assistance. The setting is bright and professional, utilizing sky blue backgrounds with deep blue and white accents." 
-                                     style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAJS3V-ZoZymtz5ueu3wfFEql3nSAtpj66-4L85foZkKas8ujklk8AbDv3GTgsafm0xFQ5jhvD8s4T_izY0hbO0NpakzRW3eUSxuQnbTBfvUpJuAU0gPq7oCPdLY4EBjWpyDXW4Q4aGG6PpqS_Zguk63lPl55Gr3rgmSleiJ0OOKlsqss_noKvW0k6mFhlUK5KcmihrhY2VPjabdCw0mNjuU3t8g26sKYnZdMVIeEtLJQVr0AYBG1kcLQ')" }}></div>
-                            </div>
-                            <h3 className="font-display font-semibold text-2xl text-teal-900 mb-2">Ready to transform your business</h3>
-                        </div>
-                    </div>
-                </section>
+
             </main>
 
             <Footer />

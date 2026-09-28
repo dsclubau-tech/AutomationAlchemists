@@ -74,7 +74,6 @@ const App = () => (
                 <Route path="/services" element={<Services />} />
                 <Route path="/services/:slug" element={<ServiceDetail />} />
                 <Route path="/services/vibe-to-app" element={<VibeToApp />} />
-                <Route path="/services/virtual-assistants" element={<VirtualAssistants />} />
                 <Route path="/services/workflow-automation" element={<WorkflowAutomation />} />
                 <Route path="/services/web-development" element={<WebDevelopment />} />
                 <Route path="/services/app-development" element={<AppDevelopment />} />
