@@ -164,6 +164,27 @@
                 }
             }, 300);
         });
+
+        // Global chunk-load-error auto-recovery
+        function handleChunkError(errorMsg) {
+            var msg = (errorMsg || '').toString().toLowerCase();
+            if (msg.includes('failed to fetch dynamically imported module') || 
+                msg.includes('mime type') || 
+                msg.includes('loading chunk')) {
+                if (!sessionStorage.getItem('chunk_reloaded')) {
+                    sessionStorage.setItem('chunk_reloaded', 'true');
+                    window.location.reload();
+                }
+            }
+        }
+
+        window.addEventListener('error', function(e) {
+            if (e && e.message) handleChunkError(e.message);
+        }, true);
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            if (e && e.reason && e.reason.message) handleChunkError(e.reason.message);
+        });
     </script>
 </body>
 

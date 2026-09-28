@@ -20,7 +20,12 @@ interface DbTool {
 const Tools = () => {
     const { user } = useAuth();
     const { toast } = useToast();
-    const [dbTools, setDbTools] = useState<Record<string, DbTool>>({});
+    const [dbTools, setDbTools] = useState<Record<string, DbTool>>({
+        rccp: { slug: 'rccp', status: 'available', price_monthly: 19, maintenance_message: null },
+        listflow: { slug: 'listflow', status: 'coming_soon', price_monthly: 59, maintenance_message: null },
+        orderbot: { slug: 'orderbot', status: 'available', price_monthly: 7, maintenance_message: null },
+        invoicegen: { slug: 'invoicegen', status: 'coming_soon', price_monthly: 5, maintenance_message: null }
+    });
 
     useEffect(() => {
         const fetchTools = async () => {
@@ -29,7 +34,16 @@ const Tools = () => {
                 .select('slug, status, price_monthly, maintenance_message')
                 .in('status', ['available', 'coming_soon', 'maintenance']);
                 
-            if (!error && data) {
+            if (error) {
+                console.error("Error fetching live tool data:", error);
+                toast({
+                    title: "Network Notice",
+                    description: "Showing cached tool data. Some pricing or status may be slightly outdated.",
+                });
+                return;
+            }
+
+            if (data) {
                 const toolsMap: Record<string, DbTool> = {};
                 data.forEach(t => toolsMap[t.slug] = t as DbTool);
                 setDbTools(toolsMap);
@@ -38,7 +52,12 @@ const Tools = () => {
         fetchTools();
     }, []);
 
-    const handleGetAccess = () => {
+    const handleGetAccess = (slug: string) => {
+        if (import.meta.env.VITE_CHECKOUT_ENABLED !== 'true') {
+            window.location.href = "/contact";
+            return;
+        }
+
         if (!user) {
             toast({
                 title: "Authentication Required",
@@ -51,7 +70,14 @@ const Tools = () => {
             return;
         }
 
-        window.location.href = "/pricing";
+        const existingCartStr = localStorage.getItem('cart');
+        let cart = existingCartStr ? JSON.parse(existingCartStr) : [];
+        if (!cart.includes(slug)) {
+            cart.push(slug);
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        window.location.href = "/cart";
     };
 
     const renderButton = (tool: DbTool, defaultAction: React.ReactNode) => {
@@ -172,7 +198,7 @@ const Tools = () => {
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col xl:flex-row gap-3">
                                         <a className="flex-1 text-center py-2.5 px-4 rounded-lg border border-teal-600 text-teal-600 font-label-md text-sm font-semibold hover:bg-teal-600/10 transition-colors" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Use Free Tool</a>
-                                        {renderButton(dbTools['rccp'], <a className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md" href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">Get CP Bot</a>)}
+                                        {renderButton(dbTools['rccp'], <button onClick={() => handleGetAccess('rccp')} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get CP Bot</button>)}
                                     </div>
                                     <div className="flex justify-end">
                                         <Link to="/tools/rccp" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
@@ -220,7 +246,7 @@ const Tools = () => {
                                     <span className="font-label-md text-sm text-teal-900/80 mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
-                                    {renderButton(dbTools['listflow'], <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
+                                    {renderButton(dbTools['listflow'], <button onClick={() => handleGetAccess('listflow')} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
                                     <Link to="/tools/listflow" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
                                 </div>
                             </div>
@@ -264,7 +290,7 @@ const Tools = () => {
                                     <span className="font-label-md text-sm text-teal-900/80 mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
-                                    {renderButton(dbTools['orderbot'], <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
+                                    {renderButton(dbTools['orderbot'], <button onClick={() => handleGetAccess('orderbot')} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
                                     <Link to="/tools/order-bot" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
                                 </div>
                             </div>
@@ -308,7 +334,7 @@ const Tools = () => {
                                     <span className="font-label-md text-sm text-teal-900/80 mb-1">/month</span>
                                 </div>
                                 <div className="flex gap-4 items-center">
-                                    {renderButton(dbTools['invoicegen'], <button onClick={handleGetAccess} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
+                                    {renderButton(dbTools['invoicegen'], <button onClick={() => handleGetAccess('invoicegen')} className="flex-1 text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md">Get access</button>)}
                                     <Link to="/tools/invoice-generator" className="text-teal-600 font-label-md text-sm font-semibold hover:underline flex items-center gap-1">Learn more <ArrowRight className="w-4 h-4" /></Link>
                                 </div>
                             </div>

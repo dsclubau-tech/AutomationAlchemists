@@ -70,6 +70,11 @@ const ToolDetail = () => {
     }, [user, tool]);
 
     const handleGetAccess = async () => {
+        if (import.meta.env.VITE_CHECKOUT_ENABLED !== 'true') {
+            window.location.href = "/contact";
+            return;
+        }
+
         if (!user) {
             toast({
                 title: "Authentication Required",

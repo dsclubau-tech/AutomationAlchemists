@@ -24,6 +24,7 @@ const Automation = lazy(() => import("./pages/Automation"));
 const Mission = lazy(() => import("./pages/Mission"));
 const Company = lazy(() => import("./pages/Company"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const Cart = lazy(() => import("./pages/Cart")); // cart route
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -79,7 +80,7 @@ const App = () => (
                 <Route path="/services/saas-development" element={<SaasDevelopment />} />
                 <Route path="/services/automation" element={<Automation />} />
                 <Route path="/mission" element={<Mission />} />
-                <Route path="/pricing" element={<Navigate to="/" replace />} />
+                <Route path="/cart" element={import.meta.env.VITE_CHECKOUT_ENABLED === 'true' ? <Cart /> : <Navigate to="/contact" replace />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/learn" element={<Navigate to="/" replace />} />
                 <Route path="/learn/:slug" element={<ArticleDetail />} />
