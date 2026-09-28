@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight, VideoOff } from "lucide-react";
 import { VirtualAssistanceStory } from "@/data/virtualAssistance";
 import { motion } from "framer-motion";
+import { RevealBlock } from "@/components/RevealBlock";
+import { RevealText } from "@/components/RevealText";
 
 interface StorySectionProps {
   story: VirtualAssistanceStory;
@@ -56,35 +58,47 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
 
   const contentBlock = (
     <div className="flex flex-col justify-center space-y-6">
-      <div className="space-y-2">
-        <p className={`text-sm font-semibold tracking-wide uppercase font-display ${stepLabelClass}`}>
-          A real assistant - one clear outcome
-        </p>
-        <div className="flex items-center gap-3">
-          <span className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${numberBgClass}`}>
-            0{story.step}
-          </span>
-          <span className={`font-medium font-display ${labelClass}`}>{story.label}</span>
+      <RevealBlock delay={0.1}>
+        <div className="space-y-2">
+          <p className={`text-sm font-semibold tracking-wide uppercase font-display ${stepLabelClass}`}>
+            A real assistant - one clear outcome
+          </p>
+          <div className="flex items-center gap-3">
+            <span className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${numberBgClass}`}>
+              0{story.step}
+            </span>
+            <span className={`font-medium font-display ${labelClass}`}>{story.label}</span>
+          </div>
         </div>
-      </div>
+      </RevealBlock>
       
-      <h2 className={`text-3xl sm:text-4xl font-bold font-display ${titleClass}`}>
-        {story.title}
-      </h2>
+      <RevealText 
+        text={story.title} 
+        className={`text-3xl sm:text-4xl font-bold font-display ${titleClass}`}
+        delay={0.2}
+      />
       
       <div className={`space-y-4 text-lg font-display ${bodyClass}`}>
         {story.paragraphs.map((para, i) => (
-          <p key={i}>
-            {para.lead && <span className="font-bold font-display">{para.lead} </span>}
-            {para.text}
-          </p>
+          <RevealBlock key={i} delay={0.3 + (i * 0.12)}>
+            <p>
+              {para.lead && <span className="font-bold font-display">{para.lead} </span>}
+              {para.text}
+            </p>
+          </RevealBlock>
         ))}
       </div>
     </div>
   );
 
   const videoBlock = (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-teal-900/5 flex items-center justify-center">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: "-20%" }}
+      transition={{ duration: 0.6 }}
+      className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-teal-900/5 flex items-center justify-center"
+    >
       {story.videoSrc ? (
         <video
           ref={videoRef}
@@ -104,18 +118,12 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
           <p className="font-medium font-display text-sm">Visual pending</p>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 
   return (
     <section className={`w-full py-16 sm:py-24 ${sectionBgClass}`}>
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.6 }}
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-      >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
           <div className={`order-2 ${isImageRight ? 'lg:order-1' : 'lg:order-2'}`}>
             {contentBlock}
@@ -124,7 +132,7 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
             {videoBlock}
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-09-28
+### Changed
+- The Virtual Assistance page now reveals its text smoothly as you scroll, and its pricing section has a cleaner look.
+
+### Fixed
+- Button labels are readable when you hover over them.
+
 ## [1.3.0] - 2026-09-28
 ### Added
 - Five short videos on the Virtual Assistance page.

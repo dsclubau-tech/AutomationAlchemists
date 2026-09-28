@@ -1,5 +1,13 @@
 # Build Log
 
+## 2026-09-28 (v1.3.1 Virtual Assistance Animation & Polish)
+- Fixed contrast on the "See How It Works" button (turns dark teal text to white on hover).
+- Removed the final CTA block on `/virtual-assistance` and redesigned the pricing strip with a cleaner split layout (left text block, right outlined button linking to `/contact`).
+- Created reusable Framer Motion components (`RevealText.tsx`, `RevealBlock.tsx`) to handle on-load (hero) and on-scroll (stories, pricing) sequences safely.
+- Integrated a prerender safety hook (`useSafeAnimation`) that detects Puppeteer via the `HeadlessChrome` user agent, bypassing animations for prerender HTML snapshots while seamlessly gracefully degrading for `prefers-reduced-motion`.
+- Bumped version to 1.3.1.
+Files touched: `src/pages/VirtualAssistance.tsx`, `src/components/StorySection.tsx`, `src/components/RevealText.tsx`, `src/components/RevealBlock.tsx`, `CHANGELOG.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-09-28 (v1.3.0 Virtual Assistance Polish)
 - Applied exact copy updates to `/virtual-assistance` stories, adding a bold `lead` prefix feature.
 - Extracted video dimensions (854x480 landscape) and updated `StorySection.tsx` to use `aspect-video` filling the column instead of vertical vertical capping.
