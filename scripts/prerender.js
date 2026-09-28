@@ -84,12 +84,22 @@ async function prerender() {
       console.log(`Prerendering route: ${route}`);
       const page = await browser.newPage();
       
+      // Inject prerender flag before scripts run
+      await page.evaluateOnNewDocument(() => {
+        window.__PRERENDER__ = true;
+      });
+      
       // Navigate to the route
       await page.goto(`http://localhost:${port}${route}`, { waitUntil: 'networkidle0' });
       
       // Wait for any critical rendering to finish
       // Just to be safe for any async helmet tags
       await new Promise(r => setTimeout(r, 1000));
+      
+      // Add a marker attribute so the client knows this HTML was prerendered
+      await page.evaluate(() => {
+        document.documentElement.setAttribute('data-prerendered', '1');
+      });
       
       // Get the fully rendered HTML
       const html = await page.content();

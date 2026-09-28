@@ -26,7 +26,10 @@ function useIntersectionVideoPlayer(ref: React.RefObject<HTMLVideoElement>) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            video.play().catch((e) => console.log("Video autoplay blocked or failed:", e));
+            video.muted = true;
+            video.play().catch((e) => {
+              console.log("Video autoplay blocked or failed, leaving first frame visible.");
+            });
           } else {
             video.pause();
           }
@@ -97,7 +100,7 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-20%" }}
       transition={{ duration: 0.6 }}
-      className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-teal-900/5 flex items-center justify-center"
+      className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-teal-900 flex items-center justify-center"
     >
       {story.videoSrc ? (
         <video
@@ -111,9 +114,9 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
           <source src={`${story.videoSrc}#t=0.1`} type="video/mp4" />
         </video>
       ) : (
-        <div className="flex flex-col items-center justify-center text-teal-900/40 p-8 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-mint-50 flex items-center justify-center">
-            <VideoOff className="w-8 h-8 text-teal-600/50" />
+        <div className="flex flex-col items-center justify-center text-mint-50/40 p-8 text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-teal-800 flex items-center justify-center">
+            <VideoOff className="w-8 h-8 text-mint-50/50" />
           </div>
           <p className="font-medium font-display text-sm">Visual pending</p>
         </div>
@@ -125,10 +128,10 @@ export const StorySection: React.FC<StorySectionProps> = ({ story, index }) => {
     <section className={`w-full py-16 sm:py-24 ${sectionBgClass}`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-          <div className={`order-2 ${isImageRight ? 'lg:order-1' : 'lg:order-2'}`}>
+          <div className={`w-full order-2 ${isImageRight ? 'lg:order-1' : 'lg:order-2'}`}>
             {contentBlock}
           </div>
-          <div className={`order-1 ${isImageRight ? 'lg:order-2' : 'lg:order-1'}`}>
+          <div className={`w-full order-1 ${isImageRight ? 'lg:order-2' : 'lg:order-1'}`}>
             {videoBlock}
           </div>
         </div>
