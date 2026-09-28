@@ -6,7 +6,8 @@ Built:
 - Removed Virtual Assistance section from `src/pages/Services.tsx` and repointed all stale links (`/services/virtual-assistants`) to `/virtual-assistance` in `Footer.tsx`, `prerender.js`, `generate-sitemap.js`, and `App.tsx`.
 - Updated `dbTools` fallback state in `Tools.tsx` to match live production prices (specifically updating `rccp` from 19 to 9).
 - Extracted `handleGetAccessLogic` in `Tools.tsx` and wired it to `Dashboard.tsx` "Buy now" buttons to ensure checkout feature flag parity across the app.
-Files touched: `Services.tsx`, `Footer.tsx`, `App.tsx`, `prerender.js`, `generate-sitemap.js`, `Tools.tsx`, `Dashboard.tsx`.
+- Added 301 permanent redirect from `/services/virtual-assistants` to `/virtual-assistance` in `vercel.json`.
+Files touched: `Services.tsx`, `Footer.tsx`, `App.tsx`, `prerender.js`, `generate-sitemap.js`, `Tools.tsx`, `Dashboard.tsx`, `CHANGELOG.md`, `vercel.json`.
 Deviations: The orphaned `VirtualAssistants.tsx` component was left intact, but its route was removed.
 
 ## 2026-09-28

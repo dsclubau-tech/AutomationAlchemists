@@ -47,6 +47,13 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/services/virtual-assistants",
+      "destination": "/virtual-assistance",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
