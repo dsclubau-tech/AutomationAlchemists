@@ -72,10 +72,10 @@ const VirtualAssistance = () => {
             </RevealBlock>
 
             <RevealBlock animateOnLoad delay={0.3} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button asChild size="lg" className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 w-full sm:w-auto font-semibold focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
+              <Button asChild size="lg" className="bg-yellow-accent text-teal-900 [@media(hover:hover)]:hover:bg-yellow-accent/90 active:bg-yellow-accent/90 w-full sm:w-auto font-semibold focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
                 <Link to="/contact">Get Started</Link>
               </Button>
-              <Button onClick={scrollToFirstStory} variant="outline" size="lg" className="w-full sm:w-auto border-teal-600/20 text-teal-900 hover:bg-teal-900 hover:text-white font-semibold focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-mint-50">
+              <Button onClick={scrollToFirstStory} variant="outline" size="lg" className="w-full sm:w-auto border-teal-600/20 text-teal-900 [@media(hover:hover)]:hover:bg-teal-900 [@media(hover:hover)]:hover:text-white active:bg-teal-900 active:text-white font-semibold focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-mint-50">
                 See How It Works
               </Button>
             </RevealBlock>
@@ -137,10 +137,10 @@ const VirtualAssistance = () => {
             <RevealBlock delay={0.3} className="w-full md:w-auto shrink-0 pb-1">
               <Link 
                 to="/contact" 
-                className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold border border-teal-700 text-teal-700 rounded-md hover:bg-teal-800 hover:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-mint-50"
+                className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold border border-teal-700 text-teal-700 rounded-md [@media(hover:hover)]:hover:bg-teal-800 [@media(hover:hover)]:hover:text-white active:bg-teal-800 active:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-mint-50"
               >
                 Book a call for pricing
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="w-5 h-5 transition-transform [@media(hover:hover)]:group-hover:translate-x-0.5" />
               </Link>
             </RevealBlock>
           </div>

@@ -136,12 +136,11 @@ export function ExpandableContactForm() {
             contentRadius="24px"
         >
             {/* Trigger Section - Enhanced Design */}
-            <div className="relative flex min-h-[600px] flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-20">
+            <div className="relative flex h-full flex-col items-center justify-center p-8 sm:p-12 bg-[#EEF7F5] rounded-2xl overflow-hidden">
                 {/* Decorative elements */}
- <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-teal-600/5 rounded-full blur-3xl pointer-events-none" />
- <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-teal-600/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-teal-600/5 to-transparent pointer-events-none" />
 
-                <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 text-center">
+                <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 text-center w-full">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -156,9 +155,9 @@ export function ExpandableContactForm() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="bg-[#EEF7F5] rounded-[2rem] p-8 sm:p-10 md:p-12 mb-6 inline-block"
+                        className="w-full"
                     >
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-[1.1] tracking-tight text-teal-900">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight text-teal-900 font-display">
                             Less Busywork.<br />
                             More Business.
                         </h2>
@@ -168,7 +167,7 @@ export function ExpandableContactForm() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-base sm:text-lg md:text-xl leading-relaxed text-teal-900/80 max-w-2xl px-4"
+                        className="text-base sm:text-lg leading-relaxed text-teal-900/80 max-w-md font-display"
                     >
                         Transform your business with intelligent automation.
                         Tell us about your project and we'll respond within 24 hours.
@@ -178,9 +177,10 @@ export function ExpandableContactForm() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: 0.3 }}
+                        className="w-full sm:w-auto"
                     >
                         <ExpandableScreenTrigger>
-                            <div className="group relative bg-teal-800 rounded-full px-10 sm:px-12 py-5 text-lg sm:text-xl font-bold text-white tracking-tight hover:bg-teal-800/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-teal-900/40 cursor-pointer">
+                            <div className="group relative bg-teal-800 rounded-full px-8 sm:px-12 py-4 sm:py-5 text-lg font-bold text-white tracking-tight hover:bg-teal-800/90 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-teal-900/40 cursor-pointer w-full flex justify-center">
                                 <span className="relative z-10 flex items-center gap-3">
                                     <MessageSquare className="w-5 h-5" />
                                     Start Your Journey
@@ -195,7 +195,7 @@ export function ExpandableContactForm() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.5 }}
-                        className="flex items-center gap-6 text-teal-900/80 text-sm"
+                        className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-teal-900/80 text-sm font-display mt-2"
                     >
                         <span className="flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-teal-600" />
@@ -317,7 +317,7 @@ export function ExpandableContactForm() {
                                                     onChange={(e) => handleInputChange("name", e.target.value)}
                                                     required
                                                     placeholder="John Doe"
-                                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm h-12"
+                                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base h-12"
                                                 />
                                             </div>
                                             <div>
@@ -330,7 +330,7 @@ export function ExpandableContactForm() {
                                                     onChange={(e) => handleInputChange("email", e.target.value)}
                                                     required
                                                     placeholder="john@company.com"
-                                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm h-12"
+                                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base h-12"
                                                 />
                                             </div>
                                         </div>
@@ -345,7 +345,7 @@ export function ExpandableContactForm() {
                                                     value={formData.use_case}
                                                     onChange={(e) => handleInputChange("use_case", e.target.value)}
                                                     placeholder="Workflow automation"
-                                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm h-12"
+                                                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base h-12"
                                                 />
                                             </div>
                                             <div>
@@ -356,7 +356,7 @@ export function ExpandableContactForm() {
                                                     value={formData.team_size}
                                                     onValueChange={(value) => handleInputChange("team_size", value)}
                                                 >
-                                                    <SelectTrigger className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm h-12">
+                                                    <SelectTrigger className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base h-12">
                                                         <SelectValue placeholder="Select size" />
                                                     </SelectTrigger>
                                                     <SelectContent className="bg-white border border-gray-200 rounded-xl shadow-xl z-[100]">
@@ -380,7 +380,7 @@ export function ExpandableContactForm() {
                                                 required
                                                 rows={4}
                                                 placeholder="Describe your automation needs, current challenges, and goals..."
-                                                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none text-sm"
+                                                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none text-base"
                                             />
                                         </div>
 
