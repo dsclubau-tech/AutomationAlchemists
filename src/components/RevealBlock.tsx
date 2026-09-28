@@ -38,7 +38,7 @@ export const RevealBlock: React.FC<RevealBlockProps> = ({ children, delay = 0, c
 
   const initial = shouldSkip ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 };
   const animate = { opacity: 1, y: 0 };
-  const transition = { duration: 0.6, delay: shouldSkip ? 0 : delay, ease: [0.22, 1, 0.36, 1] };
+  const transition = { duration: 0.6, delay: shouldSkip ? 0 : delay, ease: [0.22, 1, 0.36, 1] as const };
 
   if (animateOnLoad) {
     return (

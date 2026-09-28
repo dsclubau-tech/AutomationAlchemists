@@ -43,7 +43,7 @@ export const RevealText: React.FC<RevealTextProps> = ({ text, delay = 0, classNa
     hidden: { y: shouldSkip ? 0 : "100%" },
     show: { 
       y: 0, 
-      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } 
+      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } 
     }
   };
 
