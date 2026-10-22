@@ -1,5 +1,12 @@
 # Build Log
 
+## 2026-10-22 (v1.4.2 RCCP Hero Layout, Card Icon, Logo Inspection)
+- Refactored hero pricing and buttons layout on `/tools/rccp` (`RccpToolPage.tsx`): price rows stacked into two clean lines with `min-w-[140px]` labels, `whitespace-nowrap`, and `shrink-0`. Buttons grouped in a flexible wrapping container (`gap-3`, `whitespace-nowrap`, `shrink-0`, matching 50px height via `border border-transparent` on primary CTA). Outer container wraps gracefully (`gap-x-8 gap-y-5`) so buttons wrap cleanly below prices at constrained viewports while sitting side by side on wide desktop.
+- Removed Sparkles icon and its mint tile from the "For eBay AU sellers" card, removed unused `Sparkles` import from `lucide-react`, equalized card padding, and ensured equal column heights on desktop via `className="h-full"` on `RevealBlock`.
+- Inspected `public/images/rccp-logo.png` via Node `fs` and `zlib`: 949x650 px, 8-bit RGBA (colour type 6), no tRNS chunk, top-left pixel `[253, 255, 254, 255]`. Under condition (c) (opaque non-pure-white background), retained the logo tile until a transparent asset is supplied.
+- Bumped version to 1.4.2.
+- Files touched: `src/pages/tools/RccpToolPage.tsx`, `CHANGELOG.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-22 (v1.4.1 Rename Virtual Assistance to Virtual Assistant)
 - Renamed visible labels from "Virtual Assistance" to "Virtual Assistant" in desktop/mobile navigation (`Navigation.tsx`), footer (`Footer.tsx`), PageLoader, and SEO title/JSON-LD metadata (`VirtualAssistance.tsx`).
 - Migrated route from `/virtual-assistance` to `/virtual-assistant` in `App.tsx`, `scripts/prerender.js`, and `scripts/generate-sitemap.js`.

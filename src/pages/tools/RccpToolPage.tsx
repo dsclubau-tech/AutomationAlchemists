@@ -23,7 +23,6 @@ import {
   Cloud,
   Gift,
   History,
-  Sparkles,
 } from 'lucide-react';
 
 interface DbTool {
@@ -107,7 +106,7 @@ const RccpToolPage: React.FC = () => {
       <button
         type="button"
         onClick={handleGetAccess}
-        className={`inline-flex items-center justify-center py-3 px-6 rounded-lg bg-yellow-accent text-teal-900 font-semibold text-base transition-colors shadow-sm [@media(hover:hover)]:hover:bg-yellow-accent/90 active:bg-yellow-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 font-display ${extraClassName}`}
+        className={`inline-flex items-center justify-center py-3 px-6 rounded-lg border border-transparent bg-yellow-accent text-teal-900 font-semibold text-base transition-colors shadow-sm [@media(hover:hover)]:hover:bg-yellow-accent/90 active:bg-yellow-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 font-display ${extraClassName}`}
       >
         {buttonText}
       </button>
@@ -187,33 +186,33 @@ const RccpToolPage: React.FC = () => {
                     </p>
                   </RevealBlock>
 
-                  <div className="pt-6 border-t border-teal-600/15 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <RevealBlock animateOnLoad delay={0.4} className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+                  <div className="pt-6 border-t border-teal-600/15 flex flex-wrap items-center gap-x-8 gap-y-5">
+                    <RevealBlock animateOnLoad delay={0.4} className="flex flex-col gap-2 shrink-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-teal-900/70 font-display">
+                        <span className="text-sm text-teal-900/70 font-display whitespace-nowrap min-w-[140px]">
                           {content.hero.pricing.converterLabel}:
                         </span>
-                        <span className="text-base font-bold text-teal-900 font-display">
+                        <span className="text-base font-bold text-teal-900 font-display whitespace-nowrap">
                           {content.hero.pricing.converterPrice}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-teal-900/70 font-display">
+                        <span className="text-sm text-teal-900/70 font-display whitespace-nowrap min-w-[140px]">
                           {content.hero.pricing.botLabel}:
                         </span>
-                        <span className="text-base font-bold text-teal-900 font-display">
+                        <span className="text-base font-bold text-teal-900 font-display whitespace-nowrap">
                           {content.hero.pricing.botPriceFormat(dbTool.price_monthly)}
                         </span>
                       </div>
                     </RevealBlock>
 
-                    <RevealBlock animateOnLoad delay={0.48} className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                      {renderAccessButton(content.hero.buttons.getAccess, 'w-full sm:w-auto')}
+                    <RevealBlock animateOnLoad delay={0.48} className="flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto shrink-0">
+                      {renderAccessButton(content.hero.buttons.getAccess, 'w-full sm:w-auto whitespace-nowrap shrink-0')}
                       <a
                         href={content.hero.buttons.freeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center py-3 px-6 rounded-lg border border-teal-600 text-teal-600 font-semibold text-base transition-colors bg-transparent [@media(hover:hover)]:hover:bg-teal-600/10 active:bg-teal-600/15 w-full sm:w-auto text-center font-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                        className="inline-flex items-center justify-center py-3 px-6 rounded-lg border border-teal-600 text-teal-600 font-semibold text-base transition-colors bg-transparent [@media(hover:hover)]:hover:bg-teal-600/10 active:bg-teal-600/15 w-full sm:w-auto text-center font-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 whitespace-nowrap shrink-0"
                       >
                         {content.hero.buttons.useFree}
                       </a>
@@ -315,7 +314,7 @@ const RccpToolPage: React.FC = () => {
           {/* Two Columns: Quick start & For eBay AU sellers */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
             {/* Quick start */}
-            <RevealBlock delay={0.1}>
+            <RevealBlock delay={0.1} className="h-full">
               <div className="bg-white border border-teal-600/20 rounded-2xl p-6 sm:p-8 h-full shadow-sm flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-bold text-teal-900 font-display mb-1">
@@ -341,11 +340,8 @@ const RccpToolPage: React.FC = () => {
             </RevealBlock>
 
             {/* For eBay AU sellers */}
-            <RevealBlock delay={0.2}>
+            <RevealBlock delay={0.2} className="h-full">
               <div className="bg-white border border-teal-600/20 rounded-2xl p-6 sm:p-8 h-full shadow-sm flex flex-col justify-center">
-                <div className="w-12 h-12 rounded-xl bg-mint-100 flex items-center justify-center text-teal-600 mb-6">
-                  <Sparkles className="w-6 h-6" />
-                </div>
                 <h3 className="text-2xl font-bold text-teal-900 font-display mb-4">
                   {content.copyPasteBot.forSellers.heading}
                 </h3>
