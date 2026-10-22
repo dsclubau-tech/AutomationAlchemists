@@ -16,7 +16,7 @@ const routes = [
   '/services/saas-development',
   '/services/automation',
   '/services/vibe-to-app',
-  '/virtual-assistance',
+  '/virtual-assistant',
   '/services/workflow-automation',
   '/mission',
   '/pricing',

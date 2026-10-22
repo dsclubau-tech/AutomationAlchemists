@@ -80,7 +80,7 @@ const App = () => (
                 <Route path="/services/app-development" element={<AppDevelopment />} />
                 <Route path="/services/saas-development" element={<SaasDevelopment />} />
                 <Route path="/services/automation" element={<Automation />} />
-                <Route path="/virtual-assistance" element={<VirtualAssistance />} />
+                <Route path="/virtual-assistant" element={<VirtualAssistance />} />
                 <Route path="/mission" element={<Mission />} />
                 <Route path="/cart" element={import.meta.env.VITE_CHECKOUT_ENABLED === 'true' ? <Cart /> : <Navigate to="/contact" replace />} />
                 <Route path="/contact" element={<ContactPage />} />

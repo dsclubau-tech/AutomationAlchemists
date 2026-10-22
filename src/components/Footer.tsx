@@ -53,7 +53,7 @@ const Footer = () => {
         <div className="flex flex-col gap-4">
           <h4 className="font-display text-xs font-semibold text-white uppercase tracking-wider mb-2">Pages</h4>
           <Link to="/services" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">Services</Link>
-          <Link to="/virtual-assistance" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">Virtual Assistance</Link>
+          <Link to="/virtual-assistant" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">Virtual Assistant</Link>
           <Link to="/tools" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">SaaS Tools</Link>
           <Link to="/mission" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">The Mission</Link>
           <Link to="/contact" className="font-display text-sm text-[#e5e2e1]/70 hover:text-white transition-colors">Contact</Link>

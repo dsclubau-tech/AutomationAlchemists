@@ -28,24 +28,24 @@ const VirtualAssistance = () => {
   return (
     <div className="min-h-screen bg-mint-50 text-teal-900 antialiased selection:bg-teal-600 selection:text-white overflow-x-hidden">
       <SEOHead
-        title="Virtual Assistance | Automation Alchemists"
+        title="Virtual Assistant | Automation Alchemists"
         description="Real virtual assistants who pick up the work, handle it, and keep you moving. Not a chatbot, not a queue - a person."
-        url="https://www.automationalchemists.com/virtual-assistance"
+        url="https://www.automationalchemists.com/virtual-assistant"
         keywords="virtual assistant, dedicated assistant, business operations, task delegation"
       />
       <SchemaMarkup
         type="ProfessionalService"
         data={{
-          name: "Virtual Assistance",
+          name: "Virtual Assistant",
           description: "Real virtual assistants who pick up the work, handle it, and keep you moving.",
-          url: "https://www.automationalchemists.com/virtual-assistance",
+          url: "https://www.automationalchemists.com/virtual-assistant",
           provider: {
             "@type": "Organization",
             "name": "Automation Alchemists"
           }
         }}
       />
-      <PageLoader pageName="Virtual Assistance" />
+      <PageLoader pageName="Virtual Assistant" />
       <Navigation />
 
       <main className="pt-28 lg:pt-32 pb-0">

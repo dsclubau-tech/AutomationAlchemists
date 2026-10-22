@@ -4,7 +4,7 @@
 Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that centralizes authentication, billing, and access gating for external SaaS tools (Return Converter, CP Bot, ListFlow, Order Bot, Invoice Generator), as well as serving as a marketing site for various digital services.
 
 ## What's Built
-- **Marketing Site**: Static landing pages, services pages, tools overview. The services page now excludes the Virtual Assistance section, which has been moved to its own dedicated `/virtual-assistance` route.
+- **Marketing Site**: Static landing pages, services pages, tools overview. The services page now excludes the Virtual Assistance section, which has been moved to its own dedicated `/virtual-assistant` route.
 - **Contact Page**: Redesigned contact details card with functional links (mailto, WhatsApp SVG links, Google Maps). Removed business hours entirely since operations are online. JSON-LD and display text are aligned.
 - **Auth System**: Integrated Supabase Auth with singleton `useAuth` hook and visibility-change state restoration.
 - **Stripe Billing Integration**: Webhooks for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed` wired to a `public.subscriptions` and `public.stripe_webhook_events` (idempotency) table via atomic RPCs. Edge Function `create-checkout-session` accepts `{ product_slug, quantity }` and creates a Stripe Checkout session for one item.
@@ -36,4 +36,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-22 — Aligned all canonicals, schemas, and sitemap to primary www host; fixed whitespace in RevealText headings.*
+*Last Updated: 2026-10-22 — Renamed Virtual Assistance to Virtual Assistant across visible labels, updated route to /virtual-assistant with 301 redirects.*

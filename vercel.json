@@ -58,8 +58,13 @@
   ],
   "redirects": [
     {
+      "source": "/virtual-assistance",
+      "destination": "/virtual-assistant",
+      "permanent": true
+    },
+    {
       "source": "/services/virtual-assistants",
-      "destination": "/virtual-assistance",
+      "destination": "/virtual-assistant",
       "permanent": true
     }
   ],
