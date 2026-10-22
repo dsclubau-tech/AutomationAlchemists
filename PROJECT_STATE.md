@@ -13,6 +13,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - **Admin Dashboard**: Internal admin UI (`/admin/tools`) to edit `public.tools` status and pricing live.
 - **Public /tools page**: Dynamically pulls pricing and status from `public.tools`. Loading uses static fallback defaults; errors show a toast but preserve the fallback data (never blanks the page). Hidden tools are filtered at the query level.
 - **Cart/Checkout page** (`/cart`): Auth-gated page. "Get access" buttons on /tools add the tool slug to localStorage and navigate to /cart. Cart fetches live pricing from `public.tools` (only `status='available'` tools). Each cart item has its own individual "Checkout" button which calls `create-checkout-session` Edge Function. "You might also like" sidebar suggests other available tools not in the cart. Handles `?checkout=success` (redirects to dashboard) and `?checkout=cancel` (shows toast). Controlled by `VITE_CHECKOUT_ENABLED` feature flag.
+- **Return Converter x CopyPaste Bot Tool Page** (`/tools/rccp`): Dedicated product page built to custom specifications with scroll-reveal animations (`RevealText`, `RevealBlock`), dynamic pricing fetched from `public.tools` with fallback of 9, and access gating via `handleGetAccessLogic`. Other tool detail pages remain routed to `ToolDetail.tsx`.
 - **Chunk-load error recovery**: Global handler in `index.html` auto-reloads once on dynamic import MIME-type errors.
 - **Caching headers**: `vercel.json` configured with `no-cache` for `index.html`, long-cache for hashed assets.
 
@@ -35,4 +36,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-09-28 — Contact page layout improvements, updated footer branding and links, and fixed hero button visibility on touch devices.*
+*Last Updated: 2026-10-22 — Rebuilt Return Converter x CopyPaste Bot page (/tools/rccp) with dedicated layout and scroll-reveal animations (v1.4.0).*

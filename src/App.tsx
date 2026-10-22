@@ -46,6 +46,7 @@ const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Tools = lazy(() => import("./pages/Tools"));
+const RccpToolPage = lazy(() => import("./pages/tools/RccpToolPage"));
 const ToolDetail = lazy(() => import("./pages/ToolDetail"));
 const Billing = lazy(() => import("./pages/Billing"));
 const Account = lazy(() => import("./pages/Account"));
@@ -103,6 +104,7 @@ const App = () => (
                 <Route path="/admin/contact" element={<AdminContact />} />
                 <Route path="/admin/newsletter" element={<AdminNewsletter />} />
                 <Route path="/tools" element={<Tools />} />
+                <Route path="/tools/rccp" element={<RccpToolPage />} />
                 <Route path="/tools/:slug" element={<ToolDetail />} />
                 <Route path="/billing" element={<Billing />} />
                 <Route path="/account" element={<Account />} />

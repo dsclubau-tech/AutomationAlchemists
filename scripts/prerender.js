@@ -24,7 +24,11 @@ const routes = [
   '/learn',
   '/terms',
   '/privacy',
-  '/tools'
+  '/tools',
+  '/tools/rccp',
+  '/tools/listflow',
+  '/tools/orderbot',
+  '/tools/invoicegen'
 ];
 
 /**
