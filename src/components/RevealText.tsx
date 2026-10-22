@@ -61,18 +61,20 @@ export const RevealText: React.FC<RevealTextProps> = ({ text, delay = 0, classNa
       aria-label={text}
     >
       {words.map((word, i) => (
-        <span 
-          key={i} 
-          className="inline-block overflow-hidden pb-2 -mb-2 mr-[0.25em] last:mr-0 align-bottom"
-          aria-hidden="true"
-        >
-          <motion.span 
-            className="inline-block" 
-            variants={child}
+        <React.Fragment key={i}>
+          <span 
+            className="inline-block overflow-hidden pb-2 -mb-2 align-bottom"
+            aria-hidden="true"
           >
-            {word}
-          </motion.span>
-        </span>
+            <motion.span 
+              className="inline-block" 
+              variants={child}
+            >
+              {word}
+            </motion.span>
+          </span>
+          {i < words.length - 1 && " "}
+        </React.Fragment>
       ))}
     </MotionTag>
   );

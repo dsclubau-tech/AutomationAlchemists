@@ -15,7 +15,7 @@ const {name} = () => {
             <SEOHead
                 title="{title}"
                 description="{desc}"
-                url="https://automationalchemists.com/services/{route}"
+                url="https://www.automationalchemists.com/services/{route}"
                 keywords="{keyword}"
             />
             <SchemaMarkup
@@ -23,7 +23,7 @@ const {name} = () => {
                 data={{{{
                     name: "{display_name}",
                     description: "{desc}",
-                    url: "https://automationalchemists.com/services/{route}",
+                    url: "https://www.automationalchemists.com/services/{route}",
                     provider: {{
                         "@type": "Organization",
                         "name": "AAlchemists"

@@ -13,7 +13,7 @@ const WorkflowAutomation = () => {
             <SEOHead
                 title="Workflow Automation | Automation Alchemists"
                 description="Streamline your operations with intelligent workflow automation. Connect your apps and eliminate manual tasks."
-                url="https://automationalchemists.com/services/workflow-automation"
+                url="https://www.automationalchemists.com/services/workflow-automation"
                 keywords="workflow automation, zapier, make, API integration, business automation"
             />
             <SchemaMarkup
@@ -21,7 +21,7 @@ const WorkflowAutomation = () => {
                 data={{
                     name: "Workflow Automation",
                     description: "Streamline your operations with intelligent workflow automation.",
-                    url: "https://automationalchemists.com/services/workflow-automation",
+                    url: "https://www.automationalchemists.com/services/workflow-automation",
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"

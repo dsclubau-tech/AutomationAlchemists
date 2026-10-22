@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '../public');
 
-const baseUrl = 'https://automationalchemists.com';
+const baseUrl = 'https://www.automationalchemists.com';
 
 const routes = [
   { url: '/', changefreq: 'weekly', priority: 1.0 },

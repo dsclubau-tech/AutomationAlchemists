@@ -51,7 +51,7 @@ const WebDevelopment = () => {
             <SEOHead
                 title="Custom Web Development with Next.js & React | Automation Alchemists"
                 description="Expert custom web development services. We build responsive, fast, and scalable web applications tailored to your business needs globally."
-                url="https://automationalchemists.com/services/web-development"
+                url="https://www.automationalchemists.com/services/web-development"
                 keywords="custom web development agency, Next.js/React development services, business website development"
             />
             <SchemaMarkup
@@ -59,7 +59,7 @@ const WebDevelopment = () => {
                 data={{
                     name: "Web Development",
                     description: "Expert custom web development services. We build responsive, fast, and scalable web applications tailored to your business needs globally.",
-                    url: "https://automationalchemists.com/services/web-development",
+                    url: "https://www.automationalchemists.com/services/web-development",
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"

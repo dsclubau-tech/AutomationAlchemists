@@ -119,7 +119,7 @@ const RccpToolPage: React.FC = () => {
       <SEOHead
         title="Return Converter x CopyPaste Bot - eBay to Amazon AU Tools"
         description="Turn Amazon AU return codes into clean eBay return labels for free, and copy buyer addresses from eBay into Amazon checkout in one click."
-        url="https://automationalchemists.com/tools/rccp"
+        url="https://www.automationalchemists.com/tools/rccp"
       />
       <Navigation />
 

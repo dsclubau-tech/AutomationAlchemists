@@ -36,4 +36,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-22 — Rebuilt Return Converter x CopyPaste Bot page (/tools/rccp) with dedicated layout and scroll-reveal animations (v1.4.0).*
+*Last Updated: 2026-10-22 — Aligned all canonicals, schemas, and sitemap to primary www host; fixed whitespace in RevealText headings.*

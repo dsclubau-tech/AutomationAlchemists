@@ -13,7 +13,7 @@ const VirtualAssistants = () => {
             <SEOHead
                 title="Virtual Assistants | Automation Alchemists"
                 description="Scale your team with elite virtual assistants. Focus on growth while we handle the rest."
-                url="https://automationalchemists.com/services/virtual-assistants"
+                url="https://www.automationalchemists.com/services/virtual-assistants"
                 keywords="virtual assistants, remote team, business scaling, administrative support"
             />
             <SchemaMarkup
@@ -21,7 +21,7 @@ const VirtualAssistants = () => {
                 data={{
                     name: "Virtual Assistants",
                     description: "Scale your team with elite virtual assistants. Focus on growth while we handle the rest.",
-                    url: "https://automationalchemists.com/services/virtual-assistants",
+                    url: "https://www.automationalchemists.com/services/virtual-assistants",
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"

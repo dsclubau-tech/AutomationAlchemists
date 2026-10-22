@@ -48,7 +48,7 @@ const AppDevelopment = () => {
             <SEOHead
                 title="Flutter App Development for iOS & Android | Automation Alchemists"
                 description="Top-tier Android and Flutter app development. We create cross-platform mobile apps with native performance to reach your global audience."
-                url="https://automationalchemists.com/services/app-development"
+                url="https://www.automationalchemists.com/services/app-development"
                 keywords="Flutter app development company, Android app development services, cross-platform mobile app development"
             />
             <SchemaMarkup
@@ -56,7 +56,7 @@ const AppDevelopment = () => {
                 data={{
                     name: "App Development",
                     description: "Top-tier Android and Flutter app development. We create cross-platform mobile apps with native performance to reach your global audience.",
-                    url: "https://automationalchemists.com/services/app-development",
+                    url: "https://www.automationalchemists.com/services/app-development",
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"

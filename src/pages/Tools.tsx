@@ -87,7 +87,7 @@ const Tools = () => {
                 data={{
                     name: "Automation Alchemists Tools",
                     description: "Suite of automation tools for e-commerce and dropshipping businesses.",
-                    url: "https://automationalchemists.com/tools",
+                    url: "https://www.automationalchemists.com/tools",
                     applicationCategory: "BusinessApplication"
                 }}
             />

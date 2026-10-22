@@ -124,14 +124,14 @@ const ServiceDetail = () => {
             <SEOHead
                 title={`${service.title} | Custom Development Services`}
                 description={service.short_description || service.description}
-                url={`https://automationalchemists.com/services/${service.slug || service.id}`}
+                url={`https://www.automationalchemists.com/services/${service.slug || service.id}`}
             />
             <SchemaMarkup
                 type="ProfessionalService"
                 data={{
                     name: service.title,
                     description: service.short_description || service.description,
-                    url: `https://automationalchemists.com/services/${service.slug || service.id}`,
+                    url: `https://www.automationalchemists.com/services/${service.slug || service.id}`,
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"

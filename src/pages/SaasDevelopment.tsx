@@ -48,7 +48,7 @@ const SaasDevelopment = () => {
             <SEOHead
                 title="Custom SaaS Development Agency for Scalable MVPs | Automation Alchemists"
                 description="End-to-end SaaS development services. From conceptualization to deployment, we build scalable software-as-a-service platforms."
-                url="https://automationalchemists.com/services/saas-development"
+                url="https://www.automationalchemists.com/services/saas-development"
                 keywords="SaaS MVP development, custom SaaS development agency, SaaS product development services"
             />
             <SchemaMarkup
@@ -56,7 +56,7 @@ const SaasDevelopment = () => {
                 data={{
                     name: "SaaS Development",
                     description: "End-to-end SaaS development services. From conceptualization to deployment, we build scalable software-as-a-service platforms.",
-                    url: "https://automationalchemists.com/services/saas-development",
+                    url: "https://www.automationalchemists.com/services/saas-development",
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"

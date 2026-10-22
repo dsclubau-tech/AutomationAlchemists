@@ -41,8 +41,8 @@ const Index = () => {
         type="Organization"
         data={{
           name: "Automation Alchemists",
-          url: "https://automationalchemists.com",
-          logo: "https://automationalchemists.com/og-image.png",
+          url: "https://www.automationalchemists.com",
+          logo: "https://www.automationalchemists.com/og-image.png",
           description: "Global services platform for web development, Android/Flutter app development, SaaS, and automation consulting.",
           email: "contact@automationalchemists.com",
           telephone: "+61-404-242-373",

@@ -24,7 +24,7 @@ pages.forEach(p => {
 '            <SEOHead\n' +
 '                title="' + p.title + '"\n' +
 '                description="' + p.desc + '"\n' +
-'                url="https://automationalchemists.com/services/' + p.route + '"\n' +
+'                url="https://www.automationalchemists.com/services/' + p.route + '"\n' +
 '                keywords="' + p.keyword + '"\n' +
 '            />\n' +
 '            <SchemaMarkup\n' +
@@ -32,7 +32,7 @@ pages.forEach(p => {
 '                data={{\n' +
 '                    name: "' + p.displayName + '",\n' +
 '                    description: "' + p.desc + '",\n' +
-'                    url: "https://automationalchemists.com/services/' + p.route + '",\n' +
+'                    url: "https://www.automationalchemists.com/services/' + p.route + '",\n' +
 '                    provider: {\n' +
 '                        "@type": "Organization",\n' +
 '                        "name": "AAlchemists"\n' +

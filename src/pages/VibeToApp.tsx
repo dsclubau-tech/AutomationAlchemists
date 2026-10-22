@@ -13,7 +13,7 @@ const VibeToApp = () => {
             <SEOHead
                 title="Vibe-to-App Execution | Automation Alchemists"
                 description="Transform your wildest ideas into fully functional applications. No coding walls, no deploy drama."
-                url="https://automationalchemists.com/services/vibe-to-app"
+                url="https://www.automationalchemists.com/services/vibe-to-app"
                 keywords="app execution, rapid development, prototype to production, vibe to app"
             />
             <SchemaMarkup
@@ -21,7 +21,7 @@ const VibeToApp = () => {
                 data={{
                     name: "Vibe-to-App Execution",
                     description: "Transform your wildest ideas into fully functional applications.",
-                    url: "https://automationalchemists.com/services/vibe-to-app",
+                    url: "https://www.automationalchemists.com/services/vibe-to-app",
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"

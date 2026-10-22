@@ -11,8 +11,8 @@ interface SEOProps {
 export const SEO: React.FC<SEOProps> = ({ 
   title, 
   description, 
-  url = 'https://automationalchemists.com', 
-  image = 'https://automationalchemists.com/og-image.png' 
+  url = 'https://www.automationalchemists.com', 
+  image = 'https://www.automationalchemists.com/og-image.png' 
 }) => {
   return (
     <Helmet>

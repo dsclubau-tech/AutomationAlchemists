@@ -48,7 +48,7 @@ const Automation = () => {
             <SEOHead
                 title="Custom Workflow Automation for Growing Businesses | Automation Alchemists"
                 description="Streamline your operations with our workflow automation consulting. We integrate AI and automation tools to save time and boost efficiency."
-                url="https://automationalchemists.com/services/automation"
+                url="https://www.automationalchemists.com/services/automation"
                 keywords="business process automation services, workflow automation agency, custom automation solutions"
             />
             <SchemaMarkup
@@ -56,7 +56,7 @@ const Automation = () => {
                 data={{
                     name: "Workflow Automation",
                     description: "Streamline your operations with our workflow automation consulting. We integrate AI and automation tools to save time and boost efficiency.",
-                    url: "https://automationalchemists.com/services/automation",
+                    url: "https://www.automationalchemists.com/services/automation",
                     provider: {
                         "@type": "Organization",
                         "name": "Automation Alchemists"
