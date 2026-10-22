@@ -36,4 +36,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-22 — Refined /tools/rccp hero header layout and buttons for desktop; removed sparkle icon tile on quick start cards; inspected logo PNG.*
+*Last Updated: 2026-10-22 — Displayed /tools/rccp hero logo raw without tile on pure white hero card; corrected v1.4.2 changelog entry.*

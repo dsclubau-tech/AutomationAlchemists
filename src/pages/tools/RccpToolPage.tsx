@@ -151,17 +151,15 @@ const RccpToolPage: React.FC = () => {
           <section>
             <div className="bg-white border border-teal-600/20 rounded-2xl p-6 sm:p-8 md:p-12 shadow-sm">
               <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start">
-                {/* Left: Fixed-size Mint Tile with Icon */}
+                {/* Left: Logo without tile */}
                 <RevealBlock animateOnLoad delay={0.08} className="shrink-0 w-full md:w-auto flex justify-start">
-                  <div className="w-[110px] h-[110px] shrink-0 bg-mint-100 rounded-2xl border border-teal-600/20 flex items-center justify-center p-4 shadow-sm">
-                    <img
-                      src="/images/rccp-logo.png"
-                      alt="Return Converter × CopyPaste Bot"
-                      className="w-full h-full object-contain"
-                      width="110"
-                      height="110"
-                    />
-                  </div>
+                  <img
+                    src="/images/rccp-logo.png"
+                    alt="Return Converter × CopyPaste Bot"
+                    width="949"
+                    height="650"
+                    className="w-[80px] lg:w-[110px] h-auto object-contain"
+                  />
                 </RevealBlock>
 
                 {/* Right: Content */}

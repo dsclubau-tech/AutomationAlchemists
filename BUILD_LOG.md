@@ -1,5 +1,11 @@
 # Build Log
 
+## 2026-10-22 (v1.4.3 RCCP Logo Without Tile & Changelog Correction)
+- Removed mint tile wrapper around `/images/rccp-logo.png` on `/tools/rccp` (`RccpToolPage.tsx`). Rendered raw `<img>` element with explicit `width="949"` and `height="650"`, `className="w-[80px] lg:w-[110px] h-auto object-contain"`, no background, border, shadow, padding, rounded frame, filter, or mix-blend mode. Card background confirmed pure white (`bg-white`).
+- Corrected `CHANGELOG.md` entry for v1.4.2 to remove the premature clause stating the logo appeared without a box in that release. Added v1.4.3 entry for the actual logo tile removal.
+- Bumped version to 1.4.3.
+- Files touched: `src/pages/tools/RccpToolPage.tsx`, `CHANGELOG.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-22 (v1.4.2 RCCP Hero Layout, Card Icon, Logo Inspection)
 - Refactored hero pricing and buttons layout on `/tools/rccp` (`RccpToolPage.tsx`): price rows stacked into two clean lines with `min-w-[140px]` labels, `whitespace-nowrap`, and `shrink-0`. Buttons grouped in a flexible wrapping container (`gap-3`, `whitespace-nowrap`, `shrink-0`, matching 50px height via `border border-transparent` on primary CTA). Outer container wraps gracefully (`gap-x-8 gap-y-5`) so buttons wrap cleanly below prices at constrained viewports while sitting side by side on wide desktop.
 - Removed Sparkles icon and its mint tile from the "For eBay AU sellers" card, removed unused `Sparkles` import from `lucide-react`, equalized card padding, and ensured equal column heights on desktop via `className="h-full"` on `RevealBlock`.
