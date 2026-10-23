@@ -224,85 +224,100 @@ BEGIN
   END IF;
 
   -- 6. Single-Seat Products (cpbot/rccp, listflow, invoicegen, etc.)
-  -- 6a. Manual Grant Safety: Active manual grants must never be overwritten
-  IF EXISTS (
-    SELECT 1 FROM public.subscriptions
+  IF p_event_type = 'checkout.session.completed' THEN
+    -- 6a. Manual Grant Safety: Active manual grants must never be overwritten
+    IF EXISTS (
+      SELECT 1 FROM public.subscriptions
+      WHERE user_id = v_user_id
+        AND product_slug = v_product_slug
+        AND store_id IS NULL
+        AND manually_granted = true
+        AND status = 'active'
+        AND (current_period_end IS NULL OR current_period_end > now())
+    ) THEN
+      RETURN jsonb_build_object('success', true, 'message', 'skipped: manual grant present');
+    END IF;
+
+    -- 6b. Check if existing row is a trial row to track conversion
+    SELECT id INTO v_trial_sub_id
+    FROM public.subscriptions
     WHERE user_id = v_user_id
       AND product_slug = v_product_slug
       AND store_id IS NULL
-      AND manually_granted = true
-      AND status = 'active'
-      AND (current_period_end IS NULL OR current_period_end > now())
-  ) THEN
-    RETURN jsonb_build_object('success', true, 'message', 'skipped: manual grant present');
+      AND is_trial = true;
+
+    -- 6c. UPSERT on (user_id, product_slug) WHERE store_id IS NULL
+    INSERT INTO public.subscriptions (
+      user_id,
+      email,
+      product_slug,
+      status,
+      stripe_customer_id,
+      stripe_subscription_id,
+      stripe_price_id,
+      price_per_month,
+      current_period_start,
+      current_period_end,
+      cancel_at_period_end,
+      is_trial,
+      grant_reason,
+      manually_granted,
+      store_id
+    ) VALUES (
+      v_user_id,
+      v_email,
+      v_product_slug,
+      'active',
+      p_stripe_customer_id,
+      p_stripe_subscription_id,
+      p_stripe_price_id,
+      p_price_per_month,
+      p_current_period_start,
+      p_current_period_end,
+      false,
+      false,
+      'stripe_checkout',
+      false,
+      NULL
+    )
+    ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL
+    DO UPDATE SET
+      email = EXCLUDED.email,
+      status = 'active',
+      stripe_customer_id = EXCLUDED.stripe_customer_id,
+      stripe_subscription_id = EXCLUDED.stripe_subscription_id,
+      stripe_price_id = EXCLUDED.stripe_price_id,
+      price_per_month = EXCLUDED.price_per_month,
+      current_period_start = EXCLUDED.current_period_start,
+      current_period_end = EXCLUDED.current_period_end,
+      cancel_at_period_end = false,
+      is_trial = false,
+      grant_reason = 'stripe_checkout',
+      updated_at = now();
+
+    -- 6d. Trial Conversion: Mark matching trial_claims record as converted
+    IF v_trial_sub_id IS NOT NULL THEN
+      UPDATE public.trial_claims
+      SET converted_at = now()
+      WHERE subscription_id = v_trial_sub_id
+         OR (user_id = v_user_id AND tool_slug = COALESCE(p_product_slug, 'rccp'));
+    END IF;
+
+    RETURN jsonb_build_object('success', true, 'message', 'processed successfully');
+
+  ELSIF p_event_type = 'customer.subscription.updated' THEN
+    -- Routine renewal / period update: update existing active rows only.
+    -- Never insert, upsert, or reactivate cancelled/expired subscriptions.
+    UPDATE public.subscriptions
+    SET current_period_end = p_current_period_end,
+        updated_at = now()
+    WHERE stripe_subscription_id = p_stripe_subscription_id
+      AND status = 'active';
+
+    RETURN jsonb_build_object('success', true, 'message', 'processed successfully');
+  ELSE
+    RETURN jsonb_build_object('success', true, 'message', 'ignored event type');
   END IF;
-
-  -- 6b. Check if existing row is a trial row to track conversion
-  SELECT id INTO v_trial_sub_id
-  FROM public.subscriptions
-  WHERE user_id = v_user_id
-    AND product_slug = v_product_slug
-    AND store_id IS NULL
-    AND is_trial = true;
-
-  -- 6c. UPSERT on (user_id, product_slug) WHERE store_id IS NULL
-  INSERT INTO public.subscriptions (
-    user_id,
-    email,
-    product_slug,
-    status,
-    stripe_customer_id,
-    stripe_subscription_id,
-    stripe_price_id,
-    price_per_month,
-    current_period_start,
-    current_period_end,
-    cancel_at_period_end,
-    is_trial,
-    grant_reason,
-    manually_granted,
-    store_id
-  ) VALUES (
-    v_user_id,
-    v_email,
-    v_product_slug,
-    'active',
-    p_stripe_customer_id,
-    p_stripe_subscription_id,
-    p_stripe_price_id,
-    p_price_per_month,
-    p_current_period_start,
-    p_current_period_end,
-    false,
-    false,
-    'stripe_checkout',
-    false,
-    NULL
-  )
-  ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL
-  DO UPDATE SET
-    email = EXCLUDED.email,
-    status = 'active',
-    stripe_customer_id = EXCLUDED.stripe_customer_id,
-    stripe_subscription_id = EXCLUDED.stripe_subscription_id,
-    stripe_price_id = EXCLUDED.stripe_price_id,
-    price_per_month = EXCLUDED.price_per_month,
-    current_period_start = EXCLUDED.current_period_start,
-    current_period_end = EXCLUDED.current_period_end,
-    cancel_at_period_end = false,
-    is_trial = false,
-    grant_reason = 'stripe_checkout',
-    updated_at = now();
-
-  -- 6d. Trial Conversion: Mark matching trial_claims record as converted
-  IF v_trial_sub_id IS NOT NULL THEN
-    UPDATE public.trial_claims
-    SET converted_at = now()
-    WHERE subscription_id = v_trial_sub_id
-       OR (user_id = v_user_id AND tool_slug = COALESCE(p_product_slug, 'rccp'));
-  END IF;
-
-  RETURN jsonb_build_object('success', true, 'message', 'processed successfully');
 END;
 $function$;
 

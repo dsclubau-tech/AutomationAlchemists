@@ -79,29 +79,32 @@ Deno.serve(async (req) => {
 
     const resolvedAccessSlug = offerData?.access_slug || product_slug;
 
-    // DOUBLE-CHARGE GUARD: Reject if user already has an active, non-trial subscription
-    const { data: existingSubs } = await supabaseAdmin
-      .from('subscriptions')
-      .select('id, status, is_trial, current_period_end')
-      .eq('user_id', user.id)
-      .eq('product_slug', resolvedAccessSlug)
-      .is('store_id', null)
-      .eq('status', 'active')
-      .eq('is_trial', false);
+    // DOUBLE-CHARGE GUARD: Reject if user already has an active, non-trial subscription.
+    // Skip for Order Bot: multi-slot product; extra stores are bought through the same checkout.
+    if (product_slug !== 'orderbot') {
+      const { data: existingSubs } = await supabaseAdmin
+        .from('subscriptions')
+        .select('id, status, is_trial, current_period_end')
+        .eq('user_id', user.id)
+        .eq('product_slug', resolvedAccessSlug)
+        .is('store_id', null)
+        .eq('status', 'active')
+        .eq('is_trial', false);
 
-    const hasActivePaidSub = (existingSubs || []).some(
-      (sub: { current_period_end: string | null }) =>
-        !sub.current_period_end || new Date(sub.current_period_end) > new Date()
-    );
+      const hasActivePaidSub = (existingSubs || []).some(
+        (sub: { current_period_end: string | null }) =>
+          !sub.current_period_end || new Date(sub.current_period_end) > new Date()
+      );
 
-    if (hasActivePaidSub) {
-      return new Response(JSON.stringify({
-        error: 'You already have an active subscription for this tool.',
-        code: 'already_subscribed',
-      }), {
-        status: 409,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      if (hasActivePaidSub) {
+        return new Response(JSON.stringify({
+          error: 'You already have an active subscription for this tool.',
+          code: 'already_subscribed',
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {

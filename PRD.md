@@ -19,9 +19,10 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 ---
 
 ### 3. Part B: Checkout Integration & Webhook Conversion (In Development)
-- **Automatic Trial-to-Paid Conversion**:
-  - When a trial user subscribes via Stripe, `public.process_stripe_webhook_event` converts the existing trial row in `public.subscriptions` (`is_trial` set to `false`, `grant_reason` set to `'stripe_checkout'`) instead of inserting a duplicate row or crashing against `subscriptions_user_product_no_store_unique`.
+- **Automatic Trial-to-Paid Conversion & Event Separation**:
+  - Only `checkout.session.completed` may INSERT or UPSERT a single-seat subscription row. When a trial user subscribes via Stripe, `public.process_stripe_webhook_event` converts the existing trial row in `public.subscriptions` (`is_trial` set to `false`, `grant_reason` set to `'stripe_checkout'`) instead of inserting a duplicate row or crashing against `subscriptions_user_product_no_store_unique`.
   - Marks the matching record in `public.trial_claims` with `converted_at = now()`.
+  - `customer.subscription.updated` for single-seat products strictly updates `current_period_end` on existing rows matching `WHERE stripe_subscription_id = p_stripe_subscription_id AND status = 'active'`. It never inserts, upserts, or reactivates cancelled/expired subscriptions.
 - **Resilient Webhook Ingestion**:
   - Out-of-order `customer.subscription.updated` events extract user ID, email, and tool slug from `subscription.metadata`.
   - If required fields are missing, the RPC resolves them from the existing `subscriptions` row matching `stripe_subscription_id`. If still unresolved, skips insertion and returns HTTP 200 to prevent infinite Stripe retries.
@@ -32,6 +33,7 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - Rejects discounts yielding unit amounts below Stripe's 50-cent minimum with HTTP 400 (`price_too_low`).
 - **Double-Charge Protection**:
   - Rejects checkout requests with HTTP 409 (`already_subscribed`) if the user already holds an active, non-trial subscription for the target tool.
+  - Exempts Order Bot (`orderbot`) from the 409 guard to allow multi-store slot expansion.
   - Active trial subscriptions do NOT trigger this guard, permitting upgrade to paid access.
 - **Manual Grant Safety**:
   - Webhooks never overwrite an active administrative grant (`manually_granted = true` and `status = 'active'`).

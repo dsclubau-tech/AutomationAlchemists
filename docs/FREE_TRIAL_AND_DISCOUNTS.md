@@ -286,15 +286,29 @@ WHERE tool_slug = 'rccp';
 
 Part B bridges promotional free trials, dynamic per-user discounts, and paid Stripe billing into a unified, conflict-free pipeline.
 
-### 9.1 Trial-to-Paid Conversion Rule
-- When a user holding an active trial subscription (`is_trial = true`, `grant_reason = 'free_trial'`) completes Stripe checkout, `public.process_stripe_webhook_event` performs an `UPSERT` on `(user_id, product_slug) WHERE store_id IS NULL`.
-- The **SAME row** in `public.subscriptions` is updated:
-  - `status = 'active'`
-  - `is_trial = false`
-  - `grant_reason = 'stripe_checkout'`
-  - `stripe_customer_id`, `stripe_subscription_id`, `stripe_price_id`, `price_per_month`, and billing periods are updated.
-- Simultaneously, the matching row in `public.trial_claims` is stamped with `converted_at = now()`.
-- The user **never ends up with two subscription rows**, and the unique index `subscriptions_user_product_no_store_unique` is never violated.
+### 9.1 Trial-to-Paid Conversion & Event Separation Rule
+- **Checkout Session Completed (`checkout.session.completed`)**:
+  - Only `checkout.session.completed` may INSERT or UPSERT a single-seat subscription row.
+  - When a user holding an active trial subscription (`is_trial = true`, `grant_reason = 'free_trial'`) completes Stripe checkout, `public.process_stripe_webhook_event` performs an `UPSERT` on `(user_id, product_slug) WHERE store_id IS NULL`.
+  - The **SAME row** in `public.subscriptions` is updated:
+    - `status = 'active'`
+    - `is_trial = false`
+    - `grant_reason = 'stripe_checkout'`
+    - `stripe_customer_id`, `stripe_subscription_id`, `stripe_price_id`, `price_per_month`, and billing periods are updated.
+  - Simultaneously, the matching row in `public.trial_claims` is stamped with `converted_at = now()`.
+  - The user **never ends up with two subscription rows**, and the unique index `subscriptions_user_product_no_store_unique` is never violated.
+- **Subscription Updated (`customer.subscription.updated`)**:
+  - `customer.subscription.updated` **NEVER** inserts, upserts, or reactivates single-seat rows.
+  - For single-seat products, it strictly updates existing active rows only:
+    ```sql
+    UPDATE public.subscriptions
+    SET current_period_end = p_current_period_end,
+        updated_at = now()
+    WHERE stripe_subscription_id = p_stripe_subscription_id
+      AND status = 'active';
+    ```
+  - It does **not** modify `cancel_at_period_end`, `is_trial`, `grant_reason`, or `status`.
+  - If no matching active row exists (for example, if a late or out-of-order `customer.subscription.updated` event arrives after `customer.subscription.deleted`), the update matches 0 rows and returns success (`processed successfully`), preventing cancelled or expired subscriptions from ever being resurrected.
 
 ### 9.2 Server-Side Price Resolution Order
 Clients are never trusted for pricing. When `create-checkout-session` generates a checkout URL:
@@ -310,7 +324,9 @@ Clients are never trusted for pricing. When `create-checkout-session` generates 
 - The RPC records `skipped: manual grant present` in the return payload and returns success (`HTTP 200` to Stripe), safeguarding administrative grants from accidental overwrites by test or duplicate checkouts.
 
 ### 9.4 Guard Rail Error Codes (400 and 409)
-- **HTTP 409 (`already_subscribed`)**: If the user already has an active, non-trial (`is_trial = false`) subscription for the resolved access slug (`cpbot`), `create-checkout-session` rejects the call immediately. Note: an active trial (`is_trial = true`) does **not** block checkout, allowing frictionless upgrade.
+- **HTTP 409 (`already_subscribed`)**: If the user already has an active, non-trial (`is_trial = false`) subscription for the resolved access slug (`cpbot`), `create-checkout-session` rejects the call immediately.
+  - **Order Bot Exemption**: The 409 guard skips `orderbot` (`product_slug !== 'orderbot'`) because Order Bot is a multi-slot product where extra stores are purchased through the same checkout flow.
+  - Note: an active trial (`is_trial = true`) does **not** block checkout for any tool, allowing frictionless upgrade.
 - **HTTP 400 (`price_too_low`)**: If a discount override produces a unit amount under Stripe's minimum threshold (50 cents AUD / $0.50), checkout halts without contacting Stripe.
 
 ### 9.5 Deploy Order

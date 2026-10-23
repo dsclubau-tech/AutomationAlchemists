@@ -519,10 +519,11 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
    - The database has `'rccp'` ($9/mo, available) and `'cpbot'` ($9/mo, hidden).
    - In Part B, `public.resolve_access_slug('rccp')` and `create-checkout-session` dynamically resolve the entitlement access slug from `public.trial_offers.access_slug` (currently `'cpbot'`). When the CP Bot developer confirms any slug update, changing `trial_offers.access_slug` updates both the trial and checkout access slug without hardcoding.
 
-2. **Unique Index Collisions on Paid Conversion After Trial** — [Risk (b)]:
+2. **Unique Index Collisions on Paid Conversion After Trial & Reactivation Prevention** — [Risk (b)]:
    - **Status**: *Fixed in code, not yet deployed.*
    - `public.subscriptions` has `subscriptions_user_product_no_store_unique UNIQUE (user_id, product_slug) WHERE (store_id IS NULL)`.
-   - Fixed in migration 032 by replacing raw `INSERT` with `INSERT ... ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL DO UPDATE ...`. Existing trial rows are converted in place (`is_trial = false`), and `public.trial_claims.converted_at` is stamped.
+   - Fixed in migration 032: only `checkout.session.completed` performs an `UPSERT` on `(user_id, product_slug) WHERE store_id IS NULL`. Existing trial rows are converted in place (`is_trial = false`), and `public.trial_claims.converted_at` is stamped.
+   - For `customer.subscription.updated` on single-seat products, the RPC strictly updates `current_period_end` on existing rows matching `WHERE stripe_subscription_id = p_stripe_subscription_id AND status = 'active'`. It **never** inserts, upserts, or reactivates rows; if an update arrives after a cancellation or deletion, it updates 0 rows and returns success, closing the reactivation hole.
 
 3. **Webhook HTTP 500 on `customer.subscription.updated`** — [Risk (a)]:
    - **Status**: *Fixed in code, not yet deployed.*
@@ -534,7 +535,7 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
 
 5. **Minute-by-Minute Expiration Leaving Blocking Rows** — [Risk (b) related]:
    - **Status**: *Fixed in code, not yet deployed.*
-   - Because migration 032 uses `ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL DO UPDATE`, an expired row no longer blocks a returning subscriber; the row is updated to `status = 'active'` with new billing period dates.
+   - Because migration 032 uses `ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL DO UPDATE` on `checkout.session.completed`, an expired row no longer blocks a returning subscriber; the row is updated to `status = 'active'` with new billing period dates.
 
 6. **Admin Grant Upsert vs Stripe Webhook Raw Insert**:
    - Migration 032 introduces a Manual Grant Safety check: if an active `manually_granted = true` row exists, the webhook skips modification and returns `skipped: manual grant present`, preserving manual grants.
@@ -542,9 +543,10 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
 7. **Foreign Key Cascade on User Deletion**:
    - Deleting a user in `auth.users` cascades to delete their `subscriptions` rows (`subscriptions_user_id_fkey ON DELETE CASCADE`), but historical records in `subscription_history` retain `user_id` without foreign key cascade.
 
-8. **Incompatibility of Per-User Discounts with Stripe Lookup Keys** — [Risk (c)]:
+8. **Incompatibility of Per-User Discounts with Stripe Lookup Keys & Multi-Slot Double-Charge Guard** — [Risk (c)]:
    - **Status**: *Fixed in code, not yet deployed.*
    - Fixed in Part B: `create-checkout-session` resolves server-side catalog prices from `public.tools.price_monthly` and active user discounts from `public.user_price_overrides`, constructing ad-hoc Stripe line items via `price_data`.
+   - Double-charge guard rejects active paid subscribers with HTTP 409 (`already_subscribed`), but explicitly skips `orderbot` because Order Bot is a multi-slot product where additional store slots are purchased through the checkout flow. Active trials for any tool do not trigger the 409 guard, allowing paid upgrades.
 
 9. **Lack of Access Gate & Client Caching on External CP Bot App / Extension**:
    - CP Bot lives in a separate repository where subscription verification has not yet been implemented.

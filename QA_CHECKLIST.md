@@ -71,3 +71,20 @@
   - RPC detects active manual grant, skips modification, and returns `{ "success": true, "message": "skipped: manual grant present" }`.
   - The manual grant row remains completely untouched.
   - Edge function responds with HTTP 200.
+
+### 8. Out-of-Order customer.subscription.updated Delivered After customer.subscription.deleted Does NOT Reactivate
+- **Precondition**: User has a cancelled subscription in `public.subscriptions` (`status = 'canceled'`) with a given `stripe_subscription_id` (e.g. following a `customer.subscription.deleted` webhook event).
+- **Action**: Simulate or deliver a late `customer.subscription.updated` webhook event for that same `stripe_subscription_id` with `status: "active"`.
+- **Expected Result**:
+  - The single-seat branch in `process_stripe_webhook_event` executes `UPDATE public.subscriptions ... WHERE stripe_subscription_id = p_stripe_subscription_id AND status = 'active'`.
+  - Because existing status is `'canceled'`, 0 rows are updated.
+  - No row is inserted, upserted, or reactivated; status remains `'canceled'`.
+  - RPC returns `{ "success": true, "message": "processed successfully" }` and webhook returns HTTP 200.
+
+### 9. Existing Order Bot Subscriber Can Purchase Additional Store Slots Without 409
+- **Precondition**: User already has an active subscription for Order Bot (`product_slug = 'orderbot'`, `status = 'active'`).
+- **Action**: Client calls `create-checkout-session` with `{ product_slug: "orderbot", quantity: 1 }` (or greater) to purchase an additional store slot.
+- **Expected Result**:
+  - Endpoint skips the 409 `already_subscribed` double-charge guard specifically for `orderbot`.
+  - Checkout session creation proceeds normally and returns a valid Stripe checkout URL (`HTTP 200`).
+

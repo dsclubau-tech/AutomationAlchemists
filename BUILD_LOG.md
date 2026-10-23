@@ -1,5 +1,19 @@
 # Build Log
 
+## 2026-10-23 (Free Trial Part B: Review Fixes - Webhook Reactivation & Order Bot Guard)
+- Fixed webhook reactivation hole in `supabase/migrations/032_webhook_trial_conversion.sql`:
+  - Disentangled single-seat handling by event type.
+  - Only `p_event_type = 'checkout.session.completed'` may perform INSERT or UPSERT on `(user_id, product_slug) WHERE store_id IS NULL`, preceded by the active manual grant check and trial conversion lookup.
+  - `p_event_type = 'customer.subscription.updated'` on single-seat products strictly updates `current_period_end` (and `updated_at`) on existing active rows matching `stripe_subscription_id AND status = 'active'`. It does not touch `cancel_at_period_end`, `is_trial`, `grant_reason`, or `status`, preventing late update events after cancellation from reactivating cancelled rows.
+- Updated `supabase/functions/create-checkout-session/index.ts`:
+  - Confirmed exactly one declaration of profile lookup in `CHECKOUT_ENABLED` guard; verified no fragments across the entire file.
+  - Exempted Order Bot (`product_slug !== 'orderbot'`) from the 409 `already_subscribed` guard, adding an explanatory comment that Order Bot is a multi-slot product where additional store slots are purchased through checkout.
+- Verified live DB schema columns in `live_db_snapshot.txt` and migration 031: confirmed `subscriptions.updated_at` exists in snapshot (line 277).
+- Performed static syntax parse on `create-checkout-session/index.ts` and `stripe-webhook/index.ts` using `esbuild` (both exited 0).
+- Updated documentation in `docs/FREE_TRIAL_AND_DISCOUNTS.md` (Section 9), `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`, `PRD.md`, and added manual test checks 8 & 9 to `QA_CHECKLIST.md`.
+- No database migrations applied to live database; no Edge Functions deployed; unversioned local commit only.
+- Files touched: `supabase/functions/create-checkout-session/index.ts`, `supabase/migrations/032_webhook_trial_conversion.sql`, `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`, `PRD.md`, `QA_CHECKLIST.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-23 (Free Trial Part B: Webhook Conversion, Pricing & Access Decoupling)
 - Authored migration `supabase/migrations/032_webhook_trial_conversion.sql`:
   - Implemented `public.resolve_access_slug(p_tool_slug text)` mapping tool catalog slugs to entitlement access slugs (restricted to `postgres` role).

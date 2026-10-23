@@ -18,11 +18,11 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - **Caching headers**: `vercel.json` configured with `no-cache` for `index.html`, long-cache for hashed assets.
 
 ## In Progress
-- Free trial & billing enhancements Part B: Code and SQL written, NOT applied/deployed.
-  - Migration 032 (`032_webhook_trial_conversion.sql`), `032_rollback.sql`, and `032_verify.sql` authored.
-  - Edge function `stripe-webhook` updated for resilient metadata extraction and skipped outcome handling.
-  - Edge function `create-checkout-session` updated with server-side price resolution, user discount overrides, double-charge guard (409), minimum price guard (400), and access slug decoupling.
-  - Documentation updated in `docs/FREE_TRIAL_AND_DISCOUNTS.md` and `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`. `PRD.md` and `QA_CHECKLIST.md` initialized.
+- Free trial & billing enhancements Part B: Code and SQL written, review fixes applied, NOT applied/deployed.
+  - Migration 032 (`032_webhook_trial_conversion.sql`), `032_rollback.sql`, and `032_verify.sql` authored. Fixed single-seat reactivation hole: only `checkout.session.completed` performs INSERT/UPSERT; `customer.subscription.updated` strictly updates `current_period_end` on active rows.
+  - Edge function `stripe-webhook` verified for resilient metadata extraction and skipped outcome handling.
+  - Edge function `create-checkout-session` updated with server-side price resolution, user discount overrides, double-charge guard (409) with Order Bot multi-slot exemption, minimum price guard (400), and access slug decoupling. Verified single declaration in `CHECKOUT_ENABLED` guard.
+  - Documentation updated in `docs/FREE_TRIAL_AND_DISCOUNTS.md` (Section 9) and `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`. `PRD.md` and `QA_CHECKLIST.md` updated with checks for out-of-order delivery and Order Bot slot expansion.
 
 ## Not Started
 - Free trial Part C (Public Trial Landing & Claim UI).
