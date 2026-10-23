@@ -44,7 +44,7 @@ SELECT jsonb_pretty(
       )
     ),
     'row_level_security', (
-      SELECT jsonb_object_agg(relname, rowsecurity)
+      SELECT jsonb_object_agg(relname, relrowsecurity)
       FROM pg_class
       WHERE relnamespace = 'public'::regnamespace
         AND relname IN ('trial_offers', 'trial_claims', 'user_price_overrides', 'blocked_email_domains')

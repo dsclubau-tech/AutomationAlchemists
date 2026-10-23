@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS public.user_price_overrides (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   tool_slug text NOT NULL,
-  kind text NOT NULL CHECK (kind IN ('fixed_price', 'percent_off')),
+  kind text NOT NULL,
   amount_cents int,
   percent_off numeric(5,2),
   currency text NOT NULL DEFAULT 'aud',
@@ -126,7 +126,10 @@ CREATE TABLE IF NOT EXISTS public.user_price_overrides (
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   revoked_at timestamptz,
-  CONSTRAINT user_price_overrides_kind_check CHECK (
+  CONSTRAINT user_price_overrides_kind_valid CHECK (
+    kind IN ('fixed_price', 'percent_off')
+  ),
+  CONSTRAINT user_price_overrides_values_present CHECK (
     (kind = 'fixed_price' AND amount_cents IS NOT NULL AND amount_cents > 0 AND percent_off IS NULL) OR
     (kind = 'percent_off' AND percent_off IS NOT NULL AND percent_off > 0 AND percent_off <= 100 AND amount_cents IS NULL)
   ),

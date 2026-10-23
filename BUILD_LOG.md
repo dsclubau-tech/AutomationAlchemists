@@ -1,5 +1,14 @@
 # Build Log
 
+## 2026-10-23 (Migration 031 Constraint Fix & Verify Script Column Correction)
+- Resolved PostgreSQL duplicate constraint error (`ERROR 42710`) on `public.user_price_overrides`:
+  - Removed duplicate inline check on `kind` column.
+  - Named table check constraints uniquely: `user_price_overrides_kind_valid` for `CHECK (kind IN ('fixed_price', 'percent_off'))` and `user_price_overrides_values_present` for the amount/percentage requirement check.
+  - Scanned all 4 migration tables (`trial_offers`, `blocked_email_domains`, `trial_claims`, `user_price_overrides`) and confirmed zero duplicate constraint names, auto-name collisions, or collisions with live objects.
+- Fixed `docs/sql/031_free_trial_verify.sql` Script 1: replaced non-existent `pg_class.rowsecurity` with `pg_class.relrowsecurity`.
+- No database migrations applied to live environment; no application runtime code or dependencies modified.
+- Files touched: `supabase/migrations/031_free_trial_and_discounts.sql`, `docs/sql/031_free_trial_verify.sql`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-23 (Free Trial Part A Review Fixes - In Place)
 - Revised Part A migration `supabase/migrations/031_free_trial_and_discounts.sql`:
   - Added transaction-level timeouts: `SET LOCAL lock_timeout = '5s'; SET LOCAL statement_timeout = '60s';`.
