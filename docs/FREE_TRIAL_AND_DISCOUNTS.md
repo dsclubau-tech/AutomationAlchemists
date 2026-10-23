@@ -17,13 +17,38 @@ This design document and operational manual specifies the technical architecture
 
 ---
 
-## 2. Database Schema (Part A Migration 031)
+## 2. Review Findings & Architectural Fixes (Part A Review)
 
-### 2.1 Alteration to `public.subscriptions`
+During peer review of the initial Part A implementation (commit `fc065e7`), four subtle database-level issues were identified and corrected in place:
+
+1. **Row Variable `IS NOT NULL` Bug in PL/pgSQL**:
+   - In PostgreSQL PL/pgSQL, evaluating `v_claim IS NOT NULL` on a composite record variable evaluates to `true` **only if all fields** of the row are non-null. Because `v_claim` contains columns like `converted_at` and `revoked_at` which are `NULL` on normal active claims, `v_claim IS NOT NULL` evaluated to `false`. This caused `get_trial_status` to report an active claim as non-existent!
+   - **Fix**: Immediately after executing `SELECT ... INTO`, capture the query state using `v_claim_found := FOUND` and `v_sub_found := FOUND`. All downstream branch checks use these boolean flags exclusively.
+
+2. **SQL `CHECK` Constraint NULL Hole on `user_price_overrides`**:
+   - In SQL boolean logic, `NULL > 0` evaluates to `NULL` (unknown), which passes table `CHECK` constraints unless nullability is constrained. A record with `kind = 'fixed_price'` and a `NULL` `amount_cents` would have passed the check.
+   - **Fix**: Rewrote the constraint with explicit `IS NOT NULL` checks:
+     - `fixed_price` requires `amount_cents IS NOT NULL AND amount_cents > 0 AND percent_off IS NULL`.
+     - `percent_off` requires `percent_off IS NOT NULL AND percent_off > 0 AND percent_off <= 100 AND amount_cents IS NULL`.
+     - Added an additional constraint `CHECK (ends_at IS NULL OR ends_at > starts_at)`.
+
+3. **Admin-Note Exposure & Policy Elimination**:
+   - Direct `SELECT` RLS policies granted to `authenticated` users on `trial_claims` and `user_price_overrides` would have exposed internal administrative rationale (the `note` column on overrides and `revoked_reason` on claims) directly to client-side queries.
+   - **Fix**: Removed all policies. All four tables have RLS enabled with **ZERO policies**, and all table privileges are revoked from `anon` and `authenticated`. Client access is mediated exclusively through audited `SECURITY DEFINER` functions that selectively project safe fields.
+
+4. **Lock & Statement Timeouts**:
+   - Running schema migrations or rollbacks on live production tables shared with other applications (e.g. ListFlow) risks acquiring blocking locks if transactions take long or wait on concurrent locks.
+   - **Fix**: Added `SET LOCAL lock_timeout = '5s';` and `SET LOCAL statement_timeout = '60s';` as the very first statements inside the transaction.
+
+---
+
+## 3. Database Schema (Part A Migration 031)
+
+### 3.1 Alteration to `public.subscriptions`
 - **`is_trial`** (`boolean NOT NULL DEFAULT false`): Distinguishes promotional trial access from paid Stripe subscriptions and manual admin grants.
 - No existing indexes, triggers, or constraints on `subscriptions` are modified.
 
-### 2.2 `public.trial_offers`
+### 3.2 `public.trial_offers`
 Defines available trial promotions per tool:
 | Column | Type | Constraints | Description |
 |---|---|---|---|
@@ -39,7 +64,7 @@ Defines available trial promotions per tool:
 
 - **Seed**: `('rccp', 'cpbot', false, 30, 500, 0, false)`
 
-### 2.3 `public.blocked_email_domains`
+### 3.3 `public.blocked_email_domains`
 Maintains a curated list of temporary/disposable email domains:
 | Column | Type | Constraints | Description |
 |---|---|---|---|
@@ -48,7 +73,7 @@ Maintains a curated list of temporary/disposable email domains:
 
 - **Seed**: 15 well-known disposable email domains (`mailinator.com`, `guerrillamail.com`, `10minutemail.com`, `temp-mail.org`, etc.).
 
-### 2.4 `public.trial_claims`
+### 3.4 `public.trial_claims`
 Append-only ledger of historical trial claims:
 | Column | Type | Constraints | Description |
 |---|---|---|---|
@@ -66,9 +91,10 @@ Append-only ledger of historical trial claims:
 - **Uniqueness**:
   - `CONSTRAINT trial_claims_tool_slug_email_normalized_key UNIQUE (tool_slug, email_normalized)`
   - `CREATE UNIQUE INDEX trial_claims_tool_user_idx ON trial_claims (tool_slug, user_id) WHERE (user_id IS NOT NULL)`
-- **Safety**: `ON DELETE SET NULL` on `user_id` ensures that if a user deletes their account, the claim row remains intact, preventing re-claiming with the same email.
+- **Data Retention & Privacy Note**:
+  - `email_normalized` is personal data retained after account deletion intentionally (`ON DELETE SET NULL` on `user_id`) to ensure deleted accounts cannot abuse the one-trial-per-email policy. This retention policy will be formally referenced in the updated user-facing Privacy Policy.
 
-### 2.5 `public.user_price_overrides`
+### 3.5 `public.user_price_overrides`
 Stores administrator-assigned discounts for individual users:
 | Column | Type | Constraints | Description |
 |---|---|---|---|
@@ -81,29 +107,33 @@ Stores administrator-assigned discounts for individual users:
 | `currency` | `text` | NOT NULL DEFAULT 'aud' | Currency |
 | `starts_at` | `timestamptz`| NOT NULL DEFAULT now() | Effective start |
 | `ends_at` | `timestamptz`| NULL | Expiration date (optional) |
-| `note` | `text` | NULL | Administrative rationale |
+| `note` | `text` | NULL | Administrative rationale (hidden from user) |
 | `created_by` | `uuid` | REFERENCES auth.users(id) ON DELETE SET NULL | Authorizing admin |
 | `created_at` | `timestamptz`| NOT NULL DEFAULT now() | Creation timestamp |
 | `revoked_at` | `timestamptz`| NULL | Revocation timestamp |
 
-- **Constraint**: `fixed_price` requires `amount_cents > 0` and `percent_off IS NULL`; `percent_off` requires `0 < percent_off <= 100` and `amount_cents IS NULL`.
+- **Constraints**:
+  - `fixed_price` requires `amount_cents IS NOT NULL AND amount_cents > 0 AND percent_off IS NULL`
+  - `percent_off` requires `percent_off IS NOT NULL AND percent_off > 0 AND percent_off <= 100 AND amount_cents IS NULL`
+  - `ends_at IS NULL OR ends_at > starts_at`
 - **Index**: Partial unique index on `(user_id, tool_slug) WHERE (revoked_at IS NULL)`.
 
 ---
 
-## 3. Stored Functions and Logic
+## 4. Stored Functions and Logic
 
-### 3.1 `public.normalize_email(p_email text) RETURNS text`
+### 4.1 `public.normalize_email(p_email text) RETURNS text`
+- **Security**: Immutable helper with `SET search_path = pg_catalog, pg_temp`.
 - **Behavior**:
   - Strips leading/trailing whitespace and converts to lowercase.
   - Splits at the final `@` into local part and domain.
   - Maps `googlemail.com` to `gmail.com`.
   - Removes any `+tag` suffix from the local part across **all** domains.
   - Removes periods (`.`) from the local part **only** for `gmail.com`.
-  - Returns `NULL` for invalid/empty inputs.
+  - Returns `NULL` for invalid, empty, or `@`-less inputs.
 
-### 3.2 `public.get_trial_public(p_tool_slug text) RETURNS jsonb`
-- **Execution**: Granted to `anon` and `authenticated`.
+### 4.2 `public.get_trial_public(p_tool_slug text) RETURNS jsonb`
+- **Execution**: Granted to `anon` and `authenticated`. `SECURITY DEFINER` with `SET search_path = public, pg_temp`.
 - **Output**:
   ```json
   {
@@ -114,136 +144,147 @@ Stores administrator-assigned discounts for individual users:
     "slots_left": 441
   }
   ```
-- **Privacy**: Exposes aggregate counts and configuration only; never leaks personal emails or user IDs.
+- **Privacy**: Exposes aggregate counts and public offer flags only; never leaks emails or user IDs.
 
-### 3.3 `public.get_trial_status(p_tool_slug text) RETURNS jsonb`
-- **Execution**: Granted to `authenticated` only.
-- **Output**: Includes public fields plus claimant state:
-  ```json
-  {
-    "enabled": true,
-    "trial_days": 30,
-    "slot_cap": 500,
-    "slots_taken": 59,
-    "slots_left": 441,
-    "already_claimed": false,
-    "has_access": false,
-    "claim": null,
-    "eligible": true,
-    "reason": "ok"
-  }
-  ```
-- **Reason Enum**:
-  - `'ok'`: User is fully eligible to claim.
-  - `'disabled'`: Promotion is turned off.
-  - `'sold_out'`: All slots have been exhausted.
-  - `'already_claimed'`: User or normalized email has already claimed a trial.
-  - `'already_has_access'`: User already has an active, non-expired subscription.
-  - `'not_eligible'`: User has a past subscription record.
-  - `'email_unconfirmed'`: Offer requires confirmed email, but claimant's email is unverified.
-  - `'email_not_allowed'`: Domain belongs to disposable email blocklist.
-  - `'not_signed_in'`: Caller is unauthenticated.
+### 4.3 `public.get_trial_status(p_tool_slug text) RETURNS jsonb`
+- **Execution**: Granted to `authenticated` only. `SECURITY DEFINER` with `SET search_path = public, pg_temp`.
+- **Aligned Reason Determination Order**:
+  1. Unauthenticated (`not_signed_in`)
+  2. Unconfirmed email when offer requires it (`email_unconfirmed`)
+  3. Blocked domain (`email_not_allowed`)
+  4. Already claimed by this account or normalized email (`already_claimed`)
+  5. Existing subscription row for `access_slug` (`already_has_access` if currently active, `not_eligible` if past/canceled)
+  6. Offer disabled (`disabled`)
+  7. Sold out (`sold_out`)
+  8. Eligible (`ok`)
+- **Claimant Invariance**: An existing claimant receives an accurate `already_claimed` status even if the offer is subsequently disabled or sold out.
 
-### 3.4 `public.claim_free_trial(p_tool_slug text) RETURNS jsonb`
-- **Execution**: Granted to `authenticated` only. Operates strictly under `auth.uid()`.
-- **Atomic Concurrency Control**:
-  - Locks the target row in `trial_offers` via `FOR UPDATE`.
-  - Sequentially verifies: authentication → email format → disposable domain blocklist → email confirmation (if required) → offer enabled status → slot availability → prior claims → existing subscriptions.
-- **Provisioning**:
-  - Computes `v_ends_at := now() + (trial_days || ' days')::interval`.
+### 4.4 `public.claim_free_trial(p_tool_slug text) RETURNS jsonb`
+- **Execution**: Granted to `authenticated` only. `SECURITY DEFINER` with `SET search_path = public, pg_temp`. Operates strictly under `auth.uid()`.
+- **Concurrency & Aligned Evaluation**:
+  - Locks the target `trial_offers` row via `FOR UPDATE`.
+  - Performs check sequence in identical order to `get_trial_status`:
+    1. Check signed in (`not_signed_in`)
+    2. Check email valid and domain not blocked (`email_not_allowed`)
+    3. Check email confirmation if required (`email_unconfirmed`)
+    4. Check already claimed by user ID or normalized email (`already_claimed`)
+    5. Check existing subscription row for `access_slug` (`already_has_access` or `not_eligible`)
+    6. Check offer enabled (`disabled`)
+    7. Check slots left > 0 (`sold_out`)
+- **Safe Interval Creation & Provisioning**:
+  - Calculates `v_ends_at := now() + make_interval(days => v_offer.trial_days);`
   - Inserts row into `public.subscriptions`:
-    - `product_slug = access_slug` (`'cpbot'`)
+    - `product_slug = v_offer.access_slug` (`'cpbot'`)
     - `status = 'active'`
     - `current_period_start = now()`
     - `current_period_end = v_ends_at`
     - `grant_reason = 'free_trial'`
     - `is_trial = true`
   - Inserts row into `public.trial_claims`.
-  - Catches `unique_violation` and returns `{ "ok": false, "reason": "already_claimed" }`.
-- **Response**: `{ "ok": true, "ends_at": "...", "days": 30 }`.
+  - Handles concurrent `unique_violation` gracefully by returning `{ "ok": false, "reason": "already_claimed" }`.
 
 ---
 
-## 4. Security Model & Privilege Matrix
+## 5. Security Model & Privilege Matrix
 
-1. **Table Level Privileges**:
-   - `REVOKE ALL` executed on `trial_offers`, `trial_claims`, `user_price_overrides`, and `blocked_email_domains` from both `anon` and `authenticated`.
-   - `GRANT SELECT` to `authenticated` on `trial_claims` (guarded by RLS) and `user_price_overrides` (guarded by RLS).
-   - No direct `INSERT`, `UPDATE`, or `DELETE` grants exist for clients; state transitions occur via `SECURITY DEFINER` functions or the service role.
-2. **Row Level Security (RLS)**:
-   - `trial_claims`: `SELECT USING (user_id = auth.uid())`.
-   - `user_price_overrides`: `SELECT USING (user_id = auth.uid() AND revoked_at IS NULL)`.
-   - `trial_offers` & `blocked_email_domains`: RLS enabled with no policies (client queries return zero rows; read access is mediated solely through RPCs).
-3. **Execution Privileges**:
-   - `get_trial_public`: Callable by `anon` and `authenticated`.
-   - `get_trial_status`, `claim_free_trial`, `normalize_email`: Restricted to `authenticated`.
+1. **Zero Policies on Base Tables**:
+   - `trial_offers`, `trial_claims`, `user_price_overrides`, and `blocked_email_domains` all have RLS enabled with **ZERO policies**.
+   - `REVOKE ALL` is applied on all four tables for `anon` and `authenticated`.
+   - Direct `SELECT`, `INSERT`, `UPDATE`, or `DELETE` queries from client connections are completely rejected.
+   - Sensitive administrative fields (`user_price_overrides.note`, `trial_claims.revoked_reason`) are permanently shielded from regular users.
+2. **Access Strictly Via Audited RPCs**:
+   - `get_trial_public`: granted to `anon` and `authenticated`.
+   - `get_trial_status`, `claim_free_trial`, `normalize_email`: granted to `authenticated` only.
+   - `service_role` retains default bypass for background jobs and administrative edge functions.
 
 ---
 
-## 5. Abuse Controls & Limitations
+## 6. Email Verification & Abuse Realities
 
-1. **Email Verification Realities**:
-   - Without mandatory email confirmation (`require_confirmed_email = false`), an address cannot be cryptographically proven to belong to the claimant.
-   - Therefore, the **`slot_cap` is the hard financial ceiling** limiting exposure.
-   - The disposable domain blocklist (`blocked_email_domains`) is a **speed bump**, not an insurmountable wall.
-2. **Production Launch Plan**:
-   - Configure a verified transactional email sender (e.g. Resend / SendGrid).
-   - Set `require_confirmed_email = true` on the `trial_offers` row before opening public marketing.
-3. **Reserved Slots Policy**:
-   - `slots_reserved` is reserved strictly for pre-promised customer slots or manual allocations. It must never be used to fabricate artificial scarcity.
-4. **Alias Handling in Developer Testing**:
-   - Because `normalize_email` collapses `+alias` tags (e.g., `user+test1@gmail.com` resolves to `user@gmail.com`), testing the claim flow repeatedly with the same base email will trigger `already_claimed`.
-   - Resetting test accounts requires manual cleanup or using the admin reset action in Part D.
+1. **Email Verification Dependency**:
+   - The `require_confirmed_email` flag checks `auth.users.email_confirmed_at`.
+   - **Crucial Requirement**: This protection is only functional when Supabase's **"Confirm email"** feature is enabled in Auth Settings and a custom transactional email provider (e.g. Resend) is configured.
+   - Until verified email delivery is enabled, `email_confirmed_at` cannot be strictly relied upon, making the **`slot_cap` the absolute hard financial ceiling** limiting promotion exposure.
+2. **Disposable Domains**:
+   - The 15 seeded domains in `blocked_email_domains` act as a **speed bump**, not an impenetrable wall. Additional domains can be added as necessary.
 
 ---
 
-## 6. The Slug Relationship: `rccp` vs `cpbot`
+## 7. Operational Runbook: Applying Part A by Hand
 
-- **Tool Catalog Slug (`rccp`)**: The marketing and public checkout slug representing the "Return Converter x CopyPaste Bot" bundle.
-- **Access Entitlement Slug (`cpbot`)**: The slug historically checked by `Dashboard.tsx` (`subscriptions.some(s => s.product_slug === 'cpbot')`) and targeted for gating inside the Next.js CP Bot app.
-- **Decoupled Architecture**: By storing `access_slug = 'cpbot'` in `trial_offers` alongside `tool_slug = 'rccp'`, `claim_free_trial` provisions the subscription with `product_slug = 'cpbot'`. If the CP Bot developer later standardizes on `'rccp'`, only the `access_slug` column in `trial_offers` needs updating.
+Migrations are never run automatically on this shared production database. Follow this exact operational order:
 
----
+### Step 1: Pre-Flight Platform Health Check
+1. Visit [status.supabase.com](https://status.supabase.com) to verify all core database services and API gateways are operating normally.
 
-## 7. Runbook: Applying Part A by Hand
-
-### Step 1: Execute Migration
+### Step 2: Execute Migration 031
 1. Open the Supabase Project Dashboard → **SQL Editor**.
 2. Open `supabase/migrations/031_free_trial_and_discounts.sql`.
-3. Paste the contents and click **Run**.
-4. Confirm query execution completes with `Success. No rows returned`.
+3. Paste the contents into the editor and click **Run**.
+4. Confirm query completes with `Success. No rows returned`.
 
-### Step 2: Execute Verification
-1. In SQL Editor, open `docs/sql/031_free_trial_verify.sql`.
-2. Inspect the read-only output in Parts 1–4:
-   - Check that `is_trial` column is listed.
-   - Check that RLS is `true` for all 4 tables.
-   - Check that `anon` can only execute `get_trial_public`.
-   - Verify that all email normalization test cases report `test_passed = true`.
-   - Verify that `is_domain_blocked = true` for `mailinator.com`.
-3. To execute the Part 5 lifecycle test:
-   - Replace `<TEST_USER_UUID>` with a valid test user ID from `auth.users`.
-   - Run Part 5 and verify that claim 1 succeeds, claim 2 returns `already_claimed`, slot math increments, and the transaction safely rolls back.
+### Step 3: Run Verification Script 1 (Read-Only Schema Check)
+1. In the SQL Editor, copy and run **Script 1** from `docs/sql/031_free_trial_verify.sql`.
+2. Inspect the single JSON output `script_1_verification_result`:
+   - `objects_exist`: `subscriptions_is_trial_column_exists = true`, `subscriptions_with_is_trial_true_count = 0`, all 4 tables exist.
+   - `row_level_security`: all 4 tables report `true`.
+   - `privileges`: `authenticated` has zero table privileges; `anon` has execute only on `get_trial_public`; `authenticated` has execute on all functions; `listflow_app` has none.
+   - `function_definitions`: `prosecdef = true` with fixed `search_path` on definer functions.
+   - `rccp_offer_row`: `enabled = false`, `access_slug = 'cpbot'`, `slot_cap = 500`.
+   - `blocked_domain_count`: `15`.
+   - `normalize_email_tests`: all 8 test cases report `"passed": true`.
+   - `existing_subscriptions_integrity`: all 6 indexes and `trg_subscription_history` trigger confirmed intact.
 
-### Step 3: Rollback Procedure (If Needed)
-If you need to revert Part A:
+### Step 4: Run Verification Script 2 (Atomic Claim Test Harness)
+1. In the SQL Editor, copy and run **Script 2** from `docs/sql/031_free_trial_verify.sql`.
+2. Note that Script 2 tests user `50ef4d35-c7aa-47fe-bbb0-68c74afd6a3c` and **intentionally ends with `RAISE EXCEPTION`**.
+3. Inspect the error output:
+   ```
+   ERROR: VERIFY_RESULT (this error is intentional; everything was rolled back): { ... }
+   ```
+4. Verify that each step reports `"passed": true`:
+   - `step1_public_before`: slots_taken = 59, slots_left = 441.
+   - `step2_status_before`: eligible = true, reason = 'ok'.
+   - `step3_claim_first`: ok = true.
+   - `step4_claim_second_idempotent`: ok = false, reason = 'already_claimed'.
+   - `step5_status_after_claim`: already_claimed = true, ends_at is non-null, reason = 'already_claimed'.
+   - `step6_authenticated_direct_select_refused`: passed = true.
+   - `step7_anon_privileges`: public function allowed, claim and status functions refused.
+   - `step8_owner_verified_records`: subscriptions row created with `is_trial = true`, trial claims created, slots taken incremented to 60.
+5. Because the script aborted via `RAISE EXCEPTION`, all changes were immediately rolled back and the offer remains safely disabled.
+
+### Step 5: Rollback Procedure (Undo Only)
+If you ever need to completely remove Part A:
 1. Open `docs/sql/031_free_trial_rollback.sql`.
 2. Paste into the SQL Editor and click **Run**.
-3. Confirm all new tables and routines are dropped.
+3. It drops all 4 functions and 4 tables (`CASCADE`) safely within a 5-second lock timeout.
 
 ---
 
-## 8. Decisions Log
+## 8. Manual Testing via SQL (Before Admin Panel)
 
-- **Decision 1 (Single Subscriptions Table)**: Instead of creating a separate parallel entitlements table for trials, trial access rows are created in `public.subscriptions` with `is_trial = true` and `grant_reason = 'free_trial'`. This preserves compatibility with `expire-past-due-subscriptions` and existing dashboard queries without duplicating access models.
-- **Decision 2 (Immutable Email Normalization)**: Email normalization handles lowercase, trim, domain mapping (`googlemail.com` → `gmail.com`), dot removal for Gmail, and `+tag` removal across all providers.
-- **Decision 3 (Separate Claims vs Offers)**: `trial_offers` houses marketing knobs; `trial_claims` records individual claims. This decouples administrative capacity management from claim history.
+Until the Part D admin dashboard is built, you can manually enable and disable the trial offer directly in the SQL Editor:
+
+### Enable 1-Day Trial for Testing:
+```sql
+UPDATE public.trial_offers 
+SET enabled = true, 
+    trial_days = 1 
+WHERE tool_slug = 'rccp';
+```
+
+### Turn Trial Off:
+```sql
+UPDATE public.trial_offers 
+SET enabled = false 
+WHERE tool_slug = 'rccp';
+```
 
 ---
 
-## 9. Open Items for Parts B–E
+## 9. Next Steps (Parts B–E)
 
-1. **Part B (Webhook & Conversion Reconciliation)**: Update `process_stripe_webhook_event` to convert trial rows to paid rows upon checkout completion instead of throwing constraint errors.
-2. **Part C (Public Trial Landing & Claim UI)**: Build the claim modal and button on `/tools/rccp` consuming `get_trial_public`, `get_trial_status`, and `claim_free_trial`.
-3. **Part D (Admin Trial & Discount Management)**: Build admin panels for managing trial offer toggles, viewing claims, issuing user price overrides, and manual trial resets.
-4. **Part E (CP Bot Access Gate Confirmation)**: Final verification with the external Next.js CP Bot app to confirm the entitlement check consumes `'cpbot'`.
+- **Part B (Webhook & Conversion Reconciliation)**: Update `process_stripe_webhook_event` to convert trial rows to paid rows upon checkout completion.
+- **Part C (Public Trial Landing & Claim UI)**: Build the claim modal and button on `/tools/rccp` consuming `get_trial_public`, `get_trial_status`, and `claim_free_trial`.
+- **Part D (Admin Trial & Discount Management)**: Build admin panels for managing trial offer toggles, viewing claims, issuing user price overrides, and manual trial resets.
+- **Part E (CP Bot Access Gate Confirmation)**: Final verification with the external Next.js CP Bot app to confirm the entitlement check consumes `'cpbot'`.

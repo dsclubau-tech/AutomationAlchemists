@@ -1,5 +1,21 @@
 # Build Log
 
+## 2026-10-23 (Free Trial Part A Review Fixes - In Place)
+- Revised Part A migration `supabase/migrations/031_free_trial_and_discounts.sql`:
+  - Added transaction-level timeouts: `SET LOCAL lock_timeout = '5s'; SET LOCAL statement_timeout = '60s';`.
+  - Fixed `user_price_overrides` CHECK constraint NULL hole with explicit `IS NOT NULL` checks on `amount_cents` and `percent_off`; added `CHECK (ends_at IS NULL OR ends_at > starts_at)`.
+  - Fixed PL/pgSQL row-variable `IS NOT NULL` bug in `get_trial_status` by setting boolean flags from `FOUND` (`v_claim_found`, `v_sub_found`).
+  - Aligned evaluation order across `get_trial_status` and `claim_free_trial`: unauthenticated -> unconfirmed email -> blocked domain -> [FOR UPDATE lock in claim] -> already claimed -> existing subscriptions -> disabled -> sold out -> ok. Existing claimants consistently receive `already_claimed`.
+  - Hardened security: zero policies on all four tables, revoked all direct table privileges from `anon` and `authenticated` to hide administrative columns (`note`, `revoked_reason`).
+  - Set immutable search path `SET search_path = pg_catalog, pg_temp` on `normalize_email`.
+  - Switched interval generation to `make_interval(days => v_offer.trial_days)` in `claim_free_trial`.
+  - Documented privacy retention rationale for `trial_claims.email_normalized` on account deletion.
+- Rewrote `docs/sql/031_free_trial_rollback.sql` with `SET LOCAL lock_timeout = '5s'`, explicit function signatures, `DROP TABLE ... CASCADE` without brittle policy drops, and commented-out optional trial expiration warning.
+- Rewrote `docs/sql/031_free_trial_verify.sql` into two distinct single-result scripts: Script 1 (read-only diagnostic returning single jsonb) and Script 2 (atomic DO block testing full claim lifecycle and permissions, ending with intentional `RAISE EXCEPTION` to roll back all changes).
+- Updated `docs/FREE_TRIAL_AND_DISCOUNTS.md` with review findings, zero-policy security model, operational runbook steps, email verification requirements, and manual SQL commands for testing.
+- No migrations applied to live production database; no application code or runtime packages modified.
+- Files touched: `supabase/migrations/031_free_trial_and_discounts.sql`, `docs/sql/031_free_trial_rollback.sql`, `docs/sql/031_free_trial_verify.sql`, `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-23 (Free Trial & Discounts Database Layer - Part A)
 - Authored migration `supabase/migrations/031_free_trial_and_discounts.sql` in a single idempotent transaction creating `subscriptions.is_trial`, `trial_offers`, `trial_claims`, `user_price_overrides`, and `blocked_email_domains` tables with strict RLS and privilege revocations.
 - Implemented immutable `normalize_email` (dot/alias stripping, googlemail normalization) and atomic security-definer RPCs `get_trial_public`, `get_trial_status`, and `claim_free_trial` (with FOR UPDATE slot locking, confirmed-email checks, disposable domain blocking, and unique constraint handling).

@@ -6,11 +6,16 @@
 --
 -- Safety & Idempotency:
 -- - Wrapped in a single BEGIN ... COMMIT block.
--- - Fully idempotent (IF NOT EXISTS, CREATE OR REPLACE, ON CONFLICT DO NOTHING).
--- - Does NOT modify, drop, or alter any existing indexes, triggers, or functions.
+-- - Sets local lock_timeout ('5s') and statement_timeout ('60s') to prevent blocking.
+-- - Safe for single execution; statements use IF NOT EXISTS, CREATE OR REPLACE,
+--   and ON CONFLICT DO NOTHING.
+-- - Does NOT modify, drop, or recreate any existing indexes, triggers, or functions.
 -- ==============================================================================
 
 BEGIN;
+
+SET LOCAL lock_timeout = '5s';
+SET LOCAL statement_timeout = '60s';
 
 -- ------------------------------------------------------------------------------
 -- 1. Modify subscriptions table: add is_trial column
@@ -83,6 +88,8 @@ ON CONFLICT (domain) DO NOTHING;
 -- ------------------------------------------------------------------------------
 -- 4. Table: public.trial_claims
 -- ------------------------------------------------------------------------------
+-- Note: email_normalized is personal data, kept after account deletion on purpose
+-- so a deleted account cannot take a second trial; mention it in the privacy policy later.
 CREATE TABLE IF NOT EXISTS public.trial_claims (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tool_slug text NOT NULL REFERENCES public.trial_offers(tool_slug),
@@ -120,8 +127,11 @@ CREATE TABLE IF NOT EXISTS public.user_price_overrides (
   created_at timestamptz NOT NULL DEFAULT now(),
   revoked_at timestamptz,
   CONSTRAINT user_price_overrides_kind_check CHECK (
-    (kind = 'fixed_price' AND amount_cents > 0 AND percent_off IS NULL) OR
-    (kind = 'percent_off' AND percent_off > 0 AND percent_off <= 100 AND amount_cents IS NULL)
+    (kind = 'fixed_price' AND amount_cents IS NOT NULL AND amount_cents > 0 AND percent_off IS NULL) OR
+    (kind = 'percent_off' AND percent_off IS NOT NULL AND percent_off > 0 AND percent_off <= 100 AND amount_cents IS NULL)
+  ),
+  CONSTRAINT user_price_overrides_dates_check CHECK (
+    ends_at IS NULL OR ends_at > starts_at
   )
 );
 
@@ -136,6 +146,7 @@ CREATE OR REPLACE FUNCTION public.normalize_email(p_email text)
 RETURNS text
 LANGUAGE plpgsql
 IMMUTABLE
+SET search_path = pg_catalog, pg_temp
 AS $$
 DECLARE
   v_email text;
@@ -248,11 +259,14 @@ DECLARE
   v_slots_taken int;
   v_slots_left int;
   v_claim record;
+  v_claim_found boolean := false;
   v_sub record;
+  v_sub_found boolean := false;
+  v_has_access boolean := false;
   v_reason text := 'ok';
   v_eligible boolean := false;
-  v_has_access boolean := false;
 BEGIN
+  -- 1. Must be signed in
   IF auth.uid() IS NULL THEN
     RETURN jsonb_build_object(
       'eligible', false,
@@ -260,6 +274,7 @@ BEGIN
     );
   END IF;
 
+  -- 2. Read caller identity
   SELECT email, email_confirmed_at
   INTO v_user_email, v_email_confirmed_at
   FROM auth.users
@@ -299,41 +314,47 @@ BEGIN
   v_slots_taken := v_offer.slots_reserved + v_claims_count;
   v_slots_left := GREATEST(v_offer.slot_cap - v_slots_taken, 0);
 
+  -- Inspect existing claim using boolean flag
   SELECT trial_ends_at, converted_at, revoked_at
   INTO v_claim
   FROM public.trial_claims
   WHERE tool_slug = p_tool_slug
     AND (user_id = auth.uid() OR email_normalized = v_norm_email)
   LIMIT 1;
+  v_claim_found := FOUND;
 
+  -- Inspect existing subscription using boolean flag
   SELECT status, current_period_end
   INTO v_sub
   FROM public.subscriptions
   WHERE user_id = auth.uid()
     AND product_slug = v_offer.access_slug
   LIMIT 1;
+  v_sub_found := FOUND;
 
-  IF v_sub.status = 'active' AND (v_sub.current_period_end IS NULL OR v_sub.current_period_end > now()) THEN
+  IF v_sub_found AND v_sub.status = 'active' AND (v_sub.current_period_end IS NULL OR v_sub.current_period_end > now()) THEN
     v_has_access := true;
   END IF;
 
-  -- Reason determination in exact order
+  -- Aligned reason determination order:
+  -- not signed in -> email confirmation -> blocked domain -> already claimed ->
+  -- existing subscriptions row -> offer disabled -> sold out -> ok
   IF v_offer.require_confirmed_email AND v_email_confirmed_at IS NULL THEN
     v_reason := 'email_unconfirmed';
   ELSIF EXISTS (SELECT 1 FROM public.blocked_email_domains WHERE domain = v_domain) THEN
     v_reason := 'email_not_allowed';
-  ELSIF NOT v_offer.enabled THEN
-    v_reason := 'disabled';
-  ELSIF v_slots_left <= 0 THEN
-    v_reason := 'sold_out';
-  ELSIF v_claim IS NOT NULL THEN
+  ELSIF v_claim_found THEN
     v_reason := 'already_claimed';
-  ELSIF v_sub IS NOT NULL THEN
+  ELSIF v_sub_found THEN
     IF v_has_access THEN
       v_reason := 'already_has_access';
     ELSE
       v_reason := 'not_eligible';
     END IF;
+  ELSIF NOT v_offer.enabled THEN
+    v_reason := 'disabled';
+  ELSIF v_slots_left <= 0 THEN
+    v_reason := 'sold_out';
   ELSE
     v_reason := 'ok';
   END IF;
@@ -346,9 +367,9 @@ BEGIN
     'slot_cap', v_offer.slot_cap,
     'slots_taken', v_slots_taken,
     'slots_left', v_slots_left,
-    'already_claimed', (v_claim IS NOT NULL),
+    'already_claimed', v_claim_found,
     'has_access', v_has_access,
-    'claim', CASE WHEN v_claim IS NOT NULL THEN jsonb_build_object(
+    'claim', CASE WHEN v_claim_found THEN jsonb_build_object(
       'ends_at', v_claim.trial_ends_at,
       'converted', (v_claim.converted_at IS NOT NULL),
       'revoked', (v_claim.revoked_at IS NOT NULL)
@@ -377,10 +398,11 @@ DECLARE
   v_claims_count int;
   v_slots_taken int;
   v_sub record;
+  v_dummy int;
   v_ends_at timestamptz;
   v_sub_id uuid;
 BEGIN
-  -- 1. Must be signed in
+  -- 1. Check signed in
   IF auth.uid() IS NULL THEN
     RETURN jsonb_build_object('ok', false, 'reason', 'not_signed_in');
   END IF;
@@ -424,31 +446,19 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'reason', 'email_unconfirmed');
   END IF;
 
-  -- 7. Check if offer is enabled
-  IF NOT v_offer.enabled THEN
-    RETURN jsonb_build_object('ok', false, 'reason', 'disabled');
-  END IF;
-
-  -- 8. Check slot availability
-  SELECT COUNT(*) INTO v_claims_count
+  -- 7. Check already claimed by this user id OR normalized email
+  SELECT 1
+  INTO v_dummy
   FROM public.trial_claims
-  WHERE tool_slug = p_tool_slug;
+  WHERE tool_slug = p_tool_slug
+    AND (user_id = auth.uid() OR email_normalized = v_norm_email)
+  LIMIT 1;
 
-  v_slots_taken := v_offer.slots_reserved + v_claims_count;
-  IF (v_offer.slot_cap - v_slots_taken) <= 0 THEN
-    RETURN jsonb_build_object('ok', false, 'reason', 'sold_out');
-  END IF;
-
-  -- 9. Check already claimed by this email or user id
-  IF EXISTS (
-    SELECT 1 FROM public.trial_claims
-    WHERE tool_slug = p_tool_slug
-      AND (user_id = auth.uid() OR email_normalized = v_norm_email)
-  ) THEN
+  IF FOUND THEN
     RETURN jsonb_build_object('ok', false, 'reason', 'already_claimed');
   END IF;
 
-  -- 10. Check existing subscriptions row for (user, access_slug)
+  -- 8. Check existing subscriptions row for (user, access_slug)
   SELECT status, current_period_end
   INTO v_sub
   FROM public.subscriptions
@@ -464,8 +474,23 @@ BEGIN
     END IF;
   END IF;
 
+  -- 9. Check if offer is enabled
+  IF NOT v_offer.enabled THEN
+    RETURN jsonb_build_object('ok', false, 'reason', 'disabled');
+  END IF;
+
+  -- 10. Check slot availability
+  SELECT COUNT(*) INTO v_claims_count
+  FROM public.trial_claims
+  WHERE tool_slug = p_tool_slug;
+
+  v_slots_taken := v_offer.slots_reserved + v_claims_count;
+  IF (v_offer.slot_cap - v_slots_taken) <= 0 THEN
+    RETURN jsonb_build_object('ok', false, 'reason', 'sold_out');
+  END IF;
+
   -- 11. Insert subscriptions row & trial_claims row
-  v_ends_at := now() + (v_offer.trial_days || ' days')::interval;
+  v_ends_at := now() + make_interval(days => v_offer.trial_days);
 
   INSERT INTO public.subscriptions (
     user_id,
@@ -529,31 +554,18 @@ ALTER TABLE public.trial_claims ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_price_overrides ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blocked_email_domains ENABLE ROW LEVEL SECURITY;
 
--- Policies
-CREATE POLICY trial_claims_select_own 
-  ON public.trial_claims 
-  FOR SELECT 
-  TO authenticated 
-  USING (user_id = auth.uid());
-
-CREATE POLICY user_price_overrides_select_own 
-  ON public.user_price_overrides 
-  FOR SELECT 
-  TO authenticated 
-  USING (user_id = auth.uid() AND revoked_at IS NULL);
-
--- trial_offers and blocked_email_domains intentionally have NO policies
--- Client interaction is strictly mediated by SECURITY DEFINER functions.
+-- Note: All four tables intentionally have ZERO policies.
+-- Direct table access is completely REVOKED from anon and authenticated.
+-- Users reach this data solely through the audited SECURITY DEFINER functions.
+-- This protects administrative fields (such as note in user_price_overrides
+-- and revoked_reason in trial_claims) from client exposure.
+-- service_role retains default administrative bypass for Edge Functions.
 
 -- Revoke all table privileges from anon and authenticated
 REVOKE ALL ON TABLE public.trial_offers FROM anon, authenticated;
 REVOKE ALL ON TABLE public.trial_claims FROM anon, authenticated;
 REVOKE ALL ON TABLE public.user_price_overrides FROM anon, authenticated;
 REVOKE ALL ON TABLE public.blocked_email_domains FROM anon, authenticated;
-
--- Grant selective read-only table privileges to authenticated
-GRANT SELECT ON TABLE public.trial_claims TO authenticated;
-GRANT SELECT ON TABLE public.user_price_overrides TO authenticated;
 
 -- Function Privileges
 REVOKE ALL ON FUNCTION public.normalize_email(text) FROM PUBLIC, anon, authenticated;
