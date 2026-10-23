@@ -18,7 +18,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - **Caching headers**: `vercel.json` configured with `no-cache` for `index.html`, long-cache for hashed assets.
 
 ## In Progress
-- None.
+- free trial: Part A SQL written, NOT applied (migration 031, rollback, verify, and architecture doc drafted).
 
 ## Not Started
 - Multi-item single-checkout (Edge Function only supports one item per session currently).
@@ -36,4 +36,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-22 — Displayed /tools/rccp hero logo raw without tile on pure white hero card; corrected v1.4.2 changelog entry.*
+*Last Updated: 2026-10-23 — Free trial: Part A SQL written, NOT applied.*

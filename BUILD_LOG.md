@@ -1,5 +1,12 @@
 # Build Log
 
+## 2026-10-23 (Free Trial & Discounts Database Layer - Part A)
+- Authored migration `supabase/migrations/031_free_trial_and_discounts.sql` in a single idempotent transaction creating `subscriptions.is_trial`, `trial_offers`, `trial_claims`, `user_price_overrides`, and `blocked_email_domains` tables with strict RLS and privilege revocations.
+- Implemented immutable `normalize_email` (dot/alias stripping, googlemail normalization) and atomic security-definer RPCs `get_trial_public`, `get_trial_status`, and `claim_free_trial` (with FOR UPDATE slot locking, confirmed-email checks, disposable domain blocking, and unique constraint handling).
+- Authored rollback script `docs/sql/031_free_trial_rollback.sql`, verification script `docs/sql/031_free_trial_verify.sql` (including email unit tests and an atomic lifecycle test that rolls back), and architecture runbook `docs/FREE_TRIAL_AND_DISCOUNTS.md`.
+- No migrations applied to live database; no application code or runtime packages modified.
+- Files touched: `supabase/migrations/031_free_trial_and_discounts.sql` (NEW), `docs/sql/031_free_trial_rollback.sql` (NEW), `docs/sql/031_free_trial_verify.sql` (NEW), `docs/FREE_TRIAL_AND_DISCOUNTS.md` (NEW), `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-23 (Current State of Billing and Access Architecture Audit)
 - Completed architectural audit of live database schema, subscription data models, product slug mappings, access RPCs, Stripe checkout and webhook pipelines, admin actions, and customer account touchpoints.
 - Authored comprehensive report in `docs/CURRENT_STATE_BILLING_AND_ACCESS.md` detailing findings, slug divergence (`rccp` vs `cpbot`), root causes of webhook HTTP 500 errors, secondary source disagreements, and technical risks prior to implementing free trials or per-user discounts.
