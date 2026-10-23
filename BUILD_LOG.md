@@ -1,5 +1,25 @@
 # Build Log
 
+## 2026-10-23 (Free Trial Part B: Webhook Conversion, Pricing & Access Decoupling)
+- Authored migration `supabase/migrations/032_webhook_trial_conversion.sql`:
+  - Implemented `public.resolve_access_slug(p_tool_slug text)` mapping tool catalog slugs to entitlement access slugs (restricted to `postgres` role).
+  - Re-implemented `public.process_stripe_webhook_event` preserving exact 13-argument signature.
+  - Added fallback resolution for missing `user_id`, `email`, and `product_slug` from existing subscriptions by `stripe_subscription_id`; skips gracefully with HTTP 200 on unresolved identity.
+  - Implemented manual grant protection: active `manually_granted = true` subscriptions are never overwritten.
+  - Implemented single-seat `UPSERT` on `(user_id, product_slug) WHERE store_id IS NULL`, converting trial rows in place (`is_trial = false`) and stamping `public.trial_claims.converted_at = now()`.
+  - Preserved Order Bot multi-store quantity logic.
+- Authored `docs/sql/032_rollback.sql` restoring original snapshot definition and dropping `resolve_access_slug`.
+- Authored `docs/sql/032_verify.sql` returning single JSON validating function overload count (1), signatures, and grants.
+- Updated `supabase/functions/stripe-webhook/index.ts` to extract user ID, email, and tool slug from session and subscription metadata across all events, returning 200 on skipped RPC outcomes.
+- Updated `supabase/functions/create-checkout-session/index.ts`:
+  - Server-side price resolution from `public.tools.price_monthly` and `public.user_price_overrides` using `price_data`.
+  - Enforced minimum unit amount (50 cents AUD) with HTTP 400 (`price_too_low`).
+  - Added double-charge guard checking active paid subscriptions for resolved access slug with HTTP 409 (`already_subscribed`), while allowing trial upgrades.
+  - Attached metadata to both session and `subscription_data.metadata`.
+- Updated documentation in `docs/FREE_TRIAL_AND_DISCOUNTS.md` and `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`. Created `PRD.md` and `QA_CHECKLIST.md`.
+- No database migrations applied to live database; no Edge Functions deployed. Unversioned backend change.
+- Files touched: `supabase/migrations/032_webhook_trial_conversion.sql` (NEW), `docs/sql/032_rollback.sql` (NEW), `docs/sql/032_verify.sql` (NEW), `supabase/functions/stripe-webhook/index.ts`, `supabase/functions/create-checkout-session/index.ts`, `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`, `PRD.md` (NEW), `QA_CHECKLIST.md` (NEW), `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-23 (Migration 031 Constraint Fix & Verify Script Column Correction)
 - Resolved PostgreSQL duplicate constraint error (`ERROR 42710`) on `public.user_price_overrides`:
   - Removed duplicate inline check on `kind` column.

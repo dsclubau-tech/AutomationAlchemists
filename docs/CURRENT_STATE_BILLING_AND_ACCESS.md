@@ -513,35 +513,43 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
 
 ## 9. Risks and Pitfalls
 
-1. **Slug Mismatch (`rccp` vs `cpbot`)**:
+1. **Slug Mismatch (`rccp` vs `cpbot`)** — [Risk (d)]:
+   - **Status**: *Mapped via resolve_access_slug; the final slug pending the CP Bot developer.*
    - The marketing site, `/tools`, `/tools/rccp`, and `/cart` operate with slug `'rccp'`.
    - The database has `'rccp'` ($9/mo, available) and `'cpbot'` ($9/mo, hidden).
-   - However, `Dashboard.tsx:448, 551` hardcodes checks for `product_slug === 'cpbot'`, and `AdminSubscriptions.tsx:567` only grants `'cpbot'`.
-   - Creating a trial or subscription row under `'rccp'` leaves the dashboard showing CP Bot as locked.
-2. **Unique Index Collisions on Paid Conversion After Trial**:
-   - `public.subscriptions` has:
-     `subscriptions_user_product_no_store_unique UNIQUE (user_id, product_slug) WHERE (store_id IS NULL)`.
-   - If a user has a trial row in `subscriptions` with `product_slug = 'rccp'` (or `'cpbot'`) and `store_id IS NULL`:
-     When they pay via Stripe, `process_stripe_webhook_event` performs a raw `INSERT INTO subscriptions (...)`.
-     Because there is no `ON CONFLICT` handling in `process_stripe_webhook_event`, Postgres raises a unique constraint violation error, crashing the webhook with HTTP 500.
-3. **Webhook HTTP 500 on `customer.subscription.updated`**:
-   - `stripe-webhook/index.ts` passes `null` for `p_user_id`, `p_email`, and `p_product_slug` during `customer.subscription.updated`.
-   - If a trial or subscription update causes `v_active_count < p_quantity`, the stored procedure tries to insert NULLs into NOT NULL columns, returning HTTP 500.
+   - In Part B, `public.resolve_access_slug('rccp')` and `create-checkout-session` dynamically resolve the entitlement access slug from `public.trial_offers.access_slug` (currently `'cpbot'`). When the CP Bot developer confirms any slug update, changing `trial_offers.access_slug` updates both the trial and checkout access slug without hardcoding.
+
+2. **Unique Index Collisions on Paid Conversion After Trial** — [Risk (b)]:
+   - **Status**: *Fixed in code, not yet deployed.*
+   - `public.subscriptions` has `subscriptions_user_product_no_store_unique UNIQUE (user_id, product_slug) WHERE (store_id IS NULL)`.
+   - Fixed in migration 032 by replacing raw `INSERT` with `INSERT ... ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL DO UPDATE ...`. Existing trial rows are converted in place (`is_trial = false`), and `public.trial_claims.converted_at` is stamped.
+
+3. **Webhook HTTP 500 on `customer.subscription.updated`** — [Risk (a)]:
+   - **Status**: *Fixed in code, not yet deployed.*
+   - Fixed in Part B: `create-checkout-session` embeds `user_id` and `tool_slug` in `subscription_data.metadata`, `stripe-webhook/index.ts` extracts metadata across all events, and migration 032's `process_stripe_webhook_event` resolves missing parameters from existing subscription rows matching `stripe_subscription_id`. If unresolved, it gracefully skips without inserting NULLs and returns HTTP 200.
+
 4. **`stripe_subscription_id` Unique Index Collisions**:
    - `subscriptions_stripe_subscription_id_key` enforces global uniqueness on `stripe_subscription_id`.
-   - If trial rows reuse dummy Stripe IDs, or if a webhook reconciles multiple slots with the same Stripe subscription ID, the insert crashes.
-5. **Minute-by-Minute Expiration Leaving Blocking Rows**:
-   - `pg_cron` expires rows every minute by setting `status = 'expired'`.
-   - Because `subscriptions_user_product_no_store_unique` is filtered on `(store_id IS NULL)` rather than `status = 'active'`, an expired row continues to block any subsequent `INSERT` for the same user and tool.
+   - Single-seat subscriptions update existing rows. Multi-store Order Bot retains its existing slot management.
+
+5. **Minute-by-Minute Expiration Leaving Blocking Rows** — [Risk (b) related]:
+   - **Status**: *Fixed in code, not yet deployed.*
+   - Because migration 032 uses `ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL DO UPDATE`, an expired row no longer blocks a returning subscriber; the row is updated to `status = 'active'` with new billing period dates.
+
 6. **Admin Grant Upsert vs Stripe Webhook Raw Insert**:
-   - `admin_execute_action('grant_access')` safely handles `ON CONFLICT DO UPDATE`, but `process_stripe_webhook_event` does not.
+   - Migration 032 introduces a Manual Grant Safety check: if an active `manually_granted = true` row exists, the webhook skips modification and returns `skipped: manual grant present`, preserving manual grants.
+
 7. **Foreign Key Cascade on User Deletion**:
    - Deleting a user in `auth.users` cascades to delete their `subscriptions` rows (`subscriptions_user_id_fkey ON DELETE CASCADE`), but historical records in `subscription_history` retain `user_id` without foreign key cascade.
-8. **Incompatibility of Per-User Discounts with Stripe Lookup Keys**:
-   - `create-checkout-session` currently maps `product_slug` directly to a single static Stripe Price lookup key. Applying per-user discounts requires either dynamically applying Stripe Coupons/Promotion Codes or transitioning to ad-hoc `price_data`.
+
+8. **Incompatibility of Per-User Discounts with Stripe Lookup Keys** — [Risk (c)]:
+   - **Status**: *Fixed in code, not yet deployed.*
+   - Fixed in Part B: `create-checkout-session` resolves server-side catalog prices from `public.tools.price_monthly` and active user discounts from `public.user_price_overrides`, constructing ad-hoc Stripe line items via `price_data`.
+
 9. **Lack of Access Gate & Client Caching on External CP Bot App / Extension**:
    - CP Bot lives in a separate repository where subscription verification has not yet been implemented.
    - If client-side caching (e.g. cookies, `chrome.storage.local`) is introduced without strict invalidation, users could retain access after trial expiration.
+
 10. **Loss of Checkout Intent on Auth**:
     - `handleGetAccessLogic` redirects unauthenticated users to `/auth`.
     - `/auth` does not accept a redirect URL and dumps users onto `/` upon completion, losing their checkout funnel.

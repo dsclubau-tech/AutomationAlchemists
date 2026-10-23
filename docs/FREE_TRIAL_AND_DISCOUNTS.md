@@ -282,9 +282,49 @@ WHERE tool_slug = 'rccp';
 
 ---
 
-## 9. Next Steps (Parts B–E)
+## 9. Part B: Checkout and Webhook Architecture
 
-- **Part B (Webhook & Conversion Reconciliation)**: Update `process_stripe_webhook_event` to convert trial rows to paid rows upon checkout completion.
+Part B bridges promotional free trials, dynamic per-user discounts, and paid Stripe billing into a unified, conflict-free pipeline.
+
+### 9.1 Trial-to-Paid Conversion Rule
+- When a user holding an active trial subscription (`is_trial = true`, `grant_reason = 'free_trial'`) completes Stripe checkout, `public.process_stripe_webhook_event` performs an `UPSERT` on `(user_id, product_slug) WHERE store_id IS NULL`.
+- The **SAME row** in `public.subscriptions` is updated:
+  - `status = 'active'`
+  - `is_trial = false`
+  - `grant_reason = 'stripe_checkout'`
+  - `stripe_customer_id`, `stripe_subscription_id`, `stripe_price_id`, `price_per_month`, and billing periods are updated.
+- Simultaneously, the matching row in `public.trial_claims` is stamped with `converted_at = now()`.
+- The user **never ends up with two subscription rows**, and the unique index `subscriptions_user_product_no_store_unique` is never violated.
+
+### 9.2 Server-Side Price Resolution Order
+Clients are never trusted for pricing. When `create-checkout-session` generates a checkout URL:
+1. **Per-User Override (`public.user_price_overrides`)**: Checks for an active override where `revoked_at IS NULL AND starts_at <= now() AND (ends_at IS NULL OR ends_at > now())`:
+   - `kind = 'fixed_price'`: `amount_cents` is charged directly.
+   - `kind = 'percent_off'`: Discount applied to catalog price: `round(catalog_cents * (1 - percent_off / 100))`.
+2. **Catalog Admin Price (`public.tools.price_monthly`)**: If no active user override exists, uses the monthly price configured by administrators in the `tools` table.
+3. **Stripe Price Fallback**: If the tool is missing a database price, falls back to the static Stripe Price retrieved via the product lookup key.
+- Line items are constructed dynamically via Stripe `price_data` reusing the existing Stripe Product ID.
+
+### 9.3 Manual-Grant Safety Rule
+- If an existing subscription row has `manually_granted = true` and `status = 'active'` (with `current_period_end IS NULL OR current_period_end > now()`), the webhook **will NOT overwrite it**.
+- The RPC records `skipped: manual grant present` in the return payload and returns success (`HTTP 200` to Stripe), safeguarding administrative grants from accidental overwrites by test or duplicate checkouts.
+
+### 9.4 Guard Rail Error Codes (400 and 409)
+- **HTTP 409 (`already_subscribed`)**: If the user already has an active, non-trial (`is_trial = false`) subscription for the resolved access slug (`cpbot`), `create-checkout-session` rejects the call immediately. Note: an active trial (`is_trial = true`) does **not** block checkout, allowing frictionless upgrade.
+- **HTTP 400 (`price_too_low`)**: If a discount override produces a unit amount under Stripe's minimum threshold (50 cents AUD / $0.50), checkout halts without contacting Stripe.
+
+### 9.5 Deploy Order
+Deployments must strictly follow this order (manual execution only):
+1. **Database Migration**: Apply `supabase/migrations/032_webhook_trial_conversion.sql` by hand in the Supabase SQL Editor and run `docs/sql/032_verify.sql` to verify single overload and permissions.
+2. **Deploy `create-checkout-session`**: Deploy the checkout Edge Function.
+3. **Deploy `stripe-webhook`**: Deploy the webhook Edge Function (must be deployed with `--no-verify-jwt` so Stripe can post without Supabase auth headers).
+4. **Pre-flight Check**: Do not deploy while [status.supabase.com](https://status.supabase.com) reports an active incident affecting Edge Functions or Postgres.
+
+---
+
+## 10. Next Steps (Parts C–E)
+
 - **Part C (Public Trial Landing & Claim UI)**: Build the claim modal and button on `/tools/rccp` consuming `get_trial_public`, `get_trial_status`, and `claim_free_trial`.
 - **Part D (Admin Trial & Discount Management)**: Build admin panels for managing trial offer toggles, viewing claims, issuing user price overrides, and manual trial resets.
 - **Part E (CP Bot Access Gate Confirmation)**: Final verification with the external Next.js CP Bot app to confirm the entitlement check consumes `'cpbot'`.
+
