@@ -24,6 +24,9 @@ DECLARE
   v_fake_claim_id uuid;
   v_converted_claim_id uuid;
   v_fake_override_id uuid;
+  v_initial_end timestamptz;
+  v_sub_row record;
+  v_claim_row record;
   
   -- Blocked domain variables
   v_test_domain text := 'verify-test-' || substr(gen_random_uuid()::text, 1, 8) || '.com';
@@ -35,10 +38,29 @@ DECLARE
   v_new_override_id uuid;
   v_unrevoked_count int;
   v_old_row_revoked_at timestamptz;
+  v_old_row_ends_at timestamptz;
   v_audit_test_domain text := 'audit-test-' || substr(gen_random_uuid()::text, 1, 8) || '.com';
   v_audit_count_add int;
   v_audit_count_remove int;
+
+  -- Row leak baseline variables
+  v_start_subs int;
+  v_start_claims int;
+  v_start_overrides int;
+  v_start_domains int;
+  v_end_subs int;
+  v_end_claims int;
+  v_end_overrides int;
+  v_end_domains int;
 BEGIN
+  -- ----------------------------------------------------------------------------
+  -- 0. SNAPSHOT BASELINE ROW COUNTS (AS TABLE OWNER)
+  -- ----------------------------------------------------------------------------
+  SELECT count(*) INTO v_start_subs FROM public.subscriptions;
+  SELECT count(*) INTO v_start_claims FROM public.trial_claims;
+  SELECT count(*) INTO v_start_overrides FROM public.user_price_overrides;
+  SELECT count(*) INTO v_start_domains FROM public.blocked_email_domains;
+
   -- ----------------------------------------------------------------------------
   -- 1. IMPERSONATE NON-ADMIN TEST USER
   -- Must prove EVERY admin_ function refuses with 'not_admin' (SQLSTATE 42501).
@@ -182,7 +204,7 @@ BEGIN
   END;
 
   -- ----------------------------------------------------------------------------
-  -- 2. LOOK UP ACTIVE ADMIN USER
+  -- 2. LOOK UP ACTIVE ADMIN USER (AS TABLE OWNER)
   -- ----------------------------------------------------------------------------
   SELECT p.id, u.email INTO v_admin_id, v_admin_email
   FROM public.profiles p
@@ -257,75 +279,139 @@ BEGIN
     -- 2C: Fake claim lifecycle: extend -> revoke -> reset
     -- --------------------------------------------------------------------------
     BEGIN
-      -- Create a fake active trial subscription & claim
+      -- Step 0: Create fixture as table owner
+      RESET ROLE;
+      v_initial_end := now() + interval '7 days';
+
       INSERT INTO public.subscriptions (
         user_id, email, product_slug, status, is_trial, grant_reason, manually_granted, current_period_end
       ) VALUES (
-        v_non_admin_id, 'fake-trial-verify@example.com', 'cpbot', 'active', true, 'free_trial', false, now() + interval '7 days'
+        v_non_admin_id, 'fake-trial-verify@example.com', 'cpbot', 'active', true, 'free_trial', false, v_initial_end
       ) RETURNING id INTO v_fake_sub_id;
 
       INSERT INTO public.trial_claims (
         tool_slug, user_id, email_normalized, trial_ends_at, subscription_id
       ) VALUES (
-        'rccp', v_non_admin_id, 'fake-trial-verify@example.com', now() + interval '7 days', v_fake_sub_id
+        'rccp', v_non_admin_id, 'fake-trial-verify@example.com', v_initial_end, v_fake_sub_id
       ) RETURNING id INTO v_fake_claim_id;
 
-      -- 1. Extend claim by 14 days
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
+
+      -- Step 1: Extend claim by 14 days (call as admin)
       v_res := public.admin_trial_extend(v_fake_claim_id, 14);
       IF (v_res->>'ok')::boolean <> true THEN
         RAISE EXCEPTION 'admin_trial_extend failed: %', v_res;
       END IF;
 
-      -- 2. Revoke claim
+      -- Assert extend results as table owner
+      RESET ROLE;
+      SELECT current_period_end, status INTO v_sub_row FROM public.subscriptions WHERE id = v_fake_sub_id;
+      SELECT trial_ends_at, revoked_at INTO v_claim_row FROM public.trial_claims WHERE id = v_fake_claim_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
+
+      IF v_sub_row.status <> 'active' THEN
+        RAISE EXCEPTION 'After extend, subscription status expected active, got %', v_sub_row.status;
+      END IF;
+      IF v_sub_row.current_period_end IS DISTINCT FROM (v_res->>'new_ends_at')::timestamptz THEN
+        RAISE EXCEPTION 'After extend, subscriptions.current_period_end (%) != returned new_ends_at (%)', v_sub_row.current_period_end, v_res->>'new_ends_at';
+      END IF;
+      IF v_claim_row.trial_ends_at IS DISTINCT FROM (v_res->>'new_ends_at')::timestamptz THEN
+        RAISE EXCEPTION 'After extend, trial_claims.trial_ends_at (%) != returned new_ends_at (%)', v_claim_row.trial_ends_at, v_res->>'new_ends_at';
+      END IF;
+      IF abs(extract(epoch from (v_sub_row.current_period_end - (v_initial_end + interval '14 days')))) > 2 THEN
+        RAISE EXCEPTION 'After extend, end time did not move by 14 days: % vs %', v_sub_row.current_period_end, (v_initial_end + interval '14 days');
+      END IF;
+
+      -- Step 2: Revoke claim (call as admin)
       v_res := public.admin_trial_revoke(v_fake_claim_id);
       IF (v_res->>'ok')::boolean <> true THEN
         RAISE EXCEPTION 'admin_trial_revoke failed: %', v_res;
       END IF;
 
-      -- Verify subscription was marked canceled
-      IF NOT EXISTS (
-        SELECT 1 FROM public.subscriptions
-        WHERE id = v_fake_sub_id AND status = 'canceled'
-      ) THEN
-        RAISE EXCEPTION 'Subscription was not marked canceled after claim revoke';
+      -- Assert revoke results as table owner
+      RESET ROLE;
+      SELECT current_period_end, status INTO v_sub_row FROM public.subscriptions WHERE id = v_fake_sub_id;
+      SELECT trial_ends_at, revoked_at, revoked_reason INTO v_claim_row FROM public.trial_claims WHERE id = v_fake_claim_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
+
+      IF v_claim_row.revoked_at IS NULL OR v_claim_row.revoked_reason <> 'Revoked by admin' THEN
+        RAISE EXCEPTION 'After revoke, claim revoked_at is NULL or reason wrong: revoked_at=%, reason=%', v_claim_row.revoked_at, v_claim_row.revoked_reason;
+      END IF;
+      IF v_sub_row.status <> 'canceled' THEN
+        RAISE EXCEPTION 'After revoke, subscription status expected canceled, got %', v_sub_row.status;
+      END IF;
+      IF v_sub_row.current_period_end > now() THEN
+        RAISE EXCEPTION 'After revoke, subscription current_period_end expected <= now(), got %', v_sub_row.current_period_end;
       END IF;
 
-      -- 3. Reset claim (testing only)
+      -- Step 3: Reset claim (call as admin)
       v_res := public.admin_trial_reset_claim(v_fake_claim_id);
       IF (v_res->>'ok')::boolean <> true THEN
         RAISE EXCEPTION 'admin_trial_reset_claim failed: %', v_res;
       END IF;
 
-      -- Verify claim and trial subscription are completely removed
+      -- Assert reset results as table owner: claim and subscription completely deleted
+      RESET ROLE;
       IF EXISTS (SELECT 1 FROM public.trial_claims WHERE id = v_fake_claim_id) THEN
+        PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+        SET LOCAL ROLE authenticated;
         RAISE EXCEPTION 'Claim row still exists after reset';
       END IF;
       IF EXISTS (SELECT 1 FROM public.subscriptions WHERE id = v_fake_sub_id) THEN
+        PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+        SET LOCAL ROLE authenticated;
         RAISE EXCEPTION 'Subscription row still exists after reset';
       END IF;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
 
-      -- 4. Test refusal on converted claim
+      -- Step 4: Test refusal on converted claim
+      RESET ROLE;
       INSERT INTO public.trial_claims (
         tool_slug, user_id, email_normalized, trial_ends_at, converted_at
       ) VALUES (
         'rccp', v_non_admin_id, 'converted-claim@example.com', now() + interval '30 days', now()
       ) RETURNING id INTO v_converted_claim_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
 
+      -- Converted claim: extend refused
+      v_res := public.admin_trial_extend(v_converted_claim_id, 7);
+      IF (v_res->>'error') <> 'converted' THEN
+        RAISE EXCEPTION 'Expected error converted on extending converted claim, got %', v_res;
+      END IF;
+
+      -- Converted claim: revoke refused
       v_res := public.admin_trial_revoke(v_converted_claim_id);
       IF (v_res->>'error') <> 'converted' THEN
         RAISE EXCEPTION 'Expected error converted on revoking converted claim, got %', v_res;
       END IF;
 
+      -- Converted claim: reset refused
       v_res := public.admin_trial_reset_claim(v_converted_claim_id);
       IF (v_res->>'error') <> 'converted' THEN
         RAISE EXCEPTION 'Expected error converted on resetting converted claim, got %', v_res;
       END IF;
+
+      -- Clean up converted claim fixture as table owner
+      RESET ROLE;
+      DELETE FROM public.trial_claims WHERE id = v_converted_claim_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
 
       v_results := jsonb_set(v_results, '{admin_claim_lifecycle}', jsonb_build_object(
         'passed', true,
         'detail', 'Extend (+14d), revoke (status canceled), and reset (clean removal) succeeded; converted claims safely refused'
       ));
     EXCEPTION WHEN OTHERS THEN
+      RESET ROLE;
+      DELETE FROM public.trial_claims WHERE id IN (v_fake_claim_id, v_converted_claim_id);
+      DELETE FROM public.subscriptions WHERE id = v_fake_sub_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
       v_results := jsonb_set(v_results, '{admin_claim_lifecycle}', jsonb_build_object('passed', false, 'error', SQLERRM));
     END;
 
@@ -358,11 +444,23 @@ BEGIN
         RAISE EXCEPTION 'Failed price override revoke: %', v_res;
       END IF;
 
+      -- Clean up test fixture as table owner
+      RESET ROLE;
+      DELETE FROM public.user_price_overrides WHERE id = v_fake_override_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
+
       v_results := jsonb_set(v_results, '{admin_price_overrides_basic}', jsonb_build_object(
         'passed', true,
         'detail', 'User lookup (user_not_found), constraint validation (amount_too_low), creation and revoke succeeded'
       ));
     EXCEPTION WHEN OTHERS THEN
+      RESET ROLE;
+      IF v_fake_override_id IS NOT NULL THEN
+        DELETE FROM public.user_price_overrides WHERE id = v_fake_override_id;
+      END IF;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
       v_results := jsonb_set(v_results, '{admin_price_overrides_basic}', jsonb_build_object('passed', false, 'error', SQLERRM));
     END;
 
@@ -370,12 +468,15 @@ BEGIN
     -- 2E: Price Overrides: EXPIRED un-revoked row auto-cleanup on new create
     -- --------------------------------------------------------------------------
     BEGIN
-      -- Step 1: Insert an expired, un-revoked override directly
+      -- Step 1: Insert an expired, un-revoked override directly as table owner
+      RESET ROLE;
       INSERT INTO public.user_price_overrides (
         user_id, tool_slug, kind, amount_cents, currency, starts_at, ends_at, note, created_by, revoked_at
       ) VALUES (
-        v_admin_id, 'rccp', 'fixed_price', 600, 'aud', now() - interval '30 days', now() - interval '1 day', 'Old expired', auth.uid(), NULL
+        v_admin_id, 'rccp', 'fixed_price', 600, 'aud', now() - interval '30 days', now() - interval '1 day', 'Old expired', v_admin_id, NULL
       ) RETURNING id INTO v_expired_override_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
 
       -- Step 2: Call admin_price_override_create for same user and tool -> must succeed
       v_res := public.admin_price_override_create(v_admin_email, 'rccp', 'fixed_price', 700, NULL, now() + interval '30 days', 'New active replacement');
@@ -384,16 +485,20 @@ BEGIN
       END IF;
       v_new_override_id := (v_res->>'override_id')::uuid;
 
-      -- Step 3: Verify old row is marked revoked with revoked_at = ends_at
-      SELECT revoked_at INTO v_old_row_revoked_at
+      -- Step 3: Verify old row is marked revoked with revoked_at = ends_at as table owner
+      RESET ROLE;
+      SELECT revoked_at, ends_at INTO v_old_row_revoked_at, v_old_row_ends_at
       FROM public.user_price_overrides
       WHERE id = v_expired_override_id;
 
       IF v_old_row_revoked_at IS NULL THEN
         RAISE EXCEPTION 'Old expired override was not marked revoked';
       END IF;
+      IF v_old_row_revoked_at <> v_old_row_ends_at THEN
+        RAISE EXCEPTION 'Old expired override revoked_at (%) did not match ends_at (%)', v_old_row_revoked_at, v_old_row_ends_at;
+      END IF;
 
-      -- Step 4: Verify exactly one un-revoked override remains for this user and tool
+      -- Step 4: Verify exactly one un-revoked override remains for this user and tool as table owner
       SELECT count(*) INTO v_unrevoked_count
       FROM public.user_price_overrides
       WHERE user_id = v_admin_id AND tool_slug = 'rccp' AND revoked_at IS NULL;
@@ -402,15 +507,20 @@ BEGIN
         RAISE EXCEPTION 'Expected exactly 1 un-revoked override, found %', v_unrevoked_count;
       END IF;
 
+      -- Clean up test rows as table owner
+      DELETE FROM public.user_price_overrides WHERE id IN (v_new_override_id, v_expired_override_id);
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
+
       v_results := jsonb_set(v_results, '{override_expired_cleanup}', jsonb_build_object(
         'passed', true,
         'detail', 'Expired un-revoked override was automatically marked revoked and new override created with exactly 1 active row remaining'
       ));
-
-      -- Clean up test rows
-      DELETE FROM public.user_price_overrides WHERE id = v_new_override_id;
-      DELETE FROM public.user_price_overrides WHERE id = v_expired_override_id;
     EXCEPTION WHEN OTHERS THEN
+      RESET ROLE;
+      DELETE FROM public.user_price_overrides WHERE id IN (v_new_override_id, v_expired_override_id);
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
       v_results := jsonb_set(v_results, '{override_expired_cleanup}', jsonb_build_object('passed', false, 'error', SQLERRM));
     END;
 
@@ -418,7 +528,7 @@ BEGIN
     -- 2F: Price Overrides: Duplicate active override returns override_exists
     -- --------------------------------------------------------------------------
     BEGIN
-      -- Create an active override
+      -- Create an active override (call as admin)
       v_res := public.admin_price_override_create(v_admin_email, 'rccp', 'fixed_price', 800, NULL, now() + interval '30 days', 'Active initial');
       IF (v_res->>'ok')::boolean <> true THEN
         RAISE EXCEPTION 'Initial override creation failed: %', v_res;
@@ -436,8 +546,18 @@ BEGIN
         'detail', 'Attempting a second active override cleanly returned override_exists error code without throwing raw exception'
       ));
 
+      -- Clean up test row as table owner
+      RESET ROLE;
       DELETE FROM public.user_price_overrides WHERE id = v_new_override_id;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
     EXCEPTION WHEN OTHERS THEN
+      RESET ROLE;
+      IF v_new_override_id IS NOT NULL THEN
+        DELETE FROM public.user_price_overrides WHERE id = v_new_override_id;
+      END IF;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
       v_results := jsonb_set(v_results, '{override_duplicate_returns_code}', jsonb_build_object('passed', false, 'error', SQLERRM));
     END;
 
@@ -503,10 +623,14 @@ BEGIN
         RAISE EXCEPTION 'Second admin_blocked_domain_add failed: %', v_res;
       END IF;
 
+      -- Query audit log as table owner
+      RESET ROLE;
       SELECT count(*) INTO v_audit_count_add
       FROM public.admin_audit_log
       WHERE action = 'admin_blocked_domain_add'
         AND (details->>'domain') = v_audit_test_domain;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
 
       IF v_audit_count_add <> 1 THEN
         RAISE EXCEPTION 'Expected exactly 1 audit log row for domain add, found %', v_audit_count_add;
@@ -524,10 +648,14 @@ BEGIN
         RAISE EXCEPTION 'Second admin_blocked_domain_remove failed: %', v_res;
       END IF;
 
+      -- Query audit log as table owner
+      RESET ROLE;
       SELECT count(*) INTO v_audit_count_remove
       FROM public.admin_audit_log
       WHERE action = 'admin_blocked_domain_remove'
         AND (details->>'domain') = v_audit_test_domain;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
 
       IF v_audit_count_remove <> 1 THEN
         RAISE EXCEPTION 'Expected exactly 1 audit log row for domain remove, found %', v_audit_count_remove;
@@ -538,6 +666,10 @@ BEGIN
         'detail', 'Repeated idempotent domain add and remove calls write exactly one audit log row each'
       ));
     EXCEPTION WHEN OTHERS THEN
+      RESET ROLE;
+      DELETE FROM public.blocked_email_domains WHERE domain = v_audit_test_domain;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
       v_results := jsonb_set(v_results, '{blocked_domain_audit_log_once}', jsonb_build_object('passed', false, 'error', SQLERRM));
     END;
 
@@ -545,7 +677,7 @@ BEGIN
     -- 2J: Blocked domains: add, list verification, and remove
     -- --------------------------------------------------------------------------
     BEGIN
-      -- Add domain
+      -- Add domain (call as admin)
       v_res := public.admin_blocked_domain_add(v_test_domain);
       IF (v_res->>'ok')::boolean <> true THEN
         RAISE EXCEPTION 'admin_blocked_domain_add failed: %', v_res;
@@ -562,7 +694,7 @@ BEGIN
         RAISE EXCEPTION 'Added domain was not found in admin_blocked_domains_list';
       END IF;
 
-      -- Remove domain
+      -- Remove domain (call as admin)
       v_res := public.admin_blocked_domain_remove(v_test_domain);
       IF (v_res->>'ok')::boolean <> true THEN
         RAISE EXCEPTION 'admin_blocked_domain_remove failed: %', v_res;
@@ -584,10 +716,42 @@ BEGIN
         'detail', 'List verification and removal confirmed'
       ));
     EXCEPTION WHEN OTHERS THEN
+      RESET ROLE;
+      DELETE FROM public.blocked_email_domains WHERE domain = v_test_domain;
+      PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text, 'role', 'authenticated')::text, true);
+      SET LOCAL ROLE authenticated;
       v_results := jsonb_set(v_results, '{admin_blocked_domains_list_check}', jsonb_build_object('passed', false, 'error', SQLERRM));
     END;
 
+    -- Reset back to table owner before final checks
     RESET ROLE;
+
+    -- --------------------------------------------------------------------------
+    -- 2K: Final row leak check: ensure table row counts match baseline start
+    -- --------------------------------------------------------------------------
+    SELECT count(*) INTO v_end_subs FROM public.subscriptions;
+    SELECT count(*) INTO v_end_claims FROM public.trial_claims;
+    SELECT count(*) INTO v_end_overrides FROM public.user_price_overrides;
+    SELECT count(*) INTO v_end_domains FROM public.blocked_email_domains;
+
+    IF v_start_subs = v_end_subs
+       AND v_start_claims = v_end_claims
+       AND v_start_overrides = v_end_overrides
+       AND v_start_domains = v_end_domains THEN
+      v_results := jsonb_set(v_results, '{no_leaked_rows}', jsonb_build_object(
+        'passed', true,
+        'detail', format('Row counts preserved: subscriptions=%s, trial_claims=%s, user_price_overrides=%s, blocked_email_domains=%s',
+          v_end_subs, v_end_claims, v_end_overrides, v_end_domains)
+      ));
+    ELSE
+      v_results := jsonb_set(v_results, '{no_leaked_rows}', jsonb_build_object(
+        'passed', false,
+        'detail', format('Row count mismatch! start(subs=%s, claims=%s, overrides=%s, domains=%s) vs end(subs=%s, claims=%s, overrides=%s, domains=%s)',
+          v_start_subs, v_start_claims, v_start_overrides, v_start_domains,
+          v_end_subs, v_end_claims, v_end_overrides, v_end_domains)
+      ));
+    END IF;
+
   END IF;
 
   -- ----------------------------------------------------------------------------

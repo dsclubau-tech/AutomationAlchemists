@@ -1,5 +1,19 @@
 # Build Log
 
+## 2026-10-24 (Unversioned - Migration 033 Applied, Verify Passed, Behaviour Script Fixture Setup as Owner)
+- Migration 033 Status:
+  - Migration 033 (`033_admin_trial_controls.sql`) was APPLIED in production on 2026-10-24.
+  - Diagnostic verification `docs/sql/033_verify.sql` passed in production.
+- Behaviour Verification Test Harness (`docs/sql/033_behaviour_verify.sql`):
+  - Fixed test-setup issues where direct table operations (`subscriptions`, `trial_claims`, `user_price_overrides`, `admin_audit_log`, `blocked_email_domains`) ran under `authenticated` role and failed RLS / table permission checks.
+  - Implemented owner-role pattern: `RESET ROLE` immediately before direct fixture setup, inspection, and teardown, then restored `SET LOCAL ROLE authenticated` with admin JWT claims (`sub = v_admin_id`) for all `admin_` RPC calls.
+  - `admin_claim_lifecycle`: fully exercises `admin_trial_extend` (+14d moves `current_period_end` and `trial_ends_at`), `admin_trial_revoke` (sets `revoked_at` and cancels subscription), and `admin_trial_reset_claim` (deletes both claim and trial subscription rows); also verifies converted claims safely refuse extend, revoke, and reset.
+  - `override_expired_cleanup` and `override_duplicate_returns_code`: fixture setup and teardown run as owner, validating auto-revocation and duplicate rejection (`override_exists`).
+  - Added baseline snapshot at start and final check asserting zero row leakage across `subscriptions`, `trial_claims`, `user_price_overrides`, and `blocked_email_domains` (`no_leaked_rows` case).
+  - Preserved single `DO $$` block ending in intentional `RAISE EXCEPTION` for guaranteed 100% rollback.
+- What was NOT run: No SQL was executed, no edge functions deployed, no Supabase or Stripe API calls made, no dev server or curl executed.
+- Files touched: `docs/sql/033_behaviour_verify.sql`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-24 (Unversioned - Migration 033 Review Fixes: Override Expiry, Tool & Domain Guards - Migration 033 Not Applied)
 - Database Admin Controls Migration 033 Fixes (`supabase/migrations/033_admin_trial_controls.sql`):
   - Migration 033 is committed but NOT yet applied to production.

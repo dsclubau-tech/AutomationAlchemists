@@ -18,12 +18,13 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
   - Dashboard Claim Card (`src/components/DashboardTrialCard.tsx`) supports `#claim-trial` hash targeting with smooth scroll and subtle highlight, in-place subscription refetch upon claim, and responsive active/ended banners.
   - Return path navigation on `/auth`: preserves `?next=<path>` with strict sanitization via `sanitizeNext` against open redirects (`//evil.com`, `https://evil.com`), handles `?mode=signup`, and sets `emailRedirectTo`.
   - All client free-trial components fail safe and remain completely invisible while `trial_offers.enabled = false` in production.
-- **Admin Controls for Free Trials & Price Overrides (Part D - Release v1.6.0)**:
-  - Database Migration 033 (`033_admin_trial_controls.sql`): 12 secure administrative RPCs with `search_path = public, pg_temp`, verified caller authorization against `profiles.is_admin`, immutable audit logging to `admin_audit_log` (logged strictly on actual row mutations), and zero table grants. (Committed; NOT applied in production).
+- **Admin Controls for Free Trials & Price Overrides (Part D - Release v1.6.0, Migration 033 APPLIED)**:
+  - Database Migration 033 (`033_admin_trial_controls.sql`): 12 secure administrative RPCs with `search_path = public, pg_temp`, verified caller authorization against `profiles.is_admin`, immutable audit logging to `admin_audit_log` (logged strictly on actual row mutations), and zero table grants. APPLIED in production on 2026-10-24.
+  - Diagnostic verification SQL `docs/sql/033_verify.sql` passed in production.
+  - Non-destructive transaction-reversing behavioral test harness `docs/sql/033_behaviour_verify.sql` updated to execute fixture setup, inspection, and teardown as table owner (`RESET ROLE`) while admin functions execute as `authenticated`, verifying the complete lifecycle and asserting zero row leakage across all tables.
   - Protected mainstream domain guard (`protected_domain`) preventing accidental blocking of primary consumer email providers (gmail.com, outlook.com, etc.).
   - Price override creation guards: tool validation in `public.tools` (`tool_not_found`), note character limits (`note_too_long`), automatic expired override revocation before new override creation, and race-condition exception handling (`override_exists`).
-  - Diagnostic verification SQL `docs/sql/033_verify.sql` and non-destructive transaction-reversing behavioral test harness `docs/sql/033_behaviour_verify.sql`.
-  - Typed RPC client layer in `src/lib/adminTrial.ts` with graceful fallback handling if migration 033 is not yet applied.
+  - Typed RPC client layer in `src/lib/adminTrial.ts` with error handling.
   - Admin Free Trials Management Page (`/admin/free-trials`): offer management, confirmation modal with live-extension warning on public enablement, 1-click disable, claims table with search/pagination/extend/revoke/test reset with email confirmation, and blocked email domains list/add/remove.
   - Admin Price Overrides Management Page (`/admin/price-overrides`): custom discounts form, live price preview ("Normal A$X -> This user A$Y"), inline policy note ("Applies to NEW checkouts only; existing subscriptions are not changed"), contextual hint to `/admin/tools`, and revocation modal.
   - Both pages integrated into `AdminLayout` navigation and protected by `profiles.is_admin`.
@@ -49,7 +50,6 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - **Caching headers**: `vercel.json` configured with `no-cache` for `index.html`, long-cache for hashed assets.
 
 ## In Progress
-- Manual review and application of Migration 033 (`033_admin_trial_controls.sql`) in Supabase SQL editor.
 - Free trial Part B verification and testing (Stripe test-mode run scheduled for 2026-10-25 on office PC).
 - CP Bot Chrome extension v1.0.5.3 review and release verification prior to enabling public free trials.
 
@@ -69,4 +69,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-24 — Release v1.6.0: Admin controls for free trials and per-customer price discounts (migration 033 not applied).*
+*Last Updated: 2026-10-24 — Release v1.6.0: Admin controls for free trials and per-customer price discounts (Migration 033 APPLIED, verify passed, behaviour script fixed).*
