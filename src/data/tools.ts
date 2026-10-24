@@ -33,19 +33,19 @@ export const toolsData: ToolData[] = [
         category: 'Order Fulfilment & Returns',
         bannerBg: '#0d1117',
         shortDescription: 'Paste eBay buyer addresses straight into Amazon checkout, and turn Amazon return codes into clean eBay return labels.',
-        fullDescription: 'CP Bot & Return Converter is an essential toolkit for Amazon-to-eBay dropshippers. It completely eliminates manual data entry by automatically copying your eBay customer\'s address and pasting it seamlessly into the Amazon checkout page with a single click. Additionally, generate compliant return shipping labels for your eBay customers, fully compatible with Amazon AU returns, without paying a cent for the Return Converter module.',
+        fullDescription: 'CP Bot & Return Converter is a toolkit for Amazon-to-eBay dropshippers. CP Bot copies your eBay buyer\'s address and pastes it into the Amazon checkout page with one click. It fills in the checkout and stops, so you place the order yourself. Return Converter turns an existing Amazon return code (Australia Post or ParcelPoint) into an eBay return label, and it is free.',
         features: [
             { title: 'One-click copy', description: 'eBay buyer address into Amazon checkout', icon: 'mouse-pointer-click' },
             { title: 'Instant labels', description: 'Amazon return codes into eBay return labels', icon: 'zap' },
             { title: 'History tracking', description: 'Fulfilment and return label history', icon: 'line-chart' },
             { title: 'Cloud clipboard', description: 'Copy in one browser, paste in another', icon: 'cloud' }
         ],
-        price: 'AUD $19/month',
+        price: 'AUD $9/month',
         isFree: false,
         howItWorks: [
             'Install the CP Bot Chrome extension or log in to the dashboard.',
             'Copy the customer address directly to Amazon checkout.',
-            'Use the dashboard to generate instant return labels.',
+            'Open Return Converter at rccp.automationalchemists.com and paste your Amazon return code to get your eBay return label.',
             'Manage all your fulfillment needs in one place.'
         ],
         builtFor: 'Australian eBay sellers who fulfill orders via Amazon and want to eliminate manual data entry and handle returns effortlessly.',

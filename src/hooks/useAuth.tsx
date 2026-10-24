@@ -57,13 +57,19 @@ export const useAuth = () => {
 
   const user: User | null = session?.user ?? null;
 
-  const signUp = async (email: string, password: string, fullName?: string, metadata?: {
-    country?: string;
-    phone?: string;
-    referral_source?: string;
-    terms_accepted?: boolean;
-  }) => {
-    const redirectUrl = `${window.location.origin}/`;
+  const signUp = async (
+    email: string,
+    password: string,
+    fullName?: string,
+    metadata?: {
+      country?: string;
+      phone?: string;
+      referral_source?: string;
+      terms_accepted?: boolean;
+    },
+    redirectTo?: string
+  ) => {
+    const redirectUrl = redirectTo || `${window.location.origin}/`;
 
     const { data, error } = await supabase.auth.signUp({
       email,

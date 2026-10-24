@@ -280,6 +280,28 @@ SET enabled = false
 WHERE tool_slug = 'rccp';
 ```
 
+### 1-Day Test Runbook
+1. Set the trial offer to 1 day and 1 test slot:
+   ```sql
+   UPDATE public.trial_offers
+   SET enabled = true,
+       trial_days = 1,
+       slot_cap = 1,
+       slots_reserved = 0
+   WHERE tool_slug = 'rccp';
+   ```
+2. Claim on the Dashboard (`/dashboard#claim-trial`) with the test account (`fahimmuntasirsiam@gmail.com`).
+3. Turn the trial offer back off:
+   ```sql
+   UPDATE public.trial_offers
+   SET enabled = false
+   WHERE tool_slug = 'rccp';
+   ```
+4. Confirm the CP Bot card on the Dashboard is unlocked.
+5. About 24 hours later, it locks again on the next page load.
+
+*On launch, restore enabled/trial_days/slot_cap/slots_reserved to the real values.*
+
 ---
 
 ## 9. Part B: Checkout and Webhook Architecture

@@ -78,6 +78,8 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - Fail-safe invariant: when the offer is disabled, slots are 0, or on network failure, the page renders identically to existing default copy and layout without layout shift.
 - **Authentication Return Navigation (`src/pages/Auth.tsx`, `src/lib/checkout.ts`)**:
   - Preserves user destination via `?next=<path>` sanitized by `sanitizeNext`. Invalid protocols, protocol-relative paths (`//evil.com`), backslashes (`/\evil`), long paths (>200 chars), or control characters fall back safely to `'/'`.
+  - Sign in with no `?next=` lands exactly where it did before v1.5.0, for a normal user (`/`) and an admin (`/admin`).
+  - Sign up with `?next=/dashboard%23claim-trial` returns to the dashboard claim card after account creation (and after email confirmation when confirmation is on).
   - Passes sanitized path to `emailRedirectTo` for email confirmation flows.
   - Signed-out users clicking "Get access" in `checkout.ts` preserve current location via `?next=${encodeURIComponent(currentPath)}`.
 - **Dashboard Trial Management Card (`src/pages/Dashboard.tsx`, `src/components/DashboardTrialCard.tsx`)**:

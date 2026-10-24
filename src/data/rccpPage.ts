@@ -145,9 +145,9 @@ export const rccpPageContent = {
           icon: 'Gift',
         },
         {
-          title: 'Fulfilment history',
+          title: 'History',
           description:
-            'A record of every order you process and every step CP Bot took.',
+            'A record of the orders you process with CP Bot and the return labels you convert.',
           icon: 'History',
         },
       ] as RccpIncludedCard[],

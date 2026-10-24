@@ -28,17 +28,19 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
   - Return Converter is gated only by sign-in.
   - Testing: No staging environment; all testing is conducted against production with a dedicated test account.
   - Notifications: Developer requested notice (a) before Stripe/webhook changes go live, and (b) when trials go live.
+- **Free Trial & Billing Enhancements Part B (APPLIED & DEPLOYED)**:
+  - Migration 032 (`032_webhook_trial_conversion.sql`) APPLIED to production database by hand on 2026-10-24. Single-seat trial conversion, `resolve_access_slug`, and manual grant protection are active; `check_product_subscription` verified with exactly 1 overload.
+  - Edge functions `create-checkout-session` (verify_jwt=true) and `stripe-webhook` (verify_jwt=false) deployed to Supabase production project `tdevgrwmafwrsmeymjzd`.
+  - Non-destructive test harness authored at `docs/sql/032_behaviour_verify.sql` with `docs/sql/032_behaviour_verify_README.md`.
+  - Free trial offer remains OFF (`trial_offers.enabled = false`).
+  - CP Bot Chrome extension gate v1.0.5.3 remains pending review at the CP Bot developer.
 - **Cart/Checkout page** (`/cart`): Auth-gated page. "Get access" buttons on /tools add the tool slug to localStorage and navigate to /cart. Cart fetches live pricing from `public.tools` (only `status='available'` tools). Each cart item has its own individual "Checkout" button which calls `create-checkout-session` Edge Function. "You might also like" sidebar suggests other available tools not in the cart. Handles `?checkout=success` (redirects to dashboard) and `?checkout=cancel` (shows toast). Controlled by `VITE_CHECKOUT_ENABLED` feature flag.
 - **Return Converter x CopyPaste Bot Tool Page** (`/tools/rccp`): Dedicated product page built to custom specifications with scroll-reveal animations (`RevealText`, `RevealBlock`), dynamic pricing fetched from `public.tools` with fallback of 9, and access gating via `handleGetAccessLogic`. Other tool detail pages remain routed to `ToolDetail.tsx`.
 - **Chunk-load error recovery**: Global handler in `index.html` auto-reloads once on dynamic import MIME-type errors.
 - **Caching headers**: `vercel.json` configured with `no-cache` for `index.html`, long-cache for hashed assets.
 
 ## In Progress
-- Free trial & billing enhancements Part B: Code and SQL written, review fixes applied, NOT applied/deployed.
-  - Migration 032 (`032_webhook_trial_conversion.sql`), `032_rollback.sql`, and `032_verify.sql` authored. Fixed single-seat reactivation hole: only `checkout.session.completed` performs INSERT/UPSERT; `customer.subscription.updated` strictly updates `current_period_end` on active rows.
-  - Edge function `stripe-webhook` verified for resilient metadata extraction and skipped outcome handling.
-  - Edge function `create-checkout-session` updated with server-side price resolution, user discount overrides, double-charge guard (409) with Order Bot multi-slot exemption, minimum price guard (400), and access slug decoupling. Verified single declaration in `CHECKOUT_ENABLED` guard.
-  - Documentation updated in `docs/FREE_TRIAL_AND_DISCOUNTS.md` (Section 9) and `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`. `PRD.md` and `QA_CHECKLIST.md` updated with checks for out-of-order delivery and Order Bot slot expansion.
+- Free trial Part B verification and testing (Stripe test-mode run scheduled for 2026-10-25).
 
 ## Not Started
 - Free trial Part D (Admin Trial & Discount Management UI).
@@ -57,5 +59,5 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-24 — Release v1.5.0: Free trial claim flow (switched off), auth return path, tools copy alignment.*
+*Last Updated: 2026-10-24 — Release v1.5.1: Auth path check, tools copy and price fixes, behaviour verify script, test plan.*
 

@@ -120,7 +120,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [touchedPassword, setTouchedPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
-  const { signIn, user } = useAuth();
+  const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -226,20 +226,18 @@ const Auth = () => {
       if (isSignUp) {
         const fullPhone = phone ? `${COUNTRY_DIAL_CODES[country]?.code || ''}${phone}` : undefined;
         const redirectUrl = `${window.location.origin}${sanitizedNext}`;
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await signUp(
           email,
           password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: {
-              full_name: fullName,
-              country,
-              phone: fullPhone,
-              referral_source: referralSource || undefined,
-              terms_accepted: true,
-            },
+          fullName,
+          {
+            country,
+            phone: fullPhone,
+            referral_source: referralSource || undefined,
+            terms_accepted: true,
           },
-        });
+          redirectUrl
+        );
         if (error) throw error;
 
         toast({

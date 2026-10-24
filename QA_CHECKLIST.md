@@ -57,6 +57,7 @@
   - Returns HTTP 409 with response `{ "error": "You already have an active subscription for this tool.", "code": "already_subscribed" }`.
 
 ### 6. Out-of-Order Webhook Delivery Handled Gracefully
+- *(Covered by docs/sql/032_behaviour_verify.sql)*
 - **Action**: Simulate a `customer.subscription.updated` event arriving prior to `checkout.session.completed` (or with missing customer details).
 - **Expected Result**:
   - The webhook retrieves `user_id` and `tool_slug` from `subscription.metadata`.
@@ -65,6 +66,7 @@
   - No invalid row with NULL columns is inserted into `public.subscriptions`.
 
 ### 7. Manual Administrative Grant Is Never Overwritten
+- *(Covered by docs/sql/032_behaviour_verify.sql)*
 - **Precondition**: User has a subscription row with `manually_granted = true`, `status = 'active'`, and `current_period_end` in the future.
 - **Action**: Trigger a Stripe checkout webhook for that user and tool.
 - **Expected Result**:
@@ -73,6 +75,7 @@
   - Edge function responds with HTTP 200.
 
 ### 8. Out-of-Order customer.subscription.updated Delivered After customer.subscription.deleted Does NOT Reactivate
+- *(Covered by docs/sql/032_behaviour_verify.sql)*
 - **Precondition**: User has a cancelled subscription in `public.subscriptions` (`status = 'canceled'`) with a given `stripe_subscription_id` (e.g. following a `customer.subscription.deleted` webhook event).
 - **Action**: Simulate or deliver a late `customer.subscription.updated` webhook event for that same `stripe_subscription_id` with `status: "active"`.
 - **Expected Result**:
@@ -87,6 +90,23 @@
 - **Expected Result**:
   - Endpoint skips the 409 `already_subscribed` double-charge guard specifically for `orderbot`.
   - Checkout session creation proceeds normally and returns a valid Stripe checkout URL (`HTTP 200`).
+
+---
+
+### Part B Stripe test-mode run (office PC, 2026-10-25)
+- **Prereqs**: Stripe Dashboard in TEST mode; webhook endpoint `https://tdevgrwmafwrsmeymjzd.supabase.co/functions/v1/stripe-webhook` listens to `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`, `charge.refunded`.
+- **Getting to checkout**: temporarily make the test account admin (`update public.profiles set is_admin = true where id = '50ef4d35-c7aa-47fe-bbb0-68c74afd6a3c';`); create `.env.local` with `VITE_CHECKOUT_ENABLED=true` (never commit it); `npm run dev`; sign in as the test account; click Get access on the rccp page; when finished set `is_admin` back to false.
+- **Checks that need no payment (do first)**: amount on Stripe's page is A$9.00; with a fixed_price override of 500 cents it is A$5.00; with percent_off 20 it is A$7.20 (revoke each override after); change public.tools price_monthly for 'rccp' to 12, the next checkout shows A$12.00, change it back to 9.
+- **After the 1-day trial has expired**: pay with card 4242 4242 4242 4242, any future expiry and CVC, then run the verification query:
+  ```sql
+  select s.id, s.product_slug, s.status, s.is_trial, s.grant_reason, s.stripe_subscription_id is not null as has_stripe, s.current_period_end, c.converted_at
+  from public.subscriptions s
+  left join public.trial_claims c on c.subscription_id = s.id
+  where s.user_id = '50ef4d35-c7aa-47fe-bbb0-68c74afd6a3c'
+  order by s.created_at;
+  ```
+  Expect ONE row: `cpbot`, `active`, `is_trial false`, `stripe_checkout`, `has_stripe true`, `converted_at filled`. Stripe's event deliveries show 200. Click Get access again: expect the 'already subscribed' 409. Then cancel the test subscription in Stripe test mode.
+- *(Checks 6, 7, 8 marked as covered by docs/sql/032_behaviour_verify.sql).*
 
 ---
 
@@ -119,6 +139,10 @@
   - Hero displays "Get CP Bot" as yellow primary button (no trial button).
 
 ### 13. Authentication Return Navigation & URL Sanitization
+- **Default Navigation Invariant (No Next Parameter)**:
+  - Sign in with no `?next=` lands exactly where it did before v1.5.0: a normal user lands on `/`, and an admin lands on `/admin`.
+- **Return to Claim Card After Sign-up**:
+  - Sign up with `?next=/dashboard%23claim-trial` returns to the dashboard claim card after account creation (and after email confirmation when confirmation is on).
 - **Open-Redirect Protection**:
   - Navigate to `/auth?next=https://evil.com`. Complete sign-in. Verify user is redirected to `/` (evil domain rejected).
   - Navigate to `/auth?next=//evil.com`. Complete sign-in. Verify user is redirected to `/` (protocol-relative path rejected).

@@ -1,5 +1,28 @@
 # Build Log
 
+## 2026-10-24 (v1.5.1 Auth Path Check, Tools Copy & Price Fixes, Behaviour Verify Script, Test Plan)
+- Auth Regression Check (Task 1):
+  - Audited `src/pages/Auth.tsx` navigation paths against commit `80d5f88` (v1.4.4): verified no-next navigation preserves exact original destinations (`/` for normal users, `/admin` for admins).
+  - Restored `signUp` helper from `src/hooks/useAuth.tsx` by adding optional `redirectTo?: string` parameter to `signUp`, routing through `useAuth` rather than calling `supabase.auth.signUp` directly.
+  - Confirmed `sanitizeNext` permits `?`, `#`, and URL-encoded query/hash strings for internal paths while rejecting protocol-relative URLs (`//evil.com`), external protocols (`https://evil.com`), backslashes (`/\evil`), control characters, and inputs >200 characters.
+- Copy and Price Fixes (Task 2):
+  - Corrected `rccp` `fullDescription` in `src/data/tools.ts` to exact approved wording.
+  - Replaced dashboard label sentence in `howItWorks` with Return Converter web app instructions.
+  - Updated `rccp` static catalog price in `src/data/tools.ts` from `AUD $19/month` to `AUD $9/month`, aligning with the live database. Audited all references in `src/`.
+  - Updated `src/data/rccpPage.ts` history card to title `'History'` and unified orders + return labels description.
+- Sitemap Verification (Task 3):
+  - Audited `scripts/generate-sitemap.js` and `package.json`: confirmed sitemap is dynamically generated at the beginning of `npm run build` on Vercel deployments, overwriting `public/sitemap.xml` with canonical www URLs and fresh timestamps in the deployed bundle.
+- Migration 032 Behaviour Verification Script (Task 4):
+  - Authored `docs/sql/032_behaviour_verify.sql`: non-destructive test harness testing 8 cases against Migration 032 webhook handling and slug resolution in an isolated transaction that 100% rolls back via `RAISE EXCEPTION`.
+  - Authored companion guide `docs/sql/032_behaviour_verify_README.md`.
+- Documentation & Testing (Task 5 & 6):
+  - Migration 032 noted as APPLIED in production by hand on 2026-10-24.
+  - Added 1-day test runbook to `docs/FREE_TRIAL_AND_DISCOUNTS.md`.
+  - Added Stripe test-mode plan for 2026-10-25 to `QA_CHECKLIST.md`.
+  - Confirmed `.env.local` is git-ignored via `*.local` in `.gitignore`.
+  - Deployed Edge Functions `create-checkout-session` and `stripe-webhook` (`--no-verify-jwt`) to project `tdevgrwmafwrsmeymjzd`.
+- Files touched: `src/hooks/useAuth.tsx`, `src/pages/Auth.tsx`, `src/data/tools.ts`, `src/data/rccpPage.ts`, `docs/sql/032_behaviour_verify.sql` (NEW), `docs/sql/032_behaviour_verify_README.md` (NEW), `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `QA_CHECKLIST.md`, `PRD.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`, `CHANGELOG.md`.
+
 ## 2026-10-24 (v1.5.0 Free Trial Claim Flow, Auth Return Path, Tools Copy Alignment)
 - Implemented Task C1 (`src/lib/trial.ts`):
   - Typed wrappers for Supabase RPCs: `get_trial_public`, `get_trial_status`, and `claim_free_trial`.
