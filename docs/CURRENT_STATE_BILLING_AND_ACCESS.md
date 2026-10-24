@@ -532,13 +532,13 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
    - In Part B, `public.resolve_access_slug('rccp')` and `create-checkout-session` dynamically resolve the entitlement access slug from `public.trial_offers.access_slug` (confirmed as `'cpbot'`). The dashboard and CP Bot app call `check_product_subscription` with `p_product_slug = 'cpbot'`.
 
 2. **Unique Index Collisions on Paid Conversion After Trial & Reactivation Prevention** — [Risk (b)]:
-   - **Status**: *Fixed in code, not yet deployed.*
+   - **Status**: Fixed in code and deployed 2026-10-24; not yet verified end to end with Stripe test mode
    - `public.subscriptions` has `subscriptions_user_product_no_store_unique UNIQUE (user_id, product_slug) WHERE (store_id IS NULL)`.
    - Fixed in migration 032: only `checkout.session.completed` performs an `UPSERT` on `(user_id, product_slug) WHERE store_id IS NULL`. Existing trial rows are converted in place (`is_trial = false`), and `public.trial_claims.converted_at` is stamped.
    - For `customer.subscription.updated` on single-seat products, the RPC strictly updates `current_period_end` on existing rows matching `WHERE stripe_subscription_id = p_stripe_subscription_id AND status = 'active'`. It **never** inserts, upserts, or reactivates rows; if an update arrives after a cancellation or deletion, it updates 0 rows and returns success, closing the reactivation hole.
 
 3. **Webhook HTTP 500 on `customer.subscription.updated`** — [Risk (a)]:
-   - **Status**: *Fixed in code, not yet deployed.*
+   - **Status**: Fixed in code and deployed 2026-10-24; not yet verified end to end with Stripe test mode
    - Fixed in Part B: `create-checkout-session` embeds `user_id` and `tool_slug` in `subscription_data.metadata`, `stripe-webhook/index.ts` extracts metadata across all events, and migration 032's `process_stripe_webhook_event` resolves missing parameters from existing subscription rows matching `stripe_subscription_id`. If unresolved, it gracefully skips without inserting NULLs and returns HTTP 200.
 
 4. **`stripe_subscription_id` Unique Index Collisions**:
@@ -546,7 +546,7 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
    - Single-seat subscriptions update existing rows. Multi-store Order Bot retains its existing slot management.
 
 5. **Minute-by-Minute Expiration Leaving Blocking Rows** — [Risk (b) related]:
-   - **Status**: *Fixed in code, not yet deployed.*
+   - **Status**: Fixed in code and deployed 2026-10-24; not yet verified end to end with Stripe test mode
    - Because migration 032 uses `ON CONFLICT (user_id, product_slug) WHERE store_id IS NULL DO UPDATE` on `checkout.session.completed`, an expired row no longer blocks a returning subscriber; the row is updated to `status = 'active'` with new billing period dates.
 
 6. **Admin Grant Upsert vs Stripe Webhook Raw Insert**:
@@ -556,7 +556,7 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
    - Deleting a user in `auth.users` cascades to delete their `subscriptions` rows (`subscriptions_user_id_fkey ON DELETE CASCADE`), but historical records in `subscription_history` retain `user_id` without foreign key cascade.
 
 8. **Incompatibility of Per-User Discounts with Stripe Lookup Keys & Multi-Slot Double-Charge Guard** — [Risk (c)]:
-   - **Status**: *Fixed in code, not yet deployed.*
+   - **Status**: Fixed in code and deployed 2026-10-24; not yet verified end to end with Stripe test mode
    - Fixed in Part B: `create-checkout-session` resolves server-side catalog prices from `public.tools.price_monthly` and active user discounts from `public.user_price_overrides`, constructing ad-hoc Stripe line items via `price_data`.
    - Double-charge guard rejects active paid subscribers with HTTP 409 (`already_subscribed`), but explicitly skips `orderbot` because Order Bot is a multi-slot product where additional store slots are purchased through the checkout flow. Active trials for any tool do not trigger the 409 guard, allowing paid upgrades.
 

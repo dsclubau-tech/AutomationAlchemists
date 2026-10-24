@@ -93,7 +93,7 @@
 
 ---
 
-- Deploy both functions from the office PC first (git pull; supabase functions deploy create-checkout-session; supabase functions deploy stripe-webhook --no-verify-jwt; both with --project-ref tdevgrwmafwrsmeymjzd), then Stripe Dashboard test mode > Send test event customer.subscription.updated and expect HTTP 200.
+- DONE 2026-10-24 (home PC); skip to: Stripe Dashboard test mode > Send test event customer.subscription.updated and expect HTTP 200, then the checks.
 
 ### Part B Stripe test-mode run (office PC, 2026-10-25)
 - **Prereqs**: Stripe Dashboard in TEST mode; webhook endpoint `https://tdevgrwmafwrsmeymjzd.supabase.co/functions/v1/stripe-webhook` listens to `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`, `charge.refunded`.

@@ -28,9 +28,9 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
   - Return Converter is gated only by sign-in.
   - Testing: No staging environment; all testing is conducted against production with a dedicated test account.
   - Notifications: Developer requested notice (a) before Stripe/webhook changes go live, and (b) when trials go live.
-- **Free Trial & Billing Enhancements Part B (Migration 032 Applied; Edge Functions NOT Deployed)**:
+- **Free Trial & Billing Enhancements Part B (APPLIED & DEPLOYED)**:
   - Migration 032 (`032_webhook_trial_conversion.sql`) APPLIED to production database by hand on 2026-10-24. Single-seat trial conversion, `resolve_access_slug`, and manual grant protection are active; `check_product_subscription` verified with exactly 1 overload.
-  - Edge functions `create-checkout-session` and `stripe-webhook` are NOT deployed: deploy on 2026-10-24 failed with HTTP 403 ("account does not have the necessary privileges") because Supabase CLI login on home PC lacks permission on project `tdevgrwmafwrsmeymjzd`. Live functions remain pre-Part-B versions. Both functions will be deployed from the office PC before the Stripe test run on 2026-10-25.
+  - Edge functions `create-checkout-session` (v4, verify_jwt=true) and `stripe-webhook` (v5, verify_jwt=false) deployed to project `tdevgrwmafwrsmeymjzd` on 2026-10-24 (~09:50 UTC) from home PC (initial 403 resolved by switching to owning Supabase account). Stripe test-mode run and webhook 200 check planned for 2026-10-25 on office PC.
   - Non-destructive test harness authored at `docs/sql/032_behaviour_verify.sql` with `docs/sql/032_behaviour_verify_README.md`.
   - Free trial offer remains OFF (`trial_offers.enabled = false`).
   - CP Bot Chrome extension gate v1.0.5.3 remains pending review at the CP Bot developer.

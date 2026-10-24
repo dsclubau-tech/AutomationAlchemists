@@ -20,8 +20,8 @@
   - Added 1-day test runbook to `docs/FREE_TRIAL_AND_DISCOUNTS.md`.
   - Added Stripe test-mode plan for 2026-10-25 to `QA_CHECKLIST.md`.
   - Confirmed `.env.local` is git-ignored via `*.local` in `.gitignore`.
-  - Part B Edge Functions (`create-checkout-session` and `stripe-webhook`): fixed in code, not yet deployed.
-  - Deploy on 2026-10-24 failed with HTTP 403 ("account does not have the necessary privileges") because Supabase CLI login on home PC lacks permission on project `tdevgrwmafwrsmeymjzd`; nothing was deployed and live functions remain pre-Part-B versions. Both functions will be deployed from the office PC before the Stripe test run on 2026-10-25.
+  - Deployed Edge Functions `create-checkout-session` (v4) and `stripe-webhook` (v5, `--no-verify-jwt`) to project `tdevgrwmafwrsmeymjzd` on 2026-10-24 (~09:50 UTC) from home PC. The earlier 403 was caused by the Supabase CLI being logged in to a different account; after logging in with the project-owning account, both deployed successfully.
+  - Troubleshooting note: If a deploy returns 403, run `npx supabase projects list`; if Automation Alchemists is missing, the CLI is logged in to the wrong account: `npx supabase logout`, then `npx supabase login` with the owning account.
 - Files touched: `src/hooks/useAuth.tsx`, `src/pages/Auth.tsx`, `src/data/tools.ts`, `src/data/rccpPage.ts`, `docs/sql/032_behaviour_verify.sql` (NEW), `docs/sql/032_behaviour_verify_README.md` (NEW), `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `QA_CHECKLIST.md`, `PRD.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`, `CHANGELOG.md`.
 
 ## 2026-10-24 (v1.5.0 Free Trial Claim Flow, Auth Return Path, Tools Copy Alignment)
