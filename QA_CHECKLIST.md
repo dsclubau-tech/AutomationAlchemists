@@ -194,6 +194,7 @@
 ---
 
 ## Part D: Admin Controls & Price Overrides Verification (Release v1.6.0)
+*(Note: Migration 033 is committed but NOT applied yet in production; execute these manual checks after manual SQL application)*
 
 ### 15. Security & Admin Authorization Guards
 - **Check 15a: Non-Admin User Blocked from Admin Pages**:
@@ -247,6 +248,12 @@
 - **Check 18b: Remove Blocked Domain**:
   - Click the trash icon next to a blocked domain.
   - **Expected Result**: Unblock modal appears; confirming removes the domain from the list.
+- **Check 18c: Protected Domains Cannot Be Blocked**:
+  - Attempt to add `gmail.com`, `outlook.com`, `hotmail.com`, `icloud.com`, or `yahoo.com`.
+  - **Expected Result**: Submission is refused with error code `'protected_domain'` and message *"Cannot block protected mainstream domain: <domain>"*. Mainstream users cannot be accidentally locked out.
+- **Check 18d: Audit Logging Only on Actual Insert/Delete**:
+  - Call `admin_blocked_domain_add` twice for the same domain.
+  - **Expected Result**: Only one audit log row is recorded in `public.admin_audit_log`. Repeated remove calls also write only one audit log row.
 
 ### 19. Price Overrides & Checkout Price Alignment
 - **Check 19a: Live Price Preview**:
@@ -261,13 +268,21 @@
   - Confirm the hint text links directly to `/admin/tools`: *"To change the standard price for everyone, edit it in the Tools catalog."*
 - **Check 19c: Override Creation & Duplicate Enforcement**:
   - Enter a valid user email and submit a price override.
-  - **Expected Result**: Override appears in the table with status **Active**. Attempting to submit a second active override for the same user and tool returns error `'override_exists'`.
+  - **Expected Result**: Override appears in the table with status **Active**. Attempting to submit a second active override for the same user and tool returns error `'override_exists'` (no raw database exception).
 - **Check 19d: Revoke Override**:
   - Click "Revoke" on an active override row and confirm in the modal.
   - **Expected Result**: Status updates to **Revoked** and the row's Revoke button disappears.
 - **Check 19e: Checkout Price Matches Override**:
   - With an active override of A$5.00 for the test account, initiate checkout for `'rccp'`.
   - **Expected Result**: Stripe checkout line item charges exactly A$5.00 AUD (500 cents).
+- **Check 19f: Override Creation After Expired Override Succeeds**:
+  - Precondition: An expired, un-revoked price override exists for a user and tool.
+  - Action: Create a new active price override for that same user and tool.
+  - **Expected Result**: Creation succeeds; the expired row has `revoked_at` set to `ends_at`; exactly one un-revoked override remains in `public.user_price_overrides`.
+- **Check 19g: Unregistered Tool Slug Refused**:
+  - Attempt to create an override with a non-existent tool slug.
+  - **Expected Result**: Refused with error `'tool_not_found'`.
+
 
 
 

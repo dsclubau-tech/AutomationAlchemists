@@ -413,13 +413,16 @@ Written answers from the CP Bot developer (Raf) on 23 Oct 2026 confirmed the ext
 
 ## 12. Admin Controls (Part D - Release v1.6.0)
 
+> [!NOTE]
+> Migration `033_admin_trial_controls.sql` is committed but **NOT applied yet** in production. It will be reviewed line by line and applied manually via the Supabase SQL Editor.
+
 Migration `033_admin_trial_controls.sql` provides 12 secure administrative RPCs and two new management panels (`/admin/free-trials` and `/admin/price-overrides`) enabling non-technical operators to administer promotional trials and customer pricing without direct database access.
 
 ### 12.1 Security & Invariant Rules
 - **Caller Authorization**: Every function verifies that `auth.uid()` corresponds to an active administrator record in `public.profiles WHERE is_admin = true`. Any non-admin caller immediately raises an exception with SQLSTATE `'42501'` (`not_admin`).
 - **Security Definer & Fixed Search Path**: All functions run with `LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp` to operate securely over zero-policy tables (`trial_offers`, `trial_claims`, `user_price_overrides`, `blocked_email_domains`).
 - **Privilege Separation**: Table and function privileges are revoked from `PUBLIC` and `anon`. Execution is granted exclusively to `authenticated` (gated internally by the admin profile check).
-- **Audit Logging**: All mutating actions automatically append an immutable audit record to `public.admin_audit_log` capturing `admin_user_id`, `admin_email`, `action`, `target_user_id`, `target_email`, and structured JSON `details`.
+- **Audit Logging**: All mutating actions append an immutable audit record to `public.admin_audit_log` capturing `admin_user_id`, `admin_email`, `action`, `target_user_id`, `target_email`, and structured JSON `details`. Audit logs are strictly written only when mutations actually affect rows (e.g. `admin_blocked_domain_add` on actual insert; `admin_blocked_domain_remove` on actual delete).
 
 ### 12.2 Administrative RPC Reference
 
@@ -432,10 +435,10 @@ Migration `033_admin_trial_controls.sql` provides 12 secure administrative RPCs 
 | `admin_trial_revoke(p_claim_id)` | Admin only | Only operates on non-converted claims. Marks claim `revoked_at = now()` with reason. Updates trial subscription to `status = 'canceled'` with `current_period_end = now()`. Logs audit entry. |
 | `admin_trial_reset_claim(p_claim_id)` | Admin only | **Testing only.** Refuses converted claims (`error: 'converted'`). Deletes the trial subscription row and the claim record so the normalized email and user account can test claiming again. Logs audit entry. |
 | `admin_blocked_domains_list()` | Admin only | Returns sorted list of all blocked email domains. |
-| `admin_blocked_domain_add(p_domain)` | Admin only | Validates domain format (hostname pattern, <= 253 chars, trimmed, lowercased). Inserts idempotently (`ON CONFLICT DO NOTHING`). Logs audit entry. |
-| `admin_blocked_domain_remove(p_domain)` | Admin only | Deletes domain from `public.blocked_email_domains`. Logs audit entry. |
+| `admin_blocked_domain_add(p_domain)` | Admin only | Validates hostname format (<= 253 chars, valid syntax). Refuses protected mainstream domains (`gmail.com`, `googlemail.com`, `outlook.com`, `hotmail.com`, `live.com`, `yahoo.com`, `icloud.com`, `me.com`, `proton.me`, `protonmail.com`, `aol.com`) with error `'protected_domain'`. Inserts idempotently (`ON CONFLICT DO NOTHING`) and writes audit log **only when a row was actually inserted**. |
+| `admin_blocked_domain_remove(p_domain)` | Admin only | Deletes domain from `public.blocked_email_domains`. Writes audit log **only when a row was actually deleted**. |
 | `admin_price_overrides_list(p_tool_slug)` | Admin only | Returns list of overrides joined with user emails. Calculates `is_active` based on start/end dates and revocation status. |
-| `admin_price_override_create(p_user_email, p_tool_slug, p_kind, p_amount_cents, p_percent_off, p_ends_at, p_note)` | Admin only | Resolves `p_user_email` in `auth.users` (`user_not_found` if missing). Validates kind (`fixed_price` with amount >= 50 cents AUD, or `percent_off` with 0 < pct <= 100). Enforces single active override constraint (`override_exists`). Inserts override and logs audit entry. |
+| `admin_price_override_create(p_user_email, p_tool_slug, p_kind, p_amount_cents, p_percent_off, p_ends_at, p_note)` | Admin only | Resolves `p_user_email` in `auth.users` (`user_not_found`). Verifies `p_tool_slug` exists in `public.tools` (`tool_not_found`). Enforces note length <= 500 characters (`note_too_long`). Validates kind (`fixed_price` >= 50 cents AUD, or `percent_off` between 1..100). Automatically cleans up un-revoked expired rows (`revoked_at = ends_at`) so new overrides can be created without blocking on partial unique index. Handles unique index race conditions gracefully (`override_exists`). Inserts override and logs audit entry. |
 | `admin_price_override_revoke(p_override_id)` | Admin only | Marks active override `revoked_at = now()`. Logs audit entry. |
 
 ### 12.3 1-Day Trial Test Runbook (Using the Admin Panel)

@@ -637,6 +637,7 @@ AS $$
 DECLARE
   v_admin_email text;
   v_domain text;
+  v_inserted_count int;
 BEGIN
   -- Admin guard
   IF auth.uid() IS NULL OR NOT EXISTS (
@@ -660,28 +661,44 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'error', 'invalid_hostname', 'message', 'Invalid domain name format');
   END IF;
 
+  -- Refuse protected mainstream providers
+  IF v_domain IN (
+    'gmail.com', 'googlemail.com', 'outlook.com', 'hotmail.com', 'live.com',
+    'yahoo.com', 'icloud.com', 'me.com', 'proton.me', 'protonmail.com', 'aol.com'
+  ) THEN
+    RETURN jsonb_build_object(
+      'ok', false,
+      'error', 'protected_domain',
+      'message', 'Cannot block protected mainstream domain: ' || v_domain
+    );
+  END IF;
+
   -- Idempotent insertion
   INSERT INTO public.blocked_email_domains (domain, created_at)
   VALUES (v_domain, now())
   ON CONFLICT (domain) DO NOTHING;
 
-  -- Audit log
-  SELECT email INTO v_admin_email FROM auth.users WHERE id = auth.uid();
-  INSERT INTO public.admin_audit_log (
-    admin_user_id,
-    admin_email,
-    action,
-    target_user_id,
-    target_email,
-    details
-  ) VALUES (
-    auth.uid(),
-    v_admin_email,
-    'admin_blocked_domain_add',
-    NULL,
-    NULL,
-    jsonb_build_object('domain', v_domain)
-  );
+  GET DIAGNOSTICS v_inserted_count = ROW_COUNT;
+
+  -- Audit log only when a row was actually inserted
+  IF v_inserted_count > 0 THEN
+    SELECT email INTO v_admin_email FROM auth.users WHERE id = auth.uid();
+    INSERT INTO public.admin_audit_log (
+      admin_user_id,
+      admin_email,
+      action,
+      target_user_id,
+      target_email,
+      details
+    ) VALUES (
+      auth.uid(),
+      v_admin_email,
+      'admin_blocked_domain_add',
+      NULL,
+      NULL,
+      jsonb_build_object('domain', v_domain)
+    );
+  END IF;
 
   RETURN jsonb_build_object('ok', true, 'domain', v_domain);
 END;
@@ -702,6 +719,7 @@ AS $$
 DECLARE
   v_admin_email text;
   v_domain text;
+  v_deleted_count int;
 BEGIN
   -- Admin guard
   IF auth.uid() IS NULL OR NOT EXISTS (
@@ -719,23 +737,27 @@ BEGIN
   DELETE FROM public.blocked_email_domains
   WHERE domain = v_domain;
 
-  -- Audit log
-  SELECT email INTO v_admin_email FROM auth.users WHERE id = auth.uid();
-  INSERT INTO public.admin_audit_log (
-    admin_user_id,
-    admin_email,
-    action,
-    target_user_id,
-    target_email,
-    details
-  ) VALUES (
-    auth.uid(),
-    v_admin_email,
-    'admin_blocked_domain_remove',
-    NULL,
-    NULL,
-    jsonb_build_object('domain', v_domain)
-  );
+  GET DIAGNOSTICS v_deleted_count = ROW_COUNT;
+
+  -- Audit log only when a row was actually deleted
+  IF v_deleted_count > 0 THEN
+    SELECT email INTO v_admin_email FROM auth.users WHERE id = auth.uid();
+    INSERT INTO public.admin_audit_log (
+      admin_user_id,
+      admin_email,
+      action,
+      target_user_id,
+      target_email,
+      details
+    ) VALUES (
+      auth.uid(),
+      v_admin_email,
+      'admin_blocked_domain_remove',
+      NULL,
+      NULL,
+      jsonb_build_object('domain', v_domain)
+    );
+  END IF;
 
   RETURN jsonb_build_object('ok', true, 'domain', v_domain);
 END;
@@ -857,6 +879,26 @@ BEGIN
     );
   END IF;
 
+  -- Refuse a tool slug that is not in public.tools
+  IF NOT EXISTS (
+    SELECT 1 FROM public.tools WHERE slug = v_tool_slug
+  ) THEN
+    RETURN jsonb_build_object(
+      'ok', false,
+      'error', 'tool_not_found',
+      'message', 'Tool with slug "' || p_tool_slug || '" not found'
+    );
+  END IF;
+
+  -- Limit p_note to 500 characters
+  IF p_note IS NOT NULL AND length(trim(p_note)) > 500 THEN
+    RETURN jsonb_build_object(
+      'ok', false,
+      'error', 'note_too_long',
+      'message', 'Note cannot exceed 500 characters'
+    );
+  END IF;
+
   -- Validate kind
   IF v_kind NOT IN ('fixed_price', 'percent_off') THEN
     RETURN jsonb_build_object('ok', false, 'error', 'invalid_kind', 'message', 'Kind must be either fixed_price or percent_off');
@@ -890,13 +932,21 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'error', 'invalid_ends_at', 'message', 'End date must be in the future');
   END IF;
 
-  -- Check partial unique index constraint (one active unrevoked override per user + tool)
+  -- Clean up expired but un-revoked rows so they don't block the partial unique index
+  UPDATE public.user_price_overrides
+  SET revoked_at = ends_at
+  WHERE user_id = v_user_id
+    AND tool_slug = v_tool_slug
+    AND revoked_at IS NULL
+    AND ends_at IS NOT NULL
+    AND ends_at <= now();
+
+  -- Check partial unique index constraint (any remaining row with revoked_at IS NULL is active)
   IF EXISTS (
     SELECT 1 FROM public.user_price_overrides
     WHERE user_id = v_user_id
       AND tool_slug = v_tool_slug
       AND revoked_at IS NULL
-      AND (ends_at IS NULL OR ends_at > now())
   ) THEN
     RETURN jsonb_build_object(
       'ok', false,
@@ -905,29 +955,38 @@ BEGIN
     );
   END IF;
 
-  INSERT INTO public.user_price_overrides (
-    user_id,
-    tool_slug,
-    kind,
-    amount_cents,
-    percent_off,
-    currency,
-    starts_at,
-    ends_at,
-    note,
-    created_by
-  ) VALUES (
-    v_user_id,
-    v_tool_slug,
-    v_kind,
-    v_amount_cents,
-    v_percent_off,
-    'aud',
-    now(),
-    p_ends_at,
-    trim(p_note),
-    auth.uid()
-  ) RETURNING id INTO v_override_id;
+  -- Insert wrapped in exception handler so race conditions never surface a raw error
+  BEGIN
+    INSERT INTO public.user_price_overrides (
+      user_id,
+      tool_slug,
+      kind,
+      amount_cents,
+      percent_off,
+      currency,
+      starts_at,
+      ends_at,
+      note,
+      created_by
+    ) VALUES (
+      v_user_id,
+      v_tool_slug,
+      v_kind,
+      v_amount_cents,
+      v_percent_off,
+      'aud',
+      now(),
+      p_ends_at,
+      trim(p_note),
+      auth.uid()
+    ) RETURNING id INTO v_override_id;
+  EXCEPTION WHEN unique_violation THEN
+    RETURN jsonb_build_object(
+      'ok', false,
+      'error', 'override_exists',
+      'message', 'An active override already exists for this user and tool'
+    );
+  END;
 
   -- Audit log
   SELECT email INTO v_admin_email FROM auth.users WHERE id = auth.uid();

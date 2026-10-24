@@ -95,11 +95,14 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 ---
 
 ### 7. Part D: Admin Controls for Free Trials and Price Overrides (Release v1.6.0)
+- **Status**: Migration `033_admin_trial_controls.sql` is committed but **NOT applied yet** in production.
 - **Database Administrative Functions (Migration 033)**:
   - 12 atomic `SECURITY DEFINER` RPCs with `search_path = public, pg_temp` protecting zero-grant tables.
   - Mandatory admin authorization on every call via `auth.uid()` lookup in `public.profiles WHERE is_admin = true` (raising `not_admin` / 42501).
-  - All mutating administrative actions append an immutable entry to `public.admin_audit_log`.
-  - Comprehensive input validation and domain syntax checking.
+  - Mutating actions log to `public.admin_audit_log` only when rows are actually modified (e.g. on real domain insert/delete).
+  - Protected mainstream email domain guard: attempts to block major providers (`gmail.com`, `outlook.com`, `hotmail.com`, `yahoo.com`, `icloud.com`, `proton.me`, etc.) return error `'protected_domain'`.
+  - Override guards: verifies tool exists in `public.tools` (`tool_not_found`), enforces note length <= 500 chars (`note_too_long`).
+  - Automatic expired override cleanup: un-revoked expired rows are marked revoked (`revoked_at = ends_at`) before creating a new override so the partial unique index is cleanly reused. INSERT is protected by a `unique_violation` exception handler returning `override_exists`.
   - Protection of converted customer subscriptions: converted claims cannot be revoked or reset.
 - **Admin Free Trials Management Page (`/admin/free-trials`)**:
   - Offer configuration card: trial days (1..90), total slot cap, reserved slots ("Counted as already taken. Real claims add to this"), require confirmed email toggle, and live capacity statistics (`slots_taken` / `slots_left`).
@@ -107,7 +110,7 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - Instant one-click disable toggle.
   - Claims table: ILIKE email search, pagination (20/page), status badges (`active`, `expired`, `converted`, `revoked`).
   - Claim row actions: Extend trial (+N days), Revoke claim (cancels subscription immediately), and "Reset claim (testing only)" modal requiring exact email confirmation typing. Tooltips disable Revoke and Reset on converted claims.
-  - Blocked email domains card: real-time list, domain addition with hostname format validation, and domain unblocking modal.
+  - Blocked email domains card: real-time list, domain addition with hostname format validation and protected provider refusal, and domain unblocking modal.
 - **Admin Price Overrides Management Page (`/admin/price-overrides`)**:
   - Direct discount granting form: customer email (verified against `auth.users`), tool selector, kind (`fixed_price` or `percent_off`), discount amount/percentage, optional expiration date, and internal note.
   - Live checkout preview: "Normal A$X -> This user A$Y".

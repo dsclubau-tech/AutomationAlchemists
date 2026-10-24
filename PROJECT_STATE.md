@@ -19,7 +19,9 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
   - Return path navigation on `/auth`: preserves `?next=<path>` with strict sanitization via `sanitizeNext` against open redirects (`//evil.com`, `https://evil.com`), handles `?mode=signup`, and sets `emailRedirectTo`.
   - All client free-trial components fail safe and remain completely invisible while `trial_offers.enabled = false` in production.
 - **Admin Controls for Free Trials & Price Overrides (Part D - Release v1.6.0)**:
-  - Database Migration 033 (`033_admin_trial_controls.sql`): 12 secure administrative RPCs with `search_path = public, pg_temp`, verified caller authorization against `profiles.is_admin`, immutable audit logging to `admin_audit_log`, and zero table grants. (Written; not yet applied in production).
+  - Database Migration 033 (`033_admin_trial_controls.sql`): 12 secure administrative RPCs with `search_path = public, pg_temp`, verified caller authorization against `profiles.is_admin`, immutable audit logging to `admin_audit_log` (logged strictly on actual row mutations), and zero table grants. (Committed; NOT applied in production).
+  - Protected mainstream domain guard (`protected_domain`) preventing accidental blocking of primary consumer email providers (gmail.com, outlook.com, etc.).
+  - Price override creation guards: tool validation in `public.tools` (`tool_not_found`), note character limits (`note_too_long`), automatic expired override revocation before new override creation, and race-condition exception handling (`override_exists`).
   - Diagnostic verification SQL `docs/sql/033_verify.sql` and non-destructive transaction-reversing behavioral test harness `docs/sql/033_behaviour_verify.sql`.
   - Typed RPC client layer in `src/lib/adminTrial.ts` with graceful fallback handling if migration 033 is not yet applied.
   - Admin Free Trials Management Page (`/admin/free-trials`): offer management, confirmation modal with live-extension warning on public enablement, 1-click disable, claims table with search/pagination/extend/revoke/test reset with email confirmation, and blocked email domains list/add/remove.

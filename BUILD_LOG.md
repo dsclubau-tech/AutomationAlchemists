@@ -1,5 +1,27 @@
 # Build Log
 
+## 2026-10-24 (Unversioned - Migration 033 Review Fixes: Override Expiry, Tool & Domain Guards - Migration 033 Not Applied)
+- Database Admin Controls Migration 033 Fixes (`supabase/migrations/033_admin_trial_controls.sql`):
+  - Migration 033 is committed but NOT yet applied to production.
+  - `admin_price_override_create`:
+    - Auto-revocation of expired un-revoked overrides: added cleanup `UPDATE public.user_price_overrides SET revoked_at = ends_at WHERE user_id = v_user_id AND tool_slug = v_tool_slug AND revoked_at IS NULL AND ends_at IS NOT NULL AND ends_at <= now();` prior to pre-check.
+    - Simplified active override pre-check to `revoked_at IS NULL` (as any expired rows have been revoked).
+    - Wrapped `INSERT` in `BEGIN ... EXCEPTION WHEN unique_violation THEN RETURN jsonb_build_object('ok', false, 'error', 'override_exists', 'message', 'An active override already exists for this user and tool'); END;` to eliminate concurrency race error leaks.
+    - Added `public.tools` existence validation, returning error `'tool_not_found'` if tool slug is not found.
+    - Enforced 500-character note limit on `p_note`, returning error `'note_too_long'`.
+  - `admin_blocked_domain_add`:
+    - Added protection for mainstream email providers (`gmail.com`, `googlemail.com`, `outlook.com`, `hotmail.com`, `live.com`, `yahoo.com`, `icloud.com`, `me.com`, `proton.me`, `protonmail.com`, `aol.com`), returning error `'protected_domain'`.
+    - Added conditional audit logging: only logs to `public.admin_audit_log` when a domain row is actually inserted (`GET DIAGNOSTICS v_inserted_count = ROW_COUNT > 0`).
+  - `admin_blocked_domain_remove`:
+    - Added conditional audit logging: only logs to `public.admin_audit_log` when a domain row is actually deleted (`GET DIAGNOSTICS v_deleted_count = ROW_COUNT > 0`).
+- Test Harness Updates (`docs/sql/033_behaviour_verify.sql`):
+  - Added isolated test cases: (1) expired un-revoked override auto-cleanup on new creation leaving exactly one un-revoked override, (2) duplicate active override returning `override_exists`, (3) fake tool slug returning `tool_not_found`, (4) `gmail.com` blocking returning `protected_domain`, (5) duplicate domain add writing only 1 audit log row.
+- Documentation & Verification:
+  - Updated `docs/FREE_TRIAL_AND_DISCOUNTS.md` (Section 12), `PRD.md` (Section 7), `QA_CHECKLIST.md` (Checks 18c, 18d, 19f, 19g), and `PROJECT_STATE.md`.
+  - Stated clearly that migration 033 is NOT applied yet.
+  - What was NOT run: No SQL was executed, no edge functions deployed, no Supabase or Stripe API calls made, no dev server or curl executed.
+- Files touched: `supabase/migrations/033_admin_trial_controls.sql`, `docs/sql/033_behaviour_verify.sql`, `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `PRD.md`, `QA_CHECKLIST.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-24 (v1.6.0 Admin Controls for Free Trials and Price Overrides - Migration 033 Not Applied)
 - Database Admin Controls Migration 033 (Task D1):
   - Authored `supabase/migrations/033_admin_trial_controls.sql` containing 12 `SECURITY DEFINER` administrative functions with `SET search_path = public, pg_temp`, verified admin check via `profiles.is_admin`, immutable audit logging to `public.admin_audit_log`, and zero table grants.
