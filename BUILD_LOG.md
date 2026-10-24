@@ -1,5 +1,37 @@
 # Build Log
 
+## 2026-10-24 (v1.6.0 Admin Controls for Free Trials and Price Overrides - Migration 033 Not Applied)
+- Database Admin Controls Migration 033 (Task D1):
+  - Authored `supabase/migrations/033_admin_trial_controls.sql` containing 12 `SECURITY DEFINER` administrative functions with `SET search_path = public, pg_temp`, verified admin check via `profiles.is_admin`, immutable audit logging to `public.admin_audit_log`, and zero table grants.
+  - Implemented: `admin_trial_get_offer`, `admin_trial_update_offer`, `admin_trial_list_claims`, `admin_trial_extend`, `admin_trial_revoke`, `admin_trial_reset_claim` (test-only, refuses converted claims), `admin_blocked_domains_list`, `admin_blocked_domain_add`, `admin_blocked_domain_remove`, `admin_price_overrides_list`, `admin_price_override_create` (user lookup, discount validation, single active override check), and `admin_price_override_revoke`.
+  - Authored rollback script `docs/sql/033_rollback.sql` dropping the 12 functions.
+  - Authored verification script `docs/sql/033_verify.sql` returning single `jsonb_pretty` verifying single overload, `prosecdef = true`, `proconfig` search_path, and execution privileges (authenticated allowed, anon/PUBLIC forbidden).
+  - Authored behavioral verification script `docs/sql/033_behaviour_verify.sql` testing non-admin rejection (`42501` / `not_admin`) and admin functionality (offer validations, claims list, extend -> revoke -> reset claim lifecycle, converted claim refusal, price override lifecycle, domain add/remove idempotency) with guaranteed rollback via intentional exception.
+- Frontend Admin Layer & UI (Task D2):
+  - Created typed RPC client layer in `src/lib/adminTrial.ts` with error detection for missing migrations.
+  - Built Free Trials Admin Page (`src/pages/AdminFreeTrials.tsx`):
+    - Offer card with trial days, slot cap, reserved slots ("Counted as already taken. Real claims add to this"), require confirmed email toggle, and live slots taken/left display.
+    - Offer activation warning modal: *"Visitors will see the free-trial button on the Return Converter x CopyPaste Bot page. Do not enable publicly until the CP Bot Chrome extension v1.0.5.3 is live."*
+    - Single-click disable toggle.
+    - Claims table with email search, pagination, status badges (`active`, `expired`, `converted`, `revoked`), row actions (Extend, Revoke, and Reset Claim requiring typing user's email). Disabled Revoke/Reset on converted claims with tooltip.
+    - Blocked email domains list with hostname validation add form and delete confirmation modal.
+  - Built Price Overrides Admin Page (`src/pages/AdminPriceOverrides.tsx`):
+    - Custom price creation form with tool select, kind (`fixed_price` or `percent_off`), amount/percentage, optional end date, note, and live price preview ("Normal A$X -> This user A$Y").
+    - Clear inline policy note: *"Applies to NEW checkouts only; existing subscriptions are not changed."*
+    - Contextual hint linking to `/admin/tools`: *"To change the standard price for everyone, edit it in the Tools catalog."*
+    - Overrides table with status badges and revocation modal.
+  - Added "Free Trials" and "Price Overrides" navigation links to `src/components/AdminLayout.tsx` and routes `/admin/free-trials` and `/admin/price-overrides` to `src/App.tsx`.
+- Documentation & Quality Assurance (Task D3):
+  - Updated `docs/FREE_TRIAL_AND_DISCOUNTS.md` with Section 12 (Admin Controls, function specifications, and 1-day test runbook).
+  - Updated `PRD.md` with Section 7 (Admin Controls specifications).
+  - Updated `QA_CHECKLIST.md` with manual test checks 15-19.
+  - Updated `PROJECT_STATE.md` to v1.6.0.
+  - Updated `CHANGELOG.md` with `[1.6.0]`.
+- Verification:
+  - Ran `npx tsc --noEmit -p .` (passed with code 0).
+  - Migration 033 NOT applied to live database; no edge functions deployed; no Supabase or Stripe API calls made.
+- Files touched: `supabase/migrations/033_admin_trial_controls.sql` (NEW), `docs/sql/033_rollback.sql` (NEW), `docs/sql/033_verify.sql` (NEW), `docs/sql/033_behaviour_verify.sql` (NEW), `src/lib/adminTrial.ts` (NEW), `src/pages/AdminFreeTrials.tsx` (NEW), `src/pages/AdminPriceOverrides.tsx` (NEW), `src/components/AdminLayout.tsx`, `src/App.tsx`, `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `PRD.md`, `QA_CHECKLIST.md`, `PROJECT_STATE.md`, `CHANGELOG.md`, `BUILD_LOG.md`.
+
 ## 2026-10-24 (v1.5.1 Auth Path Check, Tools Copy & Price Fixes, Behaviour Verify Script, Test Plan)
 - Auth Regression Check (Task 1):
   - Audited `src/pages/Auth.tsx` navigation paths against commit `80d5f88` (v1.4.4): verified no-next navigation preserves exact original destinations (`/` for normal users, `/admin` for admins).

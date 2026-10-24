@@ -92,3 +92,31 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - State 5: Ineligible / disabled: renders nothing. If offer is enabled but sold out, displays quiet notice.
   - Friendly error messages for claim rejections mapping backend rejection codes without leaking internal blocklists.
 
+---
+
+### 7. Part D: Admin Controls for Free Trials and Price Overrides (Release v1.6.0)
+- **Database Administrative Functions (Migration 033)**:
+  - 12 atomic `SECURITY DEFINER` RPCs with `search_path = public, pg_temp` protecting zero-grant tables.
+  - Mandatory admin authorization on every call via `auth.uid()` lookup in `public.profiles WHERE is_admin = true` (raising `not_admin` / 42501).
+  - All mutating administrative actions append an immutable entry to `public.admin_audit_log`.
+  - Comprehensive input validation and domain syntax checking.
+  - Protection of converted customer subscriptions: converted claims cannot be revoked or reset.
+- **Admin Free Trials Management Page (`/admin/free-trials`)**:
+  - Offer configuration card: trial days (1..90), total slot cap, reserved slots ("Counted as already taken. Real claims add to this"), require confirmed email toggle, and live capacity statistics (`slots_taken` / `slots_left`).
+  - Public activation confirmation modal with prominent warning text: *"Visitors will see the free-trial button on the Return Converter x CopyPaste Bot page. Do not enable publicly until the CP Bot Chrome extension v1.0.5.3 is live."*
+  - Instant one-click disable toggle.
+  - Claims table: ILIKE email search, pagination (20/page), status badges (`active`, `expired`, `converted`, `revoked`).
+  - Claim row actions: Extend trial (+N days), Revoke claim (cancels subscription immediately), and "Reset claim (testing only)" modal requiring exact email confirmation typing. Tooltips disable Revoke and Reset on converted claims.
+  - Blocked email domains card: real-time list, domain addition with hostname format validation, and domain unblocking modal.
+- **Admin Price Overrides Management Page (`/admin/price-overrides`)**:
+  - Direct discount granting form: customer email (verified against `auth.users`), tool selector, kind (`fixed_price` or `percent_off`), discount amount/percentage, optional expiration date, and internal note.
+  - Live checkout preview: "Normal A$X -> This user A$Y".
+  - Clear inline policy note: *"Applies to NEW checkouts only; existing subscriptions are not changed."*
+  - Contextual link to `/admin/tools`: *"To change the standard price for everyone, edit it in the Tools catalog."*
+  - Active and past overrides table with revocation modal.
+- **Admin Navigation Integration**:
+  - Integrated into `AdminLayout` sidebar under `/admin/free-trials` and `/admin/price-overrides`.
+  - Gated by standard `profiles.is_admin` verification.
+  - Non-crashing calm notice banner if Migration 033 has not yet been applied to the database.
+
+

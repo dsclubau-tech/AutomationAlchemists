@@ -403,9 +403,70 @@ Written answers from the CP Bot developer (Raf) on 23 Oct 2026 confirmed the ext
 
 ---
 
-## 11. Next Steps (Remaining Parts C & D)
+## 11. Next Steps
 
-- **Part C (Public Trial Landing & Claim UI)**: Build the claim modal and button on `/tools/rccp` consuming `get_trial_public`, `get_trial_status`, and `claim_free_trial`. (Prerequisite: DO NOT open public trial until extension v1.0.5.3 is live).
-- **Part D (Admin Trial & Discount Management)**: Build admin panels for managing trial offer toggles, viewing claims, issuing user price overrides, and manual trial resets.
+- **Database Migration 033**: Apply `supabase/migrations/033_admin_trial_controls.sql` by hand in the Supabase SQL Editor and run `docs/sql/033_verify.sql` to verify single overloads, security definer flags, and permissions. (Migration not yet applied in production).
+- **Public Launch Precondition**: Free trial offer remains OFF (`trial_offers.enabled = false`). DO NOT enable publicly until CP Bot Chrome extension v1.0.5.3 is approved and live on the Chrome Web Store.
+- **Stripe Test Run**: End-to-end verification and Stripe test-mode run planned for 2026-10-25 on office PC.
+
+---
+
+## 12. Admin Controls (Part D - Release v1.6.0)
+
+Migration `033_admin_trial_controls.sql` provides 12 secure administrative RPCs and two new management panels (`/admin/free-trials` and `/admin/price-overrides`) enabling non-technical operators to administer promotional trials and customer pricing without direct database access.
+
+### 12.1 Security & Invariant Rules
+- **Caller Authorization**: Every function verifies that `auth.uid()` corresponds to an active administrator record in `public.profiles WHERE is_admin = true`. Any non-admin caller immediately raises an exception with SQLSTATE `'42501'` (`not_admin`).
+- **Security Definer & Fixed Search Path**: All functions run with `LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp` to operate securely over zero-policy tables (`trial_offers`, `trial_claims`, `user_price_overrides`, `blocked_email_domains`).
+- **Privilege Separation**: Table and function privileges are revoked from `PUBLIC` and `anon`. Execution is granted exclusively to `authenticated` (gated internally by the admin profile check).
+- **Audit Logging**: All mutating actions automatically append an immutable audit record to `public.admin_audit_log` capturing `admin_user_id`, `admin_email`, `action`, `target_user_id`, `target_email`, and structured JSON `details`.
+
+### 12.2 Administrative RPC Reference
+
+| Function Signature | Who May Call | Changes Made & Validation Rules |
+| :--- | :--- | :--- |
+| `admin_trial_get_offer(p_tool_slug text)` | Admin only | Returns the offer configuration row plus computed `slots_taken` (`slots_reserved` + claim count) and `slots_left`. |
+| `admin_trial_update_offer(p_tool_slug, p_enabled, p_trial_days, p_slot_cap, p_slots_reserved, p_require_confirmed_email)` | Admin only | Validates `trial_days` (1..90), `slot_cap` (>= 0), and `slots_reserved` (>= 0). Refuses updates if `slot_cap < slots_reserved + current_claims` (`cap_below_taken`). Updates `public.trial_offers` and logs audit entry. |
+| `admin_trial_list_claims(p_tool_slug, p_search, p_limit, p_offset)` | Admin only | Returns paginated claim records (max 100/call) joined with `auth.users` and `subscriptions`. Computes real-time status (`active`, `expired`, `converted`, `revoked`). Supports escaped ILIKE search on email. |
+| `admin_trial_extend(p_claim_id, p_days)` | Admin only | Validates `p_days` (1..90). Only operates on non-converted, non-revoked claims linked to active trial subscriptions (`is_trial = true`). Extends `current_period_end` from `max(now(), current_end) + p_days` and reactivates subscription. Logs audit entry. |
+| `admin_trial_revoke(p_claim_id)` | Admin only | Only operates on non-converted claims. Marks claim `revoked_at = now()` with reason. Updates trial subscription to `status = 'canceled'` with `current_period_end = now()`. Logs audit entry. |
+| `admin_trial_reset_claim(p_claim_id)` | Admin only | **Testing only.** Refuses converted claims (`error: 'converted'`). Deletes the trial subscription row and the claim record so the normalized email and user account can test claiming again. Logs audit entry. |
+| `admin_blocked_domains_list()` | Admin only | Returns sorted list of all blocked email domains. |
+| `admin_blocked_domain_add(p_domain)` | Admin only | Validates domain format (hostname pattern, <= 253 chars, trimmed, lowercased). Inserts idempotently (`ON CONFLICT DO NOTHING`). Logs audit entry. |
+| `admin_blocked_domain_remove(p_domain)` | Admin only | Deletes domain from `public.blocked_email_domains`. Logs audit entry. |
+| `admin_price_overrides_list(p_tool_slug)` | Admin only | Returns list of overrides joined with user emails. Calculates `is_active` based on start/end dates and revocation status. |
+| `admin_price_override_create(p_user_email, p_tool_slug, p_kind, p_amount_cents, p_percent_off, p_ends_at, p_note)` | Admin only | Resolves `p_user_email` in `auth.users` (`user_not_found` if missing). Validates kind (`fixed_price` with amount >= 50 cents AUD, or `percent_off` with 0 < pct <= 100). Enforces single active override constraint (`override_exists`). Inserts override and logs audit entry. |
+| `admin_price_override_revoke(p_override_id)` | Admin only | Marks active override `revoked_at = now()`. Logs audit entry. |
+
+### 12.3 1-Day Trial Test Runbook (Using the Admin Panel)
+When validating free trial lifecycle and billing end-to-end:
+1. **Sign in as Admin**: Navigate to `/admin/free-trials`.
+2. **Configure 1-Day Trial**:
+   - Set Trial Days to `1`.
+   - Set Slot Cap to `500` and Reserved Slots to `0`.
+   - Uncheck "Require Confirmed Email" (for quick test account signup).
+   - Toggle "Offer Status" to **Enabled** and click "Save Offer Settings".
+   - Confirm the warning dialog: *"Visitors will see the free-trial button on the Return Converter x CopyPaste Bot page. Do not enable publicly until the CP Bot Chrome extension v1.0.5.3 is live."*
+3. **Claim Trial on Test User**:
+   - Sign in with dedicated test account (`50ef4d35-c7aa-47fe-bbb0-68c74afd6a3c` / `fahimmuntasirsiam@gmail.com`).
+   - Navigate to `/dashboard#claim-trial`.
+   - Click "Claim free trial". Confirm CP Bot unlocks immediately and active banner appears.
+4. **Inspect in Admin Panel**:
+   - Return to `/admin/free-trials`.
+   - Confirm claims table shows the test user with status **Active** and ends in 24 hours.
+   - Test "Extend": click "Extend", enter `1` day, confirm trial ends date moves forward 24 hours.
+5. **Simulate Expiry or Convert to Paid**:
+   - Either wait for 24h expiration, or proceed to Stripe test checkout for `rccp`.
+   - After checkout completes, refresh `/admin/free-trials`.
+   - Status badge now shows **Converted**.
+   - Hover over "Revoke" and "Reset" buttons: verify both are disabled with tooltip *"Converted subscriptions cannot be revoked/reset"*.
+6. **Testing Clean-up (Reset Claim)**:
+   - For an un-converted test claim: click "Reset claim (testing only)".
+   - Modal requires typing the user's email exactly to prevent accidents.
+   - Confirm reset removes both the claim row and trial subscription row, allowing test reuse.
+7. **Restore Production State**:
+   - In `/admin/free-trials`, toggle Offer Status to **Disabled** and save (one-click disable).
+   - Verify `/tools/rccp` returns to standard non-promotional display.
+
 
 

@@ -191,4 +191,83 @@
   - Each bullet renders on one line at desktop width.
   - The card is no taller than the ListFlow card beside it.
 
+---
+
+## Part D: Admin Controls & Price Overrides Verification (Release v1.6.0)
+
+### 15. Security & Admin Authorization Guards
+- **Check 15a: Non-Admin User Blocked from Admin Pages**:
+  - Sign in as a regular non-admin user (or sign out).
+  - Navigate directly to `/admin/free-trials` and `/admin/price-overrides`.
+  - **Expected Result**: AdminLayout guard redirects immediately to `/` (for signed-in non-admins) or `/auth` (for signed-out visitors). The page content is never rendered.
+- **Check 15b: Non-Admin Direct RPC Rejection**:
+  - Covered automatically by `docs/sql/033_behaviour_verify.sql`.
+  - In browser devtools or test client, execute direct call to any `admin_` RPC (e.g. `supabase.rpc('admin_trial_get_offer', { p_tool_slug: 'rccp' })`) with a non-admin session.
+  - **Expected Result**: RPC call fails immediately with PostgreSQL error code `'42501'` and message `'not_admin'`.
+
+### 16. Free Trial Offer Controls & Confirmation Dialog
+- **Check 16a: Enable Offer Confirmation Warning**:
+  - Sign in as an administrator and navigate to `/admin/free-trials`.
+  - Toggle "Offer Status" from Disabled to Enabled (or edit days/cap while enabled) and click "Save Offer Settings".
+  - **Expected Result**: Confirmation dialog appears showing:
+    - Current configuration details (trial days, slot cap, reserved slots, email confirmation requirement).
+    - Warning text: *"Visitors will see the free-trial button on the Return Converter x CopyPaste Bot page. Do not enable publicly until the CP Bot Chrome extension v1.0.5.3 is live."*
+    - The offer remains disabled until "Confirm & Enable Trial" is clicked.
+- **Check 16b: Single-Click Disable**:
+  - In `/admin/free-trials`, toggle "Offer Status" to Disabled.
+  - **Expected Result**: Disables immediately without requiring the warning dialog; notification confirms offer is disabled.
+- **Check 16c: Slot Cap Validation**:
+  - Attempt to save a slot cap lower than `slots_reserved + existing_claims`.
+  - **Expected Result**: Saving is blocked with error message indicating minimum cap requirement.
+
+### 17. Claims Table Actions & Conversion Protection
+- **Check 17a: Search & Pagination**:
+  - In `/admin/free-trials`, type a search term in the search box.
+  - **Expected Result**: Claims table filters by matching email addresses in real-time. Pagination navigates across claim pages.
+- **Check 17b: Extend Claim**:
+  - For an active trial claim, click "Extend". Enter `7` days and submit.
+  - **Expected Result**: Trial expiration date moves forward by 7 days; audit log records extension.
+- **Check 17c: Converted Subscription Cannot Be Revoked or Reset**:
+  - Locate a claim with status badge **Converted** (e.g. following paid Stripe checkout).
+  - Inspect the "Revoke" and "Reset" action buttons for that row.
+  - **Expected Result**:
+    - Both "Revoke" and "Reset" buttons are disabled with reduced opacity.
+    - Hovering reveals a tooltip: *"Converted subscriptions cannot be revoked/reset from trial controls."*
+    - Direct backend invocation of `admin_trial_revoke` or `admin_trial_reset_claim` returns error code `'converted'`.
+- **Check 17d: Testing Reset Requires Email Confirmation**:
+  - For an active or expired non-converted claim, click "Reset".
+  - Modal appears warning that this permanently removes the claim and trial subscription for testing.
+  - Attempt to click "Confirm Reset" without typing the email or typing a typo.
+  - **Expected Result**: The button is disabled until the exact email address is typed into the input field. Confirming deletes the claim and subscription row so the user can test claiming again.
+
+### 18. Blocked Email Domains
+- **Check 18a: Add & Validate Blocked Domain**:
+  - In `/admin/free-trials`, enter `disposable-test-mail.com` and click "Add Domain".
+  - **Expected Result**: Domain is added to the list. Duplicate submissions succeed idempotently without crashing. Invalid domain formats (e.g. missing dot or invalid characters) are rejected.
+- **Check 18b: Remove Blocked Domain**:
+  - Click the trash icon next to a blocked domain.
+  - **Expected Result**: Unblock modal appears; confirming removes the domain from the list.
+
+### 19. Price Overrides & Checkout Price Alignment
+- **Check 19a: Live Price Preview**:
+  - Navigate to `/admin/price-overrides`.
+  - Select tool `'rccp'` (catalog price A$9.00).
+  - Select "Fixed Price" and enter `5.00`.
+  - **Expected Result**: Live preview displays: *"Normal A$9.00 → This user A$5.00"*.
+  - Change discount type to "Percentage Off" and enter `20`.
+  - **Expected Result**: Live preview displays: *"Normal A$9.00 → This user A$7.20"*.
+- **Check 19b: Policy Notes & Contextual Links**:
+  - Confirm the page displays the clear policy note: *"Applies to NEW checkouts only; existing subscriptions are not changed."*
+  - Confirm the hint text links directly to `/admin/tools`: *"To change the standard price for everyone, edit it in the Tools catalog."*
+- **Check 19c: Override Creation & Duplicate Enforcement**:
+  - Enter a valid user email and submit a price override.
+  - **Expected Result**: Override appears in the table with status **Active**. Attempting to submit a second active override for the same user and tool returns error `'override_exists'`.
+- **Check 19d: Revoke Override**:
+  - Click "Revoke" on an active override row and confirm in the modal.
+  - **Expected Result**: Status updates to **Revoked** and the row's Revoke button disappears.
+- **Check 19e: Checkout Price Matches Override**:
+  - With an active override of A$5.00 for the test account, initiate checkout for `'rccp'`.
+  - **Expected Result**: Stripe checkout line item charges exactly A$5.00 AUD (500 cents).
+
+
 

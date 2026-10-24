@@ -31,6 +31,8 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminOverview = lazy(() => import("./pages/AdminOverview"));
 const AdminSubscriptions = lazy(() => import("./pages/AdminSubscriptions"));
+const AdminFreeTrials = lazy(() => import("./pages/AdminFreeTrials"));
+const AdminPriceOverrides = lazy(() => import("./pages/AdminPriceOverrides"));
 const AdminTools = lazy(() => import("./pages/AdminTools"));
 const AdminAuditLog = lazy(() => import("./pages/AdminAuditLog"));
 const AdminContactSubmissions = lazy(() => import("./pages/AdminContactSubmissions"));
@@ -92,6 +94,8 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<AdminOverview />} />
                 <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+                <Route path="/admin/free-trials" element={<AdminFreeTrials />} />
+                <Route path="/admin/price-overrides" element={<AdminPriceOverrides />} />
                 <Route path="/admin/tools" element={<AdminTools />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
                 <Route path="/admin/contact-submissions" element={<AdminContactSubmissions />} />

@@ -17,7 +17,9 @@ import {
     ChevronRight,
     Shield,
     Home,
-    Loader2
+    Loader2,
+    Sparkles,
+    Tag
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,6 +35,8 @@ interface AdminLayoutProps {
 const navItems = [
     { path: "/admin", label: "Overview", icon: LayoutDashboard, description: "Dashboard & stats" },
     { path: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard, description: "Manage access & plans" },
+    { path: "/admin/free-trials", label: "Free Trials", icon: Sparkles, description: "Trials & claims" },
+    { path: "/admin/price-overrides", label: "Price Overrides", icon: Tag, description: "Customer discounts" },
     { path: "/admin/users", label: "Users", icon: Users, description: "User management" },
     { path: "/admin/tools", label: "Tools", icon: Wrench, description: "Manage tool catalog" },
     { path: "/admin/services", label: "Services", icon: Briefcase, description: "Manage services" },
