@@ -93,6 +93,8 @@
 
 ---
 
+- Deploy both functions from the office PC first (git pull; supabase functions deploy create-checkout-session; supabase functions deploy stripe-webhook --no-verify-jwt; both with --project-ref tdevgrwmafwrsmeymjzd), then Stripe Dashboard test mode > Send test event customer.subscription.updated and expect HTTP 200.
+
 ### Part B Stripe test-mode run (office PC, 2026-10-25)
 - **Prereqs**: Stripe Dashboard in TEST mode; webhook endpoint `https://tdevgrwmafwrsmeymjzd.supabase.co/functions/v1/stripe-webhook` listens to `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`, `charge.refunded`.
 - **Getting to checkout**: temporarily make the test account admin (`update public.profiles set is_admin = true where id = '50ef4d35-c7aa-47fe-bbb0-68c74afd6a3c';`); create `.env.local` with `VITE_CHECKOUT_ENABLED=true` (never commit it); `npm run dev`; sign in as the test account; click Get access on the rccp page; when finished set `is_admin` back to false.

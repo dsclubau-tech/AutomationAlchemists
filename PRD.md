@@ -18,7 +18,8 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 
 ---
 
-### 3. Part B: Checkout Integration & Webhook Conversion (In Development)
+### 3. Part B: Checkout Integration & Webhook Conversion (Migration 032 Applied; Edge Functions Fixed in Code, Not Yet Deployed)
+- *Deployment Status*: Migration 032 applied on 2026-10-24. Edge functions `create-checkout-session` and `stripe-webhook` are NOT deployed (deploy failed with HTTP 403 on home PC due to project permissions; live functions remain pre-Part-B versions). Both functions will be deployed from the office PC before the Stripe test run on 2026-10-25.
 - **Automatic Trial-to-Paid Conversion & Event Separation**:
   - Only `checkout.session.completed` may INSERT or UPSERT a single-seat subscription row. When a trial user subscribes via Stripe, `public.process_stripe_webhook_event` converts the existing trial row in `public.subscriptions` (`is_trial` set to `false`, `grant_reason` set to `'stripe_checkout'`) instead of inserting a duplicate row or crashing against `subscriptions_user_product_no_store_unique`.
   - Marks the matching record in `public.trial_claims` with `converted_at = now()`.

@@ -353,9 +353,9 @@ Clients are never trusted for pricing. When `create-checkout-session` generates 
 
 ### 9.5 Deploy Order
 Deployments must strictly follow this order (manual execution only):
-1. **Database Migration**: Apply `supabase/migrations/032_webhook_trial_conversion.sql` by hand in the Supabase SQL Editor and run `docs/sql/032_verify.sql` to verify single overload and permissions.
-2. **Deploy `create-checkout-session`**: Deploy the checkout Edge Function.
-3. **Deploy `stripe-webhook`**: Deploy the webhook Edge Function (must be deployed with `--no-verify-jwt` so Stripe can post without Supabase auth headers).
+1. **Database Migration**: Apply `supabase/migrations/032_webhook_trial_conversion.sql` by hand in the Supabase SQL Editor and run `docs/sql/032_verify.sql` to verify single overload and permissions. *(APPLIED in production on 2026-10-24).*
+2. **Deploy `create-checkout-session`**: Deploy the checkout Edge Function. *(NOT deployed: deploy failed on 2026-10-24 with HTTP 403 on home PC; live function is pre-Part-B version; will be deployed from office PC on 2026-10-25).*
+3. **Deploy `stripe-webhook`**: Deploy the webhook Edge Function (must be deployed with `--no-verify-jwt` so Stripe can post without Supabase auth headers). *(NOT deployed: deploy failed on 2026-10-24 with HTTP 403 on home PC; live function is pre-Part-B version; will be deployed from office PC on 2026-10-25).*
 4. **Pre-flight Check**: Do not deploy while [status.supabase.com](https://status.supabase.com) reports an active incident affecting Edge Functions or Postgres.
 
 ---
