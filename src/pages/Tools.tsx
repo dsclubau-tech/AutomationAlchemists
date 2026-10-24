@@ -147,23 +147,23 @@ const Tools = () => {
                                         <span className="text-teal-900">Return Converter</span> <span className="text-teal-900/40 font-normal mx-0.5">x</span> <span className="text-teal-600">CopyPaste Bot</span>
                                     </h2>
                                 </div>
-                                <p className="font-body-md text-base text-teal-900/80 mb-6">One-click eBay to Amazon order fulfilment plus instant return label generation — two tools in one platform.</p>
+                                <p className="font-body-md text-base text-teal-900/80 mb-6">Paste eBay buyer addresses straight into Amazon checkout, and turn Amazon return codes into clean eBay return labels.</p>
                                 <ul className="space-y-3 mb-8">
                                     <li className="flex items-start gap-3">
                                         <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
-                                        <div><strong className="text-teal-900">One-click copy</strong> <span className="text-teal-900/80">- Copy eBay address to Amazon in one click</span></div>
+                                        <div><strong className="text-teal-900">One-click copy</strong> <span className="text-teal-900/80">- eBay buyer address into Amazon checkout</span></div>
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
-                                        <div><strong className="text-teal-900">Instant labels</strong> <span className="text-teal-900/80">- Generate eBay return labels instantly</span></div>
+                                        <div><strong className="text-teal-900">Instant labels</strong> <span className="text-teal-900/80">- Amazon return codes into eBay return labels</span></div>
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
-                                        <div><strong className="text-teal-900">History tracking</strong> <span className="text-teal-900/80">- Fulfilment history and activity tracking</span></div>
+                                        <div><strong className="text-teal-900">History tracking</strong> <span className="text-teal-900/80">- Fulfilment and return label history</span></div>
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
-                                        <div><strong className="text-teal-900">Cloud clipboard</strong> <span className="text-teal-900/80">- Cloud clipboard for cross-device sync</span></div>
+                                        <div><strong className="text-teal-900">Cloud clipboard</strong> <span className="text-teal-900/80">- Copy in one browser, paste in another</span></div>
                                     </li>
                                 </ul>
                             </div>

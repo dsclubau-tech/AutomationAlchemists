@@ -1,5 +1,28 @@
 # Build Log
 
+## 2026-10-24 (v1.4.4 Tools Card Copy Alignment & CP Bot Architecture Docs)
+- Updated Return Converter x CopyPaste Bot card copy on `/tools` (`src/pages/Tools.tsx`):
+  - Description replaced with: "Paste eBay buyer addresses straight into Amazon checkout, and turn Amazon return codes into clean eBay return labels."
+  - Four bullets replaced with:
+    - "One-click copy - eBay buyer address into Amazon checkout"
+    - "Instant labels - Amazon return codes into eBay return labels"
+    - "History tracking - Fulfilment and return label history"
+    - "Cloud clipboard - Copy in one browser, paste in another"
+  - Styling, tags, layout, and links preserved; audited for desktop height parity with adjacent ListFlow card.
+- Audited repository for occurrences of old copy strings across all files without modifying out-of-scope files.
+- Incorporated CP Bot developer written answers (23 Oct 2026) across `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`, `PRD.md`, and `PROJECT_STATE.md`:
+  - Confirmed CP Bot unlock slug is `'cpbot'`, called via single-argument `check_product_subscription(p_product_slug = 'cpbot')`.
+  - Corrected gating status: CP Bot web dashboard (`/cp-bot` pages) is gated by `check_product_subscription` in strict fail-closed mode.
+  - Documented Chrome extension gating status: not gated today; gate ships in extension v1.0.5.3 (pending Chrome Web Store review); public trials must not open until live.
+  - Documented 5-minute extension caching and immediate web dashboard lockout on next page load via RPC `current_period_end` evaluation.
+  - Documented single overload invariant for `check_product_subscription` (never create second overload).
+  - Documented table status: `cp_bot_licenses` is unused; `cp_bot_config` and `cp_bot_settings` are in active use; other active tables: `cp_bot_activity_log`, `cp_bot_fulfillments`, `cp_bot_gift_templates`, `cp_bot_insight_cards`, `cp_bot_cloud_clipboard`, `label_history`.
+  - Documented Return Converter sign-in gating and production testing with dedicated test accounts.
+  - Documented developer notification requirements before Stripe/webhook deploy and trial launch.
+- Added QA check 10 to `QA_CHECKLIST.md` for `/tools` card copy and single-line bullet layout.
+- Version bumped to 1.4.4; updated `CHANGELOG.md`.
+- Files touched: `src/pages/Tools.tsx`, `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`, `PRD.md`, `QA_CHECKLIST.md`, `PROJECT_STATE.md`, `CHANGELOG.md`, `BUILD_LOG.md`.
+
 ## 2026-10-23 (Free Trial Part B: Review Fixes - Webhook Reactivation & Order Bot Guard)
 - Fixed webhook reactivation hole in `supabase/migrations/032_webhook_trial_conversion.sql`:
   - Disentangled single-seat handling by event type.

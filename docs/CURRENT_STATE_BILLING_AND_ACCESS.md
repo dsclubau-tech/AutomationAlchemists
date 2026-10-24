@@ -113,28 +113,35 @@ All schema specifications below are derived directly from the live database snap
 | `returnlabels` | Return Label Generator | `hidden` | $0.00 (`is_free: true`) | **NO** | N/A |
 | N/A (`disposable_test_sub`) | Test artifact | N/A | N/A | **YES** | N/A |
 
-### 2.2 Where Does the CP Bot App Live?
+### 2.2 Where Does the CP Bot App Live & How Is It Gated? (Confirmed 23 Oct 2026)
 The CP Bot web application and Chrome extension reside in a **separate repository** (a dual-product Next.js 16 App Router application hosting the Return Converter at `/main` and CP Bot at `/cp-bot/*`, deployed to Vercel at `rccp.automationalchemists.com`).
-- As recorded in `New Text Document.txt:32-42`, paid license gating was **never wired** in that repo (`cp_bot_licenses` is never queried in `src/` or `extension/`).
-- The companion Chrome extension connects to that Next.js web application via `AuthBridge` and does not query Supabase directly for paid licensing.
 
-### 2.3 Direct Question Answer: If a Customer Pays for Slug `rccp` Through Checkout
-1. **Which row is created?**
-   - Checkout creates a Stripe session with `metadata.product_slug = 'rccp'`.
-   - Webhook (`stripe-webhook/index.ts:61`) receives `'rccp'` and calls `process_stripe_webhook_event`.
-   - A row is created in `public.subscriptions` with `product_slug = 'rccp'`, `status = 'active'`, `stripe_subscription_id = 'sub_...'`.
-2. **Does anything unlock CP Bot from it?**
-   - **NO.**
-   - On the customer dashboard (`src/pages/Dashboard.tsx:448, 551`):
-     ```ts
-     const querySlug = slug === 'rccp' ? 'cpbot' : slug;
-     const sub = subscriptions.find(s => s.product_slug === querySlug && s.status === 'active');
-     // ...
-     hasCpBotSub={tool.slug === 'rccp' ? subscriptions.some(s => s.product_slug === 'cpbot' && s.status === 'active') : undefined}
-     ```
-     `Dashboard.tsx` explicitly checks for `product_slug === 'cpbot'`. Because the checkout row was inserted with `product_slug = 'rccp'`, `hasCpBotSub` is `false`. The dashboard continues to display:
-     `🔒 CP Bot — Locked` and `Unlock CP Bot — AUD $9/mo`.
-   - In the external CP Bot app/extension, there is no enforcement logic for `'rccp'`.
+Based on written answers from the CP Bot developer (Raf) on 23 Oct 2026:
+- **Entitlement Slug**: The CP Bot unlock slug is **CONFIRMED as 'cpbot'**. The dashboard calls `check_product_subscription` with the single argument `p_product_slug = 'cpbot'`.
+- **CORRECTION on Paid Gating**: Earlier notes stated CP Bot had no paid gating. **Wrong.** The CP Bot web dashboard (`/cp-bot` pages) **IS gated by `check_product_subscription`**, operating in **strict mode (fail closed)**: if the RPC errors, everyone is locked out.
+- **Chrome Extension Gating Status**: The Chrome extension is **NOT gated today**. The gate ships in extension **v1.0.5.3**, currently pending Chrome Web Store review. **DO NOT open the public trial until it is live.**
+- **Expiration & Caching Behavior**: The RPC itself checks `current_period_end`, so the web dashboard locks on the next page load after expiry. The extension caches a real answer for 5 minutes (a fresh check on popup open).
+- **Single RPC Invariant**: **Never create a second overload of `check_product_subscription`**: it would lock out every paying customer.
+- **Database Tables Status**:
+  - `cp_bot_licenses` is **unused** (obsolete).
+  - `cp_bot_config` and `cp_bot_settings` are **IN USE and must never be dropped or renamed**.
+  - Other tables CP Bot uses: `cp_bot_activity_log`, `cp_bot_fulfillments`, `cp_bot_gift_templates`, `cp_bot_insight_cards`, `cp_bot_cloud_clipboard`, `label_history`.
+- **Return Converter Gating & Testing**:
+  - Return Converter is gated **only by sign-in** (no subscription check).
+  - There is no staging environment: all testing is against production, so always use a dedicated test account.
+- **Developer Notification Requests**:
+  - The CP Bot developer asked to be told:
+    - (a) Before the Stripe/webhook changes go live.
+    - (b) When trials go live.
+
+### 2.3 Resolution of Paid Checkout Slug `rccp` to Entitlement Slug `cpbot`
+1. **Catalog vs Access Slug**:
+   - The marketing site, `/tools`, `/tools/rccp`, and `/cart` operate with marketing catalog slug `'rccp'`.
+   - In Part B, `public.resolve_access_slug('rccp')` and `create-checkout-session` dynamically resolve the entitlement access slug from `public.trial_offers.access_slug` (confirmed as `'cpbot'`).
+2. **Access Unlock**:
+   - Webhook inserts/upserts subscriptions with `product_slug = 'cpbot'`.
+   - The customer dashboard (`src/pages/Dashboard.tsx:448, 551`) checks for `product_slug === 'cpbot'` and displays active status.
+   - The CP Bot web dashboard calls `check_product_subscription(p_product_slug = 'cpbot')` which matches the active row and grants access.
 
 ---
 
@@ -188,10 +195,15 @@ $function$
 ```
 - **Inputs**: `p_product_slug text` (single argument, reverted in migration `029`).
 - **Logic**: Inspects caller's session `auth.uid()`. Finds active, non-expired subscription for the slug. If none found, checks if `tools.is_free = true`.
+  - The RPC itself evaluates `current_period_end` via `AND (s.current_period_end IS NULL OR s.current_period_end > now())`, so callers lock on the next request/page load immediately after expiry without waiting for batch cron jobs.
 - **Callers**:
-  - Website (`src/`): **Zero calls.**
-  - Extension / External app: **Zero calls.**
-  - Edge Functions: **Zero calls.**
+  - **CP Bot Web Dashboard (`/cp-bot` pages)**: Calls `check_product_subscription(p_product_slug = 'cpbot')` in strict mode (fail closed: if the RPC errors or throws, everyone is locked out). Locks on next page load after subscription expiry.
+  - **Chrome Extension**: Not calling today. Gated logic ships in extension `v1.0.5.3` (pending Chrome Web Store review). Once live, caches a real answer for 5 minutes, with a fresh check on popup open.
+  - **Website (`src/`)**: Zero calls (reads `public.subscriptions` directly via Supabase client SDK).
+  - **Edge Functions**: Zero calls.
+- **CRITICAL INVARIANT**:
+  - **Never create a second overload of `check_product_subscription`**: PostgREST cannot resolve overloaded functions without exact parameter types and will throw ambiguity errors (`PGRST204` / `400`), which in fail-closed strict mode locks out every paying customer.
+
 
 ### 3.2 `get_active_subscription_count` (`live_db_snapshot.txt:33-35`)
 ```sql
@@ -514,10 +526,10 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
 ## 9. Risks and Pitfalls
 
 1. **Slug Mismatch (`rccp` vs `cpbot`)** — [Risk (d)]:
-   - **Status**: *Mapped via resolve_access_slug; the final slug pending the CP Bot developer.*
+   - **Status**: *RESOLVED: Confirmed as 'cpbot' by CP Bot developer on 23 Oct 2026.*
    - The marketing site, `/tools`, `/tools/rccp`, and `/cart` operate with slug `'rccp'`.
    - The database has `'rccp'` ($9/mo, available) and `'cpbot'` ($9/mo, hidden).
-   - In Part B, `public.resolve_access_slug('rccp')` and `create-checkout-session` dynamically resolve the entitlement access slug from `public.trial_offers.access_slug` (currently `'cpbot'`). When the CP Bot developer confirms any slug update, changing `trial_offers.access_slug` updates both the trial and checkout access slug without hardcoding.
+   - In Part B, `public.resolve_access_slug('rccp')` and `create-checkout-session` dynamically resolve the entitlement access slug from `public.trial_offers.access_slug` (confirmed as `'cpbot'`). The dashboard and CP Bot app call `check_product_subscription` with `p_product_slug = 'cpbot'`.
 
 2. **Unique Index Collisions on Paid Conversion After Trial & Reactivation Prevention** — [Risk (b)]:
    - **Status**: *Fixed in code, not yet deployed.*
@@ -548,9 +560,13 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
    - Fixed in Part B: `create-checkout-session` resolves server-side catalog prices from `public.tools.price_monthly` and active user discounts from `public.user_price_overrides`, constructing ad-hoc Stripe line items via `price_data`.
    - Double-charge guard rejects active paid subscribers with HTTP 409 (`already_subscribed`), but explicitly skips `orderbot` because Order Bot is a multi-slot product where additional store slots are purchased through the checkout flow. Active trials for any tool do not trigger the 409 guard, allowing paid upgrades.
 
-9. **Lack of Access Gate & Client Caching on External CP Bot App / Extension**:
-   - CP Bot lives in a separate repository where subscription verification has not yet been implemented.
-   - If client-side caching (e.g. cookies, `chrome.storage.local`) is introduced without strict invalidation, users could retain access after trial expiration.
+9. **Access Gating & Caching on External CP Bot App / Extension** (Confirmed 23 Oct 2026):
+   - **Web Dashboard**: The CP Bot web dashboard (`/cp-bot` pages) IS gated by `check_product_subscription(p_product_slug = 'cpbot')` in strict mode (fail closed: if the RPC errors, everyone is locked out). Because the RPC checks `current_period_end`, it locks on the next page load after expiry.
+   - **Chrome Extension**: The extension is NOT gated today. The gate ships in extension `v1.0.5.3`, pending Chrome Web Store review. **DO NOT open the public trial until it is live.** Once live, the extension caches a real answer for 5 minutes (a fresh check on popup open).
+   - **Single Overload Invariant**: Never create a second overload of `check_product_subscription`: doing so breaks PostgREST and locks out every paying customer.
+   - **Return Converter**: Gated only by sign-in (no subscription check).
+   - **Testing Environment**: There is no staging environment: all testing is against production, so always use a dedicated test account.
+   - **Developer Notification**: The CP Bot developer asked to be told (a) before Stripe/webhook changes go live, and (b) when trials go live.
 
 10. **Loss of Checkout Intent on Auth**:
     - `handleGetAccessLogic` redirects unauthenticated users to `/auth`.
@@ -563,9 +579,10 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
 | Area / Component | Secondary Source (`full_database_schema.sql` / `cpbot.md`) | Migration Files (`supabase/migrations/`) | Live Database Snapshot (`live_db_snapshot.txt`) |
 |---|---|---|---|
 | **Tool Catalog Seed** | `full_database_schema.sql:720-727` seeds 5 tools: `cpbot` ($9, available), `listflow` ($19, available), `orderbot` ($7, available), `invoicegen` ($5, available), `returnlabels` ($0, available, free). No `rccp` row. | `016_tools_table.sql` seeded the original 5 tools. | `tools_rows` contains 6 tools: `rccp` ($9, available), `cpbot` ($9, hidden), `returnlabels` ($0, hidden), `orderbot` ($7, available), `listflow` ($59, coming_soon), `invoicegen` ($5, coming_soon). |
-| **Subscription Table** | `cpbot.md:321-343` and `full_database_schema.sql:668-702` define `cp_bot_licenses` as the license table with 5 columns. | `015_cp_bot_licenses.sql` created `cp_bot_licenses`. `027` & `030` created `subscriptions`. | `subscriptions` is the active table with 20 columns and store/stripe support. `cp_bot_licenses` is obsolete. |
+| **Subscription Table** | `cpbot.md:321-343` and `full_database_schema.sql:668-702` define `cp_bot_licenses` as the license table with 5 columns. | `015_cp_bot_licenses.sql` created `cp_bot_licenses`. `027` & `030` created `subscriptions`. | `subscriptions` is the active table with 20 columns and store/stripe support. `cp_bot_licenses` is unused. |
+| **CP Bot Tables** | `cpbot.md` defines various tables. | `001-015` migrations. | Confirmed 23 Oct 2026: `cp_bot_licenses` is unused. `cp_bot_config` and `cp_bot_settings` are IN USE and must never be dropped or renamed. Other tables CP Bot uses: `cp_bot_activity_log`, `cp_bot_fulfillments`, `cp_bot_gift_templates`, `cp_bot_insight_cards`, `cp_bot_cloud_clipboard`, `label_history`. |
 | **Admin Authorization** | `full_database_schema.sql:1218` defines `user_roles` table with `app_role` enum. `Auth.tsx:233-248` still queries `user_roles`. | `017_admin_fields.sql` added `is_admin` boolean to `profiles`. | Live database checks `profiles.is_admin` in `admin_execute_action` and `get_active_subscription_count`. |
-| **`check_product_subscription` Signature** | `full_database_schema.sql:1452` defines 2-arg signature `(p_product_slug, p_store_id)`. | `023` added store argument; `029` reverted it back to 1 argument. | Live snapshot has 1 argument: `check_product_subscription(p_product_slug text)`. |
+| **`check_product_subscription` Signature** | `full_database_schema.sql:1452` defines 2-arg signature `(p_product_slug, p_store_id)`. | `023` added store argument; `029` reverted it back to 1 argument. | Live snapshot has 1 argument: `check_product_subscription(p_product_slug text)`. Mandatory invariant: never create a second overload (locks out all customers). |
 | **`get_active_subscription_count` Period Check** | N/A | `025` counted `status = 'active'` without checking `current_period_end`. | Live snapshot checks `AND (current_period_end IS NULL OR current_period_end > now())`. |
 | **Frontend RPC Call Signature** | N/A | N/A | `ToolDetail.tsx:57` calls `get_active_subscription_count` with 1 argument (`p_product_slug`), whereas live function requires `(p_user_id uuid, p_product_slug text)`. |
 
@@ -573,7 +590,7 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
 
 ## 11. Open Questions
 
-1. **Canonical Slug Decision**: Should the system standardize on `'rccp'` or `'cpbot'` for subscription entitlements? If `'rccp'`, `Dashboard.tsx` and `AdminSubscriptions.tsx` must be updated to inspect `'rccp'`.
+1. **Canonical Slug Decision (RESOLVED)**: Confirmed as `'cpbot'`. The dashboard calls `check_product_subscription` with the single argument `p_product_slug = 'cpbot'`. Part B's `resolve_access_slug` and `trial_offers.access_slug` decouple the marketing catalog slug `'rccp'` from the internal access slug `'cpbot'`.
 2. **Trial Row Representation**: Should a trial row exist directly in `public.subscriptions` with `status = 'active'`, `stripe_subscription_id = NULL`, and `current_period_end = now() + interval '7 days'`, or in a separate `trials` table?
 3. **Handling Post-Trial Paid Checkout**: If a trial row is placed in `public.subscriptions`, how will `process_stripe_webhook_event` resolve the conflict with `subscriptions_user_product_no_store_unique`? (e.g. converting `INSERT` to an `UPSERT` on `(user_id, product_slug)`).
 4. **Discount Mechanism**: Should per-user discounts be applied as Stripe promotion codes/coupons during session creation, or should checkout switch to dynamic `price_data` calculated from `tools.price_monthly - discount`?

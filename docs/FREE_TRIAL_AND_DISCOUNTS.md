@@ -338,9 +338,49 @@ Deployments must strictly follow this order (manual execution only):
 
 ---
 
-## 10. Next Steps (Parts C–E)
+## 10. Part E: CP Bot External Access Gating & Architecture Confirmation (Confirmed 23 Oct 2026)
 
-- **Part C (Public Trial Landing & Claim UI)**: Build the claim modal and button on `/tools/rccp` consuming `get_trial_public`, `get_trial_status`, and `claim_free_trial`.
+Written answers from the CP Bot developer (Raf) on 23 Oct 2026 confirmed the external access architecture and corrected earlier assumptions:
+
+1. **Entitlement Slug Confirmed**:
+   - The CP Bot unlock slug is **CONFIRMED as 'cpbot'**.
+   - The dashboard calls `check_product_subscription` with the single argument `p_product_slug = 'cpbot'`.
+
+2. **CORRECTION on Paid Gating**:
+   - Earlier notes stated CP Bot had no paid gating. **Wrong.**
+   - The CP Bot web dashboard (`/cp-bot` pages) **IS gated by `check_product_subscription`**, operating in **strict mode (fail closed)**: if the RPC errors, everyone is locked out.
+
+3. **Chrome Extension Gating Status & Trial Precondition**:
+   - The Chrome extension is **NOT gated today**.
+   - The gate ships in extension **v1.0.5.3**, currently pending Chrome Web Store review.
+   - **CRITICAL**: **DO NOT open the public trial until it is live.**
+
+4. **Expiration & Caching Behavior**:
+   - The `check_product_subscription` RPC itself evaluates `current_period_end`, so the web dashboard locks on the next page load after expiry.
+   - The extension caches a real answer for 5 minutes (a fresh check on popup open).
+
+5. **Single RPC Signature Invariant**:
+   - **Never create a second overload of `check_product_subscription`**: creating an overload would break PostgREST RPC resolution and lock out every paying customer.
+
+6. **Database Tables In Use vs Unused**:
+   - `cp_bot_licenses`: **Unused** (obsolete).
+   - `cp_bot_config` and `cp_bot_settings`: **IN USE and must never be dropped or renamed**.
+   - Other tables CP Bot uses: `cp_bot_activity_log`, `cp_bot_fulfillments`, `cp_bot_gift_templates`, `cp_bot_insight_cards`, `cp_bot_cloud_clipboard`, and `label_history`.
+
+7. **Return Converter Gating & Production Testing**:
+   - Return Converter is gated **only by sign-in** (no paid subscription required).
+   - There is no staging environment: all testing is against production, so always use a dedicated test account.
+
+8. **Developer Notification Requirements**:
+   - The CP Bot developer asked to be told:
+     - (a) Before the Stripe/webhook changes go live.
+     - (b) When trials go live.
+
+---
+
+## 11. Next Steps (Remaining Parts C & D)
+
+- **Part C (Public Trial Landing & Claim UI)**: Build the claim modal and button on `/tools/rccp` consuming `get_trial_public`, `get_trial_status`, and `claim_free_trial`. (Prerequisite: DO NOT open public trial until extension v1.0.5.3 is live).
 - **Part D (Admin Trial & Discount Management)**: Build admin panels for managing trial offer toggles, viewing claims, issuing user price overrides, and manual trial resets.
-- **Part E (CP Bot Access Gate Confirmation)**: Final verification with the external Next.js CP Bot app to confirm the entitlement check consumes `'cpbot'`.
+
 

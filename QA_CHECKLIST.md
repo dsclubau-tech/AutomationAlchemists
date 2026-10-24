@@ -88,3 +88,21 @@
   - Endpoint skips the 409 `already_subscribed` double-charge guard specifically for `orderbot`.
   - Checkout session creation proceeds normally and returns a valid Stripe checkout URL (`HTTP 200`).
 
+---
+
+## Part C: Tools Page Card Layout & Copy Verification (v1.4.4)
+
+### 10. Return Converter x CopyPaste Bot Card Copy and Desktop Alignment
+- **Precondition**: Application deployed or running with latest `/tools` code.
+- **Action**: Navigate to `/tools` on a desktop viewport (>= 1024px width).
+- **Expected Result**:
+  - On `/tools`, the card shows the new text:
+    - Description: *"Paste eBay buyer addresses straight into Amazon checkout, and turn Amazon return codes into clean eBay return labels."*
+    - Bullet 1: **One-click copy** - eBay buyer address into Amazon checkout
+    - Bullet 2: **Instant labels** - Amazon return codes into eBay return labels
+    - Bullet 3: **History tracking** - Fulfilment and return label history
+    - Bullet 4: **Cloud clipboard** - Copy in one browser, paste in another
+  - Each bullet renders on one line at desktop width.
+  - The card is no taller than the ListFlow card beside it.
+
+
