@@ -1,5 +1,6 @@
-import { useState, useEffect, ElementType } from 'react';
+import { useState, useEffect, useCallback, ElementType } from 'react';
 import { motion } from 'framer-motion';
+import { DashboardTrialCard } from '@/components/DashboardTrialCard';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -292,6 +293,19 @@ const Dashboard = () => {
         }
     }, [user, authLoading, navigate]);
 
+    const refetchSubscriptions = useCallback(async () => {
+        if (!user) return;
+        try {
+            const { data: subsData } = await supabase
+                .from('subscriptions')
+                .select('product_slug, status, current_period_end')
+                .eq('user_id', user.id);
+            if (subsData) setSubscriptions(subsData);
+        } catch (err) {
+            console.error("Error refreshing subscriptions:", err);
+        }
+    }, [user]);
+
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -307,12 +321,7 @@ const Dashboard = () => {
 
                 if (user) {
                     // Fetch Subscriptions
-                    const { data: subsData } = await supabase
-                        .from('subscriptions')
-                        .select('product_slug, status, current_period_end')
-                        .eq('user_id', user.id);
-                    
-                    if (subsData) setSubscriptions(subsData);
+                    await refetchSubscriptions();
 
                     // Fetch Notifications
                     const { data: notifData } = await supabase
@@ -338,7 +347,7 @@ const Dashboard = () => {
         if (!authLoading) {
             fetchData();
         }
-    }, [user, authLoading]);
+    }, [user, authLoading, refetchSubscriptions]);
 
     const handleNotifyMe = async (tool: DbTool) => {
         if (!user) {
@@ -469,6 +478,14 @@ const Dashboard = () => {
                         <h1 className="text-4xl md:text-5xl font-black text-white font-display mb-4 tracking-tight">Your dashboard</h1>
                         <p className="text-xl text-[#888] font-display">Manage your tools and subscriptions.</p>
                     </div>
+
+                    {!isLoading && user && (
+                        <DashboardTrialCard
+                            userId={user.id}
+                            onClaimSuccess={refetchSubscriptions}
+                            onSubscribe={() => handleGetAccessLogic('rccp', user, toast)}
+                        />
+                    )}
 
                     {isLoading ? (
                         <div className="space-y-16">

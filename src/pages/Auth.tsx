@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { sanitizeNext } from '@/lib/trial';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -100,7 +101,12 @@ const validatePhone = (phoneNumber: string, currentCountry: string) => {
 };
 
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams] = useSearchParams();
+  const modeParam = searchParams.get('mode');
+  const nextParam = searchParams.get('next');
+  const sanitizedNext = sanitizeNext(nextParam);
+
+  const [isSignUp, setIsSignUp] = useState(modeParam === 'signup' || modeParam === 'sign-up');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -114,15 +120,23 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [touchedPassword, setTouchedPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
-  const { signUp, signIn, user } = useAuth();
+  const { signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/');
+    if (modeParam === 'signup' || modeParam === 'sign-up') {
+      setIsSignUp(true);
+    } else if (modeParam === 'signin' || modeParam === 'login') {
+      setIsSignUp(false);
     }
-  }, [user, navigate]);
+  }, [modeParam]);
+
+  useEffect(() => {
+    if (user) {
+      navigate(sanitizedNext);
+    }
+  }, [user, navigate, sanitizedNext]);
 
   const validatePassword = (pwd: string) => {
     if (!isSignUp) {
@@ -211,19 +225,32 @@ const Auth = () => {
     try {
       if (isSignUp) {
         const fullPhone = phone ? `${COUNTRY_DIAL_CODES[country]?.code || ''}${phone}` : undefined;
-        const { error } = await signUp(email, password, fullName, {
-          country,
-          phone: fullPhone,
-          referral_source: referralSource || undefined,
-          terms_accepted: true,
+        const redirectUrl = `${window.location.origin}${sanitizedNext}`;
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl,
+            data: {
+              full_name: fullName,
+              country,
+              phone: fullPhone,
+              referral_source: referralSource || undefined,
+              terms_accepted: true,
+            },
+          },
         });
         if (error) throw error;
 
         toast({
           title: 'Success!',
-          description: 'Your account has been created successfully.',
+          description: data?.session 
+            ? 'Your account has been created successfully.' 
+            : 'Please check your email to confirm your account.',
         });
-        navigate('/');
+        if (data?.session) {
+          navigate(sanitizedNext);
+        }
       } else {
         const { data, error } = await signIn(email, password);
         if (error) throw error;
@@ -242,7 +269,7 @@ const Auth = () => {
               title: 'Welcome Admin',
               description: 'Redirecting to admin dashboard...',
             });
-            navigate('/admin');
+            navigate(sanitizedNext === '/' ? '/admin' : sanitizedNext);
             return;
           }
         }
@@ -251,7 +278,7 @@ const Auth = () => {
           title: 'Welcome back!',
           description: 'You have been signed in successfully.',
         });
-        navigate('/');
+        navigate(sanitizedNext);
       }
     } catch (error) {
       toast({

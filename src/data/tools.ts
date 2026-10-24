@@ -32,13 +32,13 @@ export const toolsData: ToolData[] = [
         name: 'Return Converter x CopyPaste Bot',
         category: 'Order Fulfilment & Returns',
         bannerBg: '#0d1117',
-        shortDescription: 'One-click eBay to Amazon order fulfilment plus instant return label generation — two tools in one platform.',
+        shortDescription: 'Paste eBay buyer addresses straight into Amazon checkout, and turn Amazon return codes into clean eBay return labels.',
         fullDescription: 'CP Bot & Return Converter is an essential toolkit for Amazon-to-eBay dropshippers. It completely eliminates manual data entry by automatically copying your eBay customer\'s address and pasting it seamlessly into the Amazon checkout page with a single click. Additionally, generate compliant return shipping labels for your eBay customers, fully compatible with Amazon AU returns, without paying a cent for the Return Converter module.',
         features: [
-            { title: 'One-click copy', description: 'Copy eBay address to Amazon in one click', icon: 'mouse-pointer-click' },
-            { title: 'Instant labels', description: 'Generate eBay return labels instantly', icon: 'zap' },
-            { title: 'History tracking', description: 'Fulfilment history and activity tracking', icon: 'line-chart' },
-            { title: 'Cloud clipboard', description: 'Cloud clipboard for cross-device sync', icon: 'cloud' }
+            { title: 'One-click copy', description: 'eBay buyer address into Amazon checkout', icon: 'mouse-pointer-click' },
+            { title: 'Instant labels', description: 'Amazon return codes into eBay return labels', icon: 'zap' },
+            { title: 'History tracking', description: 'Fulfilment and return label history', icon: 'line-chart' },
+            { title: 'Cloud clipboard', description: 'Copy in one browser, paste in another', icon: 'cloud' }
         ],
         price: 'AUD $19/month',
         isFree: false,

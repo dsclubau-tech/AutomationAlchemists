@@ -90,7 +90,67 @@
 
 ---
 
-## Part C: Tools Page Card Layout & Copy Verification (v1.4.4)
+---
+
+## Part C: Free Trial Claims, Auth Return Flow & Hero States (v1.5.0)
+
+### 11. Baseline Invariant: Offer OFF Produces Zero Visible Changes
+- **Precondition**: `trial_offers.enabled = false` in production database (current reality).
+- **Action**:
+  1. Navigate to `/tools/rccp` as signed-out visitor and signed-in user.
+  2. Navigate to `/dashboard` as signed-in user without active CP Bot subscription.
+- **Expected Result**:
+  - `/tools/rccp` hero shows standard "Get access" yellow button and "Use Return Converter free" secondary button. No trial button or spots remaining line appears.
+  - `/dashboard` renders no trial claim card or banner.
+  - No errors are thrown in the console.
+
+### 12. RCCP Hero Dynamic States (Offer Enabled in Test/Dev)
+- **State A (Signed-out visitor, slots available)**:
+  - Hero primary button reads "Get your 30-day free trial now" with "{slots_left} of {slot_cap} free-trial spots left" beneath.
+  - Clicking button navigates to `/auth?mode=signup&next=/dashboard%23claim-trial`.
+  - Auth page opens with "Create account" tab preselected.
+- **State B (Signed-in user without trial, slots available)**:
+  - Hero primary button reads "Get your 30-day free trial now" with spots line.
+  - Clicking button navigates directly to `/dashboard#claim-trial`.
+- **State C (Signed-in user with active trial)**:
+  - Hero replaces trial CTA with status pill: "Your free trial is active" and "{X} days left" (or "{H} hours left").
+  - "Open dashboard" link navigates to `/dashboard`.
+- **State D (Signed-in user with ended trial)**:
+  - Hero displays "Get CP Bot" as yellow primary button (no trial button).
+
+### 13. Authentication Return Navigation & URL Sanitization
+- **Open-Redirect Protection**:
+  - Navigate to `/auth?next=https://evil.com`. Complete sign-in. Verify user is redirected to `/` (evil domain rejected).
+  - Navigate to `/auth?next=//evil.com`. Complete sign-in. Verify user is redirected to `/` (protocol-relative path rejected).
+  - Navigate to `/auth?next=/\evil.com`. Complete sign-in. Verify user is redirected to `/`.
+  - Navigate to `/auth?next=/dashboard#claim-trial`. Complete sign-in. Verify user is redirected to `/dashboard#claim-trial`.
+- **Email Sign-up Confirmation**:
+  - Sign up with `?next=/dashboard#claim-trial`. Inspect `supabase.auth.signUp` options to confirm `emailRedirectTo` contains `${origin}/dashboard#claim-trial`.
+- **Get Access Signed-Out Preservation**:
+  - On `/tools/rccp`, click "Get access" while signed out. Verify browser navigates to `/auth?next=%2Ftools%2Frccp`.
+
+### 14. Dashboard Claim Card & Banners (`#claim-trial`)
+- **Direct Hash Link**:
+  - Navigate to `/dashboard#claim-trial`.
+  - Verify page scrolls smoothly to the trial card and momentarily highlights it.
+- **Claim Action**:
+  - Click "Claim free trial".
+  - Verify button shows loading spinner and double-clicks are ignored.
+  - On claim success, subscription data refetches without page reload; CP Bot card unlocks; green banner confirms active status until expiration date.
+- **Active Trial Banner**:
+  - Renders slim banner with remaining days or hours (when < 48 hours) and "Subscribe to keep CP Bot" button.
+- **Ended Trial Banner**:
+  - For expired/ended trial, renders "Your free trial has ended" with "Subscribe to keep CP Bot" button.
+- **Rejection & Error Handling**:
+  - Blocked disposable email domain -> "Please use a personal email address to start the free trial."
+  - Already claimed -> "This account or email has already used the free trial."
+  - Sold out -> "All free-trial spots have been claimed."
+  - Confirmation required -> "Please confirm your email first, then try again."
+  - Network failure -> "Something went wrong. Please try again."
+
+---
+
+## Part D: Tools Page Card Layout & Copy Verification (v1.4.4)
 
 ### 10. Return Converter x CopyPaste Bot Card Copy and Desktop Alignment
 - **Precondition**: Application deployed or running with latest `/tools` code.

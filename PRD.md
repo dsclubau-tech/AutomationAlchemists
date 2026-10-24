@@ -62,3 +62,30 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 - **Accurate Product Framing**: Corrected the description paragraph and four bullet items on the Return Converter x CopyPaste Bot card (`/tools`) to accurately describe what each tool does without implying CP Bot completes orders, that Return Converter generates labels from nothing, or that the cloud clipboard syncs across devices.
 - **Card Balance**: Bullet copy is calibrated to keep the card at or below the height of the adjacent ListFlow card at desktop width with single-line bullets.
 
+---
+
+### 6. Part C: Free Trial Client Claim Flow & Authentication Return Path (v1.5.0)
+- **Typed RPC Client Layer (`src/lib/trial.ts`)**:
+  - Typed wrappers for `get_trial_public`, `get_trial_status`, and `claim_free_trial`.
+  - Custom React hooks `useTrialPublic` and `useTrialStatus` fetching on mount (skipped client-side during SSR / prerender when `window.__PRERENDER__` is present).
+  - Pure URL sanitizer `sanitizeNext(raw)` ensuring open-redirect protection.
+  - Fail-safe design: any network or RPC error maps cleanly to `{ ok: false, reason: 'network' }` and never throws into UI components.
+- **RCCP Tool Page Hero Dynamic Trial State (`src/pages/tools/RccpToolPage.tsx`, `src/data/rccpPage.ts`)**:
+  - Gated by `trial_offers.enabled` and `slots_left > 0`.
+  - Signed-out or signed-in without trial: primary button displays "Get your {N}-day free trial now" with "{slots_left} of {slot_cap} free-trial spots left" sub-caption. Click directs signed-out users to `/auth?mode=signup&next=/dashboard%23claim-trial` and signed-in users to `/dashboard#claim-trial`.
+  - Signed-in with active trial: displays "Your free trial is active" status pill with formatted remaining time and "Open dashboard →" link.
+  - Signed-in with ended trial: displays primary "Get CP Bot" access button without trial promotion.
+  - Fail-safe invariant: when the offer is disabled, slots are 0, or on network failure, the page renders identically to existing default copy and layout without layout shift.
+- **Authentication Return Navigation (`src/pages/Auth.tsx`, `src/lib/checkout.ts`)**:
+  - Preserves user destination via `?next=<path>` sanitized by `sanitizeNext`. Invalid protocols, protocol-relative paths (`//evil.com`), backslashes (`/\evil`), long paths (>200 chars), or control characters fall back safely to `'/'`.
+  - Passes sanitized path to `emailRedirectTo` for email confirmation flows.
+  - Signed-out users clicking "Get access" in `checkout.ts` preserve current location via `?next=${encodeURIComponent(currentPath)}`.
+- **Dashboard Trial Management Card (`src/pages/Dashboard.tsx`, `src/components/DashboardTrialCard.tsx`)**:
+  - Located near top with `id="claim-trial"`, supporting hash auto-scroll and subtle highlight.
+  - State 1: Eligible, unclaimed: "Start your {N}-day free trial of CP Bot", slots remaining line, and "Claim free trial" button with loading spinner & double-click guard.
+  - State 2: Successful claim: triggers subscription data refetch in place without page reload; displays green confirmation banner.
+  - State 3: Active trial: slim banner displaying remaining days/hours (switching to hours under 48h) and "Subscribe to keep CP Bot" CTA.
+  - State 4: Ended trial: banner indicating trial conclusion with "Subscribe to keep CP Bot" CTA.
+  - State 5: Ineligible / disabled: renders nothing. If offer is enabled but sold out, displays quiet notice.
+  - Friendly error messages for claim rejections mapping backend rejection codes without leaking internal blocklists.
+

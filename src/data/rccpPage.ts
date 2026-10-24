@@ -27,8 +27,13 @@ export const rccpPageContent = {
     },
     buttons: {
       getAccess: 'Get access',
+      getAccessBot: 'Get CP Bot',
       useFree: 'Use Return Converter free',
       freeUrl: 'https://rccp.automationalchemists.com',
+      trialCta: (days: number) => `Get your ${days}-day free trial now`,
+      spotsLeft: (left: number, cap: number) => `${left} of ${cap} free-trial spots left`,
+      trialActive: 'Your free trial is active',
+      openDashboard: 'Open dashboard',
     },
   },
   returnConverter: {

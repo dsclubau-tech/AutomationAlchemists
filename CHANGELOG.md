@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-10-24
+### Added
+- Free-trial sign-up flow for CP Bot on the Dashboard and the Return Converter x CopyPaste Bot page (prepared, switched off until launch)
+
+### Changed
+- Signing in or signing up now returns you to the page you came from
+
+### Fixed
+- Corrected the Return Converter x CopyPaste Bot description in the Tools data
+
 ## [1.4.4] - 2026-10-24
 ### Changed
 - Corrected the description and feature list on the Return Converter x CopyPaste Bot card on the Tools page so it describes exactly what each tool does.

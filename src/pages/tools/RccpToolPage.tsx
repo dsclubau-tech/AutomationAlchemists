@@ -8,6 +8,7 @@ import { RevealBlock } from '@/components/RevealBlock';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { handleGetAccessLogic } from '@/lib/checkout';
+import { useTrialPublic, useTrialStatus, formatTrialTimeLeft } from '@/lib/trial';
 import { supabase } from '@/integrations/supabase/client';
 import { rccpPageContent, RccpIncludedCard } from '@/data/rccpPage';
 import {
@@ -48,6 +49,25 @@ const RccpToolPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const content = rccpPageContent;
+
+  const { data: publicTrial } = useTrialPublic('rccp');
+  const { data: statusTrial } = useTrialStatus('rccp', user?.id);
+
+  const isPrerender = typeof window !== 'undefined' && Boolean((window as unknown as { __PRERENDER__?: boolean }).__PRERENDER__);
+
+  const hasActiveTrial = !isPrerender && Boolean(user && statusTrial?.has_access && statusTrial?.claim && !statusTrial.claim.revoked);
+  const hasEndedTrial = !isPrerender && Boolean(user && statusTrial?.already_claimed && !statusTrial?.has_access && !statusTrial?.claim?.converted);
+
+  const isTrialAvailable = !isPrerender && (
+    user
+      ? Boolean(statusTrial && statusTrial.enabled && statusTrial.eligible && !statusTrial.already_claimed && statusTrial.slots_left > 0)
+      : Boolean(publicTrial && publicTrial.enabled && publicTrial.slots_left > 0)
+  );
+
+  const trialDays = user ? (statusTrial?.trial_days ?? 0) : (publicTrial?.trial_days ?? 0);
+  const slotsLeft = user ? (statusTrial?.slots_left ?? 0) : (publicTrial?.slots_left ?? 0);
+  const slotCap = user ? (statusTrial?.slot_cap ?? 0) : (publicTrial?.slot_cap ?? 0);
+  const timeLeftFormatted = statusTrial?.claim?.ends_at ? formatTrialTimeLeft(statusTrial.claim.ends_at) : '';
 
   const [dbTool, setDbTool] = useState<DbTool>({
     slug: 'rccp',
@@ -204,8 +224,38 @@ const RccpToolPage: React.FC = () => {
                       </div>
                     </RevealBlock>
 
-                    <RevealBlock animateOnLoad delay={0.48} className="flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto shrink-0">
-                      {renderAccessButton(content.hero.buttons.getAccess, 'w-full sm:w-auto whitespace-nowrap shrink-0')}
+                    <RevealBlock animateOnLoad delay={0.48} className="flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto shrink-0 items-start">
+                      {hasActiveTrial ? (
+                        <div className="flex items-center gap-2 bg-mint-100/80 border border-teal-600/30 rounded-lg px-4 py-3 font-display text-sm text-teal-900 w-full sm:w-auto">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                          <span className="font-semibold">{content.hero.buttons.trialActive}</span>
+                          {timeLeftFormatted && (
+                            <span className="text-teal-900/70 font-medium">({timeLeftFormatted})</span>
+                          )}
+                          <Link
+                            to="/dashboard"
+                            className="font-bold text-teal-600 hover:text-teal-800 hover:underline ml-1 inline-flex items-center"
+                          >
+                            {content.hero.buttons.openDashboard} →
+                          </Link>
+                        </div>
+                      ) : hasEndedTrial ? (
+                        renderAccessButton(content.hero.buttons.getAccessBot, 'w-full sm:w-auto whitespace-nowrap shrink-0')
+                      ) : isTrialAvailable ? (
+                        <div className="flex flex-col items-start gap-1.5 w-full sm:w-auto shrink-0">
+                          <Link
+                            to={user ? '/dashboard#claim-trial' : `/auth?mode=signup&next=${encodeURIComponent('/dashboard#claim-trial')}`}
+                            className="inline-flex items-center justify-center py-3 px-6 rounded-lg border border-transparent bg-yellow-accent text-teal-900 font-semibold text-base transition-colors shadow-sm [@media(hover:hover)]:hover:bg-yellow-accent/90 active:bg-yellow-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 font-display w-full sm:w-auto whitespace-nowrap shrink-0"
+                          >
+                            {content.hero.buttons.trialCta(trialDays)}
+                          </Link>
+                          <span className="text-xs text-teal-900/70 font-medium font-display px-0.5">
+                            {content.hero.buttons.spotsLeft(slotsLeft, slotCap)}
+                          </span>
+                        </div>
+                      ) : (
+                        renderAccessButton(content.hero.buttons.getAccess, 'w-full sm:w-auto whitespace-nowrap shrink-0')
+                      )}
                       <a
                         href={content.hero.buttons.freeUrl}
                         target="_blank"

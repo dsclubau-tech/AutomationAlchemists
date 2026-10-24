@@ -9,9 +9,15 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - **Auth System**: Integrated Supabase Auth with singleton `useAuth` hook and visibility-change state restoration.
 - **Stripe Billing Integration**: Webhooks for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed` wired to a `public.subscriptions` and `public.stripe_webhook_events` (idempotency) table via atomic RPCs. Edge Function `create-checkout-session` accepts `{ product_slug, quantity }` and creates a Stripe Checkout session for one item.
 - **Entitlement Gating**: Active subscription counting via `get_active_subscription_count` for authenticated users.
-- **User Dashboard**: Dark-mode app dashboard mapping purchased/active tools vs available tools dynamically from `public.tools` and `public.subscriptions`.
+- **User Dashboard**: Dark-mode app dashboard mapping purchased/active tools vs available tools dynamically from `public.tools` and `public.subscriptions`. In release v1.5.0, a "CP Bot free trial" card (`#claim-trial`) and status banners were integrated to handle free trial claiming, active trial countdowns, and trial expiration states seamlessly.
 - **Admin Dashboard**: Internal admin UI (`/admin/tools`) to edit `public.tools` status and pricing live.
-- **Public /tools page**: Dynamically pulls pricing and status from `public.tools`. Loading uses static fallback defaults; errors show a toast but preserve the fallback data (never blanks the page). Hidden tools are filtered at the query level. In release v1.4.4, card copy for "Return Converter x CopyPaste Bot" (description and 4 bullets) was corrected to accurately describe each tool's exact function without implying order completion, label generation from nothing, or cross-device sync.
+- **Public /tools page**: Dynamically pulls pricing and status from `public.tools`. Loading uses static fallback defaults; errors show a toast but preserve the fallback data (never blanks the page). Hidden tools are filtered at the query level. In release v1.4.4 and v1.5.0, card copy and tools data (`src/data/tools.ts`) for "Return Converter x CopyPaste Bot" (description and 4 bullets) were fully aligned with developer facts to accurately describe each tool's exact function.
+- **CP Bot Free Trial Claim Flow & Hero State (Part C - Release v1.5.0)**:
+  - Backend RPCs (`get_trial_public`, `get_trial_status`, `claim_free_trial`) wrapped in typed, fail-safe layer in `src/lib/trial.ts`.
+  - Dynamic RCCP Tool Page Hero (`/tools/rccp`) updates CTA to "Get your {N}-day free trial now" and spots remaining count when offer is active, switching to "Your free trial is active" status pill or ended trial state, and failing safe to original layout when offer is disabled.
+  - Dashboard Claim Card (`src/components/DashboardTrialCard.tsx`) supports `#claim-trial` hash targeting with smooth scroll and subtle highlight, in-place subscription refetch upon claim, and responsive active/ended banners.
+  - Return path navigation on `/auth`: preserves `?next=<path>` with strict sanitization via `sanitizeNext` against open redirects (`//evil.com`, `https://evil.com`), handles `?mode=signup`, and sets `emailRedirectTo`.
+  - All client free-trial components fail safe and remain completely invisible while `trial_offers.enabled = false` in production.
 - **CP Bot External Architecture Confirmation (Part E - Confirmed 23 Oct 2026)**:
   - Confirmed unlock slug is `'cpbot'` consumed via `check_product_subscription(p_product_slug = 'cpbot')`.
   - CORRECTION: CP Bot web dashboard (`/cp-bot` pages) IS gated by `check_product_subscription` in strict fail-closed mode (if RPC errors, everyone is locked out).
@@ -35,7 +41,6 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
   - Documentation updated in `docs/FREE_TRIAL_AND_DISCOUNTS.md` (Section 9) and `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`. `PRD.md` and `QA_CHECKLIST.md` updated with checks for out-of-order delivery and Order Bot slot expansion.
 
 ## Not Started
-- Free trial Part C (Public Trial Landing & Claim UI) — hold public launch until extension v1.0.5.3 is live in Chrome Web Store.
 - Free trial Part D (Admin Trial & Discount Management UI).
 - Multi-item single-checkout (Edge Function only supports one item per session currently).
 - Stripe Customer Portal integration for subscription management.
@@ -52,5 +57,5 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Supabase) that cent
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-24 — Release v1.4.4: Tools page card copy corrected; CP Bot developer written answers incorporated (Part E confirmed).*
+*Last Updated: 2026-10-24 — Release v1.5.0: Free trial claim flow (switched off), auth return path, tools copy alignment.*
 

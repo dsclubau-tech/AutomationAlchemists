@@ -1,5 +1,43 @@
 # Build Log
 
+## 2026-10-24 (v1.5.0 Free Trial Claim Flow, Auth Return Path, Tools Copy Alignment)
+- Implemented Task C1 (`src/lib/trial.ts`):
+  - Typed wrappers for Supabase RPCs: `get_trial_public`, `get_trial_status`, and `claim_free_trial`.
+  - Non-throwing error handling transforming failures into `{ ok: false, reason: 'network' }`.
+  - Created hooks `useTrialPublic` and `useTrialStatus`, executing client-side only and skipped during prerendering (`window.__PRERENDER__`).
+  - Added pure `sanitizeNext(raw)` enforcing open redirect protection (disallows `//`, `/\`, `://`, backslashes, control characters, max 200 chars).
+  - Added `formatTrialTimeLeft` returning days or hours left (switching to hours under 48 hours).
+  - Added `getClaimErrorMessage` mapping backend claim failure reasons to user-friendly messages without leaking internal domain blocklists.
+- Implemented Task C2 (`src/pages/tools/RccpToolPage.tsx`, `src/data/rccpPage.ts`):
+  - Wired dynamic trial button: "Get your {N}-day free trial now" with "{slots_left} of {slot_cap} free-trial spots left" when offer is enabled and slots remain.
+  - Set signed-out click to `/auth?mode=signup&next=/dashboard%23claim-trial` and signed-in click to `/dashboard#claim-trial`.
+  - Added active trial state: "Your free trial is active" status pill with formatted remaining time and "Open dashboard →" link.
+  - Added ended trial state: primary "Get CP Bot" access button without trial promotion.
+  - Guaranteed zero layout shift and fail-safe fallback to standard layout when offer is disabled or errors.
+- Implemented Task C3 (`src/pages/Auth.tsx`, `src/lib/checkout.ts`):
+  - Added `mode` and `next` query parameter handling to `Auth.tsx`.
+  - Sanitized `next` using `sanitizeNext` and navigated there upon successful sign-in or immediate sign-up session.
+  - Passed sanitized redirect URL to `supabase.auth.signUp` in `options.emailRedirectTo`.
+  - Updated `handleGetAccessLogic` signed-out branch in `checkout.ts` to redirect to `/auth?next=${encodeURIComponent(currentPath)}`.
+  - Verified `touchedPassword` in `Auth.tsx`: properly defined and functioning, no crash occurs.
+- Implemented Task C4 (`src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`):
+  - Created `DashboardTrialCard` with `id="claim-trial"`, supporting hash auto-scroll and subtle highlight.
+  - Implemented 5 states: eligible unclaimed, claimed active, claimed ended, claim success confirmation, and silent/quiet sold out.
+  - Triggered in-place refetch of dashboard subscription data upon claim without full page reload.
+  - Styled with existing teal and mint design tokens, mobile-first responsive layout (16px side gutters, no horizontal scroll).
+- Implemented Task 2 copy alignment (`src/data/tools.ts`):
+  - Corrected description and four feature bullet descriptions for Return Converter x CopyPaste Bot (`rccp`).
+  - Audited `src/data/rccpPage.ts` and `src/pages/tools/RccpToolPage.tsx` and compiled list of conflicting claims against CP Bot developer facts.
+- Updated documentation:
+  - `PRD.md`: added Part C specifications.
+  - `QA_CHECKLIST.md`: added Part C manual test cases (checks 11-14).
+  - `PROJECT_STATE.md`: updated to current v1.5.0 reality.
+  - `CHANGELOG.md`: added [1.5.0] release notes.
+- Tested:
+  - Ran `npx tsc --noEmit -p .` (passed with code 0).
+  - Verified no test runner in `package.json`.
+- Files touched: `src/lib/trial.ts` (NEW), `src/components/DashboardTrialCard.tsx` (NEW), `src/pages/Dashboard.tsx`, `src/pages/Auth.tsx`, `src/lib/checkout.ts`, `src/pages/tools/RccpToolPage.tsx`, `src/data/rccpPage.ts`, `src/data/tools.ts`, `CHANGELOG.md`, `PRD.md`, `QA_CHECKLIST.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+
 ## 2026-10-24 (v1.4.4 Tools Card Copy Alignment & CP Bot Architecture Docs)
 - Updated Return Converter x CopyPaste Bot card copy on `/tools` (`src/pages/Tools.tsx`):
   - Description replaced with: "Paste eBay buyer addresses straight into Amazon checkout, and turn Amazon return codes into clean eBay return labels."

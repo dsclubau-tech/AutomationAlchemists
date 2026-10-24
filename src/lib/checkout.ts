@@ -11,7 +11,8 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
             variant: "destructive"
         });
         setTimeout(() => {
-            window.location.href = "/auth";
+            const currentPath = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}${window.location.hash}` : '/';
+            window.location.href = `/auth?next=${encodeURIComponent(currentPath)}`;
         }, 1500);
         return;
     }
