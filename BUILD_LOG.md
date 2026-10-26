@@ -1,5 +1,55 @@
 # Build Log
 
+## 2026-10-26 (v1.8.1 Trial Conversion Fix, Migration 034 Applied & Webhook Deployed)
+- Requested:
+  - Fix trial conversion bug in `process_stripe_webhook_event`: single-seat "convert in place" update must run ONLY when `p_subscription_status = 'active'`; when `p_subscription_status = 'trialing'`, do NOT modify `is_trial`, `grant_reason`, `converted_at`, or `current_period_end` (+6h grace end must be preserved). Keep 'canceled' rows untouchable.
+  - Update status mapping in `customer.subscription.updated`: ignore `incomplete` and `incomplete_expired` (return `{success: true, message: 'ignored incomplete'}` after idempotency insert); treat `paused` as `past_due`.
+  - Edge function `stripe-webhook`: fallback sequence for card fingerprint resolution (`subscription.default_payment_method` -> customer `invoice_settings.default_payment_method` -> `stripe.paymentMethods.list({ customer, type: 'card', limit: 1 })`). Never log fingerprints, phone numbers, or pepper. Return HTTP 500 only if all fallbacks fail.
+  - Extend `docs/sql/034_behaviour_verify.sql` with cases 14 (trialing preserve & active convert), 15 (incomplete_expired no-op), and 16 (paused revokes access).
+  - Save pre-apply function definitions via `pg_get_functiondef` to `docs/sql/034_pre_apply_backup.sql`.
+  - Apply migration 034 to production Supabase (`tdevgrwmafwrsmeymjzd`), run `034_verify.sql` and `034_behaviour_verify.sql`, verify row count baseline matches before and after, confirm single overloads (13 args for `process_stripe_webhook_event`, 1 for `check_product_subscription`), deploy `stripe-webhook` edge function, and confirm function version. Free trials remain OFF (`trial_offers.enabled = false`).
+- Built:
+  - `supabase/migrations/034_card_trial_identity.sql`:
+    - Updated section 2 status mapping: ignores `incomplete`/`incomplete_expired`, maps `paused` to `past_due`, maps `active`/`trialing` to `active`.
+    - Updated section 6 single-seat processing: `p_subscription_status = 'active'` converts trial rows and stamps `converted_at`; `p_subscription_status = 'trialing'` preserves `is_trial`, `grant_reason`, `converted_at`, and `current_period_end`.
+  - `supabase/functions/stripe-webhook/index.ts`:
+    - Added `resolveCardFingerprint` implementing the 3-step fallback resolution chain.
+    - Zero sensitive logging.
+  - `docs/sql/034_behaviour_verify.sql`:
+    - Added Case 14: trialing update preserves flags and +6h grace, subsequent active update converts in place.
+    - Added Case 15: incomplete_expired is a no-op on existing paid row.
+    - Added Case 16: paused maps to past_due and revokes access.
+    - Updated Case 4 test fixture event ID to use stored variable `v_c3_event_id`.
+    - Formatted summary report to guarantee complete output within Supabase API 1000-char error limits.
+  - `docs/sql/034_pre_apply_backup.sql`:
+    - Captured definitions of `claim_free_trial`, `get_trial_status`, `process_stripe_webhook_event`, `admin_trial_extend` from live production prior to applying migration 034.
+  - Production Execution:
+    - Recorded BEFORE counts: subscriptions=11, trial_claims=0, trial_offers=1, stripe_webhook_events=1, rccp_enabled=false.
+    - Applied `034_card_trial_identity.sql` to production Supabase project `tdevgrwmafwrsmeymjzd` (exit code 0).
+    - Executed `034_verify.sql`: all checks verified (tables RLS enabled, 0 policies, 0 permissions to anon/authenticated/public; single overloads guaranteed; service_role execution confirmed).
+    - Executed `034_behaviour_verify.sql`: all 16 cases passed (`passed: true`), row count check passed (`passed: true`), full rollback completed cleanly.
+    - Recorded AFTER counts: subscriptions=11, trial_claims=0, trial_offers=1, stripe_webhook_events=1, rccp_enabled=false (exact match with BEFORE).
+    - Confirmed single overloads: `check_product_subscription` (1 overload), `process_stripe_webhook_event` (1 overload, exactly 13 arguments).
+    - Deployed `stripe-webhook` edge function (`--no-verify-jwt`, project ref `tdevgrwmafwrsmeymjzd`): version 6 active.
+- Files touched:
+  - `supabase/migrations/034_card_trial_identity.sql`
+  - `supabase/functions/stripe-webhook/index.ts`
+  - `docs/sql/034_behaviour_verify.sql`
+  - `docs/sql/034_pre_apply_backup.sql`
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`
+  - `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+  - `CHANGELOG.md`
+  - `BUILD_LOG.md`
+  - `PROJECT_STATE.md`
+- What was NOT run:
+  - `create-checkout-session` was NOT deployed.
+  - No Supabase secrets were created or modified (`TRIAL_IDENTITY_PEPPER` will be added by owner).
+  - Free trial was NOT enabled (`trial_offers.enabled` remains `false`).
+  - No Stripe API calls or test checkouts were executed.
+  - Rollback script `034_rollback.sql` was NOT run (migration applied and verified cleanly).
+
 ## 2026-10-26 (v1.8.0 Card-Required Free Trial Architecture: Database Migration 034 & Webhook Update - Not Applied)
 - Requested:
   - Migrate free trial design to require a payment card collected via Stripe Checkout.

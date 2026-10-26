@@ -620,10 +620,14 @@ BEGIN
       RETURN jsonb_build_object('success', true, 'message', 'ignored incomplete checkout');
     END IF;
   ELSIF p_event_type = 'customer.subscription.updated' THEN
-    IF p_subscription_status IN ('past_due', 'unpaid') THEN
+    IF p_subscription_status IN ('incomplete', 'incomplete_expired') THEN
+      RETURN jsonb_build_object('success', true, 'message', 'ignored incomplete');
+    ELSIF p_subscription_status IN ('past_due', 'unpaid', 'paused') THEN
       v_new_status := 'past_due';
     ELSIF p_subscription_status = 'canceled' THEN
       v_new_status := 'canceled';
+    ELSIF p_subscription_status IN ('active', 'trialing') THEN
+      v_new_status := 'active';
     ELSE
       v_new_status := 'active'; 
     END IF;
@@ -863,44 +867,58 @@ BEGIN
     RETURN jsonb_build_object('success', true, 'message', 'processed successfully');
 
   ELSIF p_event_type = 'customer.subscription.updated' THEN
-    -- Routine renewal / paid conversion / payment recovery:
-    -- Convert in place if is_trial = true
-    UPDATE public.subscriptions
-    SET
-      status = 'active',
-      is_trial = false,
-      grant_reason = 'stripe_checkout',
-      current_period_end = p_current_period_end,
-      updated_at = now()
-    WHERE stripe_subscription_id = p_stripe_subscription_id
-      AND status != 'canceled'
-      AND is_trial = true;
+    IF p_subscription_status = 'active' THEN
+      -- Routine renewal / paid conversion / payment recovery:
+      -- Convert in place if is_trial = true
+      UPDATE public.subscriptions
+      SET
+        status = 'active',
+        is_trial = false,
+        grant_reason = 'stripe_checkout',
+        current_period_end = p_current_period_end,
+        updated_at = now()
+      WHERE stripe_subscription_id = p_stripe_subscription_id
+        AND status != 'canceled'
+        AND is_trial = true;
 
-    IF FOUND THEN
-      -- Stamp trial_claims.converted_at
-      UPDATE public.trial_claims
-      SET converted_at = now()
-      WHERE (
-        subscription_id IN (
-          SELECT id FROM public.subscriptions WHERE stripe_subscription_id = p_stripe_subscription_id
+      IF FOUND THEN
+        -- Stamp trial_claims.converted_at
+        UPDATE public.trial_claims
+        SET converted_at = now()
+        WHERE (
+          subscription_id IN (
+            SELECT id FROM public.subscriptions WHERE stripe_subscription_id = p_stripe_subscription_id
+          )
+          OR (
+            user_id = v_user_id
+            AND (tool_slug = p_product_slug OR tool_slug IN (SELECT tool_slug FROM public.trial_offers WHERE access_slug = v_product_slug))
+          )
         )
-        OR (
-          user_id = v_user_id
-          AND (tool_slug = p_product_slug OR tool_slug IN (SELECT tool_slug FROM public.trial_offers WHERE access_slug = v_product_slug))
-        )
-      )
-      AND converted_at IS NULL;
+        AND converted_at IS NULL;
+      END IF;
+
+      -- Update non-trial rows (routine renewal or recovery from past_due / expired; NEVER canceled)
+      UPDATE public.subscriptions
+      SET
+        status = 'active',
+        current_period_end = p_current_period_end,
+        updated_at = now()
+      WHERE stripe_subscription_id = p_stripe_subscription_id
+        AND status != 'canceled'
+        AND is_trial = false;
+
+    ELSIF p_subscription_status = 'trialing' THEN
+      -- Trialing update (e.g. portal cancellation during trial setting cancel_at_period_end):
+      -- Do NOT change is_trial, grant_reason, converted_at or current_period_end (keeps +6h grace end).
+      -- Ensure row remains active, but never touch canceled rows.
+      UPDATE public.subscriptions
+      SET
+        status = 'active',
+        updated_at = now()
+      WHERE stripe_subscription_id = p_stripe_subscription_id
+        AND status != 'canceled'
+        AND is_trial = true;
     END IF;
-
-    -- Update non-trial rows (routine renewal or recovery from past_due / expired; NEVER canceled)
-    UPDATE public.subscriptions
-    SET
-      status = 'active',
-      current_period_end = p_current_period_end,
-      updated_at = now()
-    WHERE stripe_subscription_id = p_stripe_subscription_id
-      AND status != 'canceled'
-      AND is_trial = false;
 
     RETURN jsonb_build_object('success', true, 'message', 'processed successfully');
   ELSE

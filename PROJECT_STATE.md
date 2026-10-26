@@ -33,44 +33,45 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - Tools drawer (mobile): Exactly two items (`rccp` and `ListFlow`), single line, no description text, no icon below `md`.
   - Profile dropdown (desktop & mobile): Clearly visible hover/focus/active states with light highlight (`data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900`), >= 4.5:1 contrast, plus visible focus rings (`focus-visible:ring-2 focus-visible:ring-teal-600`).
   - Sign out item: Retains red accent with visible red hover highlight (`data-[highlighted]:bg-red-500/20 data-[highlighted]:text-red-300`).
-- **Admin Dashboard & Controls (Part D - v1.6.0)**:
+- **Admin Dashboard & Controls (v1.6.0)**:
   - Migration 033 applied in production.
   - `/admin/free-trials` and `/admin/price-overrides` operational for administrators.
-- **Card-Required Free Trial Architecture (Release v1.8.0 - Migration 034 & Edge Function)**:
-  - **Status: NOT applied to database and NOT deployed to Edge Functions yet.** Free trials remain disabled (`trial_offers.enabled = false`).
-  - New database tables: `public.trial_identities` (card fingerprint and HMAC phone hash tracking) and `public.trial_denials` (RLS on, 0 policies, zero grants to public/anon/authenticated).
+- **Card-Required Free Trial Architecture & Webhook Deployment (v1.8.1)**:
+  - **Status: Migration 034 APPLIED to production Supabase (`tdevgrwmafwrsmeymjzd`). Webhook function `stripe-webhook` DEPLOYED (version 6). Free trials remain DISABLED (`trial_offers.enabled = false`).**
+  - Database tables: `public.trial_identities` (card fingerprint and HMAC phone hash tracking) and `public.trial_denials` with RLS on, 0 policies, zero privileges for anon, authenticated, public.
   - Legacy no-card path closed: `public.claim_free_trial(text)` unconditionally returns `{ ok: false, reason: 'checkout_required' }`.
   - Anti-abuse gating: enforces 1 trial per normalized email, 1 per card fingerprint, 1 per phone number HMAC hash.
-  - New service_role RPCs: `trial_eligibility_for`, `finalize_card_trial`, `mirror_cancel_at_period_end`.
-  - Replaced `process_stripe_webhook_event` (exact 13-argument signature, single overload preserved):
+  - Service_role RPCs: `trial_eligibility_for`, `finalize_card_trial`, `mirror_cancel_at_period_end`.
+  - Stored Procedure `process_stripe_webhook_event` (13 arguments exact match, single overload):
     - Provisions trialing checkouts with `current_period_end = p_current_period_end + interval '6 hours'` (+6h grace preventing pg_cron expiry race during Stripe's 1h invoice window).
-    - Links `trial_claims.subscription_id` to the newly upserted subscription row.
-    - Converted in place on `customer.subscription.updated` active (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `trial_claims.converted_at = now()`).
-    - Revokes access immediately on Stripe `past_due` or `unpaid`.
-    - Safe reactivation of `expired` (cron) or `past_due` rows upon receiving Stripe `active`.
-    - Strict guard ensuring `canceled` rows are NEVER reactivated.
-  - Edge Function `stripe-webhook/index.ts`:
-    - Expands `default_payment_method` on `metadata.trial === 'true'` checkouts.
-    - Computes HMAC-SHA256 of E.164 phone using `TRIAL_IDENTITY_PEPPER`.
-    - Calls `finalize_card_trial`; cancels subscription immediately on denial; on success calls `process_stripe_webhook_event` with status `trialing`.
+    - Links `trial_claims.subscription_id` to newly upserted subscription row.
+    - Status mapping: ignores `incomplete` and `incomplete_expired` (`'ignored incomplete'`); maps `paused` to `past_due` (revokes access immediately).
+    - Single-seat conversion guard: ONLY converts trial in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `converted_at` stamped) when raw Stripe status `p_subscription_status = 'active'`.
+    - Trialing update safety: when `p_subscription_status = 'trialing'`, `is_trial`, `grant_reason`, `converted_at`, and `current_period_end` (+6h grace end) are strictly preserved.
+    - Canceled row protection: rows with `status = 'canceled'` are NEVER reactivated.
+  - Edge Function `stripe-webhook/index.ts` (Deployed v6):
+    - Card fingerprint resolution with 3-stage fallback chain: `subscription.default_payment_method` -> customer `invoice_settings.default_payment_method` -> `stripe.paymentMethods.list({ customer, type: 'card', limit: 1 })`. Returns 500 only if all fail.
+    - HMAC-SHA256 of customer phone using `TRIAL_IDENTITY_PEPPER`.
+    - Zero sensitive logging: never logs card fingerprints, phone numbers, or the pepper.
+    - Calls `finalize_card_trial`; cancels subscription immediately on denial; on approval calls `process_stripe_webhook_event`.
     - Mirrors `cancel_at_period_end` on subscription updates.
-    - Handles `customer.subscription.trial_will_end` as 200 no-op.
-  - Test Harness:
-    - `docs/sql/034_verify.sql`: Structure, RLS, single overload, and privilege inspection.
-    - `docs/sql/034_rollback.sql`: Clean transaction rolling back 034 changes and restoring 031/032/033.
-    - `docs/sql/034_behaviour_verify.sql`: 13 isolated test cases executed in a single transaction DO block rolled back via `RAISE EXCEPTION`.
+  - Verification & Backups:
+    - `docs/sql/034_pre_apply_backup.sql`: Full definitions of replaced functions extracted prior to applying 034.
+    - `docs/sql/034_verify.sql`: Verified 100% in production (tables, RLS, 0 policies, 0 public grants, single overloads).
+    - `docs/sql/034_behaviour_verify.sql`: Verified 100% in production (all 16 lifecycle cases passed, baseline row leak check passed, 100% rolled back cleanly).
+    - BEFORE & AFTER row counts match identically across all tables.
 
 ## In Progress
-- Manual application and verification of Migration 034 in the Supabase SQL Editor.
-- Deployment and testing of `stripe-webhook` edge function with `TRIAL_IDENTITY_PEPPER` secret.
-- CP Bot Chrome extension v1.0.5.3 review and release verification prior to enabling public free trials.
+- Owner adding `TRIAL_IDENTITY_PEPPER` secret to Supabase Edge Functions.
+- Chrome extension v1.0.5.3 review and release verification prior to enabling public free trials.
 
 ## Not Started
 - Multi-item single-checkout (Edge Function supports one item per session).
 - Stripe Customer Portal integration for subscription self-management.
 
-## Turning on Checkout
-- To enable checkout globally (bypassing the admin-only guard), set the `CHECKOUT_ENABLED` secret to `"true"` in Supabase. No other code changes are needed.
+## Turning on Checkout / Free Trials
+- **Checkout globally**: To enable checkout globally (bypassing the admin-only guard), set the `CHECKOUT_ENABLED` secret to `"true"` in Supabase.
+- **Free trial**: The free trial remains switched OFF (`trial_offers.enabled = false`). It can be toggled on via `/admin/free-trials` once the Chrome extension v1.0.5.3 is confirmed live.
 
 ## Known Issues
 - `npm run build` prerender step fails locally due to missing Puppeteer Chrome binary (not a code issue; `npx vite build` succeeds).
@@ -80,4 +81,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe
 
-*Last Updated: 2026-10-26 — Release v1.8.0: Card-required free trial database architecture (migration 034) and webhook update (prepared, pending manual application and edge function deployment).*
+*Last Updated: 2026-10-26 — Release v1.8.1: Trial conversion safety fix, Migration 034 applied to production Supabase, stripe-webhook edge function deployed (v6), verification verified 16/16 cases pass, trial remains OFF.*

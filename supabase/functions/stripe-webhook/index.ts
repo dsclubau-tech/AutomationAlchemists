@@ -21,6 +21,70 @@ async function hmacSha256Hex(secret: string, message: string): Promise<string> {
     .join('');
 }
 
+// Helper to resolve card fingerprint with fallback ordering:
+// 1. subscription.default_payment_method (expanded object or retrieved from ID)
+// 2. customer's invoice_settings.default_payment_method
+// 3. stripe.paymentMethods.list({ customer, type: 'card', limit: 1 })
+async function resolveCardFingerprint(
+  stripeClient: Stripe,
+  subscription: Stripe.Subscription,
+  customerId: string | null
+): Promise<string | null> {
+  // 1. Check subscription.default_payment_method
+  let pm: Stripe.PaymentMethod | string | null = subscription.default_payment_method as Stripe.PaymentMethod | string | null;
+  if (typeof pm === 'string') {
+    try {
+      pm = await stripeClient.paymentMethods.retrieve(pm);
+    } catch {
+      pm = null;
+    }
+  }
+  if (pm && typeof pm === 'object' && (pm as Stripe.PaymentMethod).card?.fingerprint) {
+    return (pm as Stripe.PaymentMethod).card!.fingerprint;
+  }
+
+  const resolvedCustomerId = customerId ?? (typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id) ?? null;
+  if (!resolvedCustomerId) return null;
+
+  // 2. Fallback 1: customer's invoice_settings.default_payment_method
+  try {
+    const customer = await stripeClient.customers.retrieve(resolvedCustomerId, {
+      expand: ['invoice_settings.default_payment_method'],
+    });
+    if (customer && !(customer as Stripe.DeletedCustomer).deleted) {
+      let custPm = (customer as Stripe.Customer).invoice_settings?.default_payment_method as Stripe.PaymentMethod | string | null;
+      if (typeof custPm === 'string') {
+        try {
+          custPm = await stripeClient.paymentMethods.retrieve(custPm);
+        } catch {
+          custPm = null;
+        }
+      }
+      if (custPm && typeof custPm === 'object' && (custPm as Stripe.PaymentMethod).card?.fingerprint) {
+        return (custPm as Stripe.PaymentMethod).card!.fingerprint;
+      }
+    }
+  } catch {
+    // proceed to next fallback
+  }
+
+  // 3. Fallback 2: stripe.paymentMethods.list({ customer, type: 'card', limit: 1 })
+  try {
+    const pms = await stripeClient.paymentMethods.list({
+      customer: resolvedCustomerId,
+      type: 'card',
+      limit: 1,
+    });
+    if (pms?.data?.[0]?.card?.fingerprint) {
+      return pms.data[0].card.fingerprint;
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
@@ -104,14 +168,17 @@ Deno.serve(async (req) => {
 
         // Card-Required Free Trial processing
         if (isTrialMode && subscription.status === 'trialing') {
-          const paymentMethod = subscription.default_payment_method as Stripe.PaymentMethod | null;
-          const cardFingerprint = paymentMethod?.card?.fingerprint ?? null;
+          const cardFingerprint = await resolveCardFingerprint(
+            stripe,
+            subscription,
+            p_stripe_customer_id
+          );
           const customerPhone = session.customer_details?.phone ?? null;
           const pepper = Deno.env.get('TRIAL_IDENTITY_PEPPER');
 
           // If the pepper or the fingerprint is missing, return 500 so Stripe retries
           if (!pepper || !cardFingerprint) {
-            console.error('Trial checkout missing required pepper or card fingerprint.');
+            console.error('Trial checkout missing required pepper or card fingerprint after all fallbacks.');
             return new Response(JSON.stringify({ error: 'Missing pepper or card fingerprint' }), {
               status: 500,
               headers: { 'Content-Type': 'application/json' },

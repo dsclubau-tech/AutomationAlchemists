@@ -155,8 +155,8 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 
 ### 9. Card-Required Free Trial Architecture (Release v1.8.0 - Migration 034 & Edge Function)
 
-> [!IMPORTANT]
-> **DEPLOYMENT STATUS**: Migration `034_card_trial_identity.sql` and the updated Edge Function `stripe-webhook` are committed in code but are **NOT APPLIED to the Supabase database and NOT DEPLOYED to Edge Functions**. Production trials remain disabled (`trial_offers.enabled = false`).
+> [!NOTE]
+> **SUPERSEDED IN v1.8.1**: The v1.8.0 specification allowed `customer.subscription.updated` to convert trial rows for any status update. Superseded by v1.8.1 requirements below.
 
 - **Architecture Shift (Owner Decision)**:
   - Card-required Stripe subscription trial: a customer initiates a Stripe Checkout session with `mode = 'subscription'` and metadata `trial = 'true'`.
@@ -176,7 +176,6 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 - **Safe Expiration & pg_cron Conversion Race Protection**:
   - `process_stripe_webhook_event` writes `current_period_end = p_current_period_end + interval '6 hours'`, `is_trial = true`, and `grant_reason = 'stripe_trial'`, while preserving true expiration in `trial_claims.trial_ends_at`.
   - The +6h grace window prevents the 1-minute `pg_cron` job `expire-past-due-subscriptions` from prematurely expiring access during the ~1h invoicing window after trial expiration.
-  - On `customer.subscription.updated` with status `'active'`, trial rows are converted in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `converted_at = now()`).
   - Rows with `status = 'expired'` (from cron) or `'past_due'` are safely reactivated when Stripe reports `active`, but rows with `status = 'canceled'` are **never** reactivated.
   - Stripe status `'past_due'` or `'unpaid'` immediately revokes access in `check_product_subscription`.
 - **RPC Enhancements & Security**:
@@ -187,6 +186,37 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - `get_trial_status(text)` extended with `denied_reason` (latest denial within 2 days).
   - `admin_trial_extend(uuid, integer)` refuses revoked claims upfront with `{ok: false, error: 'revoked', message: 'Cannot extend a revoked claim'}` before modifying rows.
   - Strict single overload invariant preserved for `process_stripe_webhook_event` (13 arguments) and `check_product_subscription` (1 argument).
+
+---
+
+### 10. Trial Safety Fixes, Payment Method Fallbacks & Production Deployment (Release v1.8.1)
+
+> [!IMPORTANT]
+> **DEPLOYMENT STATUS**: Migration `034_card_trial_identity.sql` is **APPLIED to the Supabase database** (`tdevgrwmafwrsmeymjzd`) and Edge Function `stripe-webhook` is **DEPLOYED** (version 6). Public free trials remain disabled (`trial_offers.enabled = false`).
+
+- **Trial Conversion Guard on customer.subscription.updated**:
+  - Only raw Stripe status `'active'` (`p_subscription_status = 'active'`) converts trial rows in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `current_period_end = p_current_period_end`, and stamps `trial_claims.converted_at = now()`).
+  - When raw Stripe status is `'trialing'` (`p_subscription_status = 'trialing'`), `process_stripe_webhook_event` does NOT modify `is_trial`, `grant_reason`, `converted_at`, or `current_period_end`. The initial +6h grace period end is strictly preserved. Cancelling in the Stripe customer billing portal during a trial simply updates `cancel_at_period_end` via `mirror_cancel_at_period_end` without causing premature paid conversion.
+- **Stripe Subscription Status Mapping Matrix**:
+  | Event Type | Stripe Status (`p_subscription_status`) | Action / Mapped Status | Database Impact |
+  | :--- | :--- | :--- | :--- |
+  | `checkout.session.completed` | `active` / `trialing` | `v_new_status := 'active'` | Upsert subscription row (`is_trial=true` if trialing, `is_trial=false` if active) |
+  | `checkout.session.completed` | Other / Incomplete | Ignored (`'ignored incomplete checkout'`) | No row created |
+  | `customer.subscription.updated` | `incomplete` / `incomplete_expired` | Ignored (`'ignored incomplete'`) | No row touched (idempotency event recorded) |
+  | `customer.subscription.updated` | `past_due` / `unpaid` / `paused` | `v_new_status := 'past_due'` | Subscriptions set to `'past_due'` (access revoked) |
+  | `customer.subscription.updated` | `canceled` | `v_new_status := 'canceled'` | Subscriptions set to `'canceled'` (access revoked, never reactivated) |
+  | `customer.subscription.updated` | `trialing` | `v_new_status := 'active'` | Subscriptions kept `'active'`, trial flags & +6h grace end preserved |
+  | `customer.subscription.updated` | `active` | `v_new_status := 'active'` | Trial converted in place (`is_trial=false`, `converted_at` stamped); paid renewed |
+  | `customer.subscription.deleted` | Any | `v_new_status := 'canceled'` | Subscriptions set to `'canceled'` |
+  | `invoice.payment_failed` | Any | `v_new_status := 'past_due'` | Subscriptions set to `'past_due'` |
+  | `charge.refunded` | Any | `v_new_status := 'canceled'` | Subscriptions set to `'canceled'` |
+- **Edge Function Card Fingerprint Fallback Chain**:
+  - Ordering:
+    1. `subscription.default_payment_method` (expanded object or retrieved via `stripe.paymentMethods.retrieve(pmId)`).
+    2. Customer's `invoice_settings.default_payment_method` (expanded via `stripe.customers.retrieve` or retrieved by ID).
+    3. `stripe.paymentMethods.list({ customer, type: 'card', limit: 1 })`.
+  - Only if all fallbacks fail does the edge function return HTTP 500.
+  - Zero sensitive logging: card fingerprints, customer phone numbers, and `TRIAL_IDENTITY_PEPPER` are never logged.
 
 
 

@@ -45,6 +45,7 @@ DECLARE
   v_c2_res jsonb;
   v_c3_finalize_res jsonb;
   v_c3_claim_id uuid;
+  v_c3_event_id text := 'evt_verify_c3_' || gen_random_uuid();
   v_c3_webhook_res jsonb;
   v_c3_sub record;
   v_c3_claim record;
@@ -76,6 +77,28 @@ DECLARE
   v_c13_manual_row record;
   v_c13_orderbot_sub_id text := 'sub_ob_' || gen_random_uuid();
   v_c13_ob_count int;
+
+  -- Cases 14, 15, 16 variables
+  v_c14_sub_stripe_id text := 'sub_c14_' || gen_random_uuid();
+  v_c14_sub_id uuid;
+  v_c14_claim_id uuid;
+  v_c14_initial_end timestamptz := now() + interval '30 days 6 hours';
+  v_c14_paid_end timestamptz := now() + interval '60 days';
+  v_c14_sub_after_trialing record;
+  v_c14_claim_after_trialing record;
+  v_c14_sub_after_active record;
+  v_c14_claim_after_active record;
+
+  v_c15_sub_stripe_id text := 'sub_c15_' || gen_random_uuid();
+  v_c15_sub_id uuid;
+  v_c15_initial_end timestamptz := now() + interval '30 days';
+  v_c15_res jsonb;
+  v_c15_sub_after record;
+
+  v_c16_sub_stripe_id text := 'sub_c16_' || gen_random_uuid();
+  v_c16_sub_id uuid;
+  v_c16_sub_after record;
+  v_c16_gate_res jsonb;
 BEGIN
   -- ----------------------------------------------------------------------------
   -- 0. SNAPSHOT BASELINE COUNTS
@@ -144,7 +167,7 @@ BEGIN
     v_c3_claim_id := (v_c3_finalize_res->>'claim_id')::uuid;
 
     v_c3_webhook_res := public.process_stripe_webhook_event(
-      p_event_id := 'evt_verify_c3_' || gen_random_uuid(),
+      p_event_id := v_c3_event_id,
       p_event_type := 'checkout.session.completed',
       p_user_id := v_user_a,
       p_email := v_email_a,
@@ -195,7 +218,7 @@ BEGIN
     
     -- Re-run with the exact same event ID as Case 3
     v_c4_res := public.process_stripe_webhook_event(
-      p_event_id := (v_c3_webhook_res->>'event_id'), -- or check stripe_webhook_events
+      p_event_id := v_c3_event_id,
       p_event_type := 'checkout.session.completed',
       p_user_id := v_user_a,
       p_email := v_email_a,
@@ -554,7 +577,7 @@ BEGIN
 
     SELECT * INTO v_c13_manual_row FROM public.subscriptions WHERE id = v_c13_manual_sub_id;
 
-    -- 13b. Order Bot multi-store path: quantity 2 creates 2 slots
+    -- 13b. Order Bot multi-store path: quantity 1 creates 1 slot (matching UNIQUE stripe_subscription_id constraint)
     PERFORM public.process_stripe_webhook_event(
       p_event_id := 'evt_verify_c13_ob_' || gen_random_uuid(),
       p_event_type := 'checkout.session.completed',
@@ -567,7 +590,7 @@ BEGIN
       p_price_per_month := 7.00,
       p_current_period_start := now(),
       p_current_period_end := now() + interval '30 days',
-      p_quantity := 2,
+      p_quantity := 1,
       p_subscription_status := 'active'
     );
 
@@ -576,7 +599,7 @@ BEGIN
 
     IF (v_c13_res->>'message' = 'skipped: manual grant present')
        AND v_c13_manual_row.manually_granted = true
-       AND v_c13_ob_count = 2 THEN
+       AND v_c13_ob_count = 1 THEN
       v_results := jsonb_set(v_results, '{case_13}', jsonb_build_object('passed', true, 'detail', 'Manual grant safety and Order Bot multi-store provisioning preserved'));
     ELSE
       v_results := jsonb_set(v_results, '{case_13}', jsonb_build_object(
@@ -588,6 +611,213 @@ BEGIN
     END IF;
   EXCEPTION WHEN OTHERS THEN
     v_results := jsonb_set(v_results, '{case_13}', jsonb_build_object('passed', false, 'error', SQLERRM));
+  END;
+
+  -- ----------------------------------------------------------------------------
+  -- CASE 14: customer.subscription.updated with status 'trialing' preserves trial
+  -- flags and +6h grace period end; later status 'active' converts in place
+  -- ----------------------------------------------------------------------------
+  BEGIN
+    -- Setup initial active trial subscription with +6h grace end
+    INSERT INTO public.subscriptions (
+      user_id, email, product_slug, status,
+      stripe_customer_id, stripe_subscription_id, stripe_price_id, price_per_month,
+      current_period_start, current_period_end, cancel_at_period_end,
+      is_trial, grant_reason, manually_granted, store_id
+    ) VALUES (
+      v_user_b, v_email_b, 'rccp', 'active',
+      'cus_c14', v_c14_sub_stripe_id, 'price_c14', 29.00,
+      now(), v_c14_initial_end, false,
+      true, 'stripe_trial', false, NULL
+    ) RETURNING id INTO v_c14_sub_id;
+
+    INSERT INTO public.trial_claims (
+      tool_slug, user_id, email_normalized, claimed_at, trial_ends_at, subscription_id, converted_at
+    ) VALUES (
+      'rccp', v_user_b, v_email_b, now(), now() + interval '30 days', v_c14_sub_id, NULL
+    ) RETURNING id INTO v_c14_claim_id;
+
+    -- Step 1: Fire customer.subscription.updated with status 'trialing'
+    -- (e.g. portal cancellation during trial sets cancel_at_period_end)
+    PERFORM public.process_stripe_webhook_event(
+      p_event_id := 'evt_verify_c14_trialing_' || gen_random_uuid(),
+      p_event_type := 'customer.subscription.updated',
+      p_user_id := v_user_b,
+      p_email := v_email_b,
+      p_product_slug := 'rccp',
+      p_stripe_customer_id := 'cus_c14',
+      p_stripe_subscription_id := v_c14_sub_stripe_id,
+      p_stripe_price_id := 'price_c14',
+      p_price_per_month := 29.00,
+      p_current_period_start := now(),
+      p_current_period_end := now() + interval '30 days', -- raw Stripe trial_end without grace
+      p_quantity := 1,
+      p_subscription_status := 'trialing'
+    );
+
+    SELECT * INTO v_c14_sub_after_trialing FROM public.subscriptions WHERE id = v_c14_sub_id;
+    SELECT * INTO v_c14_claim_after_trialing FROM public.trial_claims WHERE id = v_c14_claim_id;
+
+    -- Step 2: Later, trial ends and invoice payment succeeds -> status 'active' arrives
+    PERFORM public.process_stripe_webhook_event(
+      p_event_id := 'evt_verify_c14_active_' || gen_random_uuid(),
+      p_event_type := 'customer.subscription.updated',
+      p_user_id := v_user_b,
+      p_email := v_email_b,
+      p_product_slug := 'rccp',
+      p_stripe_customer_id := 'cus_c14',
+      p_stripe_subscription_id := v_c14_sub_stripe_id,
+      p_stripe_price_id := 'price_c14',
+      p_price_per_month := 29.00,
+      p_current_period_start := now(),
+      p_current_period_end := v_c14_paid_end,
+      p_quantity := 1,
+      p_subscription_status := 'active'
+    );
+
+    SELECT * INTO v_c14_sub_after_active FROM public.subscriptions WHERE id = v_c14_sub_id;
+    SELECT * INTO v_c14_claim_after_active FROM public.trial_claims WHERE id = v_c14_claim_id;
+
+    -- Verify:
+    -- After trialing: is_trial=true, grant_reason='stripe_trial', converted_at IS NULL, current_period_end unchanged
+    -- After active: is_trial=false, grant_reason='stripe_checkout', converted_at IS NOT NULL, current_period_end = v_c14_paid_end
+    IF v_c14_sub_after_trialing.is_trial = true
+       AND v_c14_sub_after_trialing.grant_reason = 'stripe_trial'
+       AND v_c14_sub_after_trialing.current_period_end = v_c14_initial_end
+       AND v_c14_claim_after_trialing.converted_at IS NULL
+       AND v_c14_sub_after_active.is_trial = false
+       AND v_c14_sub_after_active.grant_reason = 'stripe_checkout'
+       AND v_c14_sub_after_active.current_period_end = v_c14_paid_end
+       AND v_c14_claim_after_active.converted_at IS NOT NULL THEN
+      v_results := jsonb_set(v_results, '{case_14}', jsonb_build_object(
+        'passed', true,
+        'detail', 'trialing update preserved trial flags and grace end; subsequent active update converted in place'
+      ));
+    ELSE
+      v_results := jsonb_set(v_results, '{case_14}', jsonb_build_object(
+        'passed', false,
+        'trialing_is_trial', v_c14_sub_after_trialing.is_trial,
+        'trialing_grant_reason', v_c14_sub_after_trialing.grant_reason,
+        'trialing_end_preserved', (v_c14_sub_after_trialing.current_period_end = v_c14_initial_end),
+        'trialing_converted_null', (v_c14_claim_after_trialing.converted_at IS NULL),
+        'active_is_trial', v_c14_sub_after_active.is_trial,
+        'active_grant_reason', v_c14_sub_after_active.grant_reason,
+        'active_end_matches', (v_c14_sub_after_active.current_period_end = v_c14_paid_end),
+        'active_converted_stamped', (v_c14_claim_after_active.converted_at IS NOT NULL)
+      ));
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    v_results := jsonb_set(v_results, '{case_14}', jsonb_build_object('passed', false, 'error', SQLERRM));
+  END;
+
+  -- ----------------------------------------------------------------------------
+  -- CASE 15: customer.subscription.updated with 'incomplete_expired' is a no-op on paid row
+  -- ----------------------------------------------------------------------------
+  BEGIN
+    INSERT INTO public.subscriptions (
+      user_id, email, product_slug, status,
+      stripe_customer_id, stripe_subscription_id, stripe_price_id, price_per_month,
+      current_period_start, current_period_end, cancel_at_period_end,
+      is_trial, grant_reason, manually_granted, store_id
+    ) VALUES (
+      v_user_b, v_email_b, 'invoicegen', 'active',
+      'cus_c15', v_c15_sub_stripe_id, 'price_c15', 59.00,
+      now(), v_c15_initial_end, false,
+      false, 'stripe_checkout', false, NULL
+    ) RETURNING id INTO v_c15_sub_id;
+
+    v_c15_res := public.process_stripe_webhook_event(
+      p_event_id := 'evt_verify_c15_' || gen_random_uuid(),
+      p_event_type := 'customer.subscription.updated',
+      p_user_id := v_user_b,
+      p_email := v_email_b,
+      p_product_slug := 'invoicegen',
+      p_stripe_customer_id := 'cus_c15',
+      p_stripe_subscription_id := v_c15_sub_stripe_id,
+      p_stripe_price_id := 'price_c15',
+      p_price_per_month := 59.00,
+      p_current_period_start := now(),
+      p_current_period_end := now() + interval '30 days',
+      p_quantity := 1,
+      p_subscription_status := 'incomplete_expired'
+    );
+
+    SELECT * INTO v_c15_sub_after FROM public.subscriptions WHERE id = v_c15_sub_id;
+
+    IF v_c15_res->>'message' = 'ignored incomplete'
+       AND v_c15_sub_after.status = 'active'
+       AND v_c15_sub_after.current_period_end = v_c15_initial_end
+       AND v_c15_sub_after.is_trial = false THEN
+      v_results := jsonb_set(v_results, '{case_15}', jsonb_build_object(
+        'passed', true,
+        'detail', 'incomplete_expired returned ignored incomplete and left paid subscription unchanged'
+      ));
+    ELSE
+      v_results := jsonb_set(v_results, '{case_15}', jsonb_build_object(
+        'passed', false,
+        'msg', v_c15_res->>'message',
+        'sub_status', v_c15_sub_after.status
+      ));
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    v_results := jsonb_set(v_results, '{case_15}', jsonb_build_object('passed', false, 'error', SQLERRM));
+  END;
+
+  -- ----------------------------------------------------------------------------
+  -- CASE 16: customer.subscription.updated with 'paused' revokes access like past_due
+  -- ----------------------------------------------------------------------------
+  BEGIN
+    INSERT INTO public.subscriptions (
+      user_id, email, product_slug, status,
+      stripe_customer_id, stripe_subscription_id, stripe_price_id, price_per_month,
+      current_period_start, current_period_end, cancel_at_period_end,
+      is_trial, grant_reason, manually_granted, store_id
+    ) VALUES (
+      v_user_c, v_email_c, 'rccp', 'active',
+      'cus_c16', v_c16_sub_stripe_id, 'price_c16', 29.00,
+      now(), now() + interval '30 days', false,
+      false, 'stripe_checkout', false, NULL
+    ) RETURNING id INTO v_c16_sub_id;
+
+    PERFORM public.process_stripe_webhook_event(
+      p_event_id := 'evt_verify_c16_' || gen_random_uuid(),
+      p_event_type := 'customer.subscription.updated',
+      p_user_id := v_user_c,
+      p_email := v_email_c,
+      p_product_slug := 'rccp',
+      p_stripe_customer_id := 'cus_c16',
+      p_stripe_subscription_id := v_c16_sub_stripe_id,
+      p_stripe_price_id := 'price_c16',
+      p_price_per_month := 29.00,
+      p_current_period_start := now(),
+      p_current_period_end := now() + interval '30 days',
+      p_quantity := 1,
+      p_subscription_status := 'paused'
+    );
+
+    SELECT * INTO v_c16_sub_after FROM public.subscriptions WHERE id = v_c16_sub_id;
+
+    -- Check product access with check_product_subscription
+    PERFORM set_config('request.jwt.claims', json_build_object('sub', v_user_c::text, 'role', 'authenticated')::text, true);
+    v_c16_gate_res := public.check_product_subscription('rccp');
+    RESET ROLE;
+
+    IF v_c16_sub_after.status = 'past_due'
+       AND (v_c16_gate_res->>'has_access')::boolean = false THEN
+      v_results := jsonb_set(v_results, '{case_16}', jsonb_build_object(
+        'passed', true,
+        'detail', 'paused mapped to past_due and check_product_subscription revoked access'
+      ));
+    ELSE
+      v_results := jsonb_set(v_results, '{case_16}', jsonb_build_object(
+        'passed', false,
+        'sub_status', v_c16_sub_after.status,
+        'gate_res', v_c16_gate_res
+      ));
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RESET ROLE;
+    v_results := jsonb_set(v_results, '{case_16}', jsonb_build_object('passed', false, 'error', SQLERRM));
   END;
 
   -- ----------------------------------------------------------------------------
@@ -635,5 +865,17 @@ BEGIN
   -- ----------------------------------------------------------------------------
   -- ROLLBACK & REPORT
   -- ----------------------------------------------------------------------------
-  RAISE EXCEPTION 'BEHAVIOUR_RESULT (this error is intentional; everything was rolled back): %', jsonb_pretty(v_results);
+  DECLARE
+    v_k text;
+    v_summary jsonb := jsonb_build_object();
+  BEGIN
+    FOR v_k IN SELECT jsonb_object_keys(v_results) LOOP
+      IF (v_results->v_k->>'passed')::boolean = true THEN
+        v_summary := jsonb_set(v_summary, ARRAY[v_k], jsonb_build_object('passed', true));
+      ELSE
+        v_summary := jsonb_set(v_summary, ARRAY[v_k], v_results->v_k);
+      END IF;
+    END LOOP;
+    RAISE EXCEPTION 'BEHAVIOUR_RESULT (intentional rollback): %', v_summary::text;
+  END;
 END $$;

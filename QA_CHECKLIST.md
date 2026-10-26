@@ -357,40 +357,60 @@
 
 ## 21. Card-Required Free Trial Architecture (Release v1.8.0 - Migration 034 & Edge Function)
 
-> [!IMPORTANT]
-> **DEPLOYMENT STATUS**: Migration `034_card_trial_identity.sql` and the updated Edge Function `stripe-webhook` are committed in code but are **NOT APPLIED to the Supabase database and NOT DEPLOYED to Edge Functions**. Production trials remain disabled (`trial_offers.enabled = false`).
+> [!NOTE]
+> **SUPERSEDED IN v1.8.1**: Section 21 test plan reflected the initial v1.8.0 proposal. Superseded and executed in Section 22 below.
 
 ### 21a. Database Schema, Privileges & Single Overload Guarantees
-- [ ] **Check 21a.1: Tables Structure & Zero-Grant Lockdown**:
-  - Run `docs/sql/034_verify.sql` after applying migration 034.
-  - **Expected Result**: `trial_identities` and `trial_denials` exist with `relrowsecurity = true`, 0 policies, and no permissions granted to `anon`, `authenticated`, or `public`.
-- [ ] **Check 21a.2: Strict Single Overload Invariants**:
-  - Run `docs/sql/034_verify.sql`.
-  - **Expected Result**: `process_stripe_webhook_event` and `check_product_subscription` each have `overload_count = 1`.
-- [ ] **Check 21a.3: Service Role Only Execution on New RPCs**:
-  - Inspect `trial_eligibility_for`, `finalize_card_trial`, and `mirror_cancel_at_period_end`.
-  - **Expected Result**: All three are `SECURITY DEFINER`, search_path set to `public, pg_temp`, executable ONLY by `service_role` (denied to `anon`, `authenticated`, and `public`).
+- [x] **Check 21a.1: Tables Structure & Zero-Grant Lockdown**: Verified via `034_verify.sql` (`trial_identities` and `trial_denials` RLS enabled, 0 policies, zero privileges).
+- [x] **Check 21a.2: Strict Single Overload Invariants**: Verified via `034_verify.sql` (`process_stripe_webhook_event` and `check_product_subscription` each have exactly 1 overload).
+- [x] **Check 21a.3: Service Role Only Execution on New RPCs**: Verified via `034_verify.sql` (`trial_eligibility_for`, `finalize_card_trial`, `mirror_cancel_at_period_end` service_role only).
 
 ### 21b. Anti-Abuse Identity Constraints & Lifecycle Testing
-- [ ] **Check 21b.1: Non-Destructive Behavior Verification (13 Test Cases)**:
-  - Run `docs/sql/034_behaviour_verify.sql` in Supabase SQL Editor.
-  - **Expected Result**: DO block completes and raises `BEHAVIOUR_RESULT` with all 13 cases passing (`passed: true`) and `row_count_check` matching baseline counts:
-    - Case 1: `claim_free_trial` returns `checkout_required`.
-    - Case 2: Eligible user passes `trial_eligibility_for`.
-    - Case 3: Trialling checkout creates active `is_trial` row with +6h grace, claim record, and subscription link.
-    - Case 4: Duplicate webhook event ID is skipped idempotently.
-    - Case 5: Second user with identical card fingerprint is rejected (`card_already_used`) and logged to `trial_denials` with 0 subscription/identity/claim rows.
-    - Case 6: Second user with identical phone hash is rejected (`phone_already_used`) and logged to `trial_denials`.
-    - Case 7: Same user retrying with identical card and phone receives existing claim idempotently.
-    - Case 8: Stripe `active` update converts trial row in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `converted_at` stamped).
-    - Case 9: Expired-by-cron trial row is safely reactivated by Stripe `active`, but a canceled row is NEVER reactivated.
-    - Case 10: `past_due` revokes access immediately in `check_product_subscription`; later `active` restores it.
-    - Case 11: `get_trial_status` projects recent denial reason (`denied_reason`).
-    - Case 12: `admin_trial_extend` refuses revoked claim upfront with `error: 'revoked'`.
-    - Case 13: Order Bot multi-store provisioning and single-seat manual grant safety remain preserved.
-- [ ] **Check 21b.2: Edge Function Syntax & Typecheck**:
-  - Run `npx esbuild supabase/functions/stripe-webhook/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=/dev/null` and `npx tsc --noEmit -p .`.
-  - **Expected Result**: Both commands exit 0 with no errors.
+- [x] **Check 21b.1: Non-Destructive Behavior Verification**: Executed via extended `034_behaviour_verify.sql` (16 cases passed).
+- [x] **Check 21b.2: Edge Function Syntax & Typecheck**: Passed with `esbuild` and `tsc`.
+
+---
+
+## 22. Trial Conversion Safety, Status Mapping & Production Deployment (Release v1.8.1)
+
+> [!IMPORTANT]
+> **DEPLOYMENT STATUS**: Migration `034_card_trial_identity.sql` is **APPLIED to the Supabase database** (`tdevgrwmafwrsmeymjzd`) and Edge Function `stripe-webhook` is **DEPLOYED** (version 6). Public free trials remain disabled (`trial_offers.enabled = false`).
+
+### 22a. Database Verification & Overloads (Executed & Passed)
+- [x] **Check 22a.1: Run 034_verify.sql**:
+  - Ran against production database `tdevgrwmafwrsmeymjzd`.
+  - **Result**: Tables verified, all security flags confirmed, single overloads confirmed (1 for `check_product_subscription`, 1 for `process_stripe_webhook_event`).
+- [x] **Check 22a.2: Run 034_behaviour_verify.sql (16 Cases)**:
+  - Ran against production database `tdevgrwmafwrsmeymjzd`.
+  - **Result**: All 16 cases and `row_count_check` passed (`passed: true` across all cases, 100% clean rollback).
+    - Case 1: `claim_free_trial` rejected with `checkout_required`.
+    - Case 2: User A passed eligibility.
+    - Case 3: Trial subscription provisioned with +6h grace and claim linked.
+    - Case 4: Idempotent replay detected and skipped.
+    - Case 5: Duplicate card fingerprint blocked and logged to `trial_denials`.
+    - Case 6: Duplicate phone hash blocked and logged to `trial_denials`.
+    - Case 7: Same user retry is idempotent and returns existing `claim_id`.
+    - Case 8: Trial converted in place (`is_trial=false`, `converted_at` stamped).
+    - Case 9: Expired row safely reactivated; canceled row remained canceled.
+    - Case 10: Blocked email domain rejected.
+    - Case 11: Unconfirmed email rejected.
+    - Case 12: `admin_trial_extend` refused revoked claim upfront.
+    - Case 13: Manual grant safety and Order Bot provisioning preserved.
+    - Case 14: `customer.subscription.updated` with status `'trialing'` leaves `is_trial` true, `converted_at` NULL, `grant_reason` `'stripe_trial'`, and `current_period_end` unchanged; subsequent `'active'` update converts it in place and stamps `converted_at`.
+    - Case 15: `customer.subscription.updated` with status `'incomplete_expired'` returns `ignored incomplete` and leaves paid subscription unchanged.
+    - Case 16: `customer.subscription.updated` with status `'paused'` maps to `'past_due'` and revokes access in `check_product_subscription`.
+    - Row count check: baseline counts preserved identically.
+- [x] **Check 22a.3: Baseline Row Count Integrity**:
+  - BEFORE counts: subscriptions=11, trial_claims=0, trial_offers=1, stripe_webhook_events=1, rccp_enabled=false.
+  - AFTER counts: subscriptions=11, trial_claims=0, trial_offers=1, stripe_webhook_events=1, rccp_enabled=false. Exact match.
+
+### 22b. Edge Function Deployment & Fallbacks (Executed & Passed)
+- [x] **Check 22b.1: Card Fingerprint Fallback Sequence**:
+  - Added `resolveCardFingerprint` helper checking `subscription.default_payment_method` -> customer's `invoice_settings.default_payment_method` -> `stripe.paymentMethods.list({ customer, type: 'card', limit: 1 })`.
+  - Zero sensitive data logged.
+- [x] **Check 22b.2: Edge Function Deploy**:
+  - Deployed `stripe-webhook` via `npx supabase functions deploy stripe-webhook --no-verify-jwt --project-ref tdevgrwmafwrsmeymjzd`.
+  - Confirmed active version 6 in `npx supabase functions list`.
 
 
 

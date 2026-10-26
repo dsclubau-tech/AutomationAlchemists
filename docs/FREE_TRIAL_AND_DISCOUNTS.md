@@ -474,10 +474,10 @@ When validating free trial lifecycle and billing end-to-end:
 
 ---
 
-## 13. Card-Required Free Trial Architecture (Migration 034 & Edge Function v1.8.0)
+## 13. Card-Required Free Trial Architecture (Migration 034 & Edge Function v1.8.1)
 
 > [!IMPORTANT]
-> **DEPLOYMENT STATUS**: Migration `supabase/migrations/034_card_trial_identity.sql` and the updated Edge Function `supabase/functions/stripe-webhook/index.ts` are committed to the codebase but are **NOT APPLIED to the Supabase database and NOT DEPLOYED to Edge Functions**. The free trial remains switched **OFF** in production (`trial_offers.enabled = false`). Nothing in this release enables the promotion publicly.
+> **DEPLOYMENT STATUS**: Migration `supabase/migrations/034_card_trial_identity.sql` is **APPLIED to the Supabase database** (`tdevgrwmafwrsmeymjzd`) and Edge Function `stripe-webhook` is **DEPLOYED** (version 6). The free trial remains switched **OFF** in production (`trial_offers.enabled = false`). Nothing in this release enables the promotion publicly.
 
 ### 13.1 Architecture Shift: Card-Required Trialing via Stripe Checkout
 Under the owner's decision, free trials now require a credit card collected through Stripe Checkout:
@@ -489,7 +489,7 @@ Under the owner's decision, free trials now require a credit card collected thro
 To prevent trial abuse across repeated account creation, the database introduces two zero-privilege tables (`public.trial_identities` and `public.trial_denials`) managed strictly via `SECURITY DEFINER` RPCs:
 
 - **1 Trial Per Normalised Email**: Canonicalized via `normalize_email` (strips `+tags`, normalizes `@gmail.com` dots). Stored permanently in `trial_claims.email_normalized`.
-- **1 Trial Per Card Fingerprint**: Extracted from `subscription.default_payment_method.card.fingerprint`. Stored in `trial_identities(tool_slug, 'card', fingerprint)`.
+- **1 Trial Per Card Fingerprint**: Extracted from `subscription.default_payment_method.card.fingerprint` (or resolved via customer invoice settings / paymentMethods list fallbacks). Stored in `trial_identities(tool_slug, 'card', fingerprint)`.
 - **1 Trial Per Phone Number**: The E.164 phone string from `session.customer_details.phone` is hashed using HMAC-SHA256 with the secret environment pepper `TRIAL_IDENTITY_PEPPER`. Stored in `trial_identities(tool_slug, 'phone', phone_hash)`.
 
 #### Anti-Abuse Boundaries and Known Limitations
@@ -506,13 +506,28 @@ To prevent trial abuse across repeated account creation, the database introduces
   ```
   No client can claim access without entering payment details through Stripe Checkout.
 
-### 13.4 +6-Hour Grace Window & pg_cron Conversion Race Protection
+### 13.4 +6-Hour Grace Window & Trial Conversion Safety (v1.8.1 Fixes)
 - **The Problem**: The database runs a `pg_cron` job (`expire-past-due-subscriptions`) every 60 seconds that marks active rows `status = 'expired'` once `current_period_end <= now()`. Stripe typically generates the first post-trial renewal invoice approximately 1 hour after `trial_end`. If `current_period_end` were set exactly to `trial_end`, paying subscribers would experience access lockouts during that 1-hour invoicing window.
 - **The Solution**:
   1. **+6h Grace Window**: At checkout completion, `process_stripe_webhook_event` writes `current_period_end = p_current_period_end + interval '6 hours'`, `is_trial = true`, and `grant_reason = 'stripe_trial'`, while preserving the exact trial expiration timestamp in `trial_claims.trial_ends_at`.
-  2. **Safe Reactivation on Conversion**: On `customer.subscription.updated` with `status = 'active'`, any matching row with `status = 'expired'` (e.g. if cron ran during a network delay) is safely reactivated to `status = 'active'`, converted to `is_trial = false`, and stamped with `converted_at = now()`.
-  3. **Strict Canceled Guard**: Subscriptions with `status = 'canceled'` are **NEVER reactivated**.
-  4. **Immediate Past-Due Revocation**: Stripe status `'past_due'` or `'unpaid'` immediately transitions subscription status to `'past_due'`, which revokes access in `check_product_subscription` while permitting later automatic restoration if payment recovers.
+  2. **Trial Conversion Guard (v1.8.1)**: In `process_stripe_webhook_event`, single-seat "convert in place" (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `current_period_end = p_current_period_end`, and `trial_claims.converted_at = now()`) runs **ONLY when raw Stripe status `p_subscription_status = 'active'`**.
+  3. **Trialing Update Preservation**: When raw Stripe status is `p_subscription_status = 'trialing'`, `process_stripe_webhook_event` does NOT modify `is_trial`, `grant_reason`, `converted_at`, or `current_period_end` (the +6h grace period end is kept). Portal cancellation during a trial simply updates `cancel_at_period_end` via `mirror_cancel_at_period_end` without causing premature paid conversion.
+  4. **Status Mapping in customer.subscription.updated**:
+     - `incomplete` and `incomplete_expired`: ignored after idempotency recording (`{ "success": true, "message": "ignored incomplete" }`).
+     - `paused`: mapped to `v_new_status := 'past_due'` (revokes access immediately).
+     - `past_due`, `unpaid`: mapped to `v_new_status := 'past_due'` (revokes access immediately).
+     - `canceled`: mapped to `v_new_status := 'canceled'` (revokes access, never reactivated).
+     - `active`, `trialing`: mapped to `v_new_status := 'active'`.
+  5. **Strict Canceled Guard**: Subscriptions with `status = 'canceled'` are **NEVER reactivated**.
+  6. **Safe Reactivation on Paid Active**: On `customer.subscription.updated` with status `'active'`, rows with `status = 'expired'` or `'past_due'` are safely reactivated.
+
+### 13.5 Edge Function Payment Method Fallbacks (v1.8.1)
+- When resolving card fingerprints in `stripe-webhook`:
+  1. Primary: `subscription.default_payment_method` (expanded object or retrieved via `stripe.paymentMethods.retrieve`).
+  2. Fallback 1: Customer's `invoice_settings.default_payment_method` (expanded or retrieved).
+  3. Fallback 2: `stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })`.
+  4. Only if all fallbacks fail is HTTP 500 returned.
+  5. Card fingerprints, customer phone numbers, and `TRIAL_IDENTITY_PEPPER` are never printed or logged.
 
 
 
