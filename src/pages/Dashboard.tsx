@@ -13,8 +13,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { handleGetAccessLogic } from '@/lib/checkout';
+import { handleGetAccessLogic, startTrialCheckout, redirectToBillingPortal } from '@/lib/checkout';
 import { VISIBLE_TOOL_SLUGS } from '@/data/tools';
+import { useTrialStatus, TrialStatusData } from '@/lib/trial';
 
 export interface DbTool {
     id: string;
@@ -34,6 +35,7 @@ interface SubscriptionData {
     product_slug: string;
     status: string;
     current_period_end: string | null;
+    is_trial?: boolean;
 }
 
 const getIconComponent = (slug: string): ElementType => {
@@ -83,7 +85,11 @@ const ToolCard = ({
     currentPeriodEnd,
     isNotified,
     onNotify,
-    hasCpBotSub,
+    cpBotSubscription,
+    trialStatus,
+    onStartTrial,
+    onManageSubscription,
+    onSubscribe,
     onBuyNow
 }: { 
     tool: DbTool; 
@@ -91,7 +97,11 @@ const ToolCard = ({
     currentPeriodEnd?: string | null;
     isNotified?: boolean;
     onNotify?: (tool: DbTool) => void;
-    hasCpBotSub?: boolean;
+    cpBotSubscription?: SubscriptionData | null;
+    trialStatus?: TrialStatusData | null;
+    onStartTrial?: () => void;
+    onManageSubscription?: () => void;
+    onSubscribe?: () => void;
     onBuyNow?: (slug: string) => void;
 }) => {
     const Icon = getIconComponent(tool.slug);
@@ -118,6 +128,16 @@ const ToolCard = ({
             );
         } else if (tool.slug === 'rccp') {
             bannerClass = 'bg-teal-800';
+            const hasCpBotSub = Boolean(cpBotSubscription);
+            const isCpBotTrial = Boolean(cpBotSubscription?.is_trial || cpBotSubscription?.status === 'trialing');
+            const isTrialEligible = !hasCpBotSub && Boolean(
+                trialStatus?.enabled &&
+                trialStatus?.eligible &&
+                !trialStatus?.already_claimed &&
+                (trialStatus?.slots_left ?? 0) > 0
+            );
+            const trialDays = trialStatus?.trial_days || 30;
+
             if (!hasCpBotSub) {
                 displayDescription = "Return Converter is free. Upgrade to unlock CP Bot.";
                 badge = (
@@ -130,21 +150,74 @@ const ToolCard = ({
                         </div>
                     </div>
                 );
+
+                if (isTrialEligible) {
+                    // State 4: Locked and eligible -> "Start free trial now"
+                    button = (
+                        <div className="flex flex-col gap-2 w-full sm:w-auto">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button asChild variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                    <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                        Open Return Converter
+                                    </a>
+                                </Button>
+                                <Button onClick={onStartTrial} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                    Start free trial now
+                                </Button>
+                            </div>
+                            <p className="text-[11px] text-mint-50/70 font-display">
+                                {trialDays} days free, then A${tool.price_monthly}/month. Card required. Cancel anytime.
+                            </p>
+                        </div>
+                    );
+                } else {
+                    // State 1: Not eligible or no trial -> "Subscribe"
+                    button = (
+                        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                            <Button asChild variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                    Open Return Converter
+                                </a>
+                            </Button>
+                            <Button onClick={onSubscribe} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                Subscribe
+                            </Button>
+                        </div>
+                    );
+                }
+            } else if (isCpBotTrial) {
+                // State 2: Trial active -> end date and "Manage subscription"
+                badge = (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                                ↩️ Return Converter — Active
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-accent/15 text-yellow-accent text-xs font-semibold border border-yellow-accent/30 whitespace-nowrap">
+                                🤖 CP Bot — Free Trial
+                            </div>
+                        </div>
+                        {currentPeriodEnd && (
+                            <div className="text-[10px] text-mint-50/70 font-medium">
+                                Free trial ends {new Date(currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </div>
+                        )}
+                    </div>
+                );
                 button = (
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <Button asChild variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                             <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
-                                Open Return Converter
+                                Open Tools
                             </a>
                         </Button>
-                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                            <a href="/#">
-                                Unlock CP Bot — AUD $9/mo
-                            </a>
+                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            Manage subscription
                         </Button>
                     </div>
                 );
             } else {
+                // State 3: Paid active -> "Manage subscription"
                 badge = (
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-center gap-2">
@@ -163,11 +236,16 @@ const ToolCard = ({
                     </div>
                 );
                 button = (
-                    <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                        <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
-                            Open Tools
-                        </a>
-                    </Button>
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                Open Tools
+                            </a>
+                        </Button>
+                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            Manage subscription
+                        </Button>
+                    </div>
                 );
             }
         } else {
@@ -186,11 +264,18 @@ const ToolCard = ({
                 </div>
             );
             button = (
-                <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                    <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
-                        Open {tool.name}
-                    </a>
-                </Button>
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                        <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                            Open {tool.name}
+                        </a>
+                    </Button>
+                    {onManageSubscription && (
+                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            Manage subscription
+                        </Button>
+                    )}
+                </div>
             );
         }
     } else if (type === 'available') {
@@ -280,6 +365,7 @@ const Dashboard = () => {
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
+    const { data: trialStatus } = useTrialStatus('rccp', user?.id);
     const [isLoading, setIsLoading] = useState(true);
     const [subscriptions, setSubscriptions] = useState<SubscriptionData[]>([]);
     const [dbTools, setDbTools] = useState<DbTool[]>([]);
@@ -301,9 +387,9 @@ const Dashboard = () => {
         try {
             const { data: subsData } = await supabase
                 .from('subscriptions')
-                .select('product_slug, status, current_period_end')
+                .select('product_slug, status, current_period_end, is_trial')
                 .eq('user_id', user.id);
-            if (subsData) setSubscriptions(subsData);
+            if (subsData) setSubscriptions(subsData as SubscriptionData[]);
         } catch (err) {
             console.error("Error refreshing subscriptions:", err);
         }
@@ -473,7 +559,7 @@ const Dashboard = () => {
 
     const getSubscriptionEndDate = (slug: string) => {
         const querySlug = slug === 'rccp' ? 'cpbot' : slug;
-        const sub = subscriptions.find(s => s.product_slug === querySlug && s.status === 'active');
+        const sub = subscriptions.find(s => s.product_slug === querySlug && (s.status === 'active' || s.status === 'trialing'));
         return sub?.current_period_end;
     };
 
@@ -502,6 +588,7 @@ const Dashboard = () => {
                             userId={user.id}
                             onClaimSuccess={refetchSubscriptions}
                             onSubscribe={() => handleGetAccessLogic('rccp', user, toast)}
+                            priceMonthly={dbTools.find(t => t.slug === 'rccp')?.price_monthly}
                         />
                     )}
 
@@ -583,7 +670,11 @@ const Dashboard = () => {
                                                     tool={tool} 
                                                     type="active" 
                                                     currentPeriodEnd={getSubscriptionEndDate(tool.slug)}
-                                                    hasCpBotSub={tool.slug === 'rccp' ? subscriptions.some(s => s.product_slug === 'cpbot' && s.status === 'active') : undefined}
+                                                    cpBotSubscription={tool.slug === 'rccp' ? subscriptions.find(s => s.product_slug === 'cpbot' && (s.status === 'active' || s.status === 'trialing')) : undefined}
+                                                    trialStatus={tool.slug === 'rccp' ? trialStatus : undefined}
+                                                    onStartTrial={() => startTrialCheckout({ returnPath: '/dashboard', user, toast })}
+                                                    onManageSubscription={() => redirectToBillingPortal(toast)}
+                                                    onSubscribe={() => handleGetAccessLogic('rccp', user, toast)}
                                                 />
                                             );
                                         })}

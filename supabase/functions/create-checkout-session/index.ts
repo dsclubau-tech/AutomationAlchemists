@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
 
     const resolvedAccessSlug = offerData?.access_slug || product_slug;
 
-    // DOUBLE-CHARGE GUARD: Reject if user already has an active, non-trial subscription.
+    // DOUBLE-CHARGE GUARD: Reject if user already has an active or trialing subscription.
     // Skip for Order Bot: multi-slot product; extra stores are bought through the same checkout.
     if (product_slug !== 'orderbot') {
       const { data: existingSubs } = await supabaseAdmin
@@ -88,15 +88,14 @@ Deno.serve(async (req) => {
         .eq('user_id', user.id)
         .eq('product_slug', resolvedAccessSlug)
         .is('store_id', null)
-        .eq('status', 'active')
-        .eq('is_trial', false);
+        .in('status', ['active', 'trialing']);
 
-      const hasActivePaidSub = (existingSubs || []).some(
+      const hasActiveSub = (existingSubs || []).some(
         (sub: { current_period_end: string | null }) =>
           !sub.current_period_end || new Date(sub.current_period_end) > new Date()
       );
 
-      if (hasActivePaidSub) {
+      if (hasActiveSub) {
         return new Response(JSON.stringify({
           error: 'You already have an active subscription for this tool.',
           code: 'already_subscribed',
@@ -104,6 +103,32 @@ Deno.serve(async (req) => {
           status: 409,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
+      }
+    }
+
+    // TRIAL ELIGIBILITY CHECK (Migration 034)
+    // For tool rccp, inspect trial eligibility via service-role RPC.
+    let isEligibleTrial = false;
+    let trialDays = 0;
+    let trialEligibilityReason: string | null = null;
+
+    if (product_slug === 'rccp') {
+      const { data: eligibility, error: eligibilityError } = await supabaseAdmin
+        .rpc('trial_eligibility_for', {
+          p_user_id: user.id,
+          p_tool_slug: 'rccp',
+        });
+
+      if (!eligibilityError && eligibility) {
+        if (eligibility.eligible) {
+          isEligibleTrial = true;
+          trialDays = Number(eligibility.trial_days) || 30;
+        } else {
+          trialEligibilityReason = eligibility.reason || 'not_eligible';
+        }
+      } else if (eligibilityError) {
+        console.warn('trial_eligibility_for error:', eligibilityError);
+        trialEligibilityReason = 'rpc_error';
       }
     }
 
@@ -213,14 +238,13 @@ Deno.serve(async (req) => {
     const origin = req.headers.get('Origin') || 'https://automationalchemists.com';
 
     // Metadata payload set on BOTH session and subscription_data
-    const sessionMetadata = {
+    const sessionMetadata: Record<string, string> = {
       user_id: user.id,
       tool_slug: product_slug,
       price_source: priceSource,
     };
 
-    // Create Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const sessionCreateParams: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       mode: 'subscription',
       customer_email: user.email,
@@ -230,11 +254,58 @@ Deno.serve(async (req) => {
         metadata: sessionMetadata,
       },
       line_items: lineItems,
-      success_url: `${origin}/tools/${product_slug}?checkout=success`,
-      cancel_url: `${origin}/tools/${product_slug}?checkout=cancel`,
-    });
+      success_url: `${origin}/dashboard?checkout=success`,
+      cancel_url: `${origin}/tools/${product_slug}`,
+    };
 
-    return new Response(JSON.stringify({ url: session.url }), {
+    // If eligible for trial: configure subscription trial options
+    if (isEligibleTrial) {
+      sessionMetadata.trial = 'true';
+      sessionCreateParams.metadata = sessionMetadata;
+      sessionCreateParams.subscription_data = {
+        metadata: sessionMetadata,
+        trial_period_days: trialDays,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: 'cancel',
+          },
+        },
+      };
+      sessionCreateParams.payment_method_collection = 'always';
+      sessionCreateParams.phone_number_collection = {
+        enabled: true,
+      };
+
+      const startDate = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
+      const formattedDate = startDate.toLocaleDateString('en-AU', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+      const displayPrice = finalUnitAmount !== null
+        ? (finalUnitAmount % 100 === 0 ? (finalUnitAmount / 100).toString() : (finalUnitAmount / 100).toFixed(2))
+        : (toolData?.price_monthly ? Number(toolData.price_monthly).toString() : '9');
+
+      sessionCreateParams.custom_text = {
+        submit: {
+          message: `${trialDays} days free, then A$${displayPrice}/month starting ${formattedDate}. Cancel anytime before then.`,
+        },
+      };
+    }
+
+    // Create Checkout Session
+    const session = await stripe.checkout.sessions.create(sessionCreateParams);
+
+    const responsePayload: Record<string, unknown> = {
+      url: session.url,
+      trial: isEligibleTrial,
+    };
+
+    if (!isEligibleTrial && product_slug === 'rccp') {
+      responsePayload.reason = trialEligibilityReason || 'not_eligible';
+    }
+
+    return new Response(JSON.stringify(responsePayload), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

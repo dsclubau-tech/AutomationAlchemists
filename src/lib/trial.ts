@@ -26,11 +26,8 @@ export interface TrialStatusData {
   slots_left?: number;
   slots_taken?: number;
   trial_days?: number;
+  denied_reason?: string | null;
 }
-
-export type ClaimTrialResult =
-  | { ok: true; days: number; ends_at: string }
-  | { ok: false; reason: string };
 
 const isPrerendering = (): boolean =>
   typeof window !== 'undefined' && Boolean((window as unknown as { __PRERENDER__?: boolean }).__PRERENDER__);
@@ -51,17 +48,28 @@ export function sanitizeNext(raw: unknown): string {
 }
 
 /**
- * Maps claim failure reasons from migration 031 to client-friendly messages.
- * Never reveals email normalization rules or blocked domains.
+ * Maps claim/denial reasons to client-friendly messages.
+ * Never reveals which other account used a card or phone number.
  */
-export function getClaimErrorMessage(reason: string): string {
+export function getClaimErrorMessage(reason: string, priceMonthly: number = 9): string {
   switch (reason) {
+    case 'checkout_required':
+      return 'Please complete card verification in checkout to start your free trial.';
+    case 'card_already_used':
+      return `This card has already been used for a free trial. You can subscribe at A$${priceMonthly}/month instead.`;
+    case 'phone_already_used':
+      return `This phone number has already been used for a free trial. You can subscribe at A$${priceMonthly}/month instead.`;
+    case 'phone_missing':
+      return 'A valid phone number is required to start the free trial.';
+    case 'card_missing':
+      return 'A valid payment card is required to start the free trial.';
+    case 'no_slots':
+    case 'sold_out':
+      return 'All free-trial spots have been claimed.';
     case 'email_not_allowed':
       return 'Please use a personal email address to start the free trial.';
     case 'already_claimed':
       return 'This account or email has already used the free trial.';
-    case 'sold_out':
-      return 'All free-trial spots have been claimed.';
     case 'disabled':
       return "The free trial isn't available right now.";
     case 'email_unconfirmed':
@@ -154,28 +162,6 @@ export async function getTrialStatus(
   }
 }
 
-/**
- * Claims a free trial for the authenticated user.
- * Returns { ok: true, days, ends_at } or { ok: false, reason }.
- */
-export async function claimFreeTrial(
-  toolSlug: string = 'rccp'
-): Promise<ClaimTrialResult> {
-  if (isPrerendering()) {
-    return { ok: false, reason: 'network' };
-  }
-  try {
-    const { data, error } = await supabase.rpc('claim_free_trial', {
-      p_tool_slug: toolSlug,
-    });
-    if (error || !data) {
-      return { ok: false, reason: 'network' };
-    }
-    return data as ClaimTrialResult;
-  } catch {
-    return { ok: false, reason: 'network' };
-  }
-}
 
 /**
  * Hook for public trial offer data (client-side only).

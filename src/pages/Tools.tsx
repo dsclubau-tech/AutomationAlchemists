@@ -11,7 +11,7 @@ import SchemaMarkup from "@/components/SchemaMarkup";
 import { supabase } from "@/integrations/supabase/client";
 import { toolsData, VISIBLE_TOOL_SLUGS } from "@/data/tools";
 import { useTrialPublic } from "@/lib/trial";
-import { handleGetAccessLogic } from "@/lib/checkout";
+import { handleGetAccessLogic, startTrialCheckout } from "@/lib/checkout";
 
 interface DbTool {
     slug: string;
@@ -157,12 +157,13 @@ const Tools = () => {
                                 <div className="flex flex-col gap-2">
                                     {trialPublic?.enabled ? (
                                         <div>
-                                            <Link
-                                                to={user ? '/dashboard#claim-trial' : `/auth?mode=signup&next=${encodeURIComponent('/dashboard#claim-trial')}`}
+                                            <button
+                                                type="button"
+                                                onClick={() => startTrialCheckout({ returnPath: '/tools', user, toast })}
                                                 className="w-full text-center py-2.5 px-4 rounded-lg bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-label-md text-sm font-semibold transition-colors shadow-md block"
                                             >
                                                 Start free trial now
-                                            </Link>
+                                            </button>
                                             <p className="text-xs text-teal-900/70 text-center mt-2 font-display">
                                                 {trialDays} days free, then A${rccpPrice}/month. Card required. Cancel anytime.
                                             </p>

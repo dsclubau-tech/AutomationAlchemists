@@ -529,6 +529,124 @@ To prevent trial abuse across repeated account creation, the database introduces
   4. Only if all fallbacks fail is HTTP 500 returned.
   5. Card fingerprints, customer phone numbers, and `TRIAL_IDENTITY_PEPPER` are never printed or logged.
 
+---
+
+## 14. Owner Stripe Setup, Edge Function Deployment & Office PC Test Run (v1.9.0)
+
+### 14.1 Owner Stripe-Side Setup List
+Before deploying Edge Functions or enabling the trial offer, the owner must complete the following configuration in the Stripe Dashboard:
+
+1. **Enable & Configure Stripe Customer Billing Portal**:
+   - Navigate to: **Settings → Billing → Customer portal** (`https://dashboard.stripe.com/settings/billing/portal`).
+   - Toggle **Activate portal**.
+   - Under **Features**:
+     - Enable **Payment methods**: Allow customers to update default cards.
+     - Enable **Subscriptions**: Allow customers to cancel subscriptions (set cancellation timing to *At the end of the billing period* so subscribers retain trial access until trial expiry).
+     - Enable **Invoices**: Allow customers to view and download PDF invoices and receipts.
+   - Under **Business information**:
+     - Confirm business name, support email, and branding logo are populated.
+     - Set default redirect URL to `https://automationalchemists.com/dashboard`.
+   - Save changes.
+
+2. **Verify Product & Pricing Catalog**:
+   - Ensure tool product `rccp` has an active recurring monthly price in AUD matching the database price (`price_monthly = 9.00 AUD`).
+   - Verify lookup key is set to `'rccp'`.
+
+3. **Verify Webhook Endpoint Configuration**:
+   - Endpoint URL: `https://tdevgrwmafwrsmeymjzd.supabase.co/functions/v1/stripe-webhook`
+   - Configured events:
+     - `checkout.session.completed`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+     - `customer.subscription.trial_will_end`
+     - `invoice.payment_failed`
+     - `charge.refunded`
+   - Verify signing secret is present in Supabase secrets as `STRIPE_WEBHOOK_SIGNING_SECRET`.
+
+4. **Verify Supabase Edge Function Secrets**:
+   - `STRIPE_SECRET_KEY`: `sk_test_...` (or live key for production).
+   - `TRIAL_IDENTITY_PEPPER`: Secure 32+ character string for HMAC phone hashing.
+   - `CHECKOUT_ENABLED`: Keep **unset** (or `'false'`) in production until public rollout so only administrators (`profiles.is_admin = true`) can access checkout.
+
+---
+
+### 14.2 Edge Function Deploy Commands (Do NOT Run Automatically)
+Deployments are executed manually by the project owner from their authorized workstation:
+
+```bash
+# 1. Deploy Checkout Session edge function (handles subscription trials & pricing overrides)
+npx supabase functions deploy create-checkout-session --project-ref tdevgrwmafwrsmeymjzd
+
+# 2. Deploy Billing Portal edge function (handles Stripe Customer Portal self-service)
+npx supabase functions deploy create-portal-session --project-ref tdevgrwmafwrsmeymjzd
+
+# 3. Deploy Webhook edge function (must use --no-verify-jwt so Stripe can post events)
+npx supabase functions deploy stripe-webhook --no-verify-jwt --project-ref tdevgrwmafwrsmeymjzd
+```
+
+---
+
+### 14.3 Office PC Stripe Test-Mode Runbook
+
+Follow this step-by-step test run in Stripe Test Mode on the office PC to validate the end-to-end trial lifecycle:
+
+#### Test Run 1: Trial Checkout with Test Card
+1. Sign in to Automation Alchemists using test account A (`test-a@automationalchemists.com`).
+2. Navigate to `/tools/rccp` or `/dashboard`.
+3. Click **"Start free trial now"**.
+4. On Stripe Checkout:
+   - Notice the submit message: *"30 days free, then A$9/month starting {date}. Cancel anytime before then."*
+   - Enter standard Stripe test card: `4242 4242 4242 4242`, exp `12/28`, CVC `123`.
+   - Enter mobile number: `+61 400 000 001`.
+   - Click **Start trial**.
+5. Browser redirects to `/dashboard?checkout=success`:
+   - Verify card displays: *"Setting up your trial..."* with spinner.
+   - Within 2–6 seconds, polls succeed and update card to: *"Your free trial is active until {date}"*.
+   - Confirm CP Bot unlocks on the Dashboard and Return Converter remains active.
+
+#### Test Run 2: Repeat Card on Second Account (Expect Denial & Cancellation)
+1. Sign out and sign in with test account B (`test-b@automationalchemists.com`).
+2. Navigate to `/dashboard` and click **"Start free trial now"**.
+3. On Stripe Checkout:
+   - Enter the **identical** test card (`4242 4242 4242 4242`) or identical phone number used in Test Run 1.
+   - Click **Start trial**.
+4. What happens behind the scenes:
+   - `checkout.session.completed` arrives at `stripe-webhook`.
+   - Webhook checks `trial_identities` and detects duplicate card fingerprint.
+   - `finalize_card_trial` inserts a denial record with reason `'card_already_used'`.
+   - Webhook immediately cancels the newly created Stripe subscription via `stripe.subscriptions.cancel(subId)`.
+5. Browser redirects to `/dashboard?checkout=success`:
+   - Polling detects `denied_reason: 'card_already_used'`.
+   - Dashboard card displays: *"This card has already been used for a free trial. You can subscribe at A$9/month instead."*
+   - Displays a **Subscribe** button instead of trial activation.
+   - Account B remains locked without access.
+
+#### Test Run 3: Cancel in the Portal Before Trial Ends
+1. Sign back in with test account A (active trial).
+2. On the Dashboard RCCP card (or on `/billing`), click **"Manage subscription"**.
+3. Browser redirects to the Stripe Customer Billing Portal.
+4. Click **Cancel subscription** and confirm.
+5. In Stripe: `cancel_at_period_end` is set to `true`.
+6. Return to `/dashboard`:
+   - Subscription remains active with trial end date unchanged.
+   - Subscription row preserves `is_trial = true` and `grant_reason = 'stripe_trial'`.
+   - No premature paid conversion occurs.
+
+#### Test Run 4: Trial-End Conversion Using a Stripe Test Clock
+1. In Stripe Dashboard (Test Mode) → **Customers** → **Test clocks** (`https://dashboard.stripe.com/test/test-clocks`):
+   - Create a test clock (e.g. named *"Trial 30-day Conversion Clock"*).
+   - Create a test customer attached to this test clock.
+2. Complete a trial checkout for this customer with test card `4242 4242 4242 4242`.
+3. In Stripe Dashboard, advance the test clock forward 31 days (past trial duration).
+4. Stripe generates the first renewal invoice and automatically charges the payment card on file.
+5. Stripe fires `customer.subscription.updated` with status `'active'`.
+6. Webhook processes the conversion:
+   - `process_stripe_webhook_event` detects raw status `'active'`.
+   - Updates `subscriptions`: `is_trial` becomes `false`, `grant_reason` becomes `'stripe_checkout'`.
+   - Updates `trial_claims`: `converted_at` is stamped with `now()`.
+7. Refresh `/dashboard`:
+   - Card updates from trial state to paid state: *"CP Bot renews {date}"*.
+
 
 
 

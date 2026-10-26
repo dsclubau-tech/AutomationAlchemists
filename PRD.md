@@ -210,13 +210,49 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   | `customer.subscription.deleted` | Any | `v_new_status := 'canceled'` | Subscriptions set to `'canceled'` |
   | `invoice.payment_failed` | Any | `v_new_status := 'past_due'` | Subscriptions set to `'past_due'` |
   | `charge.refunded` | Any | `v_new_status := 'canceled'` | Subscriptions set to `'canceled'` |
-- **Edge Function Card Fingerprint Fallback Chain**:
-  - Ordering:
-    1. `subscription.default_payment_method` (expanded object or retrieved via `stripe.paymentMethods.retrieve(pmId)`).
-    2. Customer's `invoice_settings.default_payment_method` (expanded via `stripe.customers.retrieve` or retrieved by ID).
-    3. `stripe.paymentMethods.list({ customer, type: 'card', limit: 1 })`.
-  - Only if all fallbacks fail does the edge function return HTTP 500.
-  - Zero sensitive logging: card fingerprints, customer phone numbers, and `TRIAL_IDENTITY_PEPPER` are never logged.
+---
+
+### 11. Trial Checkout Session, Billing Portal & Trial Button Integration (Release v1.9.0)
+
+- **create-checkout-session Edge Function (`supabase/functions/create-checkout-session/index.ts`)**:
+  - Gated server-side by `CHECKOUT_ENABLED !== 'true'` (only `profiles.is_admin` allowed in production until global switch).
+  - Inspects trial eligibility for `'rccp'` via service-role RPC `trial_eligibility_for(p_user_id, 'rccp')`.
+  - Eligible trials:
+    - Mode: `'subscription'`.
+    - `subscription_data.trial_period_days`: set to offer `trial_days`.
+    - `subscription_data.trial_settings.end_behavior.missing_payment_method`: `'cancel'`.
+    - `payment_method_collection`: `'always'`.
+    - `phone_number_collection.enabled`: `true`.
+    - `metadata.trial`: `'true'` set on both session and `subscription_data`.
+    - `custom_text.submit.message`: `"{N} days free, then A${price}/month starting {date}. Cancel anytime before then."` with date and price computed server-side.
+    - Return payload: `{ url: session.url, trial: true }`.
+  - Non-eligible callers:
+    - Standard paid checkout created without trial parameters.
+    - Return payload: `{ url: session.url, trial: false, reason: eligibility.reason }`.
+  - 409 Double-charge guard: updated to block both `'active'` and `'trialing'` rows for single-seat tools. Order Bot exempt.
+  - Redirect URLs: `success_url = `${origin}/dashboard?checkout=success``, `cancel_url = `${origin}/tools/rccp``.
+- **create-portal-session Edge Function (`supabase/functions/create-portal-session/index.ts`)**:
+  - Validates caller JWT from `Authorization` header.
+  - Not gated by `CHECKOUT_ENABLED`.
+  - Queries `public.subscriptions` for user's most recent row with non-null `stripe_customer_id`.
+  - If missing: returns HTTP 404 `{ error: 'No Stripe customer found for this account.', code: 'no_customer' }`.
+  - If present: creates Stripe billing portal session with `return_url = `${origin}/dashboard`` and returns `{ url: portalSession.url }`.
+- **Frontend Trial & Checkout Integration**:
+  - Single checkout initiator `startTrialCheckout()` in `src/lib/checkout.ts`:
+    - Signed out: redirects to `/auth?mode=signup&next=<sanitized path>`.
+    - Signed in: invokes `create-checkout-session` and redirects to Stripe Checkout.
+  - Single portal initiator `redirectToBillingPortal()` in `src/lib/checkout.ts`: invokes `create-portal-session` and redirects to Stripe Customer Portal.
+  - Legacy `claim_free_trial` removed from frontend entirely.
+  - Client-safe error messages in `getClaimErrorMessage` for `checkout_required`, `card_already_used`, `phone_already_used`, `phone_missing`, `card_missing`, `no_slots`.
+  - `/dashboard?checkout=success` polling: polls `get_trial_status` every 2s for up to 40s. Shows *"Setting up your trial..."* while polling, *"Your free trial is active until {date}"* on success, error message and *"Subscribe"* button on denial, or timeout notice if 40s elapsed.
+  - 4 RCCP card states on Dashboard:
+    1. Not eligible or no trial: *"Subscribe"* button.
+    2. Trial active: trial end date and *"Manage subscription"* button.
+    3. Paid active: renews date and *"Manage subscription"* button.
+    4. Locked and eligible: *"Start free trial now"* button.
+  - Pricing transparency caption: `"{trial_days} days free, then A${price}/month. Card required. Cancel anytime."` next to every trial button.
+  - Fail-safe rule: when trial offer is disabled, UI identically matches v1.7.0.
+  - Billing page (`src/pages/Billing.tsx`): upgraded from "Coming Soon" placeholder to an active portal launch card with *"Manage subscription"* button.
 
 
 

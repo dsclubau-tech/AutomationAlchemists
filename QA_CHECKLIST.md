@@ -412,6 +412,85 @@
   - Deployed `stripe-webhook` via `npx supabase functions deploy stripe-webhook --no-verify-jwt --project-ref tdevgrwmafwrsmeymjzd`.
   - Confirmed active version 6 in `npx supabase functions list`.
 
+---
+
+## 23. Trial Checkout, Billing Portal & Trial Button Integration (Release v1.9.0)
+
+### 23a. Edge Function Syntax & Bundling
+- [x] **Check 23a.1: create-checkout-session Syntax Validation**:
+  - `npx esbuild supabase/functions/create-checkout-session/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=scratch_bundle.js`
+  - **Expected Result**: Exits 0, produces valid bundle with no syntax or type errors. (Passed: 9.3kb bundle).
+- [x] **Check 23a.2: create-portal-session Syntax Validation**:
+  - `npx esbuild supabase/functions/create-portal-session/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=scratch_bundle.js`
+  - **Expected Result**: Exits 0, produces valid bundle with no syntax or type errors. (Passed: 3.2kb bundle).
+
+### 23b. Frontend Static Verification
+- [x] **Check 23b.1: TypeScript Compilation**:
+  - `npx tsc --noEmit -p .`
+  - **Expected Result**: Exits 0 with zero diagnostic errors across all components and pages. (Passed).
+- [x] **Check 23b.2: Elimination of Legacy claim_free_trial**:
+  - Grep for `claim_free_trial` and `claimFreeTrial` across `src/`.
+  - **Expected Result**: Zero results in frontend source files. (Passed).
+
+### 23c. Trial Checkout Logic & Server Guards
+- [ ] **Check 23c.1: create-checkout-session Trial Parameters**:
+  - **Precondition**: Caller has admin profile in test environment or `CHECKOUT_ENABLED` true; `rccp` trial offer is eligible.
+  - **Action**: Call `create-checkout-session` for `product_slug = 'rccp'`.
+  - **Expected Result**:
+    - Stripe Checkout Session created in `mode = 'subscription'`.
+    - `subscription_data.trial_period_days` set to `trial_days`.
+    - `subscription_data.trial_settings.end_behavior.missing_payment_method = 'cancel'`.
+    - `payment_method_collection = 'always'`.
+    - `phone_number_collection.enabled = true`.
+    - Metadata `trial = 'true'` set on both session and `subscription_data`.
+    - `custom_text.submit.message`: `"{N} days free, then A${price}/month starting {date}. Cancel anytime before then."` with computed server-side date.
+    - Return payload: `{ url: session.url, trial: true }`.
+- [ ] **Check 23c.2: Ineligible Caller Paid Fallback**:
+  - **Precondition**: Caller is not eligible for trial (e.g. already claimed or offer disabled).
+  - **Action**: Call `create-checkout-session` for `product_slug = 'rccp'`.
+  - **Expected Result**: Session created without trial parameters, response returns `{ url: session.url, trial: false, reason: <reason> }`.
+- [ ] **Check 23c.3: 409 Double-Charge Guard on Trialing Subscriptions**:
+  - **Precondition**: Caller has an existing subscription with `status = 'trialing'` or `status = 'active'` for `cpbot`.
+  - **Action**: Call `create-checkout-session` for `product_slug = 'rccp'`.
+  - **Expected Result**: Immediately rejected with HTTP 409 `{ error: 'You already have an active subscription for this tool.', code: 'already_subscribed' }`. Order Bot exempt.
+
+### 23d. Billing Portal Function
+- [ ] **Check 23d.1: create-portal-session Success**:
+  - **Precondition**: Authenticated user has at least one subscription row with non-null `stripe_customer_id`.
+  - **Action**: POST to `/functions/v1/create-portal-session` with valid user JWT.
+  - **Expected Result**: Returns HTTP 200 `{ url: portalSession.url }` with return_url set to `/dashboard`.
+- [ ] **Check 23d.2: create-portal-session 404 on No Customer**:
+  - **Precondition**: Authenticated user has no subscriptions with `stripe_customer_id`.
+  - **Action**: POST to `/functions/v1/create-portal-session` with valid user JWT.
+  - **Expected Result**: Returns HTTP 404 `{ error: 'No Stripe customer found for this account.', code: 'no_customer' }`.
+
+### 23e. Frontend Trial & Dashboard Integration
+- [ ] **Check 23e.1: Unified startTrialCheckout Behavior**:
+  - **Signed out**: Clicking "Start free trial now" redirects to `/auth?mode=signup&next=<encoded safe return path>`.
+  - **Signed in**: Clicking "Start free trial now" calls `create-checkout-session` and redirects to Stripe Checkout.
+- [ ] **Check 23e.2: Dashboard Polling on /dashboard?checkout=success**:
+  - Navigating to `/dashboard?checkout=success` displays *"Setting up your trial..."* with spinner.
+  - Polls `get_trial_status` every 2s for up to 40s.
+  - On `has_access = true`: displays *"Your free trial is active until {date}"* and "Open CP Bot" button.
+  - On `denied_reason`: displays mapped error message and "Subscribe" button.
+  - On 40s timeout: displays *"This is taking longer than usual. Refresh in a minute or contact us."*.
+- [ ] **Check 23e.3: Dashboard 4 RCCP Card States**:
+  - State 1 (Not eligible or no trial): shows "Subscribe" button.
+  - State 2 (Trial active): shows trial end date and "Manage subscription" button.
+  - State 3 (Paid active): shows renews date and "Manage subscription" button.
+  - State 4 (Locked and eligible): shows "Start free trial now" button.
+- [ ] **Check 23e.4: Pricing Transparency Caption**:
+  - Under/next to every trial button (Tools page, RCCP tool page, Dashboard card): displays `"{trial_days} days free, then A${price}/month. Card required. Cancel anytime."` with real DB price and trial days (no hardcoding).
+- [ ] **Check 23e.5: Billing Page Upgrade**:
+  - `/billing` displays "Customer Billing Portal" with "Manage subscription" button wired to `redirectToBillingPortal(toast)`.
+- [ ] **Check 23e.6: Fail-Safe Rule When Offer Disabled**:
+  - When `trial_offers.enabled = false` in database:
+    - `/tools`: Shows "Learn more" button linking to `/tools/rccp` (no trial text).
+    - `/tools/rccp`: Shows "Get access" button (no trial text).
+    - `/dashboard`: No trial promotional banner rendered.
+    - RCCP card on Dashboard shows "Subscribe" button.
+    - Entire UI matches v1.7.0 identically.
+
 
 
 

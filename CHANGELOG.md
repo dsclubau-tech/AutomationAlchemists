@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-10-26
+### Added
+- Integrated Stripe subscription checkout with free trial support, card verification, and automatic renewal dates
+- Created customer billing portal integration allowing subscribers to easily update payment methods and manage subscriptions
+- Real-time setup screen on the dashboard that automatically confirms trial activation after completing checkout
+- Added clear pricing notices and cancel-anytime terms next to all trial buttons
+
+### Changed
+- Dashboard tool cards now show exact subscription and trial end dates with direct access to the billing portal
+- Upgraded the billing page so customers can open their self-service subscription management portal
+- Completely removed the retired no-card trial claiming path
+
 ## [1.8.1] - 2026-10-26
 ### Fixed
 - Fixed trial conversion handling so that customer cancellations during a free trial keep trial status and end dates rather than prematurely converting to paid subscriptions

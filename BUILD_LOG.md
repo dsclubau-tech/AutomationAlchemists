@@ -1,5 +1,82 @@
 # Build Log
 
+## 2026-10-26 (v1.9.0 Trial Checkout, Billing Portal and Trial Buttons - Not Deployed)
+- Requested:
+  - Task 1: Update edge function `create-checkout-session`: call service-role RPC `trial_eligibility_for(user_id, 'rccp')`. If eligible: Stripe Checkout mode subscription with `subscription_data.trial_period_days = trial_days`, `subscription_data.trial_settings.end_behavior.missing_payment_method = 'cancel'`, `payment_method_collection = 'always'`, `phone_number_collection.enabled = true`, metadata `trial = 'true'` (on session and subscription_data) plus existing user_id/tool_slug/price_source, and `custom_text.submit.message` saying "{N} days free, then A${price}/month starting {date}. Cancel anytime before then." (computed server-side). If ineligible: standard paid checkout, returning `{url, trial: false, reason}`. Update 409 `already_subscribed` guard to block both active and trialing subscriptions (Order Bot exempt). `success_url = /dashboard?checkout=success`, `cancel_url = /tools/rccp`.
+  - Task 2: New edge function `create-portal-session`: requires valid user JWT, finds user's most recent subscription with `stripe_customer_id`, creates Stripe billing portal session with `return_url = `${origin}/dashboard``, returns `{url}`. Returns 404 when user has no Stripe customer. Not gated by `CHECKOUT_ENABLED`.
+  - Task 3: Frontend:
+    - Unified `startTrialCheckout()` in `src/lib/checkout.ts` used by every trial button (Tools page RCCP card, RCCP tool page hero, Dashboard card). Signed out -> `/auth?mode=signup&next=<sanitized path>`. Signed in -> calls `create-checkout-session` -> redirects to Stripe.
+    - Remove all frontend calls to legacy `claim_free_trial` RPC.
+    - Add client-safe messages in `getClaimErrorMessage` for `checkout_required`, `card_already_used`, `phone_already_used`, `phone_missing`, `card_missing`, `no_slots`.
+    - Dashboard after `/dashboard?checkout=success`: poll `get_trial_status` every 2s up to 40s. Handled states: "Setting up your trial...", "Your free trial is active until {date}", denial message with "Subscribe" button, and 40s timeout message.
+    - Dashboard RCCP card 4 states: not eligible -> "Subscribe"; trial active -> end date and "Manage subscription"; paid -> "Manage subscription"; locked and eligible -> "Start free trial now". "Manage subscription" calls `create-portal-session` and redirects.
+    - Update Billing page (`/billing`) with "Manage subscription" button and report finding.
+    - Next to every trial button show: "{trial_days} days free, then A${price}/month. Card required. Cancel anytime." with real data.
+    - Fail-safe rule: when trial offer is disabled, UI identically matches v1.7.0.
+  - Verification: `npx tsc --noEmit -p .` exit 0; esbuild syntax parse of both edge functions; diffs shown; say plainly what was NOT run.
+  - Document owner's Stripe setup, deploy commands, and office PC test-mode run in `docs/FREE_TRIAL_AND_DISCOUNTS.md`.
+- Built:
+  - `supabase/functions/create-checkout-session/index.ts`:
+    - Integrated service-role RPC `trial_eligibility_for`.
+    - Configured Stripe Checkout subscription mode with trial settings, missing payment method cancel behavior, mandatory card collection, phone number collection, and server-computed submit message.
+    - Updated 409 double-charge guard to check `.in('status', ['active', 'trialing'])`.
+    - Configured `success_url` to `/dashboard?checkout=success` and `cancel_url` to `/tools/rccp`.
+    - Returned payload `{ url, trial: boolean, reason?: string }`.
+  - `supabase/functions/create-portal-session/index.ts`:
+    - Validates caller JWT via `supabase.auth.getUser`.
+    - Queries `public.subscriptions` for caller's latest `stripe_customer_id`.
+    - Returns HTTP 404 `{ error: 'No Stripe customer found for this account.', code: 'no_customer' }` if missing.
+    - Creates Stripe Customer Billing Portal session with return_url `/dashboard` and returns `{ url }`.
+  - `src/lib/checkout.ts`:
+    - Implemented `startTrialCheckout({ returnPath, user, toast })` supporting signed-out redirect and signed-in checkout session invocation.
+    - Implemented `redirectToBillingPortal(toast)` invoking `create-portal-session` and redirecting to Stripe portal.
+    - Preserved `handleGetAccessLogic` for catalog purchases.
+  - `src/lib/trial.ts`:
+    - Added `denied_reason?: string | null` to `TrialStatusData`.
+    - Updated `getClaimErrorMessage` with client-safe messages for checkout_required, card_already_used, phone_already_used, phone_missing, card_missing, no_slots.
+    - Completely removed `claimFreeTrial` and `ClaimTrialResult`.
+  - `src/components/DashboardTrialCard.tsx`:
+    - Added `checkout=success` polling loop (every 2s for 40s) displaying setup spinner, trial activated date, denial guidance, or timeout notice.
+    - Wired trial CTA to `startTrialCheckout`.
+    - Wired active trial button to `redirectToBillingPortal`.
+    - Added dynamic pricing terms text.
+  - `src/pages/Dashboard.tsx`:
+    - Integrated `useTrialStatus` and selected `is_trial` in subscriptions query.
+    - Updated `getSubscriptionEndDate` to check active or trialing rows.
+    - Implemented the 4 RCCP card states: not eligible (Subscribe), trial active (trial end date & Manage subscription), paid (renews date & Manage subscription), locked and eligible (Start free trial now).
+  - `src/pages/tools/RccpToolPage.tsx`:
+    - Wired trial button to `startTrialCheckout`.
+    - Added pricing terms caption under trial CTA button.
+  - `src/pages/Tools.tsx`:
+    - Wired RCCP trial CTA to `startTrialCheckout`.
+  - `src/pages/Billing.tsx`:
+    - Upgraded placeholder into functional Customer Billing Portal launch card with "Manage subscription" button.
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`:
+    - Added Section 14: owner Stripe-side setup list, edge function deploy commands, and 4-step office PC test-mode runbook.
+  - Documentation and tracking updated: `PRD.md`, `QA_CHECKLIST.md`, `CHANGELOG.md`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
+- Files touched:
+  - `supabase/functions/create-checkout-session/index.ts`
+  - `supabase/functions/create-portal-session/index.ts`
+  - `src/lib/checkout.ts`
+  - `src/lib/trial.ts`
+  - `src/components/DashboardTrialCard.tsx`
+  - `src/pages/Dashboard.tsx`
+  - `src/pages/tools/RccpToolPage.tsx`
+  - `src/pages/Tools.tsx`
+  - `src/pages/Billing.tsx`
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+  - `CHANGELOG.md`
+  - `PROJECT_STATE.md`
+  - `BUILD_LOG.md`
+- What was NOT run:
+  - No edge functions were deployed (`create-checkout-session`, `create-portal-session`, `stripe-webhook` deploy commands were NOT executed).
+  - No SQL migrations or database statements were executed.
+  - No Stripe live or test API calls were made.
+  - Free trial offer remains switched OFF (`trial_offers.enabled = false`).
+  - Checkout remains hidden in production (`VITE_CHECKOUT_ENABLED !== 'true'`, Supabase secret `CHECKOUT_ENABLED` unset).
+
 ## 2026-10-26 (v1.8.1 Trial Conversion Fix, Migration 034 Applied & Webhook Deployed)
 - Requested:
   - Fix trial conversion bug in `process_stripe_webhook_event`: single-seat "convert in place" update must run ONLY when `p_subscription_status = 'active'`; when `p_subscription_status = 'trialing'`, do NOT modify `is_trial`, `grant_reason`, `converted_at`, or `current_period_end` (+6h grace end must be preserved). Keep 'canceled' rows untouchable.

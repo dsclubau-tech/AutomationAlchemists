@@ -7,7 +7,7 @@ import { RevealText } from '@/components/RevealText';
 import { RevealBlock } from '@/components/RevealBlock';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { handleGetAccessLogic } from '@/lib/checkout';
+import { handleGetAccessLogic, startTrialCheckout } from '@/lib/checkout';
 import { useTrialPublic, useTrialStatus, formatTrialTimeLeft } from '@/lib/trial';
 import { supabase } from '@/integrations/supabase/client';
 import { rccpPageContent, RccpIncludedCard } from '@/data/rccpPage';
@@ -243,14 +243,18 @@ const RccpToolPage: React.FC = () => {
                         renderAccessButton(content.hero.buttons.getAccessBot, 'w-full sm:w-auto whitespace-nowrap shrink-0')
                       ) : isTrialAvailable ? (
                         <div className="flex flex-col items-start gap-1.5 w-full sm:w-auto shrink-0">
-                          <Link
-                            to={user ? '/dashboard#claim-trial' : `/auth?mode=signup&next=${encodeURIComponent('/dashboard#claim-trial')}`}
+                          <button
+                            type="button"
+                            onClick={() => startTrialCheckout({ returnPath: '/tools/rccp', user, toast })}
                             className="inline-flex items-center justify-center py-3 px-6 rounded-lg border border-transparent bg-yellow-accent text-teal-900 font-semibold text-base transition-colors shadow-sm [@media(hover:hover)]:hover:bg-yellow-accent/90 active:bg-yellow-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 font-display w-full sm:w-auto whitespace-nowrap shrink-0"
                           >
                             {content.hero.buttons.trialCta(trialDays)}
-                          </Link>
+                          </button>
                           <span className="text-xs text-teal-900/70 font-medium font-display px-0.5">
                             {content.hero.buttons.spotsLeft(slotsLeft, slotCap)}
+                          </span>
+                          <span className="text-xs text-teal-900/70 font-display px-0.5">
+                            {trialDays} days free, then A${dbTool.price_monthly}/month. Card required. Cancel anytime.
                           </span>
                         </div>
                       ) : (
