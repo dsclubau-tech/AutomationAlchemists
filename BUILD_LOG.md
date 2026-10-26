@@ -1,5 +1,54 @@
 # Build Log
 
+## 2026-10-26 (v1.8.0 Card-Required Free Trial Architecture: Database Migration 034 & Webhook Update - Not Applied)
+- Requested:
+  - Migrate free trial design to require a payment card collected via Stripe Checkout.
+  - Close the legacy cardless trial claiming path (`claim_free_trial` returns `checkout_required`).
+  - Introduce anti-abuse identity gating: 1 trial per normalized email (`trial_claims.email_normalized`), 1 per card fingerprint (`trial_identities` kind 'card'), and 1 per phone number HMAC-SHA256 hash (`trial_identities` kind 'phone' hashed with secret `TRIAL_IDENTITY_PEPPER`).
+  - Strict database invariants: never create a second overload of `check_product_subscription` or `process_stripe_webhook_event` (13 arguments exact match); never touch `cp_bot_*` tables; zero-grant lockdown on new tables.
+  - Write migration `supabase/migrations/034_card_trial_identity.sql`.
+  - Update edge function `supabase/functions/stripe-webhook/index.ts` to expand payment methods, hash phone numbers, finalize trials, mirror cancel flags, and handle trial conversions.
+  - Author SQL verification scripts: `docs/sql/034_verify.sql`, `docs/sql/034_rollback.sql`, and `docs/sql/034_behaviour_verify.sql` (13 test cases in a rolled-back DO block).
+  - Update docs: `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`, `PRD.md`, `QA_CHECKLIST.md`.
+- Built:
+  - `supabase/migrations/034_card_trial_identity.sql`:
+    - Tables: `public.trial_identities` and `public.trial_denials` with RLS on, 0 policies, zero grants to public/anon/authenticated.
+    - RPCs with `SECURITY DEFINER`, `search_path = public, pg_temp`, `service_role` execution only: `_check_trial_eligibility`, `trial_eligibility_for`, `finalize_card_trial`, `mirror_cancel_at_period_end`.
+    - `claim_free_trial(text)` replaced to unconditionally return `{ok: false, reason: 'checkout_required'}` with authenticated grant preserved.
+    - `get_trial_status(text)` extended with `denied_reason` (latest denial within 2 days).
+    - `process_stripe_webhook_event` replaced (13 arguments exact match, single overload): handles trialing checkout (+6h grace, `is_trial = true`, `grant_reason = 'stripe_trial'`, links `trial_claims.subscription_id`), conversion on active (`is_trial = false`, `grant_reason = 'stripe_checkout'`, stamps `converted_at`), immediate access revocation on `past_due`/`unpaid`, safe reactivation from `expired` (cron) or `past_due`, and strict guard ensuring `canceled` rows are NEVER reactivated.
+    - `admin_trial_extend` updated to refuse revoked claims upfront before any row update.
+  - `supabase/functions/stripe-webhook/index.ts`:
+    - Handles `checkout.session.completed` for `metadata.trial === 'true'`: expands `default_payment_method`, checks `trialing`, extracts card fingerprint and customer phone, computes HMAC-SHA256 hash using `Deno.env.get('TRIAL_IDENTITY_PEPPER')`, returns 500 if pepper/fingerprint missing, calls `finalize_card_trial` via service role; on denial cancels subscription immediately and returns 200; on approval calls `process_stripe_webhook_event` with status `trialing` and trial_end period.
+    - Handles `customer.subscription.updated`: calls `mirror_cancel_at_period_end` to synchronize cancel flag.
+    - Handles `customer.subscription.trial_will_end`: returns 200 no-op.
+  - `docs/sql/034_verify.sql`: Formatted JSON inspection of table RLS, 0 policies, zero privileges, single overloads, security definer flags, and service_role execution.
+  - `docs/sql/034_rollback.sql`: Clean rollback transaction dropping new tables/functions and restoring 031/032/033 definitions.
+  - `docs/sql/034_behaviour_verify.sql`: Single transaction DO block with 13 isolated test cases, owner fixture management, baseline row leak assertion, and intentional `RAISE EXCEPTION 'BEHAVIOUR_RESULT ...'` for 100% rollback.
+  - Updated documentation across `docs/FREE_TRIAL_AND_DISCOUNTS.md`, `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`, `PRD.md`, `QA_CHECKLIST.md`.
+- Deviations: None. No database migrations were executed, no edge functions deployed, no SQL run against production. Trials remain disabled (`trial_offers.enabled = false`).
+- Files touched:
+  - `supabase/migrations/034_card_trial_identity.sql`
+  - `supabase/functions/stripe-webhook/index.ts`
+  - `docs/sql/034_verify.sql`
+  - `docs/sql/034_rollback.sql`
+  - `docs/sql/034_behaviour_verify.sql`
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`
+  - `docs/CURRENT_STATE_BILLING_AND_ACCESS.md`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+  - `CHANGELOG.md`
+  - `BUILD_LOG.md`
+  - `PROJECT_STATE.md`
+- Verification:
+  - `npx esbuild supabase/functions/stripe-webhook/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=scratch_bundle.js` passed with code 0 (11.2kb bundle, syntax validated).
+  - `npx tsc --noEmit -p .` passed with code 0.
+- What was NOT run:
+  - Migration 034 SQL was NOT executed on Supabase.
+  - `stripe-webhook` edge function was NOT deployed to Supabase.
+  - Verification scripts `034_verify.sql`, `034_rollback.sql`, `034_behaviour_verify.sql` were NOT run against the live database.
+  - No Stripe API calls or test checkouts were executed.
+
 ## 2026-10-26 (v1.7.0 Tools & Dashboard Redesign, Visible Tools Filtering, Navbar Accessibility)
 - Requested:
   - Visible tools restricted strictly to `rccp` and `listflow` across the frontend via a single `VISIBLE_TOOL_SLUGS` constant (Tools page, navbar desktop/mobile dropdowns, home page marquee, cart upsells, sitemap, prerender, JSON-LD, search).

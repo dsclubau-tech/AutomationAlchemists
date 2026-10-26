@@ -591,7 +591,36 @@ export const handleGetAccessLogic = (slug: string, user: any, toast: any) => {
 ## 11. Open Questions
 
 1. **Canonical Slug Decision (RESOLVED)**: Confirmed as `'cpbot'`. The dashboard calls `check_product_subscription` with the single argument `p_product_slug = 'cpbot'`. Part B's `resolve_access_slug` and `trial_offers.access_slug` decouple the marketing catalog slug `'rccp'` from the internal access slug `'cpbot'`.
-2. **Trial Row Representation**: Should a trial row exist directly in `public.subscriptions` with `status = 'active'`, `stripe_subscription_id = NULL`, and `current_period_end = now() + interval '7 days'`, or in a separate `trials` table?
-3. **Handling Post-Trial Paid Checkout**: If a trial row is placed in `public.subscriptions`, how will `process_stripe_webhook_event` resolve the conflict with `subscriptions_user_product_no_store_unique`? (e.g. converting `INSERT` to an `UPSERT` on `(user_id, product_slug)`).
-4. **Discount Mechanism**: Should per-user discounts be applied as Stripe promotion codes/coupons during session creation, or should checkout switch to dynamic `price_data` calculated from `tools.price_monthly - discount`?
+2. **Trial Row Representation (RESOLVED in Migration 031 & 034)**: Trial rows exist directly in `public.subscriptions` with `status = 'active'`, `is_trial = true`, and `current_period_end` set to trial end + 6h grace.
+3. **Handling Post-Trial Paid Checkout (RESOLVED in Migration 032 & 034)**: `process_stripe_webhook_event` performs an atomic `UPSERT` on `(user_id, product_slug) WHERE store_id IS NULL`, converting trial rows in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`) and stamping `trial_claims.converted_at = now()`.
+4. **Discount Mechanism (RESOLVED in Part B)**: Dynamic `price_data` calculated server-side from `tools.price_monthly - discount`.
 5. **Auth Redirection**: Should `/auth` be updated to accept `?redirect=/cart` so users returning from sign-up land directly in checkout?
+
+---
+
+## 12. Card-Required Free Trial Architecture (Migration 034 & Edge Function v1.8.0)
+
+> [!IMPORTANT]
+> **DEPLOYMENT STATUS**: Migration `034_card_trial_identity.sql` and the updated Edge Function `stripe-webhook` are committed in code but are **NOT APPLIED to the Supabase database and NOT DEPLOYED to Edge Functions**. Production trials remain disabled (`trial_offers.enabled = false`).
+
+### 12.1 Card-Required Stripe Trial Model
+- The free trial now requires a valid payment card collected via Stripe Checkout (`mode = 'subscription'`, `metadata.trial = 'true'`).
+- The subscription starts in `status = 'trialing'` with trial duration = `trial_offers.trial_days` (default 30 days).
+- Stripe automatically bills the card on file at the end of the 30-day period unless the user cancels beforehand.
+
+### 12.2 Identity Verification & Anti-Abuse Gating
+- Database tables `public.trial_identities` and `public.trial_denials` (RLS enabled, zero policies, service_role execution only) enforce:
+  1. **1 trial per normalised email**: Canonicalized via `normalize_email`.
+  2. **1 trial per card fingerprint**: Extracted from `default_payment_method.card.fingerprint`.
+  3. **1 trial per phone number**: HMAC-SHA256 hash of E.164 phone string using `TRIAL_IDENTITY_PEPPER`.
+- **Known Boundaries**: Stops repeat usage of the same card or phone; does not stop distinct physical or disposable virtual cards, or secondary phone numbers. Customer phone is unverified (no SMS OTP).
+
+### 12.3 Legacy Path Decommissioning
+- `claim_free_trial(text)` unconditionally returns `{ "ok": false, "reason": "checkout_required" }`. No no-card trial can ever be created.
+
+### 12.4 +6-Hour Grace Window & pg_cron Conversion Race Protection
+- `process_stripe_webhook_event` provisions trialing checkouts with `current_period_end = p_current_period_end + interval '6 hours'`. This prevents the 1-minute `pg_cron` job `expire-past-due-subscriptions` from expiring access during the ~1-hour invoicing window after trial expiration.
+- On `customer.subscription.updated` with status `'active'`, trial rows are converted in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `converted_at` stamped).
+- Rows with `status = 'expired'` (from cron) or `'past_due'` are safely reactivated when Stripe reports `active`, but rows with `status = 'canceled'` are **never** reactivated.
+- Stripe status `'past_due'` or `'unpaid'` revokes access immediately.
+

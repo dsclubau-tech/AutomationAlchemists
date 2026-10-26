@@ -403,6 +403,7 @@ Written answers from the CP Bot developer (Raf) on 23 Oct 2026 confirmed the ext
 
 ---
 
+
 ## 11. Next Steps
 
 - **Database Migration 033**: Apply `supabase/migrations/033_admin_trial_controls.sql` by hand in the Supabase SQL Editor and run `docs/sql/033_verify.sql` to verify single overloads, security definer flags, and permissions. (Migration not yet applied in production).
@@ -470,6 +471,49 @@ When validating free trial lifecycle and billing end-to-end:
 7. **Restore Production State**:
    - In `/admin/free-trials`, toggle Offer Status to **Disabled** and save (one-click disable).
    - Verify `/tools/rccp` returns to standard non-promotional display.
+
+---
+
+## 13. Card-Required Free Trial Architecture (Migration 034 & Edge Function v1.8.0)
+
+> [!IMPORTANT]
+> **DEPLOYMENT STATUS**: Migration `supabase/migrations/034_card_trial_identity.sql` and the updated Edge Function `supabase/functions/stripe-webhook/index.ts` are committed to the codebase but are **NOT APPLIED to the Supabase database and NOT DEPLOYED to Edge Functions**. The free trial remains switched **OFF** in production (`trial_offers.enabled = false`). Nothing in this release enables the promotion publicly.
+
+### 13.1 Architecture Shift: Card-Required Trialing via Stripe Checkout
+Under the owner's decision, free trials now require a credit card collected through Stripe Checkout:
+1. **Stripe Subscription Mode**: A user initiates a checkout session with `mode = 'subscription'` and metadata `trial = 'true'`.
+2. **Trial Duration**: Configured by `trial_offers.trial_days` (default 30 days). Stripe creates a subscription in `status = 'trialing'` with `trial_end` set to now + 30 days.
+3. **Automated Conversion**: At trial end, Stripe automatically attempts to charge the card on file for the standard monthly price (e.g. $9/month AUD for CP Bot & Return Converter) unless the subscriber cancels before the trial concludes.
+
+### 13.2 Anti-Abuse Identity Constraints & Security Gating
+To prevent trial abuse across repeated account creation, the database introduces two zero-privilege tables (`public.trial_identities` and `public.trial_denials`) managed strictly via `SECURITY DEFINER` RPCs:
+
+- **1 Trial Per Normalised Email**: Canonicalized via `normalize_email` (strips `+tags`, normalizes `@gmail.com` dots). Stored permanently in `trial_claims.email_normalized`.
+- **1 Trial Per Card Fingerprint**: Extracted from `subscription.default_payment_method.card.fingerprint`. Stored in `trial_identities(tool_slug, 'card', fingerprint)`.
+- **1 Trial Per Phone Number**: The E.164 phone string from `session.customer_details.phone` is hashed using HMAC-SHA256 with the secret environment pepper `TRIAL_IDENTITY_PEPPER`. Stored in `trial_identities(tool_slug, 'phone', phone_hash)`.
+
+#### Anti-Abuse Boundaries and Known Limitations
+- **What it stops**: Re-registering with different throwaway email addresses using the identical payment card or the identical phone number.
+- **What it does NOT stop**:
+  - Virtual or disposable cards: Cards generated with unique fingerprints (e.g., Revolut single-use virtual cards, Privacy.com) present distinct fingerprints to Stripe and cannot be prevented by fingerprint matching alone.
+  - Secondary phone numbers: Alternate phone SIMs or virtual VOIP numbers produce distinct hashes.
+  - Unverified Phone: The customer details phone collected at Stripe Checkout is self-reported and unverified (not validated via SMS OTP).
+
+### 13.3 Closure of the Legacy No-Card Path
+- The legacy RPC `public.claim_free_trial(text)` has been replaced. Its body unconditionally returns:
+  ```json
+  { "ok": false, "reason": "checkout_required" }
+  ```
+  No client can claim access without entering payment details through Stripe Checkout.
+
+### 13.4 +6-Hour Grace Window & pg_cron Conversion Race Protection
+- **The Problem**: The database runs a `pg_cron` job (`expire-past-due-subscriptions`) every 60 seconds that marks active rows `status = 'expired'` once `current_period_end <= now()`. Stripe typically generates the first post-trial renewal invoice approximately 1 hour after `trial_end`. If `current_period_end` were set exactly to `trial_end`, paying subscribers would experience access lockouts during that 1-hour invoicing window.
+- **The Solution**:
+  1. **+6h Grace Window**: At checkout completion, `process_stripe_webhook_event` writes `current_period_end = p_current_period_end + interval '6 hours'`, `is_trial = true`, and `grant_reason = 'stripe_trial'`, while preserving the exact trial expiration timestamp in `trial_claims.trial_ends_at`.
+  2. **Safe Reactivation on Conversion**: On `customer.subscription.updated` with `status = 'active'`, any matching row with `status = 'expired'` (e.g. if cron ran during a network delay) is safely reactivated to `status = 'active'`, converted to `is_trial = false`, and stamped with `converted_at = now()`.
+  3. **Strict Canceled Guard**: Subscriptions with `status = 'canceled'` are **NEVER reactivated**.
+  4. **Immediate Past-Due Revocation**: Stripe status `'past_due'` or `'unpaid'` immediately transitions subscription status to `'past_due'`, which revokes access in `check_product_subscription` while permitting later automatic restoration if payment recovers.
+
 
 
 

@@ -151,5 +151,43 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - Tools dropdown: Exactly two items (`rccp` and `ListFlow`), single line, no description text, no icon/logo on mobile, no background tile behind logo on desktop.
   - Profile dropdown: Light highlight on hover/focus/active (`data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900`), visible focus ring (`focus-visible:ring-2 focus-visible:ring-teal-600`), contrast >= 4.5:1. Red hover highlight on Sign out. Identical styling applied across desktop and mobile menus.
 
+---
+
+### 9. Card-Required Free Trial Architecture (Release v1.8.0 - Migration 034 & Edge Function)
+
+> [!IMPORTANT]
+> **DEPLOYMENT STATUS**: Migration `034_card_trial_identity.sql` and the updated Edge Function `stripe-webhook` are committed in code but are **NOT APPLIED to the Supabase database and NOT DEPLOYED to Edge Functions**. Production trials remain disabled (`trial_offers.enabled = false`).
+
+- **Architecture Shift (Owner Decision)**:
+  - Card-required Stripe subscription trial: a customer initiates a Stripe Checkout session with `mode = 'subscription'` and metadata `trial = 'true'`.
+  - The subscription starts in `status = 'trialing'` for the duration configured in `trial_offers.trial_days` (default 30 days).
+  - Stripe automatically charges the card at trial end unless cancelled before the period concludes.
+- **Anti-Abuse Identity Constraints**:
+  - Zero-privilege tables `public.trial_identities` (RLS on, 0 policies, 0 public/anon/authenticated grants) and `public.trial_denials` enforce:
+    - 1 trial per normalised email (`trial_claims.email_normalized`).
+    - 1 trial per card fingerprint (`trial_identities` where `kind = 'card'`).
+    - 1 trial per phone number HMAC-SHA256 (`trial_identities` where `kind = 'phone'` hashed using secret `TRIAL_IDENTITY_PEPPER`).
+  - **Explicit Boundaries & Limits**:
+    - Stops repeat usage of the same card fingerprint or telephone number.
+    - Does NOT prevent virtual single-use cards (e.g. Revolut virtual cards, Privacy.com) or alternate phone numbers.
+    - Phone number is collected from Stripe Checkout details and is unverified (no SMS OTP).
+- **Closure of Legacy Cardless Path**:
+  - Stored procedure `public.claim_free_trial(text)` unconditionally returns `{ "ok": false, "reason": "checkout_required" }`. No no-card trial can ever be created.
+- **Safe Expiration & pg_cron Conversion Race Protection**:
+  - `process_stripe_webhook_event` writes `current_period_end = p_current_period_end + interval '6 hours'`, `is_trial = true`, and `grant_reason = 'stripe_trial'`, while preserving true expiration in `trial_claims.trial_ends_at`.
+  - The +6h grace window prevents the 1-minute `pg_cron` job `expire-past-due-subscriptions` from prematurely expiring access during the ~1h invoicing window after trial expiration.
+  - On `customer.subscription.updated` with status `'active'`, trial rows are converted in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`, `converted_at = now()`).
+  - Rows with `status = 'expired'` (from cron) or `'past_due'` are safely reactivated when Stripe reports `active`, but rows with `status = 'canceled'` are **never** reactivated.
+  - Stripe status `'past_due'` or `'unpaid'` immediately revokes access in `check_product_subscription`.
+- **RPC Enhancements & Security**:
+  - New service_role-only RPCs (`SECURITY DEFINER`, `search_path = public, pg_temp`):
+    - `trial_eligibility_for(p_user_id uuid, p_tool_slug text)`
+    - `finalize_card_trial(p_user_id uuid, p_tool_slug text, p_email text, p_card_fingerprint text, p_phone_hash text, p_trial_end timestamptz)`
+    - `mirror_cancel_at_period_end(p_stripe_subscription_id text, p_flag boolean)`
+  - `get_trial_status(text)` extended with `denied_reason` (latest denial within 2 days).
+  - `admin_trial_extend(uuid, integer)` refuses revoked claims upfront with `{ok: false, error: 'revoked', message: 'Cannot extend a revoked claim'}` before modifying rows.
+  - Strict single overload invariant preserved for `process_stripe_webhook_event` (13 arguments) and `check_product_subscription` (1 argument).
+
+
 
 

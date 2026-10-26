@@ -5,6 +5,22 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
+// Helper for HMAC-SHA256 phone hashing using Web Crypto API
+async function hmacSha256Hex(secret: string, message: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
@@ -61,9 +77,16 @@ Deno.serve(async (req) => {
       p_email = session.customer_details?.email ?? null;
       p_product_slug = session.metadata?.tool_slug ?? session.metadata?.product_slug ?? null;
 
+      const isTrialMode = session.mode === 'subscription' && session.metadata?.trial === 'true';
+
       // Expand subscription to get accurate status, period, and quantity
       if (p_stripe_subscription_id) {
-        const subscription = await stripe.subscriptions.retrieve(p_stripe_subscription_id);
+        const subscription = isTrialMode
+          ? await stripe.subscriptions.retrieve(p_stripe_subscription_id, {
+              expand: ['default_payment_method'],
+            })
+          : await stripe.subscriptions.retrieve(p_stripe_subscription_id);
+
         p_subscription_status = subscription.status;
         p_current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
         p_current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
@@ -78,6 +101,63 @@ Deno.serve(async (req) => {
           p_stripe_price_id = item.price.id;
           p_price_per_month = (item.price.unit_amount || 0) / 100;
         }
+
+        // Card-Required Free Trial processing
+        if (isTrialMode && subscription.status === 'trialing') {
+          const paymentMethod = subscription.default_payment_method as Stripe.PaymentMethod | null;
+          const cardFingerprint = paymentMethod?.card?.fingerprint ?? null;
+          const customerPhone = session.customer_details?.phone ?? null;
+          const pepper = Deno.env.get('TRIAL_IDENTITY_PEPPER');
+
+          // If the pepper or the fingerprint is missing, return 500 so Stripe retries
+          if (!pepper || !cardFingerprint) {
+            console.error('Trial checkout missing required pepper or card fingerprint.');
+            return new Response(JSON.stringify({ error: 'Missing pepper or card fingerprint' }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+
+          const phoneHash = customerPhone
+            ? await hmacSha256Hex(pepper, customerPhone.trim())
+            : null;
+
+          const toolSlug = session.metadata?.tool_slug ?? session.metadata?.product_slug ?? 'rccp';
+          const trialEndIso = subscription.trial_end
+            ? new Date(subscription.trial_end * 1000).toISOString()
+            : p_current_period_end;
+
+          // Call finalize_card_trial with service role
+          const { data: finalizeData, error: finalizeErr } = await supabaseAdmin.rpc('finalize_card_trial', {
+            p_user_id,
+            p_tool_slug: toolSlug,
+            p_email,
+            p_card_fingerprint: cardFingerprint,
+            p_phone_hash: phoneHash,
+            p_trial_end: trialEndIso,
+          });
+
+          if (finalizeErr) {
+            console.error('finalize_card_trial RPC error:', finalizeErr);
+            throw finalizeErr;
+          }
+
+          const trialResult = finalizeData as { ok?: boolean; reason?: string; claim_id?: string } | null;
+
+          if (!trialResult?.ok) {
+            console.warn(`Trial denied for user ${p_user_id}: ${trialResult?.reason}. Cancelling subscription immediately.`);
+            await stripe.subscriptions.cancel(p_stripe_subscription_id);
+            // Return 200 without calling process_stripe_webhook_event
+            return new Response(JSON.stringify({ received: true, trial_denied: trialResult?.reason }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+
+          // Approved: set status to 'trialing' and period end to subscription trial_end
+          p_subscription_status = 'trialing';
+          p_current_period_end = trialEndIso;
+        }
       }
     } else if (
       event.type === 'customer.subscription.updated' ||
@@ -90,6 +170,17 @@ Deno.serve(async (req) => {
       p_current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
       p_current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
       
+      // Mirror cancel_at_period_end on customer.subscription.updated
+      if (event.type === 'customer.subscription.updated') {
+        const { error: mirrorErr } = await supabaseAdmin.rpc('mirror_cancel_at_period_end', {
+          p_stripe_subscription_id: subscription.id,
+          p_flag: subscription.cancel_at_period_end,
+        });
+        if (mirrorErr) {
+          console.warn('mirror_cancel_at_period_end warning:', mirrorErr);
+        }
+      }
+
       // Extract user_id and product_slug from subscription metadata
       p_user_id = subscription.metadata?.user_id ?? null;
       p_product_slug = subscription.metadata?.tool_slug ?? subscription.metadata?.product_slug ?? null;
@@ -113,6 +204,12 @@ Deno.serve(async (req) => {
         p_stripe_price_id = item.price.id;
         p_price_per_month = (item.price.unit_amount || 0) / 100;
       }
+    } else if (event.type === 'customer.subscription.trial_will_end') {
+      // Trial will end soon: no-op for now; reminder email is handled in a later phase
+      return new Response(JSON.stringify({ received: true, handled: 'trial_will_end_noop' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     } else if (event.type === 'invoice.payment_failed') {
       const invoice = event.data.object as Stripe.Invoice;
       p_stripe_customer_id = invoice.customer as string;
