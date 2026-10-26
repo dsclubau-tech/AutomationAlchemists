@@ -7,8 +7,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
-import PageLoader from "@/components/PageLoader";
 import { supabase } from "@/integrations/supabase/client";
+import { VISIBLE_TOOL_SLUGS } from "@/data/tools";
 
 interface DbTool {
     slug: string;
@@ -151,7 +151,7 @@ const Cart = () => {
 
     // Filter cart items to only those strictly 'available' in the DB
     const activeCartItems = cartSlugs.filter(slug => dbTools[slug] && dbTools[slug].status === 'available');
-    const availableUpsells = Object.values(dbTools).filter(tool => !activeCartItems.includes(tool.slug));
+    const availableUpsells = Object.values(dbTools).filter(tool => !activeCartItems.includes(tool.slug) && (VISIBLE_TOOL_SLUGS as readonly string[]).includes(tool.slug));
 
     return (
         <div className="min-h-screen bg-mint-50 text-teal-900 selection:bg-teal-600 selection:text-white flex flex-col">

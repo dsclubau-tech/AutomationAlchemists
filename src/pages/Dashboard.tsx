@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { handleGetAccessLogic } from '@/lib/checkout';
+import { VISIBLE_TOOL_SLUGS } from '@/data/tools';
 
 export interface DbTool {
     id: string;
@@ -60,13 +61,15 @@ const getAppUrl = (slug: string): string => {
 };
 
 const SkeletonCard = () => (
-    <div className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 animate-pulse">
+    <div className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 animate-pulse w-full min-w-0 flex flex-col h-full">
         <div className="h-[80px] bg-[#222]"></div>
-        <div className="p-6 space-y-4">
-            <div className="h-6 bg-teal-600/30 rounded w-3/4"></div>
-            <div className="h-4 bg-teal-600/30 rounded w-full"></div>
-            <div className="h-4 bg-teal-600/30 rounded w-5/6"></div>
-            <div className="pt-4 flex items-center justify-between">
+        <div className="p-6 space-y-4 flex-grow flex flex-col justify-between">
+            <div className="space-y-4">
+                <div className="h-6 bg-teal-600/30 rounded w-3/4"></div>
+                <div className="h-4 bg-teal-600/30 rounded w-full"></div>
+                <div className="h-4 bg-teal-600/30 rounded w-5/6"></div>
+            </div>
+            <div className="pt-4 flex items-center justify-between border-t border-teal-600/30">
                 <div className="h-6 bg-teal-600/30 rounded w-24"></div>
                 <div className="h-10 bg-teal-600/30 rounded w-28"></div>
             </div>
@@ -109,7 +112,7 @@ const ToolCard = ({
                 </div>
             );
             button = (
-                <Button disabled className="bg-teal-600/30 text-[#888] font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto">
+                <Button disabled className="bg-teal-600/30 text-mint-50/70 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto">
                     Currently Unavailable
                 </Button>
             );
@@ -118,7 +121,7 @@ const ToolCard = ({
             if (!hasCpBotSub) {
                 displayDescription = "Return Converter is free. Upgrade to unlock CP Bot.";
                 badge = (
-                    <div className="flex flex-col xl:flex-row items-start xl:items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
                             ↩️ Return Converter — Active
                         </div>
@@ -128,13 +131,13 @@ const ToolCard = ({
                     </div>
                 );
                 button = (
-                    <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-2 w-full sm:w-auto">
-                        <Button asChild variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <Button asChild variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                             <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                 Open Return Converter
                             </a>
                         </Button>
-                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full xl:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                             <a href="/#">
                                 Unlock CP Bot — AUD $9/mo
                             </a>
@@ -144,7 +147,7 @@ const ToolCard = ({
             } else {
                 badge = (
                     <div className="flex flex-col gap-2">
-                        <div className="flex flex-col xl:flex-row items-start xl:items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
                                 ↩️ Return Converter — Active
                             </div>
@@ -153,14 +156,14 @@ const ToolCard = ({
                             </div>
                         </div>
                         {currentPeriodEnd && (
-                            <div className="text-[10px] text-[#888] font-medium">
+                            <div className="text-[10px] text-mint-50/70 font-medium">
                                 CP Bot renews {new Date(currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                             </div>
                         )}
                     </div>
                 );
                 button = (
-                    <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                    <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                         <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                             Open Tools
                         </a>
@@ -176,14 +179,14 @@ const ToolCard = ({
                         Active
                     </div>
                     {currentPeriodEnd && (
-                        <div className="text-[10px] text-[#888] font-medium ml-1">
+                        <div className="text-[10px] text-mint-50/70 font-medium ml-1">
                             Renews {new Date(currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </div>
                     )}
                 </div>
             );
             button = (
-                <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                     <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                         Open {tool.name}
                     </a>
@@ -203,7 +206,7 @@ const ToolCard = ({
                 In Maintenance
             </Button>
         ) : (
-            <Button onClick={() => onBuyNow?.(tool.slug)} variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+            <Button onClick={() => onBuyNow?.(tool.slug)} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Buy now — AUD ${tool.price_monthly}/mo
             </Button>
         );
@@ -216,11 +219,11 @@ const ToolCard = ({
             </div>
         );
         button = isNotified ? (
-            <Button disabled className="bg-teal-900 text-teal-600 border border-teal-600/30 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
+            <Button disabled className="bg-teal-900 text-teal-400 border border-teal-600/30 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
                 ✓ You're on the list
             </Button>
         ) : (
-            <Button onClick={() => onNotify?.(tool)} className="bg-teal-600/30 hover:bg-[#333] text-white font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+            <Button onClick={() => onNotify?.(tool)} className="bg-teal-800 hover:bg-teal-700 text-mint-50 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto border border-teal-600/50">
                 Notify me
             </Button>
         );
@@ -230,7 +233,7 @@ const ToolCard = ({
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-teal-900 rounded-xl overflow-hidden border ${tool.status === 'maintenance' && type === 'active' ? 'border-yellow-500/30' : 'border-teal-600/30'} flex flex-col h-full`}
+            className={`bg-teal-900 rounded-xl overflow-hidden border ${tool.status === 'maintenance' && type === 'active' ? 'border-yellow-500/30' : 'border-teal-600/30'} flex flex-col h-full w-full min-w-0`}
         >
             <div className={`h-[80px] w-full flex items-center justify-center ${bannerClass} relative overflow-hidden`}>
                 <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
@@ -253,7 +256,7 @@ const ToolCard = ({
             <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-bold text-white mb-2 font-display">{tool.name}</h3>
                 
-                <p className="text-[#888] text-sm mb-4 leading-relaxed flex-grow">
+                <p className="text-mint-50/70 text-sm mb-4 leading-relaxed flex-grow">
                     {displayDescription}
                 </p>
 
@@ -264,7 +267,7 @@ const ToolCard = ({
                     </div>
                 )}
                 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
                     {badge}
                     {button}
                 </div>
@@ -431,27 +434,42 @@ const Dashboard = () => {
         }
     };
 
-    // Categorize tools based on dynamic DB data
+    const hasOrderbotSub = subscriptions.some(
+        s => s.product_slug === 'orderbot' && (s.status === 'active' || s.status === 'trialing')
+    );
+    const hasOrderbotStores = (orderbotStores?.active_store_count ?? 0) > 0;
+    const hasOrderbotAccess = hasOrderbotSub || hasOrderbotStores;
+
+    // Categorize tools based on dynamic DB data and visibility rules
     const activeTools = dbTools.filter(t => {
+        if (t.slug === 'invoicegen') return false;
         if (t.slug === 'orderbot') {
-            return orderbotStores?.active_store_count > 0;
+            return hasOrderbotAccess && hasOrderbotStores;
         }
         if (t.slug === 'rccp') return true;
-        const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && s.status === 'active');
+        if (!VISIBLE_TOOL_SLUGS.includes(t.slug as any)) return false;
+        const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && (s.status === 'active' || s.status === 'trialing'));
         return t.is_free || hasActiveSub;
     });
 
     const availableTools = dbTools.filter(t => {
+        if (t.slug === 'invoicegen') return false;
         if (t.slug === 'orderbot') {
-            return !orderbotStores || orderbotStores.active_store_count === 0;
+            // Task 1c exception: show Order Bot card ONLY if signed-in user has active or trialing subscription row for it
+            return hasOrderbotSub && !hasOrderbotStores;
         }
         if (t.slug === 'rccp') return false;
         if (t.is_free) return false;
-        const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && s.status === 'active');
+        if (!VISIBLE_TOOL_SLUGS.includes(t.slug as any)) return false;
+        const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && (s.status === 'active' || s.status === 'trialing'));
         return !hasActiveSub && (t.status === 'available' || t.status === 'maintenance');
     });
 
-    const comingSoonTools = dbTools.filter(t => t.status === 'coming_soon');
+    const comingSoonTools = dbTools.filter(t => {
+        if (t.slug === 'invoicegen') return false;
+        if (t.slug === 'orderbot') return false;
+        return t.status === 'coming_soon' && (VISIBLE_TOOL_SLUGS as readonly string[]).includes(t.slug);
+    });
 
     const getSubscriptionEndDate = (slug: string) => {
         const querySlug = slug === 'rccp' ? 'cpbot' : slug;
@@ -464,7 +482,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-teal-900 flex flex-col">
+        <div className="min-h-screen bg-teal-900 text-white time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white flex flex-col">
             <SEOHead 
                 title="Your Dashboard | Automation Alchemists" 
                 description="Manage your tools and subscriptions." 
@@ -476,7 +494,7 @@ const Dashboard = () => {
                     
                     <div className="mb-16">
                         <h1 className="text-4xl md:text-5xl font-black text-white font-display mb-4 tracking-tight">Your dashboard</h1>
-                        <p className="text-xl text-[#888] font-display">Manage your tools and subscriptions.</p>
+                        <p className="text-xl text-mint-50/70 font-display">Manage your tools and subscriptions.</p>
                     </div>
 
                     {!isLoading && user && (
@@ -491,14 +509,14 @@ const Dashboard = () => {
                         <div className="space-y-16">
                             <section>
                                 <div className="h-4 bg-teal-600/30 w-32 rounded mb-6 animate-pulse" />
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                     <SkeletonCard />
                                     <SkeletonCard />
                                 </div>
                             </section>
                             <section>
                                 <div className="h-4 bg-teal-600/30 w-48 rounded mb-6 animate-pulse" />
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                     <SkeletonCard />
                                     <SkeletonCard />
                                     <SkeletonCard />
@@ -507,11 +525,11 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         <div className="space-y-16">
-                            {/* SECTION 1: Active tools */}
+                            {/* SECTION 1: Your tools */}
                             {activeTools.length > 0 && (
                                 <section>
-                                    <h2 className="text-sm font-bold text-[#888] uppercase tracking-wider mb-6 font-display">Active tools</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <h2 className="text-sm font-bold text-mint-50/70 uppercase tracking-wider mb-6 font-display">Your tools</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                         {activeTools.map(tool => {
                                             if (tool.slug === 'orderbot') {
                                                 return (
@@ -519,7 +537,7 @@ const Dashboard = () => {
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
-                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full"
+                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full w-full min-w-0"
                                                     >
                                                         <div className="h-[80px] w-full flex items-center justify-center bg-teal-800 relative overflow-hidden">
                                                             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
@@ -540,10 +558,10 @@ const Dashboard = () => {
                                                                 {orderbotStores?.stores?.map((store: any) => (
                                                                     <div key={store.store_id} className="bg-teal-800 p-3 rounded-lg border border-teal-600/30">
                                                                         <div className="text-white font-medium mb-1">📦 {store.store_name}</div>
-                                                                        <div className="text-[#888] text-xs mb-2">
+                                                                        <div className="text-mint-50/70 text-xs mb-2">
                                                                             Active until {store.current_period_end ? new Date(store.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Lifetime'}
                                                                         </div>
-                                                                        <a href="https://orderbot.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="text-teal-600 text-xs font-bold hover:underline">
+                                                                        <a href="https://orderbot.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="text-teal-400 text-xs font-bold hover:underline">
                                                                             Open →
                                                                         </a>
                                                                     </div>
@@ -551,7 +569,7 @@ const Dashboard = () => {
                                                             </div>
                                                             
                                                             <div className="pt-4 border-t border-teal-600/30 mt-auto">
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="ghost" className="text-teal-600 hover:text-teal-600 hover:bg-yellow-accent text-teal-900/10 w-full font-bold">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 w-full font-bold transition-colors">
                                                                     + Add another store
                                                                 </Button>
                                                             </div>
@@ -573,11 +591,11 @@ const Dashboard = () => {
                                 </section>
                             )}
 
-                            {/* SECTION 2: Available to purchase */}
+                            {/* SECTION 2: Available */}
                             {availableTools.length > 0 && (
                                 <section>
-                                    <h2 className="text-sm font-bold text-[#888] uppercase tracking-wider mb-6 font-display">Available to purchase</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <h2 className="text-sm font-bold text-mint-50/70 uppercase tracking-wider mb-6 font-display">Available</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                         {availableTools.map(tool => {
                                             if (tool.slug === 'orderbot') {
                                                 return (
@@ -585,7 +603,7 @@ const Dashboard = () => {
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
-                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full"
+                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full w-full min-w-0"
                                                     >
                                                         <div className="h-[80px] w-full flex items-center justify-center bg-teal-800 relative overflow-hidden">
                                                             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
@@ -595,16 +613,16 @@ const Dashboard = () => {
                                                         <div className="p-6 flex flex-col flex-grow">
                                                             <h3 className="text-xl font-bold text-white mb-2 font-display">{tool.name}</h3>
                                                             
-                                                            <p className="text-[#888] text-sm mb-4 leading-relaxed flex-grow">
+                                                            <p className="text-mint-50/70 text-sm mb-4 leading-relaxed flex-grow">
                                                                 {tool.short_description || tool.description}
                                                             </p>
                                                             
-                                                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
+                                                            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
                                                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-semibold border border-zinc-500/20">
                                                                     <Lock className="w-3 h-3" />
                                                                     Not purchased
                                                                 </div>
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-teal-600 hover:bg-yellow-accent text-teal-900 hover:text-black font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                                                     Add your first store
                                                                 </Button>
                                                             </div>
@@ -628,8 +646,8 @@ const Dashboard = () => {
                             {/* SECTION 3: Coming soon */}
                             {comingSoonTools.length > 0 && (
                                 <section>
-                                    <h2 className="text-sm font-bold text-[#888] uppercase tracking-wider mb-6 font-display">Coming soon</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <h2 className="text-sm font-bold text-mint-50/70 uppercase tracking-wider mb-6 font-display">Coming soon</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                         {comingSoonTools.map(tool => (
                                             <ToolCard 
                                                 key={tool.id} 

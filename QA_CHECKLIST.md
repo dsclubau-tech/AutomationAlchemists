@@ -283,6 +283,77 @@
   - Attempt to create an override with a non-existent tool slug.
   - **Expected Result**: Refused with error `'tool_not_found'`.
 
+---
+
+## 20. Tools & Dashboard Redesign and Navbar Accessibility (v1.7.0)
+
+### 20a. Visible Tools Listing & Exclusions
+- [x] **Check 20a.1: Tools Page Only Shows rccp and ListFlow**:
+  - Navigate to `/tools`.
+  - **Expected Result**: Exactly two cards are rendered: `rccp` first, `ListFlow` second. Order Bot and Invoice Generator do not appear anywhere on the page.
+- [x] **Check 20a.2: Desktop Navbar Tools Dropdown**:
+  - On viewport width >= 768px, hover or click the "Tools" navigation item.
+  - **Expected Result**: Dropdown opens showing exactly two items: `rccp` and `ListFlow`. Each is on a single line with no description text and no truncation. Logo/icon displays with NO background tile or box behind it.
+- [x] **Check 20a.3: Mobile Navbar Tools Drawer**:
+  - On viewport width <= 640px, open the mobile menu drawer.
+  - **Expected Result**: Under "Our Tools", exactly two text links appear (`rccp` and `ListFlow`) on single lines without icons or logos.
+- [x] **Check 20a.4: Home Page Marquee Tools**:
+  - Navigate to `/`.
+  - **Expected Result**: Featured Tools & Solutions marquee section renders only `rccp` and `ListFlow`.
+- [x] **Check 20a.5: Cart Upsell Suggestions**:
+  - Add an item to cart or visit `/cart`.
+  - **Expected Result**: "You might also like" recommendations show only tools in `VISIBLE_TOOL_SLUGS`.
+- [x] **Check 20a.6: Direct Page Preservation & Noindex**:
+  - Navigate directly to `/tools/orderbot` and `/tools/invoicegen`.
+  - **Expected Result**: Direct pages render normally (no 404), but document `<head>` contains `<meta name="robots" content="noindex, nofollow" />`.
+- [x] **Check 20a.7: Sitemap and Prerender Exclusion**:
+  - Inspect `scripts/generate-sitemap.js` and `scripts/prerender.js`.
+  - **Expected Result**: Routes mapped from `VISIBLE_TOOL_SLUGS`. `/tools/orderbot` and `/tools/invoicegen` are completely excluded.
+
+### 20b. Tools Page Styling & Actions (/tools)
+- [x] **Check 20b.1: Equal Height Cards**:
+  - View `/tools` at desktop width (1280px).
+  - **Expected Result**: Both cards have identical height via `items-stretch` and `h-full`.
+- [x] **Check 20b.2: RCCP Logo Size & Surface**:
+  - Inspect RCCP logo element.
+  - **Expected Result**: Dimensions are >= 56px (`w-14 h-14 min-w-[56px] min-h-[56px]`) with no surrounding tinted container box.
+- [x] **Check 20b.3: Background Treatment & Corner Decoration Removal**:
+  - Inspect page background and cards.
+  - **Expected Result**: Page uses `bg-mint-50 time-fold-ripple` matching Home. Decorative card corner shape (`bg-teal-600/5 rounded-bl-full`) is completely removed.
+- [x] **Check 20b.4: RCCP Single Yellow CTA (Trial Disabled)**:
+  - While trial offer is disabled (production default), observe RCCP card CTA.
+  - **Expected Result**: Card contains exactly ONE button (yellow "Learn more" linking to `/tools/rccp`). "Use Free Tool" and "Get CP Bot" buttons are removed; no trial wording is present.
+- [x] **Check 20b.5: ListFlow Disabled CTA**:
+  - Inspect ListFlow card.
+  - **Expected Result**: Exactly one disabled "Coming soon" button. Secondary "Learn more" link is removed.
+
+### 20c. User Dashboard Layout & Bug Fixes (/dashboard)
+- [ ] **Check 20c.1: Full Container Grid Width**:
+  - Sign in to dashboard on deployment.
+  - **Expected Result**: Card grid fills container width (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch`). Single cards do not leave empty narrow columns.
+- [ ] **Check 20c.2: No Button Clipping Across Viewports**:
+  - Inspect CP Bot and other cards at 360px, 768px, and 1280px screen widths.
+  - **Expected Result**: Button rows wrap cleanly via `flex-wrap`; no button or badge is clipped by the card boundary.
+- [ ] **Check 20c.3: Button Label Visibility & Contrast**:
+  - Inspect outlined buttons (e.g. "+ Add another store", "Open Return Converter", "Buy now").
+  - **Expected Result**: Button text is rendered in `text-mint-50` with >= 11:1 contrast at rest and `hover:text-teal-900 hover:bg-yellow-accent` on hover (>= 8:1 contrast). No empty or invisible labels.
+- [ ] **Check 20c.4: Section Organization & Visibility Rules**:
+  - **Expected Result**:
+    - "Your tools": Contains `rccp`. Contains `orderbot` only if user has active/trialing subscription or stores.
+    - "Available": Visible only if eligible tools exist. Shows `orderbot` only if user has subscription but 0 stores. Never shows Invoice Generator.
+    - "Coming soon": Contains `ListFlow` only.
+
+### 20d. Navbar Profile Dropdown Accessibility
+- [x] **Check 20d.1: Desktop Profile Dropdown Hover & Focus**:
+  - On desktop, open user profile menu and hover/focus through items (Dashboard, Notifications, Account settings, Billing).
+  - **Expected Result**: Each item displays a distinct light highlight (`bg-mint-50 text-teal-900`) with text contrast > 11:1, and a visible focus ring (`ring-2 ring-teal-600`).
+- [x] **Check 20d.2: Sign Out Item Hover**:
+  - Hover or focus on Sign out item.
+  - **Expected Result**: Displays distinct red background highlight (`bg-red-500/20 text-red-300`) with visible focus ring.
+- [x] **Check 20d.3: Mobile Profile Dropdown Alignment**:
+  - On mobile header, open user profile dropdown and verify hover/focus highlight, contrast, and focus ring match desktop.
+
+
 
 
 

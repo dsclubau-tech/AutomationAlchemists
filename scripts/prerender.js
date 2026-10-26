@@ -6,6 +6,8 @@ import express from 'express';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, '../dist');
 
+const VISIBLE_TOOL_SLUGS = ['rccp', 'listflow'];
+
 // Define the routes to prerender
 const routes = [
   '/',
@@ -25,10 +27,7 @@ const routes = [
   '/terms',
   '/privacy',
   '/tools',
-  '/tools/rccp',
-  '/tools/listflow',
-  '/tools/orderbot',
-  '/tools/invoicegen'
+  ...VISIBLE_TOOL_SLUGS.map(slug => `/tools/${slug}`)
 ];
 
 /**

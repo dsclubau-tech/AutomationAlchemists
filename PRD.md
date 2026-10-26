@@ -122,4 +122,34 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - Gated by standard `profiles.is_admin` verification.
   - Non-crashing calm notice banner if Migration 033 has not yet been applied to the database.
 
+---
+
+### 8. Tools & Dashboard Redesign, Visible Tools Filtering, and Navbar Dropdown Accessibility (Release v1.7.0)
+- **Visible Tool Restriction**:
+  - Centralized single constant `VISIBLE_TOOL_SLUGS = ['rccp', 'listflow'] as const` exported from `src/data/tools.ts`.
+  - Tools page, desktop & mobile navbar Tools dropdown, home page marquee, cart upsells, `scripts/generate-sitemap.js`, and `scripts/prerender.js` strictly show only tools in `VISIBLE_TOOL_SLUGS`.
+  - Unlisted tools (`orderbot`, `invoicegen`) have routes and direct pages preserved, but carry `noindex` (`<meta name="robots" content="noindex, nofollow" />`) and are completely unlinked from navigation, footer, search, and sitemaps.
+- **Tools Page Redesign (`/tools`)**:
+  - Exactly two cards: `rccp` (Return Converter x CopyPaste Bot) first, `listflow` (ListFlow) second, in equal-height stretch grid.
+  - RCCP logo rendered at >= 56px (`w-14 h-14 min-w-[56px] min-h-[56px]`) directly on card surface without tinted background tile.
+  - Page adopts landing page background treatment (`time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white`).
+  - Decorative corner shapes (`bg-teal-600/5 rounded-bl-full`) removed from cards.
+  - Single yellow CTA button on RCCP card:
+    - If trial offer is enabled: "Start free trial now" pointing to `/dashboard#claim-trial` (or signup with `next`), followed by dynamic pricing text `"{trial_days} days free, then A${price}/month. Card required. Cancel anytime."`.
+    - If trial offer is disabled or fails: "Learn more" button linking to `/tools/rccp` with no trial wording.
+  - ListFlow card: Single disabled "Coming soon" button only.
+- **User Dashboard Redesign & Bug Fixes (`/dashboard`)**:
+  - Background treatment unified with landing page using `time-fold-ripple`.
+  - Grid bug resolved: Card grid uses `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch min-w-0`, ensuring cards fill container.
+  - Clipping bug resolved: Button container and card footer allow wrapping (`flex-wrap`), preventing button clipping on narrow/tablet screens and inside 3-column cards at 1280px.
+  - Outlined button label visibility bug resolved: Replaced clashing `text-teal-900` with `text-mint-50` at rest (11.4:1 contrast ratio) and `hover:bg-yellow-accent hover:text-teal-900` (8.1:1 contrast ratio).
+  - Visibility exception:
+    - Section 1 ("Your tools"): Shows `rccp`. Shows `orderbot` ONLY if the user has an active or trialing subscription row or active stores (`orderbotStores.active_store_count > 0`).
+    - Section 2 ("Available"): Shows `orderbot` ONLY if user has an active/trialing subscription but 0 stores. Otherwise hidden. Invoice Generator hidden always.
+    - Section 3 ("Coming soon"): Shows ListFlow only.
+- **Navbar & Profile Dropdown Accessibility**:
+  - Tools dropdown: Exactly two items (`rccp` and `ListFlow`), single line, no description text, no icon/logo on mobile, no background tile behind logo on desktop.
+  - Profile dropdown: Light highlight on hover/focus/active (`data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900`), visible focus ring (`focus-visible:ring-2 focus-visible:ring-teal-600`), contrast >= 4.5:1. Red hover highlight on Sign out. Identical styling applied across desktop and mobile menus.
+
+
 

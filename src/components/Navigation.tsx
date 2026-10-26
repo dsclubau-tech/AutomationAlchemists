@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, LogOut, User, ArrowRight, Shield, Mail, Bell } from "lucide-react";
+import { Menu, X, LogOut, User, ArrowRight, Shield, Mail, Bell, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,7 +7,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
-import { toolsData } from "@/data/tools";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -203,27 +202,27 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                             <Link to="/tools" onClick={(e) => handleNavClick(e, '/tools')} className={`transition-all duration-300 font-display text-sm font-semibold flex items-center gap-1 py-4 ${location.pathname.startsWith('/tools') ? 'text-white border-b-2 border-teal-600' : 'text-mint-50/70 hover:text-white'}`}>
                                 Tools
                             </Link>
-                            <div className="absolute top-full left-0 w-[320px] bg-teal-900 border border-teal-800 text-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[200] overflow-hidden">
+                            <div className="absolute top-full left-0 w-[240px] bg-teal-900 border border-teal-800 text-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[200] overflow-hidden">
                                 <div className="px-4 py-3 border-b border-teal-800">
                                     <p className="text-xs font-semibold text-mint-50/70 uppercase tracking-wider font-display">
                                         Our Tools
                                     </p>
                                 </div>
-                                <div className="p-2">
-                                    {toolsData.map(tool => {
-                                        const Icon = tool.icon;
-                                        return (
-                                            <Link key={tool.id} to={`/tools/${tool.slug}`} className="cursor-pointer font-display rounded-lg px-3 py-3 hover:bg-teal-800/50 focus:bg-teal-800/50 flex items-start gap-3 w-full transition-colors">
-                                                <div className="mt-0.5 bg-teal-800 p-1.5 rounded-md text-teal-600 shrink-0">
-                                                    {Icon ? <Icon className="w-4 h-4" /> : <img src="/images/rccp-logo.png" alt={tool.name} className="w-4 h-4 object-contain" />}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-white text-sm">{tool.name}</p>
-                                                    <p className="text-xs text-mint-50/70 line-clamp-1">{tool.shortDescription}</p>
-                                                </div>
-                                            </Link>
-                                        )
-                                    })}
+                                <div className="p-2 space-y-1">
+                                    <Link 
+                                        to="/tools/rccp" 
+                                        className="cursor-pointer font-display rounded-lg px-3 py-2.5 text-mint-50 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 flex items-center gap-3 w-full transition-colors group/item"
+                                    >
+                                        <img src="/images/rccp-logo.png" alt="rccp" className="w-5 h-5 object-contain shrink-0" />
+                                        <span className="font-semibold text-sm whitespace-nowrap">rccp</span>
+                                    </Link>
+                                    <Link 
+                                        to="/tools/listflow" 
+                                        className="cursor-pointer font-display rounded-lg px-3 py-2.5 text-mint-50 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 flex items-center gap-3 w-full transition-colors group/item"
+                                    >
+                                        <Sparkles className="w-5 h-5 text-teal-400 group-hover/item:text-teal-900 group-focus/item:text-teal-900 shrink-0" />
+                                        <span className="font-semibold text-sm whitespace-nowrap">ListFlow</span>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -260,27 +259,27 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                             </p>
                                         </div>
 
-                                        <div className="p-2">
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                                <Link to="/dashboard" className="block w-full">
+                                        <div className="p-2 space-y-1">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                                <Link to="/dashboard" className="block w-full text-inherit">
                                                     <span>Dashboard</span>
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                                <Link to="/account/notifications" className="block w-full flex items-center justify-between">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                                <Link to="/account/notifications" className="block w-full flex items-center justify-between text-inherit">
                                                     <span>Notifications</span>
                                                     {hasUnreadNotifications && (
                                                         <span className="w-2 h-2 rounded-full bg-yellow-accent text-teal-900"></span>
                                                     )}
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                                <Link to="/account" className="block w-full">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                                <Link to="/account" className="block w-full text-inherit">
                                                     <span>Account settings</span>
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                                <Link to="/billing" className="block w-full">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                                <Link to="/billing" className="block w-full text-inherit">
                                                     <span>Billing</span>
                                                 </Link>
                                             </DropdownMenuItem>
@@ -289,13 +288,13 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
                                         {/* Admin Section - Only for admins */}
                                         {isAdmin && (
-                                            <div className="p-2">
+                                            <div className="p-2 space-y-1">
                                                 <p className="px-2 py-1.5 text-xs font-semibold text-mint-50/70 uppercase tracking-wider">
                                                     Admin
                                                 </p>
-                                                <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                                    <Link to="/admin" onClick={() => { }} className="block w-full flex items-center">
-                                                        <Shield className="mr-2 h-4 w-4 text-mint-50/70" />
+                                                <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                                    <Link to="/admin" onClick={() => { }} className="block w-full flex items-center text-inherit">
+                                                        <Shield className="mr-2 h-4 w-4" />
                                                         <span>Admin Dashboard</span>
                                                     </Link>
                                                 </DropdownMenuItem>
@@ -306,7 +305,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
                                         {/* Sign Out */}
                                         <div className="p-2">
-                                            <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer font-display rounded-lg px-3 py-2">
+                                            <DropdownMenuItem onClick={handleSignOut} className="text-red-400 data-[highlighted]:bg-red-500/20 data-[highlighted]:text-red-300 hover:bg-red-500/20 hover:text-red-300 focus:bg-red-500/20 focus:text-red-300 active:bg-red-500/30 active:text-red-200 cursor-pointer font-display rounded-lg px-3 py-2 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none transition-colors">
                                                 <LogOut className="mr-2 h-4 w-4" />
                                                 <span>Sign out</span>
                                             </DropdownMenuItem>
@@ -345,27 +344,27 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                         </p>
                                     </div>
 
-                                    <div className="p-2">
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                            <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
+                                    <div className="p-2 space-y-1">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                            <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block w-full text-inherit">
                                                 <span>Dashboard</span>
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                            <Link to="/account/notifications" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center justify-between">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                            <Link to="/account/notifications" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center justify-between text-inherit">
                                                 <span>Notifications</span>
                                                 {hasUnreadNotifications && (
                                                     <span className="w-2 h-2 rounded-full bg-yellow-accent text-teal-900"></span>
                                                 )}
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                            <Link to="/account" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                            <Link to="/account" onClick={() => setIsMobileMenuOpen(false)} className="block w-full text-inherit">
                                                 <span>Account settings</span>
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                            <Link to="/billing" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
+                                        <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                            <Link to="/billing" onClick={() => setIsMobileMenuOpen(false)} className="block w-full text-inherit">
                                                 <span>Billing</span>
                                             </Link>
                                         </DropdownMenuItem>
@@ -374,12 +373,12 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
                                     {/* Admin Section - Only for admins */}
                                     {isAdmin && (
-                                        <div className="p-2">
+                                        <div className="p-2 space-y-1">
                                             <p className="px-2 py-1.5 text-xs font-semibold text-mint-50/70 uppercase tracking-wider">
                                                 Admin
                                             </p>
-                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 hover:bg-teal-800/50 focus:bg-teal-800/50 text-white">
-                                                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center">
+                                            <DropdownMenuItem asChild className="cursor-pointer font-display rounded-lg px-3 py-2 text-white data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 active:bg-mint-50 active:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:outline-none transition-colors">
+                                                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block w-full flex items-center text-inherit">
                                                     <Shield className="mr-2 h-4 w-4 text-mint-50/70" />
                                                     <span>Admin Dashboard</span>
                                                 </Link>
@@ -391,7 +390,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
 
                                     {/* Sign Out */}
                                     <div className="p-2">
-                                        <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer font-display rounded-lg px-3 py-2">
+                                        <DropdownMenuItem onClick={handleSignOut} className="text-red-400 data-[highlighted]:bg-red-500/20 data-[highlighted]:text-red-300 hover:bg-red-500/20 hover:text-red-300 focus:bg-red-500/20 focus:text-red-300 active:bg-red-500/30 active:text-red-200 cursor-pointer font-display rounded-lg px-3 py-2 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none transition-colors">
                                             <LogOut className="mr-2 h-4 w-4" />
                                             <span>Sign out</span>
                                         </DropdownMenuItem>
@@ -437,12 +436,13 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                     <Link to="/tools" onClick={() => setIsMobileMenuOpen(false)} className="block text-xs font-semibold text-mint-50/70 uppercase tracking-wider mb-3 font-display">
                                         Our Tools
                                     </Link>
-                                    <div className="pl-4 border-l-2 border-teal-800 space-y-4">
-                                        {toolsData.map(tool => (
-                                            <Link key={tool.id} to={`/tools/${tool.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="block text-mint-50/70 hover:text-white transition-colors font-display text-sm font-medium">
-                                                {tool.name}
-                                            </Link>
-                                        ))}
+                                    <div className="pl-4 border-l-2 border-teal-800 space-y-3">
+                                        <Link to="/tools/rccp" onClick={() => setIsMobileMenuOpen(false)} className="block text-mint-50/70 hover:text-white transition-colors font-display text-sm font-medium whitespace-nowrap">
+                                            rccp
+                                        </Link>
+                                        <Link to="/tools/listflow" onClick={() => setIsMobileMenuOpen(false)} className="block text-mint-50/70 hover:text-white transition-colors font-display text-sm font-medium whitespace-nowrap">
+                                            ListFlow
+                                        </Link>
                                     </div>
                                 </div>
 
@@ -465,7 +465,7 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                                     <User className="w-4 h-4 inline mr-2 text-teal-600" />
                                                     {user.email}
                                                 </div>
-                                                <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full font-display border-teal-800 text-white bg-transparent hover:bg-teal-800">
+                                                <Button onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }} variant="outline" className="w-full font-display border-red-500/40 text-red-400 bg-transparent hover:bg-red-500/20 hover:text-red-300 active:bg-red-500/30 active:text-red-200 focus-visible:ring-2 focus-visible:ring-red-400 transition-colors">
                                                     <LogOut className="w-4 h-4 mr-2" />
                                                     Sign Out
                                                 </Button>

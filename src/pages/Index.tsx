@@ -11,7 +11,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import SchemaMarkup from "@/components/SchemaMarkup";
-import { toolsData } from "@/data/tools";
+import { toolsData, VISIBLE_TOOL_SLUGS } from "@/data/tools";
 
 const Index = () => {
   // Handle hash navigation when page loads
@@ -112,7 +112,9 @@ const Index = () => {
               {/* Render tools duplicated for a seamless 50% translation loop */}
               {[...Array(4)].map((_, loopIdx) => (
                 <div key={loopIdx} className="flex items-center gap-8 sm:gap-12 flex-shrink-0">
-                  {toolsData.map((tool) => {
+                  {toolsData
+                    .filter((t) => (VISIBLE_TOOL_SLUGS as readonly string[]).includes(t.slug))
+                    .map((tool) => {
                     const Icon = tool.icon;
                     const isExternal = tool.slug === 'rccp';
                     const targetUrl = isExternal ? 'https://rccp.automationalchemists.com' : `/tools/${tool.slug}`;

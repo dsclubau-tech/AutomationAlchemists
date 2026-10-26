@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-10-26
+### Changed
+- Refreshed the Tools page with equal-height cards, a larger Return Converter x CopyPaste Bot logo, and a single primary action button
+- Updated the Tools and Dashboard pages with the refined background ripple pattern from the home page
+- Simplified the navigation menu to show only active tools
+- Improved the profile menu so all options are clearly visible and easy to select when hovering or using a keyboard
+
+### Fixed
+- Fixed dashboard card sizing so cards fill the screen properly on computers and tablets
+- Fixed button clipping on dashboard tool cards on smaller screens
+- Restored missing button text on dashboard store action buttons
+
 ## [1.6.0] - 2026-10-24
 ### Added
 - Admin controls for free trials and per-customer price discounts

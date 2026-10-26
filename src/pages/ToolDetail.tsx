@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { toolsData } from "@/data/tools";
+import { toolsData, VISIBLE_TOOL_SLUGS } from "@/data/tools";
 import { 
     ArrowLeft, 
     CheckCircle2, 
@@ -151,9 +151,10 @@ const ToolDetail = () => {
         <div className="min-h-screen bg-mint-50 text-teal-900 selection:bg-teal-600 selection:text-white flex flex-col justify-between">
             <SEOHead
                 title={`${tool.name} | Automation Alchemists`}
-                description={tool.fullDescription || tool.description}
+                description={tool.fullDescription || (tool as any).description}
                 url={`https://www.automationalchemists.com/tools/${tool.slug}`}
                 keywords={tool.seoKeywords}
+                noindex={!VISIBLE_TOOL_SLUGS.includes(tool.slug as any)}
             />
             <Navigation />
 

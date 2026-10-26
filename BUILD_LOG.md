@@ -1,5 +1,33 @@
 # Build Log
 
+## 2026-10-26 (v1.7.0 Tools & Dashboard Redesign, Visible Tools Filtering, Navbar Accessibility)
+- Requested:
+  - Visible tools restricted strictly to `rccp` and `listflow` across the frontend via a single `VISIBLE_TOOL_SLUGS` constant (Tools page, navbar desktop/mobile dropdowns, home page marquee, cart upsells, sitemap, prerender, JSON-LD, search).
+  - Unlisted tools (`orderbot`, `invoicegen`) retain direct URLs but are unlinked, excluded from sitemap/prerender, and receive `noindex`.
+  - Dashboard exception: Order Bot shown only if user has active/trialing subscription or stores; Invoice Generator hidden always.
+  - Tools page (/tools) redesign: exactly two equal-height cards (rccp first, ListFlow second), rccp logo >= 56px with no tinted box, background treatment matching Home (`time-fold-ripple`), card corner decorations removed, rccp has single yellow CTA (trial-aware when active, "Learn more" when off), ListFlow has disabled "Coming soon" button only.
+  - Dashboard (/dashboard) bug fixes: root causes identified and fixed for narrow fixed-width cards, clipped CP Bot second button, and invisible Order Bot outline button text; grid fills container (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full items-stretch min-w-0`), button rows wrap (`flex-wrap`), all button labels achieve >= 4.5:1 contrast; sections named "Your tools", "Available", "Coming soon"; background updated to match Home.
+  - Navbar dropdown fixes: Tools dropdown limited to exactly `rccp` and `ListFlow`, single line, no description, no logo box (no icon on mobile); profile dropdown given visible light highlight, >= 4.5:1 contrast, visible focus ring on hover/focus/active on desktop and mobile.
+- Built:
+  - `src/data/tools.ts`: Exported `VISIBLE_TOOL_SLUGS = ['rccp', 'listflow'] as const`.
+  - `scripts/generate-sitemap.js` & `scripts/prerender.js`: Replaced hardcoded tool routes with mapping from `VISIBLE_TOOL_SLUGS`.
+  - `src/pages/ToolDetail.tsx`: Added `noindex={!VISIBLE_TOOL_SLUGS.includes(tool.slug as any)}` to `SEOHead`.
+  - `src/pages/Index.tsx`: Filtered marquee tools with `VISIBLE_TOOL_SLUGS`.
+  - `src/pages/Cart.tsx`: Filtered upsell suggestions with `VISIBLE_TOOL_SLUGS`.
+  - `src/pages/Tools.tsx`: Restructured to exactly 2 cards, enlarged rccp logo to 56px without background tile, applied `time-fold-ripple`, removed `rounded-bl-full` corner decoration, implemented single dynamic yellow CTA with trial hook pricing fallback, and set disabled "Coming soon" button on ListFlow.
+  - `src/pages/Dashboard.tsx`: Applied `time-fold-ripple`, updated grid to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch`, fixed button clipping with `flex flex-wrap`, corrected button text colors to `text-mint-50 hover:text-teal-900 hover:bg-yellow-accent` ensuring 11.4:1 contrast, filtered tools with `VISIBLE_TOOL_SLUGS` and Order Bot active subscription exception, and renamed sections to "Your tools", "Available", and "Coming soon".
+  - `src/components/Navigation.tsx`: Restricted desktop and mobile tools dropdown to `rccp` and `ListFlow` single line; gave profile dropdown items light highlight (`data-[highlighted]:bg-mint-50 data-[highlighted]:text-teal-900`) and focus ring (`focus-visible:ring-2 focus-visible:ring-teal-600`); styled sign out with red hover highlight across desktop and mobile.
+- Deviations: None. No database rows, migrations, edge functions, or route files deleted. Free trial remains disabled in production.
+- Files touched: `src/data/tools.ts`, `scripts/generate-sitemap.js`, `scripts/prerender.js`, `src/pages/ToolDetail.tsx`, `src/pages/Index.tsx`, `src/pages/Cart.tsx`, `src/pages/Tools.tsx`, `src/pages/Dashboard.tsx`, `src/components/Navigation.tsx`, `PROJECT_STATE.md`, `BUILD_LOG.md`, `PRD.md`, `QA_CHECKLIST.md`, `CHANGELOG.md`.
+- Verification:
+  - `npx tsc --noEmit -p .` passed with code 0.
+  - `npx vite build` passed with code 0.
+  - Browser subagent verified `/tools`, `/tools/rccp`, and navbar at 360px, 768px, and 1280px viewports without console errors.
+  - `public/sitemap.xml` was not regenerated or modified.
+- What was NOT run:
+  - Authenticated dashboard rendering in local browser (Supabase session not mockable without test credentials; owner deployment check steps provided).
+  - No SQL executed, no deploys, no Supabase or Stripe API calls made.
+
 ## 2026-10-24 (Unversioned - Migration 033 Applied, Verify Passed, Behaviour Script Fixture Setup as Owner)
 - Migration 033 Status:
   - Migration 033 (`033_admin_trial_controls.sql`) was APPLIED in production on 2026-10-24.

@@ -25,6 +25,9 @@ export interface ToolData {
     appUrl?: string; // App link if applicable
 }
 
+export const VISIBLE_TOOL_SLUGS = ['rccp', 'listflow'] as const;
+export type VisibleToolSlug = (typeof VISIBLE_TOOL_SLUGS)[number];
+
 export const toolsData: ToolData[] = [
     {
         id: 'rccp',
