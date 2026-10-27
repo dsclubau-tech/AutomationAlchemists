@@ -616,6 +616,54 @@
     - Clicking *"Manage subscription"* invokes `create-portal-session` and launches the Stripe Billing Customer Portal.
     - Renewal date shows *"Renews {date}"*.
 
+---
+
+## 27. Email Logo Asset and Webhook Refund Fix (Release v1.9.4)
+
+### 27a. Static Verification & Asset Checks
+- [x] **Check 27a.1: TypeScript Compilation**:
+  - `npx tsc --noEmit -p .`
+  - **Expected Result**: Exits 0 with zero diagnostic errors across all files. (Passed).
+- [x] **Check 27a.2: stripe-webhook Syntax & Bundling**:
+  - `npx esbuild supabase/functions/stripe-webhook/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=scratch_webhook.js`
+  - **Expected Result**: Exits 0, produces valid bundle; scratch file deleted. (Passed: 21.4kb bundle).
+- [x] **Check 27a.3: Pure Compatibility Unit Tests (12/12 Passed)**:
+  - `node scripts/test-stripe-compat.mjs`
+  - **Expected Result**: Exits 0, all 12 test assertions pass, including:
+    - Test 9: `getChargeInvoiceId` with string invoice.
+    - Test 10: `getChargeInvoiceId` with expanded object invoice.
+    - Test 11: `getChargeInvoiceId` with null invoice.
+    - Test 12: `getChargeInvoiceId` with missing invoice / undefined / null charge. (Passed: 12/12 tests).
+- [x] **Check 27a.4: Email Logo Asset Specifications**:
+  - Inspect `public/email-logo.png` properties via Python Pillow script.
+  - **Expected Result**: Dimensions are exactly 400x400; byte size is <= 100 KB (30.56 KB); PNG header signature is valid `89504e470d0a1a0a`; 4 corner pixels at (0,0), (399,0), (0,399), (399,399) are all pure black `(0, 0, 0)`; image mode is RGB without transparency. (Passed).
+
+### 27b. Runtime & Live Verification
+- [ ] **Check 27b.1: Hosted Email Logo URL Loads as an Image**:
+  - **Action**: After Vercel deploys `main`, open `https://www.automationalchemists.com/email-logo.png` directly in a browser or test with HTTP GET.
+  - **Expected Result**:
+    - HTTP 200 OK with `Content-Type: image/png`.
+    - Returns the 400x400 Automation Alchemists logo on black background.
+    - Does NOT return the SPA `index.html` fallback or 404 page.
+    - Cache headers match `public, max-age=31536000, immutable`.
+- [ ] **Check 27b.2: Stripe Test-Mode Refund Updates Access Under Clover Payload**:
+  - **Precondition**:
+    - Webhook deployed (`stripe-webhook`).
+    - Test account has an active paid subscription for `rccp` (`cpbot`), created via Stripe Checkout.
+    - Webhook endpoint is configured with API version `2026-02-25.clover`.
+  - **Action**:
+    - In Stripe Dashboard (Test Mode) → Payments, find the charge for the test subscription.
+    - Click **"Refund"** to refund the charge in full.
+  - **Expected Result**:
+    - Stripe fires `charge.refunded` with clover payload shape (no `invoice` property on `event.data.object`).
+    - Webhook extracts `event.data.object.id`, re-retrieves charge via `stripe.charges.retrieve(chargeId)` under pinned SDK API version.
+    - `getChargeInvoiceId` extracts the invoice ID from the retrieved charge.
+    - Webhook retrieves invoice and resolves subscription ID via `getInvoiceSubscriptionId`.
+    - Webhook calls `process_stripe_webhook_event` with `p_quantity = 0`.
+    - User's subscription in `public.subscriptions` is updated with `quantity = 0`, revoking active tool access.
+    - Webhook returns HTTP 200.
+
+
 
 
 

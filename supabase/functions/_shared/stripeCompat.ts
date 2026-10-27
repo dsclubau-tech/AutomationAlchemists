@@ -115,3 +115,33 @@ export function getInvoiceSubscriptionId(invoice: any): string | null {
 
   return null;
 }
+
+/**
+ * Resolves the Stripe invoice ID from a charge object.
+ *
+ * Resolution order:
+ * 1. charge.invoice as a string (e.g. 'in_123')
+ * 2. charge.invoice as an expanded object with an id property (e.g. { id: 'in_123' })
+ *
+ * Returns trimmed invoice ID string, or null if null, undefined, empty, or unresolvable.
+ */
+export function getChargeInvoiceId(charge: any): string | null {
+  if (!charge || typeof charge !== 'object') {
+    return null;
+  }
+
+  const invoiceRef = charge.invoice;
+  if (typeof invoiceRef === 'string' && invoiceRef.trim().length > 0) {
+    return invoiceRef.trim();
+  }
+  if (
+    invoiceRef &&
+    typeof invoiceRef === 'object' &&
+    typeof invoiceRef.id === 'string' &&
+    invoiceRef.id.trim().length > 0
+  ) {
+    return invoiceRef.id.trim();
+  }
+
+  return null;
+}

@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Stripe from 'https://esm.sh/stripe@14.22.0?target=deno';
-import { getPeriod, getInvoiceSubscriptionId } from '../_shared/stripeCompat.ts';
+import { getPeriod, getInvoiceSubscriptionId, getChargeInvoiceId } from '../_shared/stripeCompat.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   httpClient: Stripe.createFetchHttpClient(),
@@ -426,16 +426,34 @@ Deno.serve(async (req) => {
       const lineItem = invoice.lines?.data?.[0];
       p_quantity = lineItem ? (lineItem.quantity || 0) : 0;
     } else if (event.type === 'charge.refunded') {
-      const charge = event.data.object as Stripe.Charge;
+      const chargeObj = event.data.object as { id?: string };
+      const chargeId = chargeObj.id;
+      if (!chargeId) {
+        console.error('charge.refunded event missing charge ID');
+        return new Response(JSON.stringify({ error: 'Missing charge ID' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      let charge: Stripe.Charge;
+      try {
+        charge = await stripe.charges.retrieve(chargeId);
+      } catch (chargeErr: unknown) {
+        const chargeMsg = chargeErr instanceof Error ? chargeErr.message : String(chargeErr);
+        console.error(`Failed to retrieve charge ${chargeId}:`, chargeMsg);
+        return new Response(JSON.stringify({ error: `Failed to retrieve charge: ${chargeMsg}` }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
       p_stripe_customer_id = typeof charge.customer === 'string'
         ? charge.customer
         : (charge.customer as Stripe.Customer)?.id ?? null;
       p_quantity = 0;
 
-      const invoiceRef = charge.invoice;
-      const invoiceId = typeof invoiceRef === 'string'
-        ? invoiceRef
-        : (typeof invoiceRef === 'object' && invoiceRef !== null ? (invoiceRef as any).id : null);
+      const invoiceId = getChargeInvoiceId(charge);
 
       if (!invoiceId) {
         console.log(`Refund charge ${charge.id} has no associated invoice; skipping`);

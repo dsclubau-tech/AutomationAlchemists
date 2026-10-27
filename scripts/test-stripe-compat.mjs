@@ -22,7 +22,7 @@ try {
     outfile: tempBundle,
   });
 
-  const { getPeriod, getInvoiceSubscriptionId } = await import(`file://${tempBundle.replace(/\\/g, '/')}`);
+  const { getPeriod, getInvoiceSubscriptionId, getChargeInvoiceId } = await import(`file://${tempBundle.replace(/\\/g, '/')}`);
 
   // Test 1: getPeriod with old top-level period fields
   const oldSubscription = {
@@ -112,7 +112,29 @@ try {
   assert.strictEqual(getInvoiceSubscriptionId({ parent: { subscription_details: {} } }), null, 'Empty subscription_details must return null');
   console.log('✓ Test 8: getInvoiceSubscriptionId with missing/unrelated invoice returns null safely.');
 
-  console.log('\nSUCCESS: All 8 Stripe compatibility tests passed with zero errors.');
+  // Test 9: getChargeInvoiceId with charge.invoice (string)
+  const chargeWithStr = { id: 'ch_str_1', invoice: 'in_test_str_123' };
+  assert.strictEqual(getChargeInvoiceId(chargeWithStr), 'in_test_str_123', 'String invoice must return trimmed string ID');
+  console.log('✓ Test 9: getChargeInvoiceId with charge.invoice (string) passed.');
+
+  // Test 10: getChargeInvoiceId with charge.invoice (expanded object)
+  const chargeWithObj = { id: 'ch_obj_2', invoice: { id: 'in_test_obj_456' } };
+  assert.strictEqual(getChargeInvoiceId(chargeWithObj), 'in_test_obj_456', 'Expanded object invoice must return string ID');
+  console.log('✓ Test 10: getChargeInvoiceId with charge.invoice (expanded object) passed.');
+
+  // Test 11: getChargeInvoiceId with charge.invoice (null)
+  const chargeWithNull = { id: 'ch_null_3', invoice: null };
+  assert.strictEqual(getChargeInvoiceId(chargeWithNull), null, 'Null invoice must return null');
+  console.log('✓ Test 11: getChargeInvoiceId with charge.invoice (null) passed.');
+
+  // Test 12: getChargeInvoiceId with missing invoice property or null/undefined
+  assert.strictEqual(getChargeInvoiceId({ id: 'ch_missing_4' }), null, 'Missing invoice property must return null');
+  assert.strictEqual(getChargeInvoiceId({}), null, 'Empty charge object must return null');
+  assert.strictEqual(getChargeInvoiceId(null), null, 'null charge must return null');
+  assert.strictEqual(getChargeInvoiceId(undefined), null, 'undefined charge must return null');
+  console.log('✓ Test 12: getChargeInvoiceId with missing invoice property or null/undefined returns null safely.');
+
+  console.log('\nSUCCESS: All 12 Stripe compatibility tests passed with zero errors.');
 } finally {
   if (fs.existsSync(tempBundle)) {
     try {

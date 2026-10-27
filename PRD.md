@@ -327,6 +327,25 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
     - For paid Stripe rows: Displays *"Renews {date}"* (or *"CP Bot renews {date}"*).
     - For trial rows: Preserves *"Free trial ends {date}"*.
 
+---
+
+### 15. Email Logo Asset and Webhook Refund Fix (Release v1.9.4)
+
+- **Email Branding Logo Asset**:
+  - Hosted static asset: `https://www.automationalchemists.com/email-logo.png`.
+  - Stored in `public/email-logo.png` (copied directly to `dist/email-logo.png` on build).
+  - Specifications: 400x400 PNG, logo centered with ~12% padding (48px padding on each side, 304x304 inner logo area), flattened on pure `#000000` (RGB, no alpha channel transparency), optimized byte size under 100 KB (~30.56 KB).
+  - Vercel routing guarantee: Static assets physically existing in `dist/` take precedence over SPA catch-all rewrites in `vercel.json`, serving the image directly with standard caching headers.
+- **Webhook Refund Handling Under Modern Stripe API Versions (`2026-02-25.clover`)**:
+  - In modern Stripe payload schemas (such as `2026-02-25.clover`), the Charge object delivered in `charge.refunded` payloads no longer contains the `invoice` field.
+  - SDK Re-Retrieval: In the `charge.refunded` branch of `supabase/functions/stripe-webhook/index.ts`, only the charge ID (`event.data.object.id`) is read from the webhook payload.
+  - The full charge object is re-retrieved via `stripe.charges.retrieve(chargeId)` using the SDK's pinned API version.
+  - On retrieval failure, returns HTTP 500 so Stripe automatically retries delivery.
+  - Invoice Resolution Helper (`getChargeInvoiceId`): Resolves the invoice ID from the retrieved charge (handling string IDs or expanded objects with `.id`).
+  - Access Revocation: Retrieves the associated invoice, resolves the subscription ID via `getInvoiceSubscriptionId`, retrieves the subscription, and invokes the atomic RPC `process_stripe_webhook_event` with `p_quantity = 0` to revoke access.
+  - If a charge is a non-subscription one-off payment with no invoice or subscription, returns HTTP 200 `{ received: true, skipped: 'no_subscription' }` to avoid retry loops.
+
+
 
 
 

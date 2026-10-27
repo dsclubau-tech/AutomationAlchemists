@@ -1,5 +1,39 @@
 # Build Log
 
+## 2026-10-27 (v1.9.4 Email Logo Asset and Webhook Refund Fix - Webhook Not Deployed)
+- Requested:
+  - Job A: Email Logo Asset for Supabase auth emails (https://www.automationalchemists.com/email-logo.png).
+    - A1: List public/, check if public/logo.png exists, tracked/ignored status.
+    - A2: Generate public/email-logo.png from public/logo.png (400x400 PNG, logo scaled with ~12% padding on all sides, flattened RGB on #000000 pure black, optimized, <= 100 KB) using Python Pillow.
+    - A3: Verification: print dimensions, byte size, PNG signature check, corner pixel colors (all (0,0,0)), check vercel.json routing for static files.
+  - Job B: Webhook Refund Fix for API version 2026-02-25.clover compatibility.
+    - B1: In charge.refunded branch of supabase/functions/stripe-webhook/index.ts, take only charge ID from event.data.object, re-fetch charge with stripe.charges.retrieve(chargeId) under SDK pinned version, read customer and invoice via helper. Return HTTP 500 on retrieve error. Preserve subsequent flow.
+    - B2: Add pure helper getChargeInvoiceId(charge) in supabase/functions/_shared/stripeCompat.ts (string, object with id, or null) and 4 assertions in scripts/test-stripe-compat.mjs (string, expanded object, null, missing). Run and show output.
+    - B3: Verification: `npx tsc --noEmit -p .` exit 0, esbuild syntax parse of stripe-webhook/index.ts to scratch file, delete scratch file. Show diff.
+- Built:
+  - `public/email-logo.png`: 400x400 PNG, 31,289 bytes (~30.56 KB), flattened RGB on #000000, 48px padding (12%), corner pixels (0,0,0), valid PNG signature `89504e470d0a1a0a`.
+  - `supabase/functions/_shared/stripeCompat.ts`:
+    - Exported `getChargeInvoiceId(charge)` resolving invoice string ID from either string or expanded `{ id }` object; returns `null` if missing, null, or invalid.
+  - `supabase/functions/stripe-webhook/index.ts`:
+    - Imported `getChargeInvoiceId` from `../_shared/stripeCompat.ts`.
+    - `charge.refunded` branch updated to extract charge ID only, re-retrieve charge via SDK (`stripe.charges.retrieve(chargeId)`), extract customer and invoice ID via `getChargeInvoiceId(charge)`, and return HTTP 500 on retrieve failure for Stripe retry.
+  - `scripts/test-stripe-compat.mjs`:
+    - Added tests 9 through 12 asserting `getChargeInvoiceId` against string, expanded object, null, and missing/empty charge inputs. All 12 tests passed.
+  - `PRD.md`: Added Section 15 documenting Email Logo Asset and Webhook Refund Fix under modern Stripe API versions.
+  - `QA_CHECKLIST.md`: Added Section 27 with static verification, unit tests, and live test run checks.
+  - `CHANGELOG.md`: Added v1.9.4 client-facing release notes.
+- Verification:
+  - `python` verification script confirmed dimensions (400, 400), size (30.56 KB), PNG signature, and 4 corner pixels all (0,0,0).
+  - `node scripts/test-stripe-compat.mjs` passed 12/12 assertions.
+  - `npx tsc --noEmit -p .` exited with code 0.
+  - `npx esbuild supabase/functions/stripe-webhook/index.ts ...` produced valid 21.4kb bundle; scratch file deleted.
+  - `npx vite build` succeeded in 5.37s with dist/email-logo.png confirmed.
+- What was NOT run:
+  - No edge functions were deployed (`stripe-webhook` deploy command was NOT executed).
+  - No database migrations or SQL scripts executed.
+  - No live Stripe calls made.
+  - No browser rendering of the email logo URL.
+
 ## 2026-10-27 (v1.9.3 Dashboard Light Style, Card Deduplication, and Manual Grant Fixes)
 - Requested:
   - Task 1: Match Dashboard page and element style to `/tools` reference (light mint-50 background, time-fold-ripple background effect, light card surfaces with border-teal-600/20, high contrast >= 4.5:1 text, yellow primary CTA buttons, teal-outlined secondary buttons, restyled loaders, skeleton cards, store management cards, add store dialog, and trial card states).

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.4] - 2026-10-27
+### Added
+- Added high-resolution email branding logo asset for automated confirmation and password reset emails
+
+### Fixed
+- Improved payment processing so refunds accurately revoke tool access when processed through updated Stripe billing systems
+
 ## [1.9.3] - 2026-10-27
 ### Changed
 - Refreshed customer dashboard with the clean light landing-page styling matching the Tools directory, including high-contrast surfaces, readable status badges, and accessible controls

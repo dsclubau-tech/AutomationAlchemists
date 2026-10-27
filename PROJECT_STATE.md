@@ -7,6 +7,10 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
 - **Contact Page**: Redesigned contact details card with functional links (mailto, WhatsApp SVG links, Google Maps). JSON-LD and display text are aligned.
 - **Auth System**: Integrated Supabase Auth with singleton `useAuth` hook and visibility-change state restoration. Return-path navigation via `?next=` sanitized by `sanitizeNext`.
+- **Email Branding Asset (`/email-logo.png`, v1.9.4)**:
+  - Hosted static asset: `https://www.automationalchemists.com/email-logo.png`.
+  - Static file at `public/email-logo.png` (copied to `dist/email-logo.png` on build, served directly before SPA catch-all rewrites).
+  - 400x400 PNG, logo centered with 12% padding (48px padding, 304x304 inner area), flattened on pure black `#000000` (RGB mode), optimized under 100 KB (30.56 KB), corner pixels `(0, 0, 0)`.
 - **Entitlement Gating**: Active subscription counting via `get_active_subscription_count` for authenticated users.
 - **Tools Catalog Visibility (v1.7.0)**:
   - Strict visible tool filtering via single exported constant `VISIBLE_TOOL_SLUGS = ['rccp', 'listflow'] as const` in `src/data/tools.ts`.
@@ -57,20 +61,22 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Single-seat quantity enforcement (v1.9.1): forced to 1 for non-orderbot tools.
   - `create-portal-session` (`supabase/functions/create-portal-session/index.ts`):
     - Creates Stripe billing portal session with `return_url = `${origin}/dashboard``.
-- **Trial Hardening & Webhook API Version Independence (v1.9.1 & v1.9.2 - Code written, not deployed)**:
+- **Trial Hardening, Webhook API Version Independence & Refund Handling (v1.9.1, v1.9.2, v1.9.4 - Code written, not deployed)**:
   - `stripe-webhook`:
     - Duplicate-subscription guard on trial checkouts (`checkout.session.completed` with `metadata.trial = 'true'`).
     - Decoupled from Stripe endpoint API version changes (`supabase/functions/_shared/stripeCompat.ts`), re-fetching full subscription by ID under pinned SDK API version. Safe period extractor `getPeriod` and invoice resolver `getInvoiceSubscriptionId`.
+    - Refund handling fix (v1.9.4): `charge.refunded` re-retrieves charge via `stripe.charges.retrieve(chargeId)` to support modern `2026-02-25.clover` payload where `invoice` is omitted from the Charge payload. Resolves invoice ID via `getChargeInvoiceId` and revokes access by invoking `process_stripe_webhook_event` with `p_quantity = 0`.
+    - Pure compatibility test suite (`scripts/test-stripe-compat.mjs`) verifying 12 assertions across legacy and clover shapes.
 
 ## Current Production Deployment Status
-- **Vercel Frontend**: Automatic deployment on push to `main`.
+- **Vercel Frontend**: Automatic deployment on push to `main` (now serves `public/email-logo.png` directly).
 - **Checkout globally**: Hidden in production (`VITE_CHECKOUT_ENABLED !== 'true'`, Supabase secret `CHECKOUT_ENABLED` unset; only `profiles.is_admin` may call checkout).
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
-  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard and v1.9.2 Stripe API version independence changes **NOT deployed**.
+  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, and v1.9.4 refund fix changes **NOT deployed**.
   - `create-checkout-session`: Code updated for v1.9.0 & v1.9.1, **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-- **Database**: Migration 034 applied and verified. No database migrations executed in v1.9.0, v1.9.1, v1.9.2, or v1.9.3.
+- **Database**: Migration 034 applied and verified. No database migrations executed in v1.9.0 through v1.9.4.
 
 ## In Progress
 - Owner adding `TRIAL_IDENTITY_PEPPER` secret to Supabase Edge Functions.
@@ -79,7 +85,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 
 ## Not Started
 - Deploying `create-checkout-session`, `create-portal-session`, and updated `stripe-webhook` to Supabase.
-- Office PC Stripe test-mode verification run (trial checkout, duplicate card rejection, portal cancellation, subscription "End trial" conversion, parallel checkout duplicate cancellation).
+- Office PC Stripe test-mode verification run (trial checkout, duplicate card rejection, portal cancellation, subscription "End trial" conversion, parallel checkout duplicate cancellation, charge refund access revocation under clover payload).
 - Multi-item single-checkout.
 
 ## Known Issues
@@ -90,4 +96,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-10-27 — Release v1.9.3: Dashboard Light Style, Card Deduplication, and Manual Grant Fixes.*
+*Last Updated: 2026-10-27 — Release v1.9.4: Email Logo Asset and Webhook Refund Fix.*
