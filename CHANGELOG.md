@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.1] - 2026-10-27
+### Fixed
+- Protected against accidental duplicate subscriptions if a customer submits checkout multiple times in parallel, ensuring only one active subscription is kept and any duplicates are cancelled without charge
+- Enforced single-seat checkouts on standard tools so customers cannot accidentally order multiple seats of a single-user product
+
 ## [1.9.0] - 2026-10-26
 ### Added
 - Integrated Stripe subscription checkout with free trial support, card verification, and automatic renewal dates

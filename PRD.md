@@ -254,6 +254,30 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - Fail-safe rule: when trial offer is disabled, UI identically matches v1.7.0.
   - Billing page (`src/pages/Billing.tsx`): upgraded from "Coming Soon" placeholder to an active portal launch card with *"Manage subscription"* button.
 
+---
+
+### 12. Trial Hardening: Single-Seat Enforcement & Duplicate Subscription Guard (Release v1.9.1)
+
+- **Single-Seat Server-Side Quantity Enforcement (`create-checkout-session`)**:
+  - For `product_slug = 'rccp'` (and any single-seat product, i.e. everything except `'orderbot'`), quantity is strictly forced to `1` server-side (`effectiveQuantity = 1`), completely ignoring any client-submitted value.
+  - For `'orderbot'` (multi-store expansion), client-submitted quantity is preserved (`Number(body.quantity)`), with server-side validation enforcing `quantity >= 1`.
+  - Edge cases:
+    - Client passes `{ product_slug: 'rccp', quantity: 10 }`: line item created with `quantity: 1`.
+    - Client passes `{ product_slug: 'orderbot', quantity: 0 }`: returns HTTP 400 (`Invalid parameters`).
+- **Duplicate-Subscription Guard (`stripe-webhook`)**:
+  - In the trial checkout path (`checkout.session.completed` with `metadata.trial = 'true'`), BEFORE calling `finalize_card_trial` or `process_stripe_webhook_event`, the function looks up the user's existing `public.subscriptions` row for the resolved access slug (`cpbot`) with `store_id IS NULL` using the service-role client.
+  - **Duplicate Handling**: If an existing row is found with a DIFFERENT `stripe_subscription_id` and its status is not `'canceled'`:
+    - This represents a duplicate checkout (e.g. from rapid double-clicks or parallel browser tabs).
+    - The NEW Stripe subscription is immediately cancelled via `stripe.subscriptions.cancel(p_stripe_subscription_id)` (no charge).
+    - The database row in `public.subscriptions` is NOT touched.
+    - Webhook returns HTTP 200 with `{ received: true, duplicate_subscription: true }`.
+    - If cancellation fails, returns HTTP 500 so Stripe will retry.
+  - **Event Retries**: If `stripe_subscription_id` is the SAME, this is an idempotent retry of the same event; execution proceeds normally to `finalize_card_trial` and `process_stripe_webhook_event`.
+  - **Behaviour Note**: Two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
+- **Stripe Test Run Methodology**:
+  - Corrected test run procedure: Stripe test runs verify trial-to-paid conversion using the Stripe dashboard **"End trial"** action on the subscription instead of a test clock (because Stripe Checkout cannot attach to a test clock).
+
+
 
 
 

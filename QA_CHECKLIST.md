@@ -491,6 +491,48 @@
     - RCCP card on Dashboard shows "Subscribe" button.
     - Entire UI matches v1.7.0 identically.
 
+---
+
+## 24. Trial Hardening: Single-Seat Enforcement & Duplicate Subscription Guard (Release v1.9.1)
+
+### 24a. Static Verification & Syntax Parsing
+- [x] **Check 24a.1: TypeScript Compilation**:
+  - `npx tsc --noEmit -p .`
+  - **Expected Result**: Exits 0 with zero diagnostic errors across all components, pages, and library modules. (Passed).
+- [x] **Check 24a.2: create-checkout-session Syntax Validation**:
+  - `npx esbuild supabase/functions/create-checkout-session/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=scratch_checkout.js`
+  - **Expected Result**: Exits 0, produces valid bundle with no syntax errors. (Passed: 9.7kb bundle).
+- [x] **Check 24a.3: stripe-webhook Syntax Validation**:
+  - `npx esbuild supabase/functions/stripe-webhook/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=scratch_webhook.js`
+  - **Expected Result**: Exits 0, produces valid bundle with no syntax errors. (Passed: 14.7kb bundle).
+
+### 24b. Checkout & Webhook Runtime Verification (Stripe Test Mode)
+- [ ] **Check 24b.1: Single-Seat Server-Side Quantity Enforcement**:
+  - **Precondition**: Caller passes `{ product_slug: "rccp", quantity: 5 }` to `create-checkout-session`.
+  - **Action**: Edge function processes the request.
+  - **Expected Result**: Created Stripe Checkout session line item strictly enforces `quantity: 1`. Client-provided quantity `5` is completely ignored server-side.
+  - **Edge Case**: For `product_slug: "orderbot"`, client quantity is preserved (e.g. `quantity: 3` results in line item quantity 3). If `orderbot` quantity is `< 1` or missing, returns HTTP 400.
+- [ ] **Check 24b.2: Duplicate-Subscription Guard on Parallel Trial Checkouts**:
+  - **Precondition**: User has an active or trialing subscription row in `public.subscriptions` for `cpbot` (`store_id IS NULL`, status not `'canceled'`) with a given `stripe_subscription_id`.
+  - **Action**: A new trial checkout event (`checkout.session.completed` with `metadata.trial = 'true'`) arrives with a different `stripe_subscription_id` (e.g. from parallel browser tabs).
+  - **Expected Result**:
+    - Webhook detects the existing non-canceled row with a DIFFERENT `stripe_subscription_id`.
+    - Immediately cancels the NEW Stripe subscription via `stripe.subscriptions.cancel(p_stripe_subscription_id)` (no charge).
+    - Database row in `public.subscriptions` is NOT touched.
+    - Webhook returns HTTP 200 with `{ received: true, duplicate_subscription: true }`.
+    - If cancellation fails, returns HTTP 500 so Stripe retries.
+    - **Behaviour Note**: Two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
+- [ ] **Check 24b.3: Duplicate-Subscription Guard on Retry of Same Event**:
+  - **Precondition**: User has a subscription row in `public.subscriptions` with `stripe_subscription_id = 'sub_123'`.
+  - **Action**: Stripe retries delivering `checkout.session.completed` with `subscription = 'sub_123'`.
+  - **Expected Result**:
+    - Because `stripe_subscription_id` is the SAME, duplicate guard is not triggered.
+    - Webhook proceeds normally as an idempotent retry.
+- [ ] **Check 24b.4: Office PC Test Run Using "End Trial" Action**:
+  - In Stripe test mode on office PC, trial-end conversion is verified using Stripe Dashboard Subscriptions → **"End trial"** action on the subscription instead of a test clock (Checkout cannot attach to a test clock).
+  - Triggers `customer.subscription.updated` with status `'active'`, successfully converting the subscription row and stamping `converted_at`.
+
+
 
 
 

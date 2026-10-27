@@ -61,9 +61,20 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { product_slug, quantity } = body;
+    const { product_slug } = body;
 
-    if (!product_slug || !quantity || quantity < 1) {
+    if (!product_slug) {
+      return new Response(JSON.stringify({ error: 'Invalid parameters' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // For single-seat products (everything except 'orderbot'), force quantity = 1 server-side, ignoring client value.
+    // Orderbot keeps the client quantity.
+    const effectiveQuantity = product_slug === 'orderbot' ? Number(body.quantity) : 1;
+
+    if (product_slug === 'orderbot' && (!effectiveQuantity || effectiveQuantity < 1)) {
       return new Response(JSON.stringify({ error: 'Invalid parameters' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -222,7 +233,7 @@ Deno.serve(async (req) => {
             recurring: { interval: 'month' },
             product: productId,
           },
-          quantity: quantity,
+          quantity: effectiveQuantity,
         },
       ];
     } else {
@@ -230,7 +241,7 @@ Deno.serve(async (req) => {
       lineItems = [
         {
           price: baseStripePrice.id,
-          quantity: quantity,
+          quantity: effectiveQuantity,
         },
       ];
     }

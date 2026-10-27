@@ -1,5 +1,50 @@
 # Build Log
 
+## 2026-10-27 (v1.9.1 Trial Hardening: Single-Seat Enforcement & Duplicate Subscription Guard - Not Deployed)
+- Requested:
+  - Task 1: `create-checkout-session`: for product_slug 'rccp' (and any single-seat product, i.e. everything except 'orderbot') force quantity = 1 server-side, ignoring the client value. Orderbot keeps the client quantity.
+  - Task 2: `stripe-webhook`, trial checkout path (`checkout.session.completed` with `metadata.trial = 'true'`), duplicate-subscription guard: BEFORE calling `finalize_card_trial` or `process_stripe_webhook_event`, look up the user's existing `subscriptions` row for the resolved access slug (`cpbot`) using service role (`store_id IS NULL`). If a row exists with a DIFFERENT `stripe_subscription_id` and its status is not `'canceled'`, this is a duplicate checkout: cancel the NEW Stripe subscription with `stripe.subscriptions.cancel` (no charge), do NOT touch the database row, return HTTP 200 with `{received: true, duplicate_subscription: true}`. If cancelling fails return HTTP 500 so Stripe retries. If `stripe_subscription_id` is the SAME, continue as today (retry of the same event).
+  - Task 3: Add behaviour note in `docs/FREE_TRIAL_AND_DISCOUNTS.md` and `QA_CHECKLIST.md`: two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
+  - Task 4: Correct `docs/FREE_TRIAL_AND_DISCOUNTS.md`: the Stripe test run must use the Stripe dashboard "End trial" action on the subscription, not a test clock (Checkout cannot attach to a test clock).
+  - Verification: `npx tsc --noEmit -p .` exit 0 and an esbuild syntax parse of both functions with output shown, plus diffs. State what was NOT run. List deploy commands in report; do not run them.
+- Built:
+  - `supabase/functions/create-checkout-session/index.ts`:
+    - Updated parameter parsing and validation: `effectiveQuantity` is strictly forced to 1 for non-orderbot products (`product_slug !== 'orderbot'`), ignoring any client-provided value.
+    - Preserved `body.quantity` for `orderbot`, requiring `quantity >= 1`.
+    - Applied `effectiveQuantity` across Stripe line item construction.
+  - `supabase/functions/stripe-webhook/index.ts`:
+    - Added duplicate-subscription guard inside `checkout.session.completed` when `isTrialMode` is true.
+    - Resolves entitlement access slug via `trial_offers.access_slug` (mapping `'rccp'` -> `'cpbot'`).
+    - Queries `public.subscriptions` for user's existing row where `store_id IS NULL`.
+    - If existing row has a DIFFERENT `stripe_subscription_id` and `status !== 'canceled'`, cancels the incoming subscription immediately via `stripe.subscriptions.cancel(p_stripe_subscription_id)`, leaves database untouched, and returns HTTP 200 `{ received: true, duplicate_subscription: true }`. Returns HTTP 500 if cancellation fails.
+    - If `stripe_subscription_id` is identical, proceeds normally as an idempotent retry.
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`:
+    - Added Section 13.6 documenting single-seat server-side quantity enforcement.
+    - Added Section 13.7 documenting duplicate-subscription guard and parallel checkout behaviour.
+    - Corrected Test Run 4 in Section 14.3 to use the Stripe dashboard Subscriptions → "End trial" action on the subscription, explaining why test clocks cannot be used with Stripe Checkout.
+    - Added Test Run 5 documenting end-to-end verification of parallel trial checkouts.
+  - `QA_CHECKLIST.md`:
+    - Added Section 24 with static checks (TypeScript and esbuild bundles) and runtime test scenarios for single-seat enforcement, duplicate subscription guard, event retry idempotency, and the corrected "End trial" test run.
+  - `PRD.md`:
+    - Added Section 12 detailing v1.9.1 trial hardening specifications and edge cases.
+  - `CHANGELOG.md`:
+    - Added user-facing release notes for v1.9.1.
+- Files touched:
+  - `supabase/functions/create-checkout-session/index.ts`
+  - `supabase/functions/stripe-webhook/index.ts`
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`
+  - `QA_CHECKLIST.md`
+  - `PRD.md`
+  - `CHANGELOG.md`
+  - `PROJECT_STATE.md`
+  - `BUILD_LOG.md`
+- What was NOT run:
+  - No edge functions were deployed (`create-checkout-session` and `stripe-webhook` deploy commands were NOT executed).
+  - No SQL migrations or database modifications were executed.
+  - No Stripe live or test API calls were made.
+  - Free trial offers remain disabled (`trial_offers.enabled = false`).
+  - Checkout remains gated by `CHECKOUT_ENABLED !== 'true'` (admin only).
+
 ## 2026-10-26 (v1.9.0 Trial Checkout, Billing Portal and Trial Buttons - Not Deployed)
 - Requested:
   - Task 1: Update edge function `create-checkout-session`: call service-role RPC `trial_eligibility_for(user_id, 'rccp')`. If eligible: Stripe Checkout mode subscription with `subscription_data.trial_period_days = trial_days`, `subscription_data.trial_settings.end_behavior.missing_payment_method = 'cancel'`, `payment_method_collection = 'always'`, `phone_number_collection.enabled = true`, metadata `trial = 'true'` (on session and subscription_data) plus existing user_id/tool_slug/price_source, and `custom_text.submit.message` saying "{N} days free, then A${price}/month starting {date}. Cancel anytime before then." (computed server-side). If ineligible: standard paid checkout, returning `{url, trial: false, reason}`. Update 409 `already_subscribed` guard to block both active and trialing subscriptions (Order Bot exempt). `success_url = /dashboard?checkout=success`, `cancel_url = /tools/rccp`.

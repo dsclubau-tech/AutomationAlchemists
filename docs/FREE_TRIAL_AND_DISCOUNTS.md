@@ -529,6 +529,23 @@ To prevent trial abuse across repeated account creation, the database introduces
   4. Only if all fallbacks fail is HTTP 500 returned.
   5. Card fingerprints, customer phone numbers, and `TRIAL_IDENTITY_PEPPER` are never printed or logged.
 
+### 13.6 Single-Seat Server-Side Quantity Enforcement (v1.9.1)
+- In `create-checkout-session` (`supabase/functions/create-checkout-session/index.ts`):
+  - For `product_slug = 'rccp'` (and any single-seat product, i.e. everything except `'orderbot'`), quantity is strictly forced to `1` server-side (`effectiveQuantity = 1`), completely ignoring any client-submitted value.
+  - For `'orderbot'` (multi-store expansion), client-submitted quantity is preserved (`Number(body.quantity)`), with server-side validation enforcing `quantity >= 1`.
+
+### 13.7 Duplicate-Subscription Guard on Trial Checkout (v1.9.1)
+- In `stripe-webhook` (`supabase/functions/stripe-webhook/index.ts`):
+  - In the trial checkout path (`checkout.session.completed` with `metadata.trial = 'true'`), BEFORE calling `finalize_card_trial` or `process_stripe_webhook_event`, the function looks up the user's existing `public.subscriptions` row for the resolved access slug (`cpbot`) with `store_id IS NULL` using the service-role client.
+  - **Duplicate Detection**: If an existing row is found with a DIFFERENT `stripe_subscription_id` and its status is not `'canceled'`:
+    - This represents a duplicate checkout (e.g. from rapid double-clicks or parallel browser tabs).
+    - The NEW Stripe subscription is immediately cancelled via `stripe.subscriptions.cancel(p_stripe_subscription_id)` (no charge).
+    - The database row is NOT touched.
+    - Webhook returns HTTP 200 with `{ received: true, duplicate_subscription: true }`.
+    - If cancellation fails, returns HTTP 500 so Stripe retries.
+  - **Event Retries**: If `stripe_subscription_id` is the SAME, this is an idempotent retry of the same event; execution proceeds normally.
+  - **Behaviour Note**: Two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
+
 ---
 
 ## 14. Owner Stripe Setup, Edge Function Deployment & Office PC Test Run (v1.9.0)
@@ -632,13 +649,14 @@ Follow this step-by-step test run in Stripe Test Mode on the office PC to valida
    - Subscription row preserves `is_trial = true` and `grant_reason = 'stripe_trial'`.
    - No premature paid conversion occurs.
 
-#### Test Run 4: Trial-End Conversion Using a Stripe Test Clock
-1. In Stripe Dashboard (Test Mode) → **Customers** → **Test clocks** (`https://dashboard.stripe.com/test/test-clocks`):
-   - Create a test clock (e.g. named *"Trial 30-day Conversion Clock"*).
-   - Create a test customer attached to this test clock.
-2. Complete a trial checkout for this customer with test card `4242 4242 4242 4242`.
-3. In Stripe Dashboard, advance the test clock forward 31 days (past trial duration).
-4. Stripe generates the first renewal invoice and automatically charges the payment card on file.
+#### Test Run 4: Trial-End Conversion Using Stripe Dashboard "End Trial" Action
+> [!NOTE]
+> **Why not Test Clocks?** Stripe Checkout cannot attach a new subscription to a customer with an existing test clock, nor can Checkout create subscriptions directly on test clocks. To verify trial-to-paid conversion in Stripe test mode, use the Stripe dashboard **"End trial"** action on the subscription.
+
+1. In Stripe Dashboard (Test Mode) → **Billing** → **Subscriptions** (`https://dashboard.stripe.com/test/subscriptions`).
+2. Open the active trial subscription created in Test Run 1 for test account A.
+3. Click the **"..."** (Actions) menu in the upper right (or click **"Update subscription"**) and select **"End trial"** (choose to end trial immediately and invoice the customer).
+4. Stripe immediately generates the renewal invoice and charges the payment card on file.
 5. Stripe fires `customer.subscription.updated` with status `'active'`.
 6. Webhook processes the conversion:
    - `process_stripe_webhook_event` detects raw status `'active'`.
@@ -646,6 +664,23 @@ Follow this step-by-step test run in Stripe Test Mode on the office PC to valida
    - Updates `trial_claims`: `converted_at` is stamped with `now()`.
 7. Refresh `/dashboard`:
    - Card updates from trial state to paid state: *"CP Bot renews {date}"*.
+   - Cancel the test subscription in Stripe to reset the test account.
+
+#### Test Run 5: Parallel Trial Checkouts (Duplicate Subscription Guard)
+1. Open two browser tabs logged in as test account A (or a fresh eligible test account).
+2. In both tabs, navigate to `/tools/rccp` and click **"Start free trial now"** to launch two distinct Stripe Checkout sessions.
+3. Complete checkout in Tab 1 with test card `4242 4242 4242 4242`.
+   - Webhook receives `checkout.session.completed` for the first subscription.
+   - Database creates the active trial subscription row for `cpbot`.
+4. Immediately complete checkout in Tab 2 with test card `4242 4242 4242 4242`.
+   - Webhook receives `checkout.session.completed` for the second subscription.
+   - Duplicate-subscription guard runs before `finalize_card_trial` or `process_stripe_webhook_event`.
+   - Detects the existing active trial row with a DIFFERENT `stripe_subscription_id`.
+   - Webhook immediately cancels the second Stripe subscription (`stripe.subscriptions.cancel`).
+   - Database row is NOT touched.
+   - Webhook returns HTTP 200 `{ received: true, duplicate_subscription: true }`.
+5. Expected outcome: Two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
+
 
 
 

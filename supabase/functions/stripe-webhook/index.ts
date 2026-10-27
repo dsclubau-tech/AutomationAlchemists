@@ -167,63 +167,123 @@ Deno.serve(async (req) => {
         }
 
         // Card-Required Free Trial processing
-        if (isTrialMode && subscription.status === 'trialing') {
-          const cardFingerprint = await resolveCardFingerprint(
-            stripe,
-            subscription,
-            p_stripe_customer_id
-          );
-          const customerPhone = session.customer_details?.phone ?? null;
-          const pepper = Deno.env.get('TRIAL_IDENTITY_PEPPER');
-
-          // If the pepper or the fingerprint is missing, return 500 so Stripe retries
-          if (!pepper || !cardFingerprint) {
-            console.error('Trial checkout missing required pepper or card fingerprint after all fallbacks.');
-            return new Response(JSON.stringify({ error: 'Missing pepper or card fingerprint' }), {
-              status: 500,
-              headers: { 'Content-Type': 'application/json' },
-            });
-          }
-
-          const phoneHash = customerPhone
-            ? await hmacSha256Hex(pepper, customerPhone.trim())
-            : null;
-
+        if (isTrialMode) {
+          // Resolve target access slug via trial_offers decoupling
           const toolSlug = session.metadata?.tool_slug ?? session.metadata?.product_slug ?? 'rccp';
-          const trialEndIso = subscription.trial_end
-            ? new Date(subscription.trial_end * 1000).toISOString()
-            : p_current_period_end;
+          const { data: offerData } = await supabaseAdmin
+            .from('trial_offers')
+            .select('access_slug')
+            .eq('tool_slug', toolSlug)
+            .maybeSingle();
 
-          // Call finalize_card_trial with service role
-          const { data: finalizeData, error: finalizeErr } = await supabaseAdmin.rpc('finalize_card_trial', {
-            p_user_id,
-            p_tool_slug: toolSlug,
-            p_email,
-            p_card_fingerprint: cardFingerprint,
-            p_phone_hash: phoneHash,
-            p_trial_end: trialEndIso,
-          });
+          const resolvedAccessSlug = offerData?.access_slug || toolSlug;
 
-          if (finalizeErr) {
-            console.error('finalize_card_trial RPC error:', finalizeErr);
-            throw finalizeErr;
+          // DUPLICATE-SUBSCRIPTION GUARD:
+          // Look up user's existing subscriptions row for resolved access slug (service role, store_id IS NULL).
+          // If a row exists with a DIFFERENT stripe_subscription_id and its status is not 'canceled',
+          // this is a duplicate checkout: cancel the NEW Stripe subscription with stripe.subscriptions.cancel (no charge),
+          // do NOT touch the database row, return HTTP 200 with {received:true, duplicate_subscription:true}.
+          // If cancelling fails return HTTP 500 so Stripe retries.
+          // If the stripe_subscription_id is the SAME, continue as today (retry of the same event).
+          if (p_user_id) {
+            const { data: existingSub, error: subErr } = await supabaseAdmin
+              .from('subscriptions')
+              .select('id, stripe_subscription_id, status')
+              .eq('user_id', p_user_id)
+              .eq('product_slug', resolvedAccessSlug)
+              .is('store_id', null)
+              .maybeSingle();
+
+            if (subErr) {
+              console.error('Error querying existing subscriptions for duplicate check:', subErr);
+              throw subErr;
+            }
+
+            if (existingSub) {
+              const isDifferentSub = existingSub.stripe_subscription_id !== p_stripe_subscription_id;
+              const isNotCanceled = existingSub.status !== 'canceled';
+
+              if (isDifferentSub && isNotCanceled) {
+                console.warn(
+                  `Duplicate trial checkout detected for user ${p_user_id}. Existing sub: ${existingSub.stripe_subscription_id}, new sub: ${p_stripe_subscription_id}. Cancelling new sub.`
+                );
+                try {
+                  await stripe.subscriptions.cancel(p_stripe_subscription_id as string);
+                } catch (cancelErr: unknown) {
+                  const cancelMsg = cancelErr instanceof Error ? cancelErr.message : String(cancelErr);
+                  console.error(`Failed to cancel duplicate subscription ${p_stripe_subscription_id}:`, cancelMsg);
+                  return new Response(JSON.stringify({ error: `Failed to cancel duplicate subscription: ${cancelMsg}` }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                }
+
+                // Return HTTP 200 with {received:true, duplicate_subscription:true} without touching the database row
+                return new Response(JSON.stringify({ received: true, duplicate_subscription: true }), {
+                  status: 200,
+                  headers: { 'Content-Type': 'application/json' },
+                });
+              }
+            }
           }
 
-          const trialResult = finalizeData as { ok?: boolean; reason?: string; claim_id?: string } | null;
+          if (subscription.status === 'trialing') {
+            const cardFingerprint = await resolveCardFingerprint(
+              stripe,
+              subscription,
+              p_stripe_customer_id
+            );
+            const customerPhone = session.customer_details?.phone ?? null;
+            const pepper = Deno.env.get('TRIAL_IDENTITY_PEPPER');
 
-          if (!trialResult?.ok) {
-            console.warn(`Trial denied for user ${p_user_id}: ${trialResult?.reason}. Cancelling subscription immediately.`);
-            await stripe.subscriptions.cancel(p_stripe_subscription_id);
-            // Return 200 without calling process_stripe_webhook_event
-            return new Response(JSON.stringify({ received: true, trial_denied: trialResult?.reason }), {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' },
+            // If the pepper or the fingerprint is missing, return 500 so Stripe retries
+            if (!pepper || !cardFingerprint) {
+              console.error('Trial checkout missing required pepper or card fingerprint after all fallbacks.');
+              return new Response(JSON.stringify({ error: 'Missing pepper or card fingerprint' }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+              });
+            }
+
+            const phoneHash = customerPhone
+              ? await hmacSha256Hex(pepper, customerPhone.trim())
+              : null;
+
+            const trialEndIso = subscription.trial_end
+              ? new Date(subscription.trial_end * 1000).toISOString()
+              : p_current_period_end;
+
+            // Call finalize_card_trial with service role
+            const { data: finalizeData, error: finalizeErr } = await supabaseAdmin.rpc('finalize_card_trial', {
+              p_user_id,
+              p_tool_slug: toolSlug,
+              p_email,
+              p_card_fingerprint: cardFingerprint,
+              p_phone_hash: phoneHash,
+              p_trial_end: trialEndIso,
             });
-          }
 
-          // Approved: set status to 'trialing' and period end to subscription trial_end
-          p_subscription_status = 'trialing';
-          p_current_period_end = trialEndIso;
+            if (finalizeErr) {
+              console.error('finalize_card_trial RPC error:', finalizeErr);
+              throw finalizeErr;
+            }
+
+            const trialResult = finalizeData as { ok?: boolean; reason?: string; claim_id?: string } | null;
+
+            if (!trialResult?.ok) {
+              console.warn(`Trial denied for user ${p_user_id}: ${trialResult?.reason}. Cancelling subscription immediately.`);
+              await stripe.subscriptions.cancel(p_stripe_subscription_id);
+              // Return 200 without calling process_stripe_webhook_event
+              return new Response(JSON.stringify({ received: true, trial_denied: trialResult?.reason }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+              });
+            }
+
+            // Approved: set status to 'trialing' and period end to subscription trial_end
+            p_subscription_status = 'trialing';
+            p_current_period_end = trialEndIso;
+          }
         }
       }
     } else if (

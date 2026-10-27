@@ -67,15 +67,26 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Completely removed legacy `claim_free_trial` calls and types.
     - Updated `getClaimErrorMessage` with client-safe failure messages for `checkout_required`, `card_already_used`, `phone_already_used`, `phone_missing`, `card_missing`, `no_slots`. Never leaks third-party identity info.
   - Fail-safe rule: when trial offer is disabled (`trial_offers.enabled = false`), all pages render standard non-trial UI identically matching v1.7.0.
+- **Trial Hardening & Safety Guards (v1.9.1 - Code written, not deployed)**:
+  - `create-checkout-session`:
+    - Server-side single-seat quantity enforcement: for `product_slug = 'rccp'` (and any product except `'orderbot'`), quantity is strictly forced to 1 server-side, ignoring client value. Order Bot preserves client quantity.
+  - `stripe-webhook`:
+    - Duplicate-subscription guard on trial checkouts (`checkout.session.completed` with `metadata.trial = 'true'`).
+    - Resolves access slug (`cpbot`) and looks up existing subscription row for the user with `store_id IS NULL`.
+    - If a row exists with a different `stripe_subscription_id` and status is not `'canceled'`, cancels the new Stripe subscription (`stripe.subscriptions.cancel`) with no charge, leaves database untouched, and returns HTTP 200 `{ received: true, duplicate_subscription: true }`. Returns HTTP 500 if cancelling fails.
+    - If `stripe_subscription_id` is identical, continues as normal (retry of the same event).
+    - Behaviour guarantee: two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
+  - Runbook correction:
+    - Updated `docs/FREE_TRIAL_AND_DISCOUNTS.md` Test Run 4 to use Stripe Dashboard Subscriptions → "End trial" action instead of a test clock (Checkout cannot attach to a test clock).
 
 ## Current Production Deployment Status
 - **Checkout globally**: Hidden in production (`VITE_CHECKOUT_ENABLED !== 'true'`, Supabase secret `CHECKOUT_ENABLED` unset; only `profiles.is_admin` may call checkout).
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
-  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`).
-  - `create-checkout-session`: Code updated for v1.9.0, **NOT deployed**.
+  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard changes **NOT deployed**.
+  - `create-checkout-session`: Code updated for v1.9.0 & v1.9.1, **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-- **Database**: Migration 034 applied and verified. No database migrations executed in v1.9.0.
+- **Database**: Migration 034 applied and verified. No database migrations executed in v1.9.0 or v1.9.1.
 
 ## In Progress
 - Owner adding `TRIAL_IDENTITY_PEPPER` secret to Supabase Edge Functions.
@@ -83,8 +94,8 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Chrome extension v1.0.5.3 Chrome Web Store review.
 
 ## Not Started
-- Deploying `create-checkout-session` and `create-portal-session` to Supabase.
-- Office PC Stripe test-mode verification run (trial checkout, duplicate card rejection, portal cancellation, test clock conversion).
+- Deploying `create-checkout-session`, `create-portal-session`, and updated `stripe-webhook` to Supabase.
+- Office PC Stripe test-mode verification run (trial checkout, duplicate card rejection, portal cancellation, subscription "End trial" conversion, parallel checkout duplicate cancellation).
 - Multi-item single-checkout.
 
 ## Known Issues
@@ -95,4 +106,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-10-26 — Release v1.9.0: Trial Checkout Session Edge Function, Billing Portal Edge Function, unified trial checkout flow, Dashboard polling & state handling, and Billing page integration (code complete, not deployed).*
+*Last Updated: 2026-10-27 — Release v1.9.1: Trial Hardening: Single-Seat Quantity Enforcement, Duplicate Subscription Guard, and Test Run Runbook Correction (code complete, not deployed).*
