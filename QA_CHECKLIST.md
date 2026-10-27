@@ -572,6 +572,50 @@
     - Non-subscription invoices return HTTP 200 `{ received: true, skipped: 'no_subscription' }`.
     - Webhook returns HTTP 200 for all valid events.
 
+---
+
+## 26. Dashboard Light Theme, Card Deduplication, and Manual Grant Polish (Release v1.9.3)
+
+### 26a. Static Verification & Pure Helper Test Suite
+- [x] **Check 26a.1: TypeScript Compilation**:
+  - `npx tsc --noEmit -p .`
+  - **Expected Result**: Exits 0 with zero diagnostic errors across all files. (Passed).
+- [x] **Check 26a.2: Vite Production Build**:
+  - `npx vite build`
+  - **Expected Result**: Exits 0, produces valid bundle with no sitemap changes. (Passed).
+- [x] **Check 26a.3: Dashboard Sections Pure Test Suite**:
+  - `node scripts/test-dashboard-sections.mjs`
+  - **Expected Result**: Exits 0, all 6 test assertions pass:
+    1. Owner with manual rccp grant and active listflow row: both in Your tools, Coming soon empty, no manage buttons.
+    2. Paid Stripe user for rccp: Your tools with manage button and renews date.
+    3. New user with no rows: rccp in Your tools as locked/free card, listflow only in Coming soon.
+    4. Active trial row: Your tools with trial end text and manage button.
+    5. Expired row: excluded from Your tools, present in Coming soon.
+    6. Order Bot exception and Invoice Generator hidden. (Passed: 6/6 tests).
+
+### 26b. Owner Visual Verification Checklist (Live Vercel Deployment)
+- [ ] **Check 26b.1: Dashboard Page Theme Matches /tools**:
+  - Sign in to `https://www.automationalchemists.com/dashboard`.
+  - Confirm page background is light mint (`bg-mint-50 #EBF4F4`) with time-fold ripple, matching `https://www.automationalchemists.com/tools`.
+  - Confirm page heading *"Your dashboard"* is dark teal (`text-teal-900 #0A363D`) and subtitle is clear (`text-teal-900/80`).
+  - Confirm all cards have a clean white surface (`bg-white rounded-2xl border border-teal-600/20 shadow-sm`), no dark background patches or noisy blocks.
+- [ ] **Check 26b.2: No Duplicate Tool Cards for Owner**:
+  - With manual CP Bot grant and active ListFlow row:
+  - Both **Return Converter x CopyPaste Bot** and **ListFlow** appear under *"Your tools"*.
+  - *"Coming soon"* section does NOT display ListFlow (it is empty or hidden).
+- [ ] **Check 26b.3: Manual Grant Manage Button & Date Text**:
+  - On the **Return Converter x CopyPaste Bot** card (manual grant):
+    - Confirm NO *"Manage subscription"* button is shown.
+    - Confirm text displays *"CP Bot access until {date}"* (or *"CP Bot access: no end date"*) rather than *"renews {date}"*.
+  - On the **ListFlow** card (manual grant):
+    - Confirm NO *"Manage subscription"* button is shown.
+    - Confirm text displays *"Access until {date}"* rather than *"renews {date}"*.
+- [ ] **Check 26b.4: Paid Stripe Subscriber Verification**:
+  - For a paying customer with an active Stripe subscription:
+    - Card shows *"Manage subscription"* button with teal outline (`border-teal-600 text-teal-900`).
+    - Clicking *"Manage subscription"* invokes `create-portal-session` and launches the Stripe Billing Customer Portal.
+    - Renewal date shows *"Renews {date}"*.
+
 
 
 

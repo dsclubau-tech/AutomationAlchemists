@@ -1,5 +1,50 @@
 # Build Log
 
+## 2026-10-27 (v1.9.3 Dashboard Light Style, Card Deduplication, and Manual Grant Fixes)
+- Requested:
+  - Task 1: Match Dashboard page and element style to `/tools` reference (light mint-50 background, time-fold-ripple background effect, light card surfaces with border-teal-600/20, high contrast >= 4.5:1 text, yellow primary CTA buttons, teal-outlined secondary buttons, restyled loaders, skeleton cards, store management cards, add store dialog, and trial card states).
+  - Task 2: Enforce that each tool card appears in exactly ONE dashboard section. Tools with active access appear only under "Your tools" and are excluded from "Available" and "Coming soon". Dedupe `rccp` and `cpbot` access slugs. Preserve Order Bot multi-store exception and keep Invoice Generator hidden.
+  - Task 3: Show "Manage subscription" ONLY when the subscription row has a Stripe link (`stripe_customer_id` or `stripe_subscription_id`) AND `manually_granted` is not true. Select needed fields without adding new queries. For manual grants show "Access until {date}" (or "Access: no end date") instead of "renews {date}".
+  - Verification: `npx tsc --noEmit -p .` exit 0, `npx vite build` exit 0 (never stage public/sitemap.xml), unit test harness `scripts/test-dashboard-sections.mjs` asserting all 6 specified scenarios. List owner visual checks.
+- Built:
+  - `src/lib/dashboardSections.ts`:
+    - Pure helper module extracting dashboard categorization and display logic.
+    - `isSubscriptionActive`: checks active or trialing status within valid period.
+    - `hasActiveToolAccess`: resolves access slugs (maps `rccp` to `cpbot`) and checks active subscription.
+    - `categorizeDashboardTools`: partitions catalog tools into `activeTools`, `availableTools`, and `comingSoonTools` ensuring mutual exclusivity, deduplicating `rccp`/`cpbot`, enforcing Order Bot store logic, and hiding Invoice Generator.
+    - `canManageSubscription`: enforces that manage subscription buttons only render when a Stripe subscription/customer ID exists and `manually_granted` is not true.
+    - `getSubscriptionDateText`: formats human-readable renewal/expiration labels for manual grants ("Access until {date}" / "Access: no end date"), paid subscriptions ("Renews {date}"), and trial subscriptions ("Trial ends {date}").
+  - `scripts/test-dashboard-sections.mjs`:
+    - Unit test runner bundling `src/lib/dashboardSections.ts` with esbuild for Node assertion.
+    - Verified all 6 required scenarios:
+      1. Owner with manual rccp grant and active listflow row: both in Your tools, Coming soon empty, no manage buttons.
+      2. Paid Stripe user for rccp: Your tools with manage button and renewal date.
+      3. New user with no rows: rccp in Available, listflow in Coming soon.
+      4. Active trial row: Your tools with trial end text.
+      5. Expired row: not in Your tools (in Available).
+      6. Order Bot with active sub and 0 stores in Available; Invoice Generator hidden from all sections.
+  - `src/components/DashboardTrialCard.tsx`:
+    - Restyled all 8 state views (ready, starting, polling, active, expired, error, etc.) from dark teal to light theme (`bg-white rounded-2xl border border-teal-600/20 shadow-sm`, `text-teal-900`, `text-teal-800`, `bg-mint-50/80`).
+  - `src/pages/Dashboard.tsx`:
+    - Added `manually_granted`, `stripe_subscription_id`, and `stripe_customer_id` to existing `.select(...)` query on `subscriptions`.
+    - Integrated `categorizeDashboardTools`, replacing scattered deduplication checks.
+    - Restyled page wrapper to `min-h-screen bg-mint-50 text-teal-900 time-fold-ripple selection:bg-teal-600 selection:text-white`.
+    - Restyled dashboard headings, section labels, `SkeletonCard`, `ToolCard`, OrderBot store cards, and the "Add eBay Store" dialog.
+    - Conditioned all "Manage subscription" buttons on `canManageSubscription`.
+    - Replaced hardcoded "renews" strings with `getSubscriptionDateText`.
+  - `PRD.md`: Added Section 14 documenting Dashboard light theme styling, card deduplication, and manual grant display rules.
+  - `QA_CHECKLIST.md`: Added Section 26 documenting unit tests and the owner's visual verification checklist.
+  - `CHANGELOG.md`: Added v1.9.3 client-facing release notes.
+- Verification:
+  - `node scripts/test-dashboard-sections.mjs` executed: 6/6 tests passed with 0 errors.
+  - `npx tsc --noEmit -p .` executed: exit 0, zero diagnostic errors.
+  - `npx vite build` executed: exit 0, production bundle built in 20.61s. `public/sitemap.xml` was NOT touched.
+- What was NOT run:
+  - No edge functions deployed.
+  - No database migrations or SQL executed.
+  - No live Stripe calls made.
+  - Live dashboard visual verification in browser was not performed directly because owner login credentials are not held locally. Owner visual check instructions provided.
+
 ## 2026-10-27 (v1.9.2 Webhook Independent of Stripe API Version - Not Deployed)
 - Requested:
   - Task 1: FIRST audit and report: for every event type handled (checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, customer.subscription.trial_will_end, invoice.payment_failed, charge.refunded), quote the exact lines that read data from event.data.object versus data fetched with the SDK, and say which fields would be undefined under the clover payload shape (Stripe API 2026-02-25.clover).

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.3] - 2026-10-27
+### Changed
+- Refreshed customer dashboard with the clean light landing-page styling matching the Tools directory, including high-contrast surfaces, readable status badges, and accessible controls
+- Streamlined dashboard tool displays so active tools only appear under "Your tools" and never duplicate in "Coming soon"
+- Adjusted access labels for manually granted tools to show exact access duration rather than automated renewal dates
+- Hidden subscription management buttons on manually granted tools that do not have an associated payment provider
+
 ## [1.9.2] - 2026-10-27
 ### Fixed
 - Enhanced payment webhook resilience to support new and future Stripe API payload versions seamlessly without interruptions or processing delays

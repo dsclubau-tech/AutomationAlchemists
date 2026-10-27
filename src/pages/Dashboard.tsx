@@ -16,6 +16,11 @@ import { Label } from '@/components/ui/label';
 import { handleGetAccessLogic, startTrialCheckout, redirectToBillingPortal } from '@/lib/checkout';
 import { VISIBLE_TOOL_SLUGS } from '@/data/tools';
 import { useTrialStatus, TrialStatusData } from '@/lib/trial';
+import {
+    categorizeDashboardTools,
+    canManageSubscription,
+    getSubscriptionDateText,
+} from '@/lib/dashboardSections';
 
 export interface DbTool {
     id: string;
@@ -36,6 +41,9 @@ interface SubscriptionData {
     status: string;
     current_period_end: string | null;
     is_trial?: boolean;
+    manually_granted?: boolean;
+    stripe_subscription_id?: string | null;
+    stripe_customer_id?: string | null;
 }
 
 const getIconComponent = (slug: string): ElementType => {
@@ -63,17 +71,17 @@ const getAppUrl = (slug: string): string => {
 };
 
 const SkeletonCard = () => (
-    <div className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 animate-pulse w-full min-w-0 flex flex-col h-full">
-        <div className="h-[80px] bg-[#222]"></div>
+    <div className="bg-white rounded-2xl overflow-hidden border border-teal-600/20 shadow-sm animate-pulse w-full min-w-0 flex flex-col h-full">
+        <div className="h-[80px] bg-teal-600/5 border-b border-teal-600/10"></div>
         <div className="p-6 space-y-4 flex-grow flex flex-col justify-between">
             <div className="space-y-4">
-                <div className="h-6 bg-teal-600/30 rounded w-3/4"></div>
-                <div className="h-4 bg-teal-600/30 rounded w-full"></div>
-                <div className="h-4 bg-teal-600/30 rounded w-5/6"></div>
+                <div className="h-6 bg-teal-600/15 rounded w-3/4"></div>
+                <div className="h-4 bg-teal-600/10 rounded w-full"></div>
+                <div className="h-4 bg-teal-600/10 rounded w-5/6"></div>
             </div>
-            <div className="pt-4 flex items-center justify-between border-t border-teal-600/30">
-                <div className="h-6 bg-teal-600/30 rounded w-24"></div>
-                <div className="h-10 bg-teal-600/30 rounded w-28"></div>
+            <div className="pt-4 flex items-center justify-between border-t border-teal-600/10">
+                <div className="h-6 bg-teal-600/15 rounded w-24"></div>
+                <div className="h-10 bg-teal-600/15 rounded w-28"></div>
             </div>
         </div>
     </div>
@@ -86,6 +94,7 @@ const ToolCard = ({
     isNotified,
     onNotify,
     cpBotSubscription,
+    subscription,
     trialStatus,
     onStartTrial,
     onManageSubscription,
@@ -98,6 +107,7 @@ const ToolCard = ({
     isNotified?: boolean;
     onNotify?: (tool: DbTool) => void;
     cpBotSubscription?: SubscriptionData | null;
+    subscription?: SubscriptionData | null;
     trialStatus?: TrialStatusData | null;
     onStartTrial?: () => void;
     onManageSubscription?: () => void;
@@ -107,27 +117,24 @@ const ToolCard = ({
     const Icon = getIconComponent(tool.slug);
     const [imageError, setImageError] = useState(false);
     
-    let bannerClass = 'bg-teal-600/30';
     let badge = null;
     let button = null;
     let displayDescription = tool.short_description || tool.description;
 
     if (type === 'active') {
         if (tool.status === 'maintenance') {
-            bannerClass = 'bg-teal-800 border-yellow-500/20';
             badge = (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-500 text-xs font-semibold border border-yellow-500/20 uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-800 text-xs font-semibold border border-amber-500/30 uppercase tracking-wider">
                     <Wrench className="w-3 h-3" />
                     Maintenance
                 </div>
             );
             button = (
-                <Button disabled className="bg-teal-600/30 text-mint-50/70 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto">
+                <Button disabled className="bg-teal-600/10 text-teal-900/60 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto border border-teal-600/20">
                     Currently Unavailable
                 </Button>
             );
         } else if (tool.slug === 'rccp') {
-            bannerClass = 'bg-teal-800';
             const hasCpBotSub = Boolean(cpBotSubscription);
             const isCpBotTrial = Boolean(cpBotSubscription?.is_trial || cpBotSubscription?.status === 'trialing');
             const isTrialEligible = !hasCpBotSub && Boolean(
@@ -142,10 +149,10 @@ const ToolCard = ({
                 displayDescription = "Return Converter is free. Upgrade to unlock CP Bot.";
                 badge = (
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
                             ↩️ Return Converter — Active
                         </div>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-semibold border border-zinc-500/20 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-600 text-xs font-semibold border border-zinc-300 whitespace-nowrap">
                             🔒 CP Bot — Locked
                         </div>
                     </div>
@@ -156,16 +163,16 @@ const ToolCard = ({
                     button = (
                         <div className="flex flex-col gap-2 w-full sm:w-auto">
                             <div className="flex flex-wrap items-center gap-2">
-                                <Button asChild variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                <Button asChild variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                     <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                         Open Return Converter
                                     </a>
                                 </Button>
-                                <Button onClick={onStartTrial} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                <Button onClick={onStartTrial} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
                                     Start free trial now
                                 </Button>
                             </div>
-                            <p className="text-[11px] text-mint-50/70 font-display">
+                            <p className="text-[11px] text-teal-900/70 font-display">
                                 {trialDays} days free, then A${tool.price_monthly}/month. Card required. Cancel anytime.
                             </p>
                         </div>
@@ -174,12 +181,12 @@ const ToolCard = ({
                     // State 1: Not eligible or no trial -> "Subscribe"
                     button = (
                         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                            <Button asChild variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            <Button asChild variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                 <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                     Open Return Converter
                                 </a>
                             </Button>
-                            <Button onClick={onSubscribe} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            <Button onClick={onSubscribe} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
                                 Subscribe
                             </Button>
                         </div>
@@ -187,91 +194,97 @@ const ToolCard = ({
                 }
             } else if (isCpBotTrial) {
                 // State 2: Trial active -> end date and "Manage subscription"
+                const trialDateText = getSubscriptionDateText(cpBotSubscription);
                 badge = (
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-center gap-2">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
                                 ↩️ Return Converter — Active
                             </div>
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-accent/15 text-yellow-accent text-xs font-semibold border border-yellow-accent/30 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/15 text-yellow-800 text-xs font-semibold border border-yellow-500/30 whitespace-nowrap">
                                 🤖 CP Bot — Free Trial
                             </div>
                         </div>
-                        {currentPeriodEnd && (
-                            <div className="text-[10px] text-mint-50/70 font-medium">
-                                Free trial ends {new Date(currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {trialDateText && (
+                            <div className="text-xs text-teal-900/70 font-medium">
+                                {trialDateText}
                             </div>
                         )}
                     </div>
                 );
                 button = (
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
                             <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                 Open Tools
                             </a>
                         </Button>
-                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                            Manage subscription
-                        </Button>
+                        {canManageSubscription(cpBotSubscription) && (
+                            <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                Manage subscription
+                            </Button>
+                        )}
                     </div>
                 );
             } else {
-                // State 3: Paid active -> "Manage subscription"
+                // State 3: Paid / Manual active -> "Manage subscription" (only if Stripe link & not manual)
+                const activeDateText = getSubscriptionDateText(cpBotSubscription, 'CP Bot');
                 badge = (
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-center gap-2">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
                                 ↩️ Return Converter — Active
                             </div>
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
                                 🤖 CP Bot — Active
                             </div>
                         </div>
-                        {currentPeriodEnd && (
-                            <div className="text-[10px] text-mint-50/70 font-medium">
-                                CP Bot renews {new Date(currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {activeDateText && (
+                            <div className="text-xs text-teal-900/70 font-medium">
+                                {activeDateText}
                             </div>
                         )}
                     </div>
                 );
                 button = (
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
                             <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                 Open Tools
                             </a>
                         </Button>
-                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                            Manage subscription
-                        </Button>
+                        {canManageSubscription(cpBotSubscription) && (
+                            <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                Manage subscription
+                            </Button>
+                        )}
                     </div>
                 );
             }
         } else {
-            bannerClass = 'bg-teal-800';
+            const activeDateText = getSubscriptionDateText(subscription);
             badge = (
                 <div className="flex flex-col gap-1 items-start">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-600" />
                         Active
                     </div>
-                    {currentPeriodEnd && (
-                        <div className="text-[10px] text-mint-50/70 font-medium ml-1">
-                            Renews {new Date(currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {activeDateText && (
+                        <div className="text-xs text-teal-900/70 font-medium ml-1">
+                            {activeDateText}
                         </div>
                     )}
                 </div>
             );
             button = (
                 <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                    <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
                         <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                             Open {tool.name}
                         </a>
                     </Button>
-                    {onManageSubscription && (
-                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                    {canManageSubscription(subscription) && onManageSubscription && (
+                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                             Manage subscription
                         </Button>
                     )}
@@ -279,36 +292,34 @@ const ToolCard = ({
             );
         }
     } else if (type === 'available') {
-        bannerClass = 'bg-teal-800';
         badge = (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-semibold border border-zinc-500/20">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-600 text-xs font-semibold border border-zinc-300">
                 <Lock className="w-3 h-3" />
                 Not purchased
             </div>
         );
         button = tool.status === 'maintenance' ? (
-            <Button disabled className="bg-teal-600/30 text-yellow-500 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto border border-yellow-500/20">
+            <Button disabled className="bg-teal-600/10 text-amber-800 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-not-allowed w-full sm:w-auto border border-amber-500/30">
                 In Maintenance
             </Button>
         ) : (
-            <Button onClick={() => onBuyNow?.(tool.slug)} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+            <Button onClick={() => onBuyNow?.(tool.slug)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Buy now — AUD ${tool.price_monthly}/mo
             </Button>
         );
     } else if (type === 'coming_soon') {
-        bannerClass = 'bg-gradient-to-br from-blue-900/20 to-purple-900/20';
         badge = (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold border border-blue-500/20">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-600/10 text-teal-700 text-xs font-semibold border border-teal-600/20">
                 <Clock className="w-3 h-3" />
                 Coming soon
             </div>
         );
         button = isNotified ? (
-            <Button disabled className="bg-teal-900 text-teal-400 border border-teal-600/30 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
+            <Button disabled className="bg-teal-600/10 text-teal-700 border border-teal-600/20 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
                 ✓ You're on the list
             </Button>
         ) : (
-            <Button onClick={() => onNotify?.(tool)} className="bg-teal-800 hover:bg-teal-700 text-mint-50 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto border border-teal-600/50">
+            <Button onClick={() => onNotify?.(tool)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Notify me
             </Button>
         );
@@ -318,10 +329,9 @@ const ToolCard = ({
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-teal-900 rounded-xl overflow-hidden border ${tool.status === 'maintenance' && type === 'active' ? 'border-yellow-500/30' : 'border-teal-600/30'} flex flex-col h-full w-full min-w-0`}
+            className={`bg-white rounded-2xl overflow-hidden border ${tool.status === 'maintenance' && type === 'active' ? 'border-amber-500/30' : 'border-teal-600/20'} shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full w-full min-w-0`}
         >
-            <div className={`h-[80px] w-full flex items-center justify-center ${bannerClass} relative overflow-hidden`}>
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
+            <div className={`h-[80px] w-full flex items-center justify-center ${tool.status === 'maintenance' && type === 'active' ? 'bg-amber-500/10 border-b border-amber-500/20' : 'bg-teal-600/5 border-b border-teal-600/10'} relative overflow-hidden`}>
                 {tool.slug === 'rccp' ? (
                     imageError ? (
                         <span className="text-4xl relative z-10" title="CP Bot & Return Converter">🤖↩️</span>
@@ -334,25 +344,25 @@ const ToolCard = ({
                         />
                     )
                 ) : (
-                    <Icon className="w-10 h-10 text-white/80 relative z-10" />
+                    <Icon className="w-10 h-10 text-teal-600 relative z-10" />
                 )}
             </div>
             
             <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-white mb-2 font-display">{tool.name}</h3>
+                <h3 className="text-xl font-bold text-teal-900 mb-2 font-display">{tool.name}</h3>
                 
-                <p className="text-mint-50/70 text-sm mb-4 leading-relaxed flex-grow">
+                <p className="text-teal-900/80 text-sm mb-4 leading-relaxed flex-grow">
                     {displayDescription}
                 </p>
 
                 {tool.status === 'maintenance' && type === 'active' && tool.maintenance_message && (
-                    <div className="mb-6 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
-                        <span className="text-xs font-semibold text-yellow-500 block mb-1">Message from Admin:</span>
-                        <span className="text-sm text-yellow-400/90">{tool.maintenance_message}</span>
+                    <div className="mb-6 p-3 bg-amber-500/10 border border-amber-500/30 rounded-md">
+                        <span className="text-xs font-semibold text-amber-800 block mb-1">Message from Admin:</span>
+                        <span className="text-sm text-amber-900/90">{tool.maintenance_message}</span>
                     </div>
                 )}
                 
-                <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/10 mt-auto">
                     {badge}
                     {button}
                 </div>
@@ -387,7 +397,7 @@ const Dashboard = () => {
         try {
             const { data: subsData } = await supabase
                 .from('subscriptions')
-                .select('product_slug, status, current_period_end, is_trial')
+                .select('product_slug, status, current_period_end, is_trial, manually_granted, stripe_subscription_id, stripe_customer_id')
                 .eq('user_id', user.id);
             if (subsData) setSubscriptions(subsData as SubscriptionData[]);
         } catch (err) {
@@ -520,46 +530,16 @@ const Dashboard = () => {
         }
     };
 
-    const hasOrderbotSub = subscriptions.some(
-        s => s.product_slug === 'orderbot' && (s.status === 'active' || s.status === 'trialing')
+    // Categorize tools using pure section assignment rules (no duplicates)
+    const { activeTools, availableTools, comingSoonTools } = categorizeDashboardTools(
+        dbTools,
+        subscriptions,
+        orderbotStores
     );
-    const hasOrderbotStores = (orderbotStores?.active_store_count ?? 0) > 0;
-    const hasOrderbotAccess = hasOrderbotSub || hasOrderbotStores;
-
-    // Categorize tools based on dynamic DB data and visibility rules
-    const activeTools = dbTools.filter(t => {
-        if (t.slug === 'invoicegen') return false;
-        if (t.slug === 'orderbot') {
-            return hasOrderbotAccess && hasOrderbotStores;
-        }
-        if (t.slug === 'rccp') return true;
-        if (!VISIBLE_TOOL_SLUGS.includes(t.slug as any)) return false;
-        const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && (s.status === 'active' || s.status === 'trialing'));
-        return t.is_free || hasActiveSub;
-    });
-
-    const availableTools = dbTools.filter(t => {
-        if (t.slug === 'invoicegen') return false;
-        if (t.slug === 'orderbot') {
-            // Task 1c exception: show Order Bot card ONLY if signed-in user has active or trialing subscription row for it
-            return hasOrderbotSub && !hasOrderbotStores;
-        }
-        if (t.slug === 'rccp') return false;
-        if (t.is_free) return false;
-        if (!VISIBLE_TOOL_SLUGS.includes(t.slug as any)) return false;
-        const hasActiveSub = subscriptions.some(s => s.product_slug === t.slug && (s.status === 'active' || s.status === 'trialing'));
-        return !hasActiveSub && (t.status === 'available' || t.status === 'maintenance');
-    });
-
-    const comingSoonTools = dbTools.filter(t => {
-        if (t.slug === 'invoicegen') return false;
-        if (t.slug === 'orderbot') return false;
-        return t.status === 'coming_soon' && (VISIBLE_TOOL_SLUGS as readonly string[]).includes(t.slug);
-    });
 
     const getSubscriptionEndDate = (slug: string) => {
         const querySlug = slug === 'rccp' ? 'cpbot' : slug;
-        const sub = subscriptions.find(s => s.product_slug === querySlug && (s.status === 'active' || s.status === 'trialing'));
+        const sub = subscriptions.find(s => (s.product_slug === querySlug || (slug === 'rccp' && s.product_slug === 'rccp')) && (s.status === 'active' || s.status === 'trialing'));
         return sub?.current_period_end;
     };
 
@@ -568,7 +548,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-teal-900 text-white time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-mint-50 text-teal-900 time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white flex flex-col justify-between">
             <SEOHead 
                 title="Your Dashboard | Automation Alchemists" 
                 description="Manage your tools and subscriptions." 
@@ -579,8 +559,8 @@ const Dashboard = () => {
                 <div className="max-w-7xl mx-auto">
                     
                     <div className="mb-16">
-                        <h1 className="text-4xl md:text-5xl font-black text-white font-display mb-4 tracking-tight">Your dashboard</h1>
-                        <p className="text-xl text-mint-50/70 font-display">Manage your tools and subscriptions.</p>
+                        <h1 className="text-4xl md:text-5xl font-black text-teal-900 font-display mb-4 tracking-tight">Your dashboard</h1>
+                        <p className="text-xl text-teal-900/80 font-display">Manage your tools and subscriptions.</p>
                     </div>
 
                     {!isLoading && user && (
@@ -595,14 +575,14 @@ const Dashboard = () => {
                     {isLoading ? (
                         <div className="space-y-16">
                             <section>
-                                <div className="h-4 bg-teal-600/30 w-32 rounded mb-6 animate-pulse" />
+                                <div className="h-4 bg-teal-600/20 w-32 rounded mb-6 animate-pulse" />
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                     <SkeletonCard />
                                     <SkeletonCard />
                                 </div>
                             </section>
                             <section>
-                                <div className="h-4 bg-teal-600/30 w-48 rounded mb-6 animate-pulse" />
+                                <div className="h-4 bg-teal-600/20 w-48 rounded mb-6 animate-pulse" />
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                     <SkeletonCard />
                                     <SkeletonCard />
@@ -615,7 +595,7 @@ const Dashboard = () => {
                             {/* SECTION 1: Your tools */}
                             {activeTools.length > 0 && (
                                 <section>
-                                    <h2 className="text-sm font-bold text-mint-50/70 uppercase tracking-wider mb-6 font-display">Your tools</h2>
+                                    <h2 className="text-sm font-bold text-teal-900/70 uppercase tracking-wider mb-6 font-display">Your tools</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                         {activeTools.map(tool => {
                                             if (tool.slug === 'orderbot') {
@@ -624,39 +604,38 @@ const Dashboard = () => {
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
-                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full w-full min-w-0"
+                                                        className="bg-white rounded-2xl overflow-hidden border border-teal-600/20 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full w-full min-w-0"
                                                     >
-                                                        <div className="h-[80px] w-full flex items-center justify-center bg-teal-800 relative overflow-hidden">
-                                                            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
-                                                            <Activity className="w-10 h-10 text-white/80 relative z-10" />
+                                                        <div className="h-[80px] w-full flex items-center justify-center bg-teal-600/5 border-b border-teal-600/10 relative overflow-hidden">
+                                                            <Activity className="w-10 h-10 text-teal-600 relative z-10" />
                                                         </div>
                                                         
                                                         <div className="p-6 flex flex-col flex-grow">
-                                                            <h3 className="text-xl font-bold text-white mb-2 font-display">{tool.name}</h3>
+                                                            <h3 className="text-xl font-bold text-teal-900 mb-2 font-display">{tool.name}</h3>
                                                             
                                                             <div className="mb-4">
-                                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-semibold border border-green-500/20 w-fit">
-                                                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 w-fit">
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-green-600" />
                                                                     Active
                                                                 </div>
                                                             </div>
 
                                                             <div className="space-y-3 mb-6 flex-grow">
                                                                 {orderbotStores?.stores?.map((store: any) => (
-                                                                    <div key={store.store_id} className="bg-teal-800 p-3 rounded-lg border border-teal-600/30">
-                                                                        <div className="text-white font-medium mb-1">📦 {store.store_name}</div>
-                                                                        <div className="text-mint-50/70 text-xs mb-2">
+                                                                    <div key={store.store_id} className="bg-mint-50 p-3 rounded-lg border border-teal-600/20">
+                                                                        <div className="text-teal-900 font-medium mb-1">📦 {store.store_name}</div>
+                                                                        <div className="text-teal-900/70 text-xs mb-2">
                                                                             Active until {store.current_period_end ? new Date(store.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Lifetime'}
                                                                         </div>
-                                                                        <a href="https://orderbot.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="text-teal-400 text-xs font-bold hover:underline">
+                                                                        <a href="https://orderbot.automationalchemists.com" target="_blank" rel="noopener noreferrer" className="text-teal-600 text-xs font-bold hover:underline">
                                                                             Open →
                                                                         </a>
                                                                     </div>
                                                                 ))}
                                                             </div>
                                                             
-                                                            <div className="pt-4 border-t border-teal-600/30 mt-auto">
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 w-full font-bold transition-colors">
+                                                            <div className="pt-4 border-t border-teal-600/10 mt-auto">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 w-full font-bold transition-colors">
                                                                     + Add another store
                                                                 </Button>
                                                             </div>
@@ -664,13 +643,18 @@ const Dashboard = () => {
                                                     </motion.div>
                                                 );
                                             }
+                                            const activeSub = subscriptions.find(
+                                                s => (s.product_slug === tool.slug || (tool.slug === 'rccp' && s.product_slug === 'cpbot')) &&
+                                                     (s.status === 'active' || s.status === 'trialing')
+                                            );
                                             return (
                                                 <ToolCard 
                                                     key={tool.id} 
                                                     tool={tool} 
                                                     type="active" 
                                                     currentPeriodEnd={getSubscriptionEndDate(tool.slug)}
-                                                    cpBotSubscription={tool.slug === 'rccp' ? subscriptions.find(s => s.product_slug === 'cpbot' && (s.status === 'active' || s.status === 'trialing')) : undefined}
+                                                    cpBotSubscription={tool.slug === 'rccp' ? subscriptions.find(s => (s.product_slug === 'cpbot' || s.product_slug === 'rccp') && (s.status === 'active' || s.status === 'trialing')) : undefined}
+                                                    subscription={activeSub}
                                                     trialStatus={tool.slug === 'rccp' ? trialStatus : undefined}
                                                     onStartTrial={() => startTrialCheckout({ returnPath: '/dashboard', user, toast })}
                                                     onManageSubscription={() => redirectToBillingPortal(toast)}
@@ -685,7 +669,7 @@ const Dashboard = () => {
                             {/* SECTION 2: Available */}
                             {availableTools.length > 0 && (
                                 <section>
-                                    <h2 className="text-sm font-bold text-mint-50/70 uppercase tracking-wider mb-6 font-display">Available</h2>
+                                    <h2 className="text-sm font-bold text-teal-900/70 uppercase tracking-wider mb-6 font-display">Available</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                         {availableTools.map(tool => {
                                             if (tool.slug === 'orderbot') {
@@ -694,26 +678,25 @@ const Dashboard = () => {
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
-                                                        className="bg-teal-900 rounded-xl overflow-hidden border border-teal-600/30 flex flex-col h-full w-full min-w-0"
+                                                        className="bg-white rounded-2xl overflow-hidden border border-teal-600/20 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full w-full min-w-0"
                                                     >
-                                                        <div className="h-[80px] w-full flex items-center justify-center bg-teal-800 relative overflow-hidden">
-                                                            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
-                                                            <Activity className="w-10 h-10 text-white/80 relative z-10" />
+                                                        <div className="h-[80px] w-full flex items-center justify-center bg-teal-600/5 border-b border-teal-600/10 relative overflow-hidden">
+                                                            <Activity className="w-10 h-10 text-teal-600 relative z-10" />
                                                         </div>
                                                         
                                                         <div className="p-6 flex flex-col flex-grow">
-                                                            <h3 className="text-xl font-bold text-white mb-2 font-display">{tool.name}</h3>
+                                                            <h3 className="text-xl font-bold text-teal-900 mb-2 font-display">{tool.name}</h3>
                                                             
-                                                            <p className="text-mint-50/70 text-sm mb-4 leading-relaxed flex-grow">
+                                                            <p className="text-teal-900/80 text-sm mb-4 leading-relaxed flex-grow">
                                                                 {tool.short_description || tool.description}
                                                             </p>
                                                             
-                                                            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/30 mt-auto">
-                                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 text-zinc-400 text-xs font-semibold border border-zinc-500/20">
+                                                            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/10 mt-auto">
+                                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-600 text-xs font-semibold border border-zinc-300">
                                                                     <Lock className="w-3 h-3" />
                                                                     Not purchased
                                                                 </div>
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-mint-50 hover:bg-yellow-accent hover:text-teal-900 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                                                     Add your first store
                                                                 </Button>
                                                             </div>
@@ -737,7 +720,7 @@ const Dashboard = () => {
                             {/* SECTION 3: Coming soon */}
                             {comingSoonTools.length > 0 && (
                                 <section>
-                                    <h2 className="text-sm font-bold text-mint-50/70 uppercase tracking-wider mb-6 font-display">Coming soon</h2>
+                                    <h2 className="text-sm font-bold text-teal-900/70 uppercase tracking-wider mb-6 font-display">Coming soon</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                         {comingSoonTools.map(tool => (
                                             <ToolCard 
@@ -757,24 +740,24 @@ const Dashboard = () => {
             </main>
             
             <Dialog open={showAddStoreModal} onOpenChange={setShowAddStoreModal}>
-                <DialogContent className="bg-teal-900 border-teal-600/30 text-white">
+                <DialogContent className="bg-white border border-teal-600/20 text-teal-900 shadow-xl">
                     <DialogHeader>
-                        <DialogTitle>Add eBay Store</DialogTitle>
+                        <DialogTitle className="text-teal-900 font-display">Add eBay Store</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Store Name (required)</Label>
+                            <Label className="text-teal-900 font-medium">Store Name (required)</Label>
                             <Input 
                                 placeholder="e.g. My eBay Store 1"
                                 value={newStoreName}
                                 onChange={e => setNewStoreName(e.target.value)}
-                                className="bg-background-dark border-teal-600/30 text-white"
+                                className="bg-white border border-teal-600/30 text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600"
                             />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowAddStoreModal(false)} className="border-teal-600/30 hover:bg-primary/10 text-white">Cancel</Button>
-                        <Button onClick={handleAddStoreSubmit} disabled={addStoreLoading || !newStoreName.trim()} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 text-black font-bold">
+                        <Button variant="outline" onClick={() => setShowAddStoreModal(false)} className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white">Cancel</Button>
+                        <Button onClick={handleAddStoreSubmit} disabled={addStoreLoading || !newStoreName.trim()} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold shadow-sm">
                             {addStoreLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Add Store
                         </Button>

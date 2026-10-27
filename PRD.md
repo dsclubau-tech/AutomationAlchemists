@@ -297,6 +297,36 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - **"End trial" in Stripe Dashboard**: Triggers `customer.subscription.updated` with status `'active'`; webhook re-fetches subscription, detects active status, converts subscription in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`), and stamps `converted_at`.
   - **Cancelling in Portal During Trial**: Sets `cancel_at_period_end = true` in Stripe; webhook mirrors this flag via `mirror_cancel_at_period_end`, keeps `is_trial = true`, and preserves the trial end date and grace window.
 
+---
+
+### 14. Dashboard Light Theme, Card Deduplication, and Manual Grant Polish (Release v1.9.3)
+
+- **Visual Design Alignment with /tools**:
+  - Restyled `/dashboard` from legacy dark teal (`bg-teal-900`) to the landing-page treatment used by `/tools`: `min-h-screen bg-mint-50 text-teal-900 time-fold-ripple selection:bg-teal-600 selection:text-white`.
+  - Cards updated to white surface with subtle borders and shadows: `bg-white rounded-2xl border border-teal-600/20 shadow-sm hover:shadow-lg transition-all duration-300`, removing dark background patches and noise overlays.
+  - Typography: Heading *"Your dashboard"* (`text-teal-900 font-display`) and subtitle (`text-teal-900/80 font-display`) with >= 4.5:1 contrast on `bg-mint-50`.
+  - Buttons: Primary buttons use `bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90`; secondary action buttons use teal outline `border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600`.
+  - Badges: Restyled for light surface with WCAG AA compliance (Active in `bg-green-600/10 text-green-700`, Coming soon in `bg-teal-600/10 text-teal-700`, Not purchased in `bg-zinc-100 text-zinc-600`, Maintenance in `bg-amber-500/10 text-amber-800`).
+  - Skeleton loaders, Order Bot store cards, and modal dialogs aligned to the clean white/mint palette.
+- **Strict Single-Section Card Assignment & Deduplication**:
+  - Pure helper `categorizeDashboardTools` in `src/lib/dashboardSections.ts`:
+  - Every tool card appears in exactly ONE section:
+    1. *Your tools* (`activeTools`): Contains tools to which the user has active, unexpired access (active or trialing, not expired, including manual grants), plus free tools (`rccp` with Return Converter).
+    2. *Available* (`availableTools`): Contains catalog tools available for purchase that the user does not own.
+    3. *Coming soon* (`comingSoonTools`): Contains tools with `status = 'coming_soon'` that the user does NOT own.
+  - Active access automatically excludes a tool from both *Coming soon* and *Available*. For example, an owner with an active ListFlow grant sees ListFlow only under *Your tools*; ListFlow is excluded from *Coming soon*.
+  - Order Bot exception: Visible under *Your tools* if user has active subscription AND active stores; visible under *Available* if user has active subscription but no stores yet; completely hidden otherwise.
+  - Invoice Generator is always hidden.
+- **Manual Grant Fixes & Subscription Management Gating**:
+  - *Manage Subscription Button Visibility (`canManageSubscription`)*:
+    - Shown ONLY when the user's subscription row has a Stripe link (`stripe_customer_id` or `stripe_subscription_id`) AND `manually_granted` is NOT true.
+    - Added `manually_granted, stripe_subscription_id, stripe_customer_id` to the existing `subscriptions` query in `Dashboard.tsx` (no new queries).
+    - For manual grants or rows without Stripe, the *Manage subscription* button is omitted entirely.
+  - *Date Label Accuracy (`getSubscriptionDateText`)*:
+    - For manually granted rows: Displays *"Access until {date}"* (or *"Access: no end date"* / *"CP Bot access: no end date"* when `current_period_end` is null) instead of *"renews {date}"*.
+    - For paid Stripe rows: Displays *"Renews {date}"* (or *"CP Bot renews {date}"*).
+    - For trial rows: Preserves *"Free trial ends {date}"*.
+
 
 
 

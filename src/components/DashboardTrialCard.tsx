@@ -99,14 +99,14 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className="mb-8 p-6 rounded-xl bg-teal-800 border border-teal-600/30 flex items-center gap-4"
+        className="mb-8 p-6 rounded-2xl bg-white border border-teal-600/20 shadow-sm flex items-center gap-4"
       >
-        <Loader2 className="w-6 h-6 animate-spin text-yellow-accent shrink-0" />
+        <Loader2 className="w-6 h-6 animate-spin text-teal-600 shrink-0" />
         <div>
-          <h3 className="text-lg font-bold text-white font-display">
+          <h3 className="text-lg font-bold text-teal-900 font-display">
             Setting up your trial...
           </h3>
-          <p className="text-sm text-white/80 font-display">
+          <p className="text-sm text-teal-900/80 font-display">
             Verifying your card details and activating your CP Bot access.
           </p>
         </div>
@@ -124,25 +124,25 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className="mb-8 p-6 rounded-xl bg-teal-800 border border-green-500/30 transition-all duration-700"
+        className="mb-8 p-6 rounded-2xl bg-white border border-green-600/30 shadow-sm transition-all duration-700"
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0 border border-green-500/20">
+            <div className="w-10 h-10 rounded-full bg-green-600/10 flex items-center justify-center text-green-700 shrink-0 border border-green-600/20">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white font-display">
+              <h3 className="text-lg font-bold text-teal-900 font-display">
                 Your free trial is active until {formattedDate}
               </h3>
-              <p className="text-sm text-white/80 font-display">
+              <p className="text-sm text-teal-900/80 font-display">
                 CP Bot is unlocked. Open your tools below or visit the CP Bot dashboard.
               </p>
             </div>
           </div>
           <Button
             asChild
-            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto"
+            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
           >
             <a href="https://rccp.automationalchemists.com" target="_blank" rel="noopener noreferrer">
               Open CP Bot
@@ -159,24 +159,24 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className="mb-8 p-6 rounded-xl bg-teal-800 border border-red-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        className="mb-8 p-6 rounded-2xl bg-white border border-red-500/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 border border-red-500/20">
+          <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-600 shrink-0 border border-red-500/20">
             <AlertCircle className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white font-display">
+            <h3 className="text-base font-bold text-teal-900 font-display">
               {errorMsg}
             </h3>
-            <p className="text-sm text-white/70 font-display">
+            <p className="text-sm text-teal-900/70 font-display">
               You can still subscribe to CP Bot directly without a trial.
             </p>
           </div>
         </div>
         <Button
           onClick={onSubscribe}
-          className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto"
+          className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
         >
           Subscribe
         </Button>
@@ -189,17 +189,17 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className="mb-8 p-6 rounded-xl bg-teal-800 border border-yellow-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        className="mb-8 p-6 rounded-2xl bg-white border border-amber-500/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500 shrink-0 border border-yellow-500/20">
+          <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-700 shrink-0 border border-amber-500/20">
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white font-display">
+            <h3 className="text-base font-bold text-teal-900 font-display">
               This is taking longer than usual. Refresh in a minute or contact us.
             </h3>
-            <p className="text-sm text-white/70 font-display">
+            <p className="text-sm text-teal-900/70 font-display">
               Stripe checkout was completed, but webhook confirmation is still processing.
             </p>
           </div>
@@ -208,13 +208,13 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
           <Button
             onClick={() => window.location.reload()}
             variant="outline"
-            className="border-teal-600 text-mint-50 hover:bg-teal-700 font-bold px-4 py-2 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
+            className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
           >
             Refresh
           </Button>
           <Button
             asChild
-            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-4 py-2 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
+            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-4 py-2 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm"
           >
             <a href="/contact">Contact us</a>
           </Button>
@@ -239,21 +239,21 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className="mb-8 p-4 rounded-xl bg-teal-800 border border-teal-600/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        className="mb-8 p-4 rounded-2xl bg-white border border-teal-600/20 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-teal-600/20 flex items-center justify-center text-yellow-accent shrink-0 border border-teal-600/30">
+          <div className="w-8 h-8 rounded-full bg-teal-600/10 flex items-center justify-center text-teal-600 shrink-0 border border-teal-600/20">
             <Clock className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white font-display">
+            <p className="text-sm font-semibold text-teal-900 font-display">
               Free trial: {timeText} (ends {formattedDate})
             </p>
           </div>
         </div>
         <Button
           onClick={() => redirectToBillingPortal(toast)}
-          className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto"
+          className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
         >
           Manage subscription
         </Button>
@@ -271,21 +271,21 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className="mb-8 p-4 rounded-xl bg-teal-800 border border-yellow-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        className="mb-8 p-4 rounded-2xl bg-white border border-amber-500/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500 shrink-0 border border-yellow-500/20">
+          <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-700 shrink-0 border border-amber-500/20">
             <AlertCircle className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white font-display">
+            <p className="text-sm font-semibold text-teal-900 font-display">
               Your free trial has ended
             </p>
           </div>
         </div>
         <Button
           onClick={onSubscribe}
-          className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto"
+          className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
         >
           Subscribe
         </Button>
@@ -322,23 +322,23 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className={`mb-12 p-6 sm:p-8 rounded-2xl bg-teal-800 border border-teal-600/30 shadow-lg transition-all duration-700 ${
+        className={`mb-12 p-6 sm:p-8 rounded-2xl bg-white border border-teal-600/20 shadow-md transition-all duration-700 ${
           isHighlighted ? 'ring-2 ring-yellow-accent/60 shadow-[0_0_25px_rgba(255,210,0,0.25)]' : ''
         }`}
       >
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-accent/15 text-yellow-accent text-xs font-semibold uppercase tracking-wider font-display">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-600/10 text-teal-700 text-xs font-semibold uppercase tracking-wider font-display border border-teal-600/20">
               <Sparkles className="w-3.5 h-3.5" />
               Limited Free Trial
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white font-display tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold text-teal-900 font-display tracking-tight">
               Start your {trialDays}-day free trial of CP Bot
             </h2>
-            <p className="text-white/80 font-display text-base leading-relaxed">
+            <p className="text-teal-900/80 font-display text-base leading-relaxed">
               Return Converter is always free. Experience full CP Bot automation with zero risk.
             </p>
-            <p className="text-xs sm:text-sm text-teal-200/80 font-display pt-1">
+            <p className="text-xs sm:text-sm text-teal-700 font-display pt-1 font-semibold">
               {slotsLeft} of {slotCap} free-trial spots left
             </p>
           </div>
@@ -359,7 +359,7 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
                 <span>Start free trial now</span>
               )}
             </Button>
-            <p className="text-xs text-teal-200/80 font-display text-left sm:text-right">
+            <p className="text-xs text-teal-900/70 font-display text-left sm:text-right">
               {trialDays} days free, then A${priceMonthly}/month. Card required. Cancel anytime.
             </p>
           </div>
@@ -371,8 +371,8 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
   // 8. Offer enabled but slots_left is 0 and user has not claimed
   if (trialStatus?.enabled && !trialStatus?.already_claimed && trialStatus?.slots_left === 0) {
     return (
-      <div id="claim-trial" className="mb-8 p-4 rounded-xl bg-teal-800/60 border border-teal-600/20 text-center">
-        <p className="text-sm text-white/70 font-display">
+      <div id="claim-trial" className="mb-8 p-4 rounded-2xl bg-white border border-teal-600/20 shadow-sm text-center">
+        <p className="text-sm text-teal-900/70 font-display">
           All free-trial spots have been claimed.
         </p>
       </div>
