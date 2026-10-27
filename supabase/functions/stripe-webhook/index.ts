@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Stripe from 'https://esm.sh/stripe@14.22.0?target=deno';
+import { getPeriod, getInvoiceSubscriptionId } from '../_shared/stripeCompat.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   httpClient: Stripe.createFetchHttpClient(),
@@ -152,8 +153,16 @@ Deno.serve(async (req) => {
           : await stripe.subscriptions.retrieve(p_stripe_subscription_id);
 
         p_subscription_status = subscription.status;
-        p_current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
-        p_current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
+        const period = getPeriod(subscription);
+        if (!period) {
+          console.error('Subscription missing valid period start or end timestamps');
+          return new Response(JSON.stringify({ error: 'Missing subscription period timestamps' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+        p_current_period_start = period.start;
+        p_current_period_end = period.end;
         
         // Secondary fallback to subscription metadata if session metadata was missing
         p_user_id = p_user_id ?? subscription.metadata?.user_id ?? null;
@@ -249,7 +258,7 @@ Deno.serve(async (req) => {
               ? await hmacSha256Hex(pepper, customerPhone.trim())
               : null;
 
-            const trialEndIso = subscription.trial_end
+            const trialEndIso = (typeof subscription.trial_end === 'number' && !isNaN(subscription.trial_end))
               ? new Date(subscription.trial_end * 1000).toISOString()
               : p_current_period_end;
 
@@ -290,13 +299,45 @@ Deno.serve(async (req) => {
       event.type === 'customer.subscription.updated' ||
       event.type === 'customer.subscription.deleted'
     ) {
-      const subscription = event.data.object as Stripe.Subscription;
-      p_stripe_customer_id = subscription.customer as string;
+      const subObj = event.data.object as { id?: string };
+      const subId = subObj?.id;
+      if (!subId || typeof subId !== 'string') {
+        console.error(`Received ${event.type} event without subscription id`);
+        return new Response(JSON.stringify({ error: 'Missing subscription id in event' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      let subscription: Stripe.Subscription;
+      try {
+        subscription = await stripe.subscriptions.retrieve(subId);
+      } catch (subRetrieveErr: unknown) {
+        const msg = subRetrieveErr instanceof Error ? subRetrieveErr.message : String(subRetrieveErr);
+        console.error(`Failed to retrieve subscription ${subId}:`, msg);
+        return new Response(JSON.stringify({ error: `Failed to retrieve subscription: ${msg}` }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      p_stripe_customer_id = typeof subscription.customer === 'string'
+        ? subscription.customer
+        : subscription.customer?.id ?? null;
       p_stripe_subscription_id = subscription.id;
       p_subscription_status = subscription.status;
-      p_current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
-      p_current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
-      
+
+      const period = getPeriod(subscription);
+      if (!period) {
+        console.error('Subscription missing valid period start or end timestamps');
+        return new Response(JSON.stringify({ error: 'Missing subscription period timestamps' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      p_current_period_start = period.start;
+      p_current_period_end = period.end;
+
       // Mirror cancel_at_period_end on customer.subscription.updated
       if (event.type === 'customer.subscription.updated') {
         const { error: mirrorErr } = await supabaseAdmin.rpc('mirror_cancel_at_period_end', {
@@ -324,8 +365,8 @@ Deno.serve(async (req) => {
           console.warn(`Could not retrieve customer email for customer ${subscription.customer}:`, custMsg);
         }
       }
-      
-      const item = subscription.items.data[0];
+
+      const item = subscription.items?.data?.[0];
       if (item) {
         p_quantity = item.quantity || 1;
         p_stripe_price_id = item.price.id;
@@ -339,48 +380,115 @@ Deno.serve(async (req) => {
       });
     } else if (event.type === 'invoice.payment_failed') {
       const invoice = event.data.object as Stripe.Invoice;
-      p_stripe_customer_id = invoice.customer as string;
-      p_stripe_subscription_id = invoice.subscription as string;
+      p_stripe_customer_id = typeof invoice.customer === 'string'
+        ? invoice.customer
+        : (invoice.customer as Stripe.Customer)?.id ?? null;
       p_subscription_status = 'past_due';
       p_email = invoice.customer_email ?? null;
-      
-      if (p_stripe_subscription_id) {
-        try {
-          const sub = await stripe.subscriptions.retrieve(p_stripe_subscription_id);
-          p_user_id = sub.metadata?.user_id ?? null;
-          p_product_slug = sub.metadata?.tool_slug ?? sub.metadata?.product_slug ?? null;
-          p_current_period_start = new Date(sub.current_period_start * 1000).toISOString();
-          p_current_period_end = new Date(sub.current_period_end * 1000).toISOString();
-        } catch (subErr: unknown) {
-          const subMsg = subErr instanceof Error ? subErr.message : String(subErr);
-          console.warn(`Could not retrieve subscription metadata for invoice ${invoice.id}:`, subMsg);
-        }
+
+      const subId = getInvoiceSubscriptionId(invoice);
+      if (!subId) {
+        console.log(`Invoice ${invoice.id} has no associated subscription; skipping`);
+        return new Response(JSON.stringify({ received: true, skipped: 'no_subscription' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
-      const lineItem = invoice.lines?.data[0];
+      p_stripe_subscription_id = subId;
+
+      let sub: Stripe.Subscription;
+      try {
+        sub = await stripe.subscriptions.retrieve(subId);
+      } catch (subErr: unknown) {
+        const subMsg = subErr instanceof Error ? subErr.message : String(subErr);
+        console.error(`Failed to retrieve subscription ${subId} for invoice ${invoice.id}:`, subMsg);
+        return new Response(JSON.stringify({ error: `Failed to retrieve subscription: ${subMsg}` }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      p_user_id = sub.metadata?.user_id ?? null;
+      p_product_slug = sub.metadata?.tool_slug ?? sub.metadata?.product_slug ?? null;
+
+      const period = getPeriod(sub);
+      if (!period) {
+        console.error('Subscription missing valid period start or end timestamps');
+        return new Response(JSON.stringify({ error: 'Missing subscription period timestamps' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      p_current_period_start = period.start;
+      p_current_period_end = period.end;
+
+      const lineItem = invoice.lines?.data?.[0];
       p_quantity = lineItem ? (lineItem.quantity || 0) : 0;
     } else if (event.type === 'charge.refunded') {
       const charge = event.data.object as Stripe.Charge;
-      p_stripe_customer_id = charge.customer as string;
+      p_stripe_customer_id = typeof charge.customer === 'string'
+        ? charge.customer
+        : (charge.customer as Stripe.Customer)?.id ?? null;
       p_quantity = 0;
-      
-      if (charge.invoice) {
-        try {
-          const invoice = await stripe.invoices.retrieve(charge.invoice as string);
-          p_stripe_subscription_id = invoice.subscription as string;
-          p_email = invoice.customer_email ?? null;
 
-          if (p_stripe_subscription_id) {
-            const sub = await stripe.subscriptions.retrieve(p_stripe_subscription_id);
-            p_user_id = sub.metadata?.user_id ?? null;
-            p_product_slug = sub.metadata?.tool_slug ?? sub.metadata?.product_slug ?? null;
-          }
-        } catch (invErr: unknown) {
-          const invMsg = invErr instanceof Error ? invErr.message : String(invErr);
-          console.warn(`Could not resolve subscription from refund invoice:`, invMsg);
-        }
-      } else {
-        console.warn('Refund event without invoice - cannot determine subscription ID reliably');
+      const invoiceRef = charge.invoice;
+      const invoiceId = typeof invoiceRef === 'string'
+        ? invoiceRef
+        : (typeof invoiceRef === 'object' && invoiceRef !== null ? (invoiceRef as any).id : null);
+
+      if (!invoiceId) {
+        console.log(`Refund charge ${charge.id} has no associated invoice; skipping`);
+        return new Response(JSON.stringify({ received: true, skipped: 'no_subscription' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      let invoice: Stripe.Invoice;
+      try {
+        invoice = await stripe.invoices.retrieve(invoiceId);
+      } catch (invErr: unknown) {
+        const invMsg = invErr instanceof Error ? invErr.message : String(invErr);
+        console.error(`Failed to retrieve invoice ${invoiceId} for refund charge ${charge.id}:`, invMsg);
+        return new Response(JSON.stringify({ error: `Failed to retrieve invoice: ${invMsg}` }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      p_email = invoice.customer_email ?? null;
+
+      const subId = getInvoiceSubscriptionId(invoice);
+      if (!subId) {
+        console.log(`Invoice ${invoiceId} has no associated subscription for charge ${charge.id}; skipping`);
+        return new Response(JSON.stringify({ received: true, skipped: 'no_subscription' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      p_stripe_subscription_id = subId;
+
+      let sub: Stripe.Subscription;
+      try {
+        sub = await stripe.subscriptions.retrieve(subId);
+      } catch (subErr: unknown) {
+        const subMsg = subErr instanceof Error ? subErr.message : String(subErr);
+        console.error(`Failed to retrieve subscription ${subId} for refund charge ${charge.id}:`, subMsg);
+        return new Response(JSON.stringify({ error: `Failed to retrieve subscription: ${subMsg}` }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      p_user_id = sub.metadata?.user_id ?? null;
+      p_product_slug = sub.metadata?.tool_slug ?? sub.metadata?.product_slug ?? null;
+
+      const period = getPeriod(sub);
+      if (period) {
+        p_current_period_start = period.start;
+        p_current_period_end = period.end;
       }
     } else {
       // Ignored event

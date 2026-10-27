@@ -277,6 +277,27 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 - **Stripe Test Run Methodology**:
   - Corrected test run procedure: Stripe test runs verify trial-to-paid conversion using the Stripe dashboard **"End trial"** action on the subscription instead of a test clock (because Stripe Checkout cannot attach to a test clock).
 
+---
+
+### 13. Webhook Stripe Endpoint API Version Independence (Release v1.9.2)
+
+- **API Version Independence**:
+  - Webhook endpoint API versions (such as `2026-02-25.clover`) no longer cause `RangeError` crashes or missed subscription resolution.
+  - Pinned SDK compatibility module: `supabase/functions/_shared/stripeCompat.ts`.
+- **Safe Period Extraction (`getPeriod`)**:
+  - Resolves `{ start, end }` ISO strings by prioritizing top-level `current_period_start`/`current_period_end` when numeric, and falling back to `sub.items.data[0].current_period_start`/`current_period_end` (clover shape).
+  - Returns `null` on missing/invalid timestamps, triggering a graceful HTTP 500 error log without throwing `RangeError: Invalid time value`.
+- **SDK Subscription Re-Retrieval**:
+  - For `customer.subscription.*` events, only `event.data.object.id` is read from the webhook payload; the subscription is re-fetched via `stripe.subscriptions.retrieve(id)` to ensure all properties conform to the pinned SDK type model. Returns HTTP 500 if retrieval fails.
+- **Invoice Subscription Resolution (`getInvoiceSubscriptionId`)**:
+  - Resolves subscription IDs from `invoice.subscription` (legacy) or `invoice.parent.subscription_details.subscription` (clover).
+  - Applied to `invoice.payment_failed` and `charge.refunded` (after retrieving the invoice).
+  - When an invoice has no subscription ID (e.g. one-off non-subscription invoice), returns HTTP 200 `{ received: true, skipped: 'no_subscription' }` to stop retry loops.
+- **QA Guarantees**:
+  - **"End trial" in Stripe Dashboard**: Triggers `customer.subscription.updated` with status `'active'`; webhook re-fetches subscription, detects active status, converts subscription in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`), and stamps `converted_at`.
+  - **Cancelling in Portal During Trial**: Sets `cancel_at_period_end = true` in Stripe; webhook mirrors this flag via `mirror_cancel_at_period_end`, keeps `is_trial = true`, and preserves the trial end date and grace window.
+
+
 
 
 

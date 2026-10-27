@@ -78,15 +78,25 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Behaviour guarantee: two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
   - Runbook correction:
     - Updated `docs/FREE_TRIAL_AND_DISCOUNTS.md` Test Run 4 to use Stripe Dashboard Subscriptions → "End trial" action instead of a test clock (Checkout cannot attach to a test clock).
+- **Stripe API Version Independence (v1.9.2 - Code written, not deployed)**:
+  - Decoupled `supabase/functions/stripe-webhook/index.ts` from Stripe webhook endpoint API version differences (e.g. `2026-02-25.clover` vs legacy top-level date models).
+  - Pure helper module `supabase/functions/_shared/stripeCompat.ts`:
+    - `getPeriod(sub)`: safely extracts `current_period_start` and `current_period_end` from either top-level numeric timestamps or `sub.items?.data?.[0]` item-level timestamps, converts to valid ISO strings, and throws error without sensitive data if missing.
+    - `getInvoiceSubscriptionId(invoice)`: safely resolves subscription ID string from `invoice.subscription` (string or object with `.id`) or `invoice.parent?.subscription_details?.subscription` (string or object with `.id`).
+  - Webhook subscription handling:
+    - `customer.subscription.*`: uses ONLY `event.data.object.id` from payload, re-retrieves full subscription object via `stripe.subscriptions.retrieve(subId)` under pinned SDK API version. On retrieval error, logs sanitized error and returns HTTP 500 for Stripe retry. Reads `status`, `metadata`, `trial_end`, and `cancel_at_period_end` from fetched subscription.
+    - `invoice.payment_failed` and `charge.refunded`: resolves subscription ID with `getInvoiceSubscriptionId`. If missing, returns HTTP 200 `{ received: true, skipped: 'no_subscription' }` avoiding retry loops. Otherwise re-retrieves subscription via SDK.
+    - Eliminates any possibility of `RangeError: Invalid time value` thrown from `new Date(undefined * 1000).toISOString()`.
+    - Unit tested across legacy and clover shapes via `scripts/test-stripe-compat.mjs` with 8 passing assertions.
 
 ## Current Production Deployment Status
 - **Checkout globally**: Hidden in production (`VITE_CHECKOUT_ENABLED !== 'true'`, Supabase secret `CHECKOUT_ENABLED` unset; only `profiles.is_admin` may call checkout).
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
-  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard changes **NOT deployed**.
+  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard and v1.9.2 Stripe API version independence changes **NOT deployed**.
   - `create-checkout-session`: Code updated for v1.9.0 & v1.9.1, **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-- **Database**: Migration 034 applied and verified. No database migrations executed in v1.9.0 or v1.9.1.
+- **Database**: Migration 034 applied and verified. No database migrations executed in v1.9.0, v1.9.1, or v1.9.2.
 
 ## In Progress
 - Owner adding `TRIAL_IDENTITY_PEPPER` secret to Supabase Edge Functions.
@@ -106,4 +116,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-10-27 — Release v1.9.1: Trial Hardening: Single-Seat Quantity Enforcement, Duplicate Subscription Guard, and Test Run Runbook Correction (code complete, not deployed).*
+*Last Updated: 2026-10-27 — Release v1.9.2: Stripe API Version Independence for Webhook (code complete, not deployed).*

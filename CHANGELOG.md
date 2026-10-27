@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2] - 2026-10-27
+### Fixed
+- Enhanced payment webhook resilience to support new and future Stripe API payload versions seamlessly without interruptions or processing delays
+- Hardened subscription renewal and cancellation synchronization against missing or reorganized date fields from payment providers
+
 ## [1.9.1] - 2026-10-27
 ### Fixed
 - Protected against accidental duplicate subscriptions if a customer submits checkout multiple times in parallel, ensuring only one active subscription is kept and any duplicates are cancelled without charge

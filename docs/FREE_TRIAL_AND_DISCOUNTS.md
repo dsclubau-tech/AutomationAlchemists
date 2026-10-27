@@ -546,6 +546,20 @@ To prevent trial abuse across repeated account creation, the database introduces
   - **Event Retries**: If `stripe_subscription_id` is the SAME, this is an idempotent retry of the same event; execution proceeds normally.
   - **Behaviour Note**: Two parallel trial checkouts by one user end with exactly one active Stripe subscription (the second is cancelled).
 
+### 13.8 Stripe Endpoint API Version Independence (v1.9.2)
+- In `stripe-webhook` (`supabase/functions/stripe-webhook/index.ts` and `supabase/functions/_shared/stripeCompat.ts`):
+  - **The Problem**: Webhook endpoints configured with newer API versions (e.g. `2026-02-25.clover`) receive event payloads where:
+    1. Subscription period timestamps (`current_period_start` and `current_period_end`) are no longer top-level properties on the `Subscription` object; they live on `subscription.items.data[n]`.
+    2. Invoices no longer have a top-level `subscription` property; the subscription reference lives under `invoice.parent.subscription_details.subscription`.
+    3. Reading missing top-level dates into `new Date(undefined * 1000).toISOString()` would throw `RangeError: Invalid time value` and return HTTP 500.
+  - **The Solution**:
+    1. **Subscription Retrieval by ID**: For `customer.subscription.*` events, the webhook reads only `event.data.object.id` from the payload and re-fetches the subscription object via the SDK (`stripe.subscriptions.retrieve`), guaranteeing consistent SDK-typed object graphs matching the pinned SDK version. Returns HTTP 500 if retrieval fails so Stripe retries.
+    2. **Safe Period Helper (`getPeriod`)**: Resolves `{ start, end }` ISO strings by checking top-level `current_period_start`/`current_period_end` first (legacy pinned versions), then falling back to `sub.items.data[0].current_period_start`/`current_period_end` (clover shape). If neither exists, logs an error without sensitive data and returns HTTP 500 without throwing `RangeError`. Applied across all period-reading branches (including `checkout.session.completed`).
+    3. **Invoice Subscription ID Helper (`getInvoiceSubscriptionId`)**: Resolves subscription IDs from either `invoice.subscription` (string or object) or `invoice.parent.subscription_details.subscription` (string or object). Used by `invoice.payment_failed` and `charge.refunded`. If no subscription ID exists on the invoice (e.g. one-off non-subscription invoices), returns HTTP 200 `{ received: true, skipped: 'no_subscription' }` rather than an infinite retry loop.
+  - **QA Guarantees**:
+    - **"End trial" in Stripe Dashboard**: Triggers `customer.subscription.updated` with status `'active'`; webhook re-fetches subscription, detects active status, converts subscription in place (`is_trial = false`, `grant_reason = 'stripe_checkout'`), and stamps `converted_at`.
+    - **Cancelling in Portal During Trial**: Sets `cancel_at_period_end = true` in Stripe; webhook mirrors this flag via `mirror_cancel_at_period_end`, keeps `is_trial = true`, and preserves the trial end date and grace window.
+
 ---
 
 ## 14. Owner Stripe Setup, Edge Function Deployment & Office PC Test Run (v1.9.0)

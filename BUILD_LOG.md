@@ -1,5 +1,53 @@
 # Build Log
 
+## 2026-10-27 (v1.9.2 Webhook Independent of Stripe API Version - Not Deployed)
+- Requested:
+  - Task 1: FIRST audit and report: for every event type handled (checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, customer.subscription.trial_will_end, invoice.payment_failed, charge.refunded), quote the exact lines that read data from event.data.object versus data fetched with the SDK, and say which fields would be undefined under the clover payload shape (Stripe API 2026-02-25.clover).
+  - Task 2: Make the function independent of the endpoint API version:
+    a) For customer.subscription.* events use ONLY event.data.object.id from the payload and re-fetch the subscription with stripe.subscriptions.retrieve(id) (SDK pinned version) before reading status, metadata, items, period or trial_end. If the retrieve fails return HTTP 500 so Stripe retries.
+    b) Add one small helper getPeriod(sub) returning {start, end} ISO strings from top-level current_period_start/current_period_end when they are numbers, otherwise from sub.items.data[0].current_period_start/current_period_end. If neither exists, log a clear error WITHOUT sensitive data and return HTTP 500; never call toISOString on an invalid date. Use this helper everywhere periods are read (including the checkout.session.completed branch).
+    c) For invoice.payment_failed and charge.refunded resolve the subscription id with a helper getInvoiceSubscriptionId(invoice) = invoice.subscription (string or object id) ?? invoice.parent?.subscription_details?.subscription; for charge.refunded retrieve the invoice (charge.invoice string or object) and then use the helper; then re-fetch the subscription by id as in (a). If no subscription id can be found return HTTP 200 with {received:true, skipped:'no_subscription'} (not a retry loop).
+    d) Keep ALL existing behaviours unchanged: signature verification, the trial path (card fingerprint, phone hash, finalize_card_trial, duplicate-subscription guard, trial_will_end no-op), mirror_cancel_at_period_end, idempotency, status mapping and 200/500 semantics.
+  - Task 3: Put the two helpers in a small pure module (supabase/functions/_shared/stripeCompat.ts) and write scripts/test-stripe-compat.mjs that bundles it with esbuild and runs assertions in Node on sample objects in BOTH shapes (old top-level period fields, clover items-based period fields, invoice.subscription and invoice.parent.subscription_details.subscription, missing everything). Run it and show the output. No network, no Stripe.
+  - Task 4: Docs: note in docs/FREE_TRIAL_AND_DISCOUNTS.md, PRD.md and QA_CHECKLIST.md that the webhook works with any Stripe endpoint API version and add the QA checks: "End trial" in the Stripe dashboard converts the row; cancelling in the portal during the trial keeps it a trial and sets cancel_at_period_end.
+  - Verification: `npx tsc --noEmit -p .` exit 0; esbuild syntax parse of the function with the output shown; helper test output; diffs. Say plainly what was NOT run. List deploy command in report: npx supabase functions deploy stripe-webhook --no-verify-jwt --project-ref tdevgrwmafwrsmeymjzd.
+- Built:
+  - `supabase/functions/_shared/stripeCompat.ts`:
+    - Exported `getPeriod(sub)`: safely extracts `current_period_start` and `current_period_end` from either top-level numeric timestamps or `sub.items?.data?.[0]` item-level timestamps, converts to valid ISO strings, and throws error without sensitive data if missing.
+    - Exported `getInvoiceSubscriptionId(invoice)`: safely resolves subscription ID string from `invoice.subscription` (string or object with `.id`) or `invoice.parent?.subscription_details?.subscription` (string or object with `.id`).
+  - `supabase/functions/stripe-webhook/index.ts`:
+    - Imported `getPeriod` and `getInvoiceSubscriptionId` from `../_shared/stripeCompat.ts`.
+    - `customer.subscription.*` handler: reads ONLY `event.data.object.id`, re-retrieves full subscription object via `stripe.subscriptions.retrieve(subId)` under pinned SDK API version. On retrieval error, logs sanitized error and returns HTTP 500 for Stripe retry. Reads `status`, `metadata`, `trial_end`, and `cancel_at_period_end` from fetched subscription.
+    - Uses `getPeriod(sub)` everywhere subscription periods are extracted (`checkout.session.completed` and `customer.subscription.*`), never calling `.toISOString()` on undefined.
+    - `invoice.payment_failed`: resolves subscription ID with `getInvoiceSubscriptionId(invoice)`. If missing, returns HTTP 200 `{ received: true, skipped: 'no_subscription' }`. Otherwise re-retrieves subscription via SDK and extracts periods safely.
+    - `charge.refunded`: retrieves associated invoice if `charge.invoice` exists, resolves subscription ID via `getInvoiceSubscriptionId`, or skips with 200 if no subscription found. Re-retrieves subscription via SDK and processes idempotently.
+    - Retained all existing trial, identity, cancellation mirroring, duplicate subscription, and status mapping logic.
+  - `scripts/test-stripe-compat.mjs`:
+    - Test runner using esbuild to bundle `stripeCompat.ts` for Node execution.
+    - Tested 8 distinct scenarios: legacy top-level timestamps, clover items timestamps, missing period throws without leaking, invoice string subscription, invoice object subscription, clover invoice parent subscription details string and object, and missing invoice subscription.
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`:
+    - Added Section 13.8 documenting Stripe Endpoint API Version Independence (`2026-02-25.clover` vs legacy) and QA guarantees.
+  - `PRD.md`:
+    - Added Section 13 specifying Stripe Endpoint API Version Independence requirements and payload mapping details.
+  - `QA_CHECKLIST.md`:
+    - Added Section 25 specifying verification checks for Stripe Endpoint API Version Independence, including "End trial" dashboard conversion and portal trial cancellation tests.
+- Files touched:
+  - `supabase/functions/_shared/stripeCompat.ts` (created)
+  - `scripts/test-stripe-compat.mjs` (created)
+  - `supabase/functions/stripe-webhook/index.ts`
+  - `docs/FREE_TRIAL_AND_DISCOUNTS.md`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+  - `CHANGELOG.md`
+  - `PROJECT_STATE.md`
+  - `BUILD_LOG.md`
+- What was NOT run:
+  - No edge functions were deployed (`stripe-webhook` deploy command was NOT executed).
+  - No database migrations or SQL scripts were executed.
+  - No Stripe live or test API calls were made (purely local tests with esbuild and Node).
+  - Free trial offers remain disabled in production (`trial_offers.enabled = false`).
+  - Checkout remains gated by `CHECKOUT_ENABLED !== 'true'` (admin only).
+
 ## 2026-10-27 (v1.9.1 Trial Hardening: Single-Seat Enforcement & Duplicate Subscription Guard - Not Deployed)
 - Requested:
   - Task 1: `create-checkout-session`: for product_slug 'rccp' (and any single-seat product, i.e. everything except 'orderbot') force quantity = 1 server-side, ignoring the client value. Orderbot keeps the client quantity.

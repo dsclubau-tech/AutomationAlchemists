@@ -532,6 +532,47 @@
   - In Stripe test mode on office PC, trial-end conversion is verified using Stripe Dashboard Subscriptions → **"End trial"** action on the subscription instead of a test clock (Checkout cannot attach to a test clock).
   - Triggers `customer.subscription.updated` with status `'active'`, successfully converting the subscription row and stamping `converted_at`.
 
+---
+
+## 25. Webhook Stripe Endpoint API Version Independence (Release v1.9.2)
+
+### 25a. Static Verification & Unit Test Harness
+- [x] **Check 25a.1: TypeScript Compilation**:
+  - `npx tsc --noEmit -p .`
+  - **Expected Result**: Exits 0 with zero diagnostic errors across all files. (Passed).
+- [x] **Check 25a.2: stripe-webhook Syntax & Bundling**:
+  - `npx esbuild supabase/functions/stripe-webhook/index.ts --bundle --platform=neutral --external:https:* --external:npm:* --external:node:* --outfile=scratch_webhook.js`
+  - **Expected Result**: Exits 0, produces valid bundle resolving `_shared/stripeCompat.ts`. (Passed: 20.3kb bundle).
+- [x] **Check 25a.3: Pure Compatibility Unit Tests**:
+  - `node scripts/test-stripe-compat.mjs`
+  - **Expected Result**: Exits 0, all 8 test assertions pass for legacy top-level dates, clover items-based dates, invalid date protection, legacy invoice subscriptions, clover parent subscription details, and missing shapes. (Passed: 8/8 tests).
+
+### 25b. Webhook Runtime Verification (Stripe Test Mode)
+- [ ] **Check 25b.1: Stripe Dashboard "End Trial" Conversion**:
+  - **Precondition**: Test account has an active trial subscription for `cpbot`.
+  - **Action**: In Stripe Dashboard (Test Mode) → Subscriptions, click into the test subscription and select **"End trial"** (choose to invoice immediately).
+  - **Expected Result**:
+    - Stripe fires `customer.subscription.updated` with `status = 'active'`.
+    - Webhook re-fetches the subscription by ID using SDK pinned version, extracts `{ start, end }` via `getPeriod(sub)`.
+    - `process_stripe_webhook_event` converts the row in place: `is_trial` becomes `false`, `grant_reason` becomes `'stripe_checkout'`, and `trial_claims.converted_at` is stamped.
+    - `/dashboard` displays paid active state: *"CP Bot renews {date}"*.
+- [ ] **Check 25b.2: Customer Billing Portal Cancellation During Trial**:
+  - **Precondition**: Test account has an active trial subscription.
+  - **Action**: User opens Customer Billing Portal (`create-portal-session`) and cancels subscription.
+  - **Expected Result**:
+    - Stripe sets `cancel_at_period_end = true` and fires `customer.subscription.updated` with status `'trialing'`.
+    - Webhook re-fetches subscription, mirrors `cancel_at_period_end = true` via `mirror_cancel_at_period_end`.
+    - Database row preserves `is_trial = true`, `grant_reason = 'stripe_trial'`, and true trial expiration date. No premature conversion occurs.
+- [ ] **Check 25b.3: Clover Endpoint API Version Compatibility**:
+  - **Precondition**: Webhook endpoint is configured with API version `2026-02-25.clover`.
+  - **Action**: Deliver `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`, and `charge.refunded` events.
+  - **Expected Result**:
+    - Period dates are resolved without `RangeError` via `getPeriod`.
+    - Invoice subscription IDs are resolved from `invoice.parent.subscription_details.subscription` via `getInvoiceSubscriptionId`.
+    - Non-subscription invoices return HTTP 200 `{ received: true, skipped: 'no_subscription' }`.
+    - Webhook returns HTTP 200 for all valid events.
+
+
 
 
 
