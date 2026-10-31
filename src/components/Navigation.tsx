@@ -223,6 +223,13 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                         <Sparkles className="w-5 h-5 text-teal-400 group-hover/item:text-teal-900 group-focus/item:text-teal-900 shrink-0" />
                                         <span className="font-semibold text-sm whitespace-nowrap">ListFlow</span>
                                     </Link>
+                                    <Link 
+                                        to="/tools/invoice-generator" 
+                                        className="cursor-pointer font-display rounded-lg px-3 py-2.5 text-mint-50 hover:bg-mint-50 hover:text-teal-900 focus:bg-mint-50 focus:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 flex items-center gap-3 w-full transition-colors group/item"
+                                    >
+                                        <img src="/invoice-generator-logo.png" alt="Invoice Generator" className="w-5 h-5 object-contain shrink-0" />
+                                        <span className="font-semibold text-sm whitespace-nowrap">Invoice Generator</span>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -442,6 +449,9 @@ const Navigation = ({ hideAuthButton = false }: { hideAuthButton?: boolean }) =>
                                         </Link>
                                         <Link to="/tools/listflow" onClick={() => setIsMobileMenuOpen(false)} className="block text-mint-50/70 hover:text-white transition-colors font-display text-sm font-medium whitespace-nowrap">
                                             ListFlow
+                                        </Link>
+                                        <Link to="/tools/invoice-generator" onClick={() => setIsMobileMenuOpen(false)} className="block text-mint-50/70 hover:text-white transition-colors font-display text-sm font-medium whitespace-nowrap">
+                                            Invoice Generator
                                         </Link>
                                     </div>
                                 </div>

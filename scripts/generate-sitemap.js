@@ -19,6 +19,7 @@ const routes = [
   { url: '/virtual-assistant', changefreq: 'monthly', priority: 0.8 },
   { url: '/services/workflow-automation', changefreq: 'monthly', priority: 0.8 },
   { url: '/tools', changefreq: 'monthly', priority: 0.8 },
+  { url: '/tools/invoice-generator', changefreq: 'monthly', priority: 0.8 },
   ...VISIBLE_TOOL_SLUGS.map(slug => ({ url: `/tools/${slug}`, changefreq: 'monthly', priority: 0.8 })),
   { url: '/company', changefreq: 'monthly', priority: 0.7 },
   { url: '/mission', changefreq: 'monthly', priority: 0.7 },

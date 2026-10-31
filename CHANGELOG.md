@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-10-31
+### Added
+- Added Invoice Generator product landing page at `/tools/invoice-generator` with full feature overview, workflow walkthrough, free monthly allowance details, and interactive seller questions
+- Added Invoice Generator tool card to the Tools directory with direct link to learn more
+- Added Invoice Generator to website navigation menus and sitemaps
+
+### Fixed
+- Fixed dashboard button visibility so labels on secondary action buttons and tool access buttons are always clearly readable against card surfaces
+- Updated the ListFlow preview button on the customer dashboard to a clear, muted "Coming soon" label matching the Tools catalog
+
 ## [1.9.4] - 2026-10-27
 ### Added
 - Added high-resolution email branding logo asset for automated confirmation and password reset emails

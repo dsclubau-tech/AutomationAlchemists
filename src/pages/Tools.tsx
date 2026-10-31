@@ -64,8 +64,8 @@ const Tools = () => {
         <div className="min-h-screen bg-mint-50 text-teal-900 time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white flex flex-col justify-between">
             <SEOHead
                 title="Tools"
-                description="Discover our custom tools: Return Converter, CopyPaste Bot, and ListFlow. Built for Amazon-to-eBay automation and dropshipping efficiency."
-                keywords="Return Converter, CopyPaste Bot, ListFlow, eBay tools, Amazon dropshipping, automation tools"
+                description="Discover our custom tools: Return Converter, CopyPaste Bot, ListFlow, and Invoice Generator. Built for marketplace sellers and dropshipping efficiency."
+                keywords="Return Converter, CopyPaste Bot, ListFlow, Invoice Generator, marketplace invoices, eBay tools, Amazon dropshipping, automation tools"
             />
             <SchemaMarkup
                 type="SoftwareApplication"
@@ -104,7 +104,7 @@ const Tools = () => {
 
                 {/* Tools Grid */}
                 <section className="max-w-[1280px] mx-auto px-4 md:px-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                         
                         {/* CP Bot Card */}
                         {dbTools['rccp'] && (
@@ -225,6 +225,58 @@ const Tools = () => {
                             </div>
                         </motion.div>
                         )}
+
+                        {/* Invoice Generator Card */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.3 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            className="bg-white rounded-2xl p-8 border border-teal-600/20 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden flex flex-col h-full"
+                        >
+                            <div className="relative z-10 flex-grow">
+                                <div className="flex justify-between items-start mb-4">
+                                    <span className="font-label-sm text-xs text-teal-600 uppercase tracking-wider font-semibold">INVOICING</span>
+                                    <span className="bg-teal-600/10 text-teal-600 px-2 py-1 rounded text-xs font-semibold">Free</span>
+                                </div>
+                                <div className="flex items-center gap-4 mb-4">
+                                    <img src="/invoice-generator-logo.png" alt="Invoice Generator" className="w-14 h-14 min-w-[56px] min-h-[56px] object-contain shrink-0" />
+                                    <h2 className="font-headline-md text-2xl font-bold text-teal-900 group-hover:text-teal-600 transition-colors">Invoice Generator</h2>
+                                </div>
+                                <p className="font-body-md text-base text-teal-900/80 mb-6">Create, save and send custom invoices for your marketplace customers.</p>
+                                <ul className="space-y-3 mb-8">
+                                    <li className="flex items-start gap-3">
+                                        <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
+                                        <div><strong className="text-teal-900">Custom invoices</strong> <span className="text-teal-900/80">- Add your logo, colours, items, tax and details.</span></div>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                        <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
+                                        <div><strong className="text-teal-900">Save and find</strong> <span className="text-teal-900/80">- Save invoices to your account and edit later.</span></div>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                        <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
+                                        <div><strong className="text-teal-900">Reusable templates</strong> <span className="text-teal-900/80">- Save business details to reduce repeat typing.</span></div>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                        <CheckCircle className="text-teal-600 w-5 h-5 flex-shrink-0 mt-0.5" />
+                                        <div><strong className="text-teal-900">Download or send</strong> <span className="text-teal-900/80">- PDF/PNG download or send via Gmail.</span></div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
+                                <div className="flex items-end gap-1 mb-6 px-1">
+                                    <span className="font-headline-md text-2xl text-teal-900 font-bold">Free to get started</span>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <Link
+                                        to="/tools/invoice-generator"
+                                        className="w-full text-center py-2.5 px-4 rounded-lg border border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white font-label-md text-sm font-semibold transition-colors block"
+                                    >
+                                        Learn more
+                                    </Link>
+                                </div>
+                            </div>
+                        </motion.div>
                         
                     </div>
                 </section>

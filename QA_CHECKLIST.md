@@ -663,6 +663,54 @@
     - User's subscription in `public.subscriptions` is updated with `quantity = 0`, revoking active tool access.
     - Webhook returns HTTP 200.
 
+---
+
+## 28. Invoice Generator Landing Page, Tools Card & Dashboard Button Accessibility (Release v1.10.0)
+
+### 28a. Static Verification & Asset Checks
+- [x] **Check 28a.1: TypeScript Compilation**:
+  - `npx tsc --noEmit -p .`
+  - **Expected Result**: Exits 0 with zero diagnostic errors across all files. (Passed).
+- [x] **Check 28a.2: Dashboard Section Unit Test Suite**:
+  - `node scripts/test-dashboard-sections.mjs`
+  - **Expected Result**: Exits 0, all 6 test assertions pass (including Invoice Generator hidden assertion). (Passed: 6/6 tests).
+- [x] **Check 28a.3: Invoice Generator Logo Asset Specifications**:
+  - Inspect `public/invoice-generator-logo.png` properties.
+  - **Expected Result**: Dimensions are 425x512 (<= 512px on longest side); file size is 34.35 KB; PNG format with full alpha channel; 100% of border pixels transparent with no visible halo. (Passed).
+
+### 28b. Runtime & User-Facing Verification
+- [ ] **Check 28b.1: /tools Directory 3-Card Layout**:
+  - Open `http://localhost:8080/tools` (or live production URL).
+  - **Expected Result**:
+    - Displays 3 cards side by side in equal height on desktop/tablet.
+    - Card 1: Return Converter x CopyPaste Bot (`rccp`).
+    - Card 2: ListFlow (`listflow`, Coming soon).
+    - Card 3: Invoice Generator (`INVOICING` tag, `Free` badge, "Free to get started" price, and "Learn more" button linking to `/tools/invoice-generator`).
+- [ ] **Check 28b.2: /tools/invoice-generator Product Page**:
+  - Open `http://localhost:8080/tools/invoice-generator`.
+  - **Expected Result**:
+    - Breadcrumb: Tools > Invoice Generator.
+    - Hero card shows product logo, parent brand line ("by Automation Alchemists"), headline ("Simple invoices for marketplace sellers."), supporting text, audience line, availability line.
+    - "Start free" button links to `https://invoice-generator-mu-pearl.vercel.app/signup` in a new tab (`target="_blank" rel="noopener noreferrer"`).
+    - Separate account note visible next to the button.
+    - 4 feature cards, 3 workflow steps, "What's included for free" allowance (no prices or plan names), and 6 interactive FAQ accordions.
+    - Privacy Policy and contact email links work properly.
+    - No placeholder screenshots appear (screenshots section is omitted until items are added).
+- [ ] **Check 28b.3: Mobile Responsiveness at 390px**:
+  - Resize browser viewport to 390px width.
+  - **Expected Result**: Clean layout with 0 horizontal overflow or clipped buttons.
+- [ ] **Check 28b.4: Navigation Menu Integration**:
+  - Desktop: Hover "Tools" in navbar. Confirm dropdown shows `rccp`, `ListFlow`, and `Invoice Generator` with its logo.
+  - Mobile: Open hamburger menu. Confirm "Our Tools" list includes `Invoice Generator`.
+- [ ] **Check 28b.5: /dashboard Button Label Visibility & Isolation**:
+  - Sign in and navigate to `/dashboard`.
+  - **Expected Result**:
+    - The ListFlow card shows a disabled, muted "Coming soon" button with dark teal text on light mint background (`bg-teal-600/10 text-teal-900/60`).
+    - The CP Bot card's "Open Return Converter" button has clearly visible dark teal text (not a solid dark block).
+    - Manage subscription and secondary buttons are clearly visible with high contrast.
+    - Invoice Generator does NOT appear anywhere on `/dashboard`.
+
+
 
 
 

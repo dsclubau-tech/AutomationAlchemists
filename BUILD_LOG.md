@@ -724,3 +724,44 @@ Built:
 - Updated `src/App.tsx`: replaced `<Route path="/pricing" element={<Navigate to="/" replace />} />` with `<Route path="/cart" element={<Cart />} />` and added lazy import.
 Files touched: `src/pages/Cart.tsx` (NEW), `src/pages/Tools.tsx`, `src/App.tsx`, `PROJECT_STATE.md`, `BUILD_LOG.md`.
 Notes/deviations: Edge Function `create-checkout-session` only accepts a single `product_slug`, so multi-item cart uses individual checkout buttons per tool (Option C) rather than a unified checkout. This avoids modifying the webhook pipeline.
+
+## 2026-10-31 — Release v1.10.0: Invoice Generator landing page, tools card, and dashboard button fix
+- **Requested**:
+  - Add Invoice Generator landing page at `/tools/invoice-generator` mirroring `/tools/rccp` structure, tokens, and spacing.
+  - Use exact copy without embellishments: headline "Simple invoices for marketplace sellers.", audience line built with eBay, Amazon and Walmart sellers in mind, availability for Australia (US, Canada, UK coming soon), 4 feature cards, 3 workflow steps, "What's included for free" allowance, and 6 FAQ items.
+  - Pinned config URLs in one constant (`APP_SIGNUP_URL`, `APP_PRIVACY_URL`).
+  - Process product logo from repo root PNG to `public/invoice-generator-logo.png` (max 512px on longest side, keeping transparency, optimized).
+  - Add screenshots section driven by empty config array (rendered only when items present).
+  - Add Invoice Generator card to `/tools` with category tag "INVOICING", "Free" tag, "Free to get started", description, and "Learn more" button linking to `/tools/invoice-generator`. Update grid to 3 equal-height cards on desktop/tablet.
+  - Update navigation (desktop dropdown, mobile drawer), JSON-LD/SchemaMarkup, and prerender/sitemap route lists.
+  - Ensure Invoice Generator is completely omitted from `/dashboard` (separate login app).
+  - Fix Dashboard buttons: resolve solid dark teal block / blank dark block on outline buttons ("Open Return Converter", "Manage subscription", "Buy now") by fixing contrast, and style ListFlow button as disabled muted "Coming soon" button matching `/tools`.
+  - Record database multi-app table prefix convention and future migration notes for Invoice Generator tables.
+- **Built**:
+  - `src/data/invoiceGeneratorPage.ts`: config constants (`APP_SIGNUP_URL`, `APP_PRIVACY_URL`), exact feature cards, steps, allowance points, empty screenshots array, and 6 FAQ items.
+  - `src/pages/tools/InvoiceGeneratorToolPage.tsx`: dedicated landing page mirroring `RccpToolPage.tsx` structure and tokens (`teal-900`, `teal-800`, `teal-600`, `mint-50`, `bg-yellow-accent` primary CTA), responsive layout, breadcrumb navigation, parent brand badge with `/logo.png`, and interactive accordion FAQ.
+  - `public/invoice-generator-logo.png`: processed via Sharp to 425x512 px (34.35 KB) with full alpha transparency and 0 haloing.
+  - `src/App.tsx`: registered lazy import and route `<Route path="/tools/invoice-generator" element={<InvoiceGeneratorToolPage />} />`.
+  - `src/pages/Tools.tsx`: updated grid to `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch`, added Invoice Generator card matching RCCP and ListFlow styling, and updated SEOHead and SchemaMarkup.
+  - `src/components/Navigation.tsx`: added Invoice Generator link with product logo in desktop "Our Tools" dropdown and text link in mobile drawer.
+  - `scripts/prerender.js` & `scripts/generate-sitemap.js`: added `/tools/invoice-generator` route entry.
+  - `src/pages/Dashboard.tsx`: fixed button background styling by applying `bg-transparent` to outline buttons (resolving dark-on-dark contrast issue where `Button variant="outline"` inherited `bg-background`), and updated the ListFlow card button to a disabled muted "Coming soon" button (`bg-teal-600/10 text-teal-900/60`).
+  - `PROJECT_STATE.md`: documented table prefix naming convention (`cp_bot_`, `ig_`), recorded future Invoice Generator migration notes (`invoices`, `templates`, `profiles`, `linked_emails`, etc.), and updated system state.
+  - Ran `scripts/test-dashboard-sections.mjs` (all 6 offline unit tests passing) and `npx tsc --noEmit -p .` (0 diagnostic errors).
+- **Files touched**:
+  - `src/data/invoiceGeneratorPage.ts` (NEW)
+  - `src/pages/tools/InvoiceGeneratorToolPage.tsx` (NEW)
+  - `public/invoice-generator-logo.png` (NEW asset)
+  - `src/App.tsx`
+  - `src/pages/Tools.tsx`
+  - `src/components/Navigation.tsx`
+  - `src/pages/Dashboard.tsx`
+  - `scripts/prerender.js`
+  - `scripts/generate-sitemap.js`
+  - `PROJECT_STATE.md`
+  - `BUILD_LOG.md`
+  - `CHANGELOG.md`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+- **Deviations**: None. Database schema and data remained completely untouched (no SQL run). Remote push held per user instruction.
+

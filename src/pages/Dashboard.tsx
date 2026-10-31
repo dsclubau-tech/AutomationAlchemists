@@ -163,7 +163,7 @@ const ToolCard = ({
                     button = (
                         <div className="flex flex-col gap-2 w-full sm:w-auto">
                             <div className="flex flex-wrap items-center gap-2">
-                                <Button asChild variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                <Button asChild variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                     <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                         Open Return Converter
                                     </a>
@@ -181,7 +181,7 @@ const ToolCard = ({
                     // State 1: Not eligible or no trial -> "Subscribe"
                     button = (
                         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                            <Button asChild variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            <Button asChild variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                 <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
                                     Open Return Converter
                                 </a>
@@ -220,7 +220,7 @@ const ToolCard = ({
                             </a>
                         </Button>
                         {canManageSubscription(cpBotSubscription) && (
-                            <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            <Button onClick={onManageSubscription} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                 Manage subscription
                             </Button>
                         )}
@@ -254,7 +254,7 @@ const ToolCard = ({
                             </a>
                         </Button>
                         {canManageSubscription(cpBotSubscription) && (
-                            <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            <Button onClick={onManageSubscription} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                 Manage subscription
                             </Button>
                         )}
@@ -284,7 +284,7 @@ const ToolCard = ({
                         </a>
                     </Button>
                     {canManageSubscription(subscription) && onManageSubscription && (
-                        <Button onClick={onManageSubscription} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                        <Button onClick={onManageSubscription} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                             Manage subscription
                         </Button>
                     )}
@@ -303,7 +303,7 @@ const ToolCard = ({
                 In Maintenance
             </Button>
         ) : (
-            <Button onClick={() => onBuyNow?.(tool.slug)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+            <Button onClick={() => onBuyNow?.(tool.slug)} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                 Buy now — AUD ${tool.price_monthly}/mo
             </Button>
         );
@@ -314,14 +314,13 @@ const ToolCard = ({
                 Coming soon
             </div>
         );
-        button = isNotified ? (
-            <Button disabled className="bg-teal-600/10 text-teal-700 border border-teal-600/20 font-bold h-10 px-5 rounded-lg text-sm font-display cursor-default w-full sm:w-auto">
-                ✓ You're on the list
-            </Button>
-        ) : (
-            <Button onClick={() => onNotify?.(tool)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                Notify me
-            </Button>
+        button = (
+            <button
+                disabled
+                className="w-full sm:w-auto text-center py-2 px-5 rounded-lg bg-teal-600/10 text-teal-900/60 font-display text-sm font-semibold cursor-not-allowed border border-teal-600/20 h-10"
+            >
+                Coming soon
+            </button>
         );
     }
 
@@ -635,7 +634,7 @@ const Dashboard = () => {
                                                             </div>
                                                             
                                                             <div className="pt-4 border-t border-teal-600/10 mt-auto">
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 w-full font-bold transition-colors">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 w-full font-bold transition-colors">
                                                                     + Add another store
                                                                 </Button>
                                                             </div>
@@ -696,7 +695,7 @@ const Dashboard = () => {
                                                                     <Lock className="w-3 h-3" />
                                                                     Not purchased
                                                                 </div>
-                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                                                <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                                                     Add your first store
                                                                 </Button>
                                                             </div>

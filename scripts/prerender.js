@@ -27,6 +27,7 @@ const routes = [
   '/terms',
   '/privacy',
   '/tools',
+  '/tools/invoice-generator',
   ...VISIBLE_TOOL_SLUGS.map(slug => `/tools/${slug}`)
 ];
 

@@ -345,6 +345,38 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - Access Revocation: Retrieves the associated invoice, resolves the subscription ID via `getInvoiceSubscriptionId`, retrieves the subscription, and invokes the atomic RPC `process_stripe_webhook_event` with `p_quantity = 0` to revoke access.
   - If a charge is a non-subscription one-off payment with no invoice or subscription, returns HTTP 200 `{ received: true, skipped: 'no_subscription' }` to avoid retry loops.
 
+---
+
+### 16. Invoice Generator Product Page, Tools Card & Dashboard Button Accessibility (Release v1.10.0)
+
+- **Invoice Generator Product Page (`/tools/invoice-generator`)**:
+  - **What it does**: Provides a dedicated, responsive marketing landing page for the Invoice Generator web app built for marketplace sellers (eBay, Amazon, Walmart).
+  - **Why**: Allows marketplace sellers to understand how to create custom invoices, save them to their account, and send PDF invoices via Gmail, starting with a free monthly allowance.
+  - **Design & Layout**: Mirrors the `/tools/rccp` structure and brand tokens (`teal-900` `#0A363D`, `teal-800` `#104B54`, `teal-600` `#207680`, `mint-50` `#EBF4F4`, `bg-yellow-accent` `#FFD200` for primary CTA only). Includes breadcrumb navigation, product logo, parent brand badge ("by Automation Alchemists"), 4 feature cards, 3 workflow steps, "What's included for free" allowance, and an interactive 6-item accordion FAQ.
+  - **External App Integration**: The main "Start free" button directs users to `https://invoice-generator-mu-pearl.vercel.app/signup` in a new tab (`target="_blank" rel="noopener noreferrer"`). Clearly informs users with a small note that it uses a separate Invoice Generator account for now.
+  - **URLs Config**: App URLs are maintained in config constants (`APP_SIGNUP_URL`, `APP_PRIVACY_URL`) in `src/data/invoiceGeneratorPage.ts`.
+  - **Screenshots Section**: Driven by a config array; remains cleanly hidden until screenshot assets are ready, avoiding placeholder imagery.
+  - **Implementation**: Implemented in `src/pages/tools/InvoiceGeneratorToolPage.tsx`, `src/data/invoiceGeneratorPage.ts`, `src/App.tsx`, and `public/invoice-generator-logo.png`.
+
+- **Tools Directory 3-Card Grid (`/tools`)**:
+  - **What it does**: Displays the Invoice Generator alongside Return Converter x CopyPaste Bot and ListFlow in a balanced 3-column desktop/tablet layout (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3`).
+  - **Card Content**: Displays category tag "INVOICING", "Free" badge, product logo, title, description ("Create, save and send custom invoices for your marketplace customers."), feature bullet points, "Free to get started" price label, and a "Learn more" button linking to `/tools/invoice-generator`.
+  - **Implementation**: Implemented in `src/pages/Tools.tsx`.
+
+- **Site Navigation & SEO Registration**:
+  - Added Invoice Generator to desktop navbar "Our Tools" dropdown (with logo icon) and mobile drawer.
+  - Registered route in `scripts/prerender.js` and `scripts/generate-sitemap.js`.
+  - Updated SoftwareApplication JSON-LD and SEO metadata.
+  - **Implementation**: Implemented in `src/components/Navigation.tsx`, `scripts/prerender.js`, `scripts/generate-sitemap.js`.
+
+- **Dashboard Button Visibility & Contrast Fixes (`/dashboard`)**:
+  - **What it does**: Ensures every button on the customer dashboard has a crisp, clearly readable label.
+  - **Root Cause & Fix**: Secondary outline buttons previously used shadcn `Button variant="outline"` which injected `bg-background` (`#0A363D`) underneath dark teal text (`text-teal-900`), making text invisible prior to hover. Explicitly added `bg-transparent` across all dashboard outline buttons ("Open Return Converter", "Manage subscription", "Buy now", store actions) to expose the white card background and deliver 11.4:1 contrast.
+  - **ListFlow Button Update**: Changed the ListFlow card button from an active notify button to a muted, disabled "Coming soon" button matching `/tools` (`bg-teal-600/10 text-teal-900/60 font-semibold cursor-not-allowed border border-teal-600/20`).
+  - **Dashboard Isolation**: Invoice Generator is strictly hidden from `/dashboard` (no card rendered, zero database changes).
+  - **Implementation**: Implemented in `src/pages/Dashboard.tsx`.
+
+
 
 
 
