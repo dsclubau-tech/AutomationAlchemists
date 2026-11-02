@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import SEOHead from '@/components/SEOHead';
+import SchemaMarkup from '@/components/SchemaMarkup';
+import { PRICING_CONFIG, TrialTermsLine, LaunchPriceDisplay } from '@/config/pricing';
 import { RevealText } from '@/components/RevealText';
 import { RevealBlock } from '@/components/RevealBlock';
 import { useAuth } from '@/hooks/useAuth';
@@ -64,7 +66,7 @@ const RccpToolPage: React.FC = () => {
       : Boolean(publicTrial && publicTrial.enabled && publicTrial.slots_left > 0)
   );
 
-  const trialDays = user ? (statusTrial?.trial_days ?? 0) : (publicTrial?.trial_days ?? 0);
+  const trialDays = (user ? statusTrial?.trial_days : publicTrial?.trial_days) || 30;
   const slotsLeft = user ? (statusTrial?.slots_left ?? 0) : (publicTrial?.slots_left ?? 0);
   const slotCap = user ? (statusTrial?.slot_cap ?? 0) : (publicTrial?.slot_cap ?? 0);
   const timeLeftFormatted = statusTrial?.claim?.ends_at ? formatTrialTimeLeft(statusTrial.claim.ends_at) : '';
@@ -72,7 +74,7 @@ const RccpToolPage: React.FC = () => {
   const [dbTool, setDbTool] = useState<DbTool>({
     slug: 'rccp',
     status: 'available',
-    price_monthly: 9,
+    price_monthly: PRICING_CONFIG.launchPrice,
     maintenance_message: null,
   });
 
@@ -139,6 +141,21 @@ const RccpToolPage: React.FC = () => {
         title="Return Converter x CopyPaste Bot - eBay to Amazon AU Tools"
         description="Turn Amazon AU return codes into clean eBay return labels for free, and copy buyer addresses from eBay into Amazon checkout in one click."
         url="https://www.automationalchemists.com/tools/rccp"
+      />
+      <SchemaMarkup
+        type={"SoftwareApplication" as any}
+        data={{
+          name: "CP Bot",
+          description: "One-click buyer address copying from eBay into Amazon AU checkout. Return Converter is free.",
+          url: "https://www.automationalchemists.com/tools/rccp",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web Browser",
+          offers: {
+            "@type": "Offer",
+            price: PRICING_CONFIG.launchPrice.toFixed(2),
+            priceCurrency: PRICING_CONFIG.currency,
+          },
+        }}
       />
       <Navigation />
 
@@ -218,9 +235,7 @@ const RccpToolPage: React.FC = () => {
                         <span className="text-sm text-teal-900/70 font-display whitespace-nowrap min-w-[140px]">
                           {content.hero.pricing.botLabel}:
                         </span>
-                        <span className="text-base font-bold text-teal-900 font-display whitespace-nowrap">
-                          {content.hero.pricing.botPriceFormat(dbTool.price_monthly)}
-                        </span>
+                        <LaunchPriceDisplay />
                       </div>
                     </RevealBlock>
 
@@ -253,9 +268,7 @@ const RccpToolPage: React.FC = () => {
                           <span className="text-xs text-teal-900/70 font-medium font-display px-0.5">
                             {content.hero.buttons.spotsLeft(slotsLeft, slotCap)}
                           </span>
-                          <span className="text-xs text-teal-900/70 font-display px-0.5">
-                            {trialDays} days free, then A${dbTool.price_monthly}/month. Card required. Cancel anytime.
-                          </span>
+                          <TrialTermsLine trialDays={trialDays} className="text-xs text-teal-900/70 font-display px-0.5 max-w-md" />
                         </div>
                       ) : (
                         renderAccessButton(content.hero.buttons.getAccess, 'w-full sm:w-auto whitespace-nowrap shrink-0')

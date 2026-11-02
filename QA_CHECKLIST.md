@@ -710,6 +710,57 @@
     - Manage subscription and secondary buttons are clearly visible with high contrast.
     - Invoice Generator does NOT appear anywhere on `/dashboard`.
 
+---
+
+## 29. Launch Readiness: Pricing, GST Tax Rate, Terms Consent, and Billing States (Release v1.11.0)
+
+### 29a. Static Verification & Pure Helper Test Suite
+- [x] **Check 29a.1: Launch Readiness Test Suite (4/4 Suites Passed)**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, all 4 test suites pass:
+    - Suite A: Checkout params helper (fails closed on missing GST rate ID, attaches `default_tax_rates`, includes required terms consent with markdown URLs, and contains zero `automatic_tax`).
+    - Suite B: `getBillingView` state machine covering `none`, `expired`, `trialing`, `trialing_canceled`, `active`, `active_canceled`, and `past_due` (with suppressed Subscribe actions).
+    - Suite C: Pricing config values (9.99/4.99 AUD, valid formatting without NaN/undefined, exact trial copy).
+    - Suite D: Source code grep audit confirming zero leftover hard-coded "A$9" / "9/month" strings in `src/`. (Passed: 0 errors).
+- [x] **Check 29a.2: Dashboard Section Regression Unit Tests (6/6 Passed)**:
+  - `node scripts/test-dashboard-sections.mjs`
+  - **Expected Result**: Exits 0, all 6 test assertions pass. (Passed).
+- [x] **Check 29a.3: Stripe Compatibility Unit Tests (12/12 Passed)**:
+  - `node scripts/test-stripe-compat.mjs`
+  - **Expected Result**: Exits 0, all 12 test assertions pass. (Passed).
+- [x] **Check 29a.4: Production Build Compilation**:
+  - `npx vite build`
+  - **Expected Result**: Exits 0, bundles cleanly without syntax or import errors. (Passed: built in 7.66s).
+
+### 29b. Runtime & User-Facing Verification (Local Dev Server / Staging)
+- [x] **Check 29b.1: /tools Directory RCCP Card Price & Trial Terms**:
+  - Open `http://localhost:8080/tools`.
+  - **Expected Result**:
+    - RCCP card renders crossed-out standard price was A$9.99 (`<s><span class="sr-only">was A$9.99</span>A$9.99</s>`).
+    - Renders launch price `A$4.99/month` with a `"Launch price"` badge and `"incl. GST"`.
+    - Next to the trial button, renders exact trial copy: *"Free for 30 days, then A$4.99/month (launch price, normally A$9.99), incl. GST, charged automatically until you cancel. By starting your trial you agree to the Terms of Service and Privacy Policy."*
+    - Terms and Privacy links open in a new tab (`target="_blank" rel="noopener noreferrer"`).
+- [x] **Check 29b.2: /tools/rccp Product Page Hero & Pricing Section**:
+  - Open `http://localhost:8080/tools/rccp`.
+  - **Expected Result**:
+    - Product title is CP Bot (Copy Paste Bot).
+    - Pricing section renders crossed-out A$9.99, launch price A$4.99/month, "Launch price" label, and "incl. GST".
+    - Trial line is rendered with active Terms and Privacy links.
+- [x] **Check 29b.3: Customer Dashboard Billing States (/dashboard)**:
+  - For active trial: shows *"Free trial active - ends on <date>"* with *"Manage billing"*.
+  - For cancelled trial (`cancel_at_period_end`): shows *"Trial cancelled - access until <date>; no charge"*.
+  - For active paid subscription: shows *"Subscription active - renews on <date>"* with *"Manage billing"*.
+  - For cancelled paid subscription: shows *"Cancelled - access until <date>"*.
+  - For `past_due`: displays top alert banner *"Payment failed - CP Bot is paused. Update your payment method to restore access."* with button *"Update payment method"*. All Subscribe and Start trial buttons are hidden.
+- [ ] **Check 29b.4: Post-Deploy Edge Function GST Secret Check**:
+  - Deploy `create-checkout-session` without setting `STRIPE_GST_TAX_RATE_ID`.
+  - Trigger checkout call as admin.
+  - **Expected Result**: Fails closed with HTTP 500 `"GST tax rate not configured"`.
+  - Set `STRIPE_GST_TAX_RATE_ID=<live_rate_id>`.
+  - Trigger checkout call as admin.
+  - **Expected Result**: Checkout session created with `default_tax_rates = [<live_rate_id>]` and Terms consent.
+
+
 
 
 

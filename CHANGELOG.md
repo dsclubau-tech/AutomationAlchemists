@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-11-02
+### Added
+- Launch readiness pricing configuration establishing the A$4.99/month promotional launch price for CP Bot (normally A$9.99/month), inclusive of GST
+- Clear trial policy notice next to every trial button detailing the 30-day trial duration, renewal terms, and links to Terms of Service and Privacy Policy
+- Australian GST compliance configuration applying the 10% tax rate to all subscription invoices and renewals via Stripe
+- Comprehensive customer billing states on the dashboard distinguishing active trials, cancelled trials, active subscriptions, cancelled subscriptions, and payment-failed notices with direct link to update payment methods
+- Seamless signup redirect landing newly verified customers directly onto the customer dashboard
+
+### Changed
+- Clarified product naming so CP Bot (Copy Paste Bot) is clearly distinguished as the paid tool and Return Converter is recognized as completely free
+- Updated all pricing references across product landing pages, the tools directory, and cart to reflect promotional pricing
+
 ## [1.10.0] - 2026-10-31
 ### Added
 - Added Invoice Generator product landing page at `/tools/invoice-generator` with full feature overview, workflow walkthrough, free monthly allowance details, and interactive seller questions

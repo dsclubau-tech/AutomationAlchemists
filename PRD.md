@@ -376,6 +376,53 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - **Dashboard Isolation**: Invoice Generator is strictly hidden from `/dashboard` (no card rendered, zero database changes).
   - **Implementation**: Implemented in `src/pages/Dashboard.tsx`.
 
+---
+
+### 17. Launch Readiness: Central Pricing, Australian GST, Terms Consent, and Billing States (Release v1.11.0)
+
+- **Central Pricing Configuration (`src/config/pricing.tsx` & `src/config/pricing.ts`)**:
+  - **What it does**: Establishes a single central source of truth for pricing across the entire frontend: standard price `9.99` AUD, promotional launch price `4.99` AUD, GST inclusive (`true`), and no fixed launch deadline (`launchEndsOn = null`).
+  - **Why**: Eliminates hard-coded price strings and prevents inconsistent or broken pricing copy across pages, structured data schemas, and cart views.
+  - **Display Requirements**:
+    - Standard price rendered crossed out using `<s><span className="sr-only">was A$9.99</span>A$9.99</s>`.
+    - Launch price rendered as `A$4.99/month` with a prominent `"Launch price"` pill and `"incl. GST"` notice.
+    - Zero fake countdown timers or fabricated deadline dates.
+  - **Trial Terms Policy Notice (`<TrialTermsLine />`)**:
+    - Rendered immediately adjacent to every free trial CTA button across the site (`/tools`, `/tools/rccp`, and customer dashboard).
+    - Exact copy: *"Free for 30 days, then A$4.99/month (launch price, normally A$9.99), incl. GST, charged automatically until you cancel. By starting your trial you agree to the Terms of Service and Privacy Policy."*
+    - Trial length (`30`) dynamically resolves from `trial_offers` configuration; pricing values from `PRICING_CONFIG`. Links open in new tabs (`target="_blank" rel="noopener noreferrer"`).
+  - **Implementation**: `src/config/pricing.tsx`, `src/config/pricing.ts`, `src/pages/Tools.tsx`, `src/pages/tools/RccpToolPage.tsx`, `src/components/DashboardTrialCard.tsx`, `src/pages/Cart.tsx`, `src/data/tools.ts`, `src/data/rccpPage.ts`.
+
+- **Product Naming & Separation**:
+  - **What it does**: Formally solidifies that the paid tool is named **"CP Bot"** (Copy Paste Bot).
+  - **Clarification**: Return Converter is explicitly described as free and not part of the subscription plan.
+  - **Implementation**: `src/data/tools.ts`, `src/data/rccpPage.ts`, `src/pages/Cart.tsx`.
+
+- **Australian GST Compliance & Terms Consent in Checkout (`create-checkout-session`)**:
+  - **What it does**: Ensures Stripe checkout sessions and all renewal invoices carry Australian GST (10% inclusive).
+  - **Parameter Builder Helper**: Extracted into `supabase/functions/create-checkout-session/params.ts` (`buildCheckoutSessionParams`).
+  - **Tax Rate Configuration**: Reads secret `STRIPE_GST_TAX_RATE_ID` via `Deno.env.get('STRIPE_GST_TAX_RATE_ID')` and sets `subscription_data.default_tax_rates = [taxRateId]`.
+  - **Fail-Closed Security**: If `STRIPE_GST_TAX_RATE_ID` is missing or empty, returns HTTP 500 (`"GST tax rate not configured"`) and creates no session.
+  - **No Automatic Tax Invariant**: Stripe Tax / `automatic_tax` is strictly disallowed and runtime-asserted.
+  - **Terms Acceptance**: Enforces `consent_collection.terms_of_service = 'required'` and `custom_text.terms_of_service_acceptance.message = 'I agree to the [Terms of Service](https://rccp.automationalchemists.com/terms-of-service) and [Privacy Policy](https://rccp.automationalchemists.com/privacy).'`.
+  - **Implementation**: `supabase/functions/create-checkout-session/params.ts`, `supabase/functions/create-checkout-session/index.ts`.
+
+- **Customer Dashboard Billing States (`src/lib/billingView.ts`)**:
+  - **What it does**: Evaluates subscription records into deterministic UI states:
+    - `none / expired`: Subscribe / Start trial CTA.
+    - `trialing`: *"Free trial active - ends on <date>"* with *"Manage billing"* button.
+    - `trialing_canceled` (`cancel_at_period_end = true`): *"Trial cancelled - access until <date>; no charge"*.
+    - `active` (paid): *"Subscription active - renews on <date>"* with *"Manage billing"* button.
+    - `active_canceled` (paid, `cancel_at_period_end = true`): *"Cancelled - access until <date>"*.
+    - `past_due`: Alert banner *"Payment failed - CP Bot is paused. Update your payment method to restore access."* with primary button *"Update payment method"* (opens Stripe Billing Portal via `create-portal-session`). All Subscribe / Start trial buttons and cards are suppressed in this state.
+  - **Date Formatting**: Australian Sydney timezone (`Australia/Sydney`) in `en-AU` locale (e.g. "30 November 2026").
+  - **Implementation**: `src/lib/billingView.ts`, `src/lib/dashboardSections.ts`, `src/pages/Dashboard.tsx`.
+
+- **Signup Landing Redirect**:
+  - **What it does**: Sets `emailRedirectTo: `${window.location.origin}/dashboard`` during user sign-up so confirmed users land on `/dashboard`.
+  - **Implementation**: `src/hooks/useAuth.tsx`, `src/pages/Auth.tsx`.
+
+
 
 
 

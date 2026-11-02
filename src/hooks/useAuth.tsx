@@ -69,7 +69,7 @@ export const useAuth = () => {
     },
     redirectTo?: string
   ) => {
-    const redirectUrl = redirectTo || `${window.location.origin}/`;
+    const redirectUrl = redirectTo || `${window.location.origin}/dashboard`;
 
     const { data, error } = await supabase.auth.signUp({
       email,

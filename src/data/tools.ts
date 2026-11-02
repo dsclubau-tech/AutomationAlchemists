@@ -1,5 +1,6 @@
 import { ElementType } from 'react';
 import { Box, Zap, FileText, Activity, Sparkles, CheckCircle2 } from 'lucide-react';
+import { PRICING_CONFIG, formatPrice } from '@/config/pricing';
 
 export interface ToolFeature {
     title: string;
@@ -36,14 +37,14 @@ export const toolsData: ToolData[] = [
         category: 'Order Fulfilment & Returns',
         bannerBg: '#0d1117',
         shortDescription: 'Paste eBay buyer addresses straight into Amazon checkout, and turn Amazon return codes into clean eBay return labels.',
-        fullDescription: 'CP Bot & Return Converter is a toolkit for Amazon-to-eBay dropshippers. CP Bot copies your eBay buyer\'s address and pastes it into the Amazon checkout page with one click. It fills in the checkout and stops, so you place the order yourself. Return Converter turns an existing Amazon return code (Australia Post or ParcelPoint) into an eBay return label, and it is free.',
+        fullDescription: 'CP Bot copies your eBay buyer\'s address and pastes it into the Amazon checkout page with one click. It fills in the checkout and stops, so you place the order yourself. Return Converter is free.',
         features: [
             { title: 'One-click copy', description: 'eBay buyer address into Amazon checkout', icon: 'mouse-pointer-click' },
             { title: 'Instant labels', description: 'Amazon return codes into eBay return labels', icon: 'zap' },
             { title: 'History tracking', description: 'Fulfilment and return label history', icon: 'line-chart' },
             { title: 'Cloud clipboard', description: 'Copy in one browser, paste in another', icon: 'cloud' }
         ],
-        price: 'AUD $9/month',
+        price: `${formatPrice(PRICING_CONFIG.launchPrice)}/month (launch price, normally ${formatPrice(PRICING_CONFIG.standardPrice)})`,
         isFree: false,
         howItWorks: [
             'Install the CP Bot Chrome extension or log in to the dashboard.',

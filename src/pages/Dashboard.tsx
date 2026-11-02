@@ -20,7 +20,9 @@ import {
     categorizeDashboardTools,
     canManageSubscription,
     getSubscriptionDateText,
+    getBillingView,
 } from '@/lib/dashboardSections';
+import { TrialTermsLine, PRICING_CONFIG } from '@/config/pricing';
 
 export interface DbTool {
     id: string;
@@ -40,6 +42,7 @@ interface SubscriptionData {
     product_slug: string;
     status: string;
     current_period_end: string | null;
+    cancel_at_period_end?: boolean | null;
     is_trial?: boolean;
     manually_granted?: boolean;
     stripe_subscription_id?: string | null;
@@ -135,9 +138,8 @@ const ToolCard = ({
                 </Button>
             );
         } else if (tool.slug === 'rccp') {
-            const hasCpBotSub = Boolean(cpBotSubscription);
-            const isCpBotTrial = Boolean(cpBotSubscription?.is_trial || cpBotSubscription?.status === 'trialing');
-            const isTrialEligible = !hasCpBotSub && Boolean(
+            const billingView = getBillingView(cpBotSubscription, new Date());
+            const isTrialEligible = billingView.state === 'none' && Boolean(
                 trialStatus?.enabled &&
                 trialStatus?.eligible &&
                 !trialStatus?.already_claimed &&
@@ -145,7 +147,100 @@ const ToolCard = ({
             );
             const trialDays = trialStatus?.trial_days || 30;
 
-            if (!hasCpBotSub) {
+            if (billingView.state === 'past_due') {
+                displayDescription = "Return Converter is free. CP Bot is paused due to a failed payment.";
+                badge = (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
+                                ↩️ Return Converter — Active
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-700 text-xs font-semibold border border-red-500/20 whitespace-nowrap">
+                                ⚠️ CP Bot — Paused
+                            </div>
+                        </div>
+                        <div className="text-xs text-red-700 font-medium">
+                            {billingView.banner}
+                        </div>
+                    </div>
+                );
+                button = (
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <Button asChild variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                Open Return Converter
+                            </a>
+                        </Button>
+                        <Button onClick={onManageSubscription} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
+                            Update payment method
+                        </Button>
+                    </div>
+                );
+            } else if (billingView.state === 'trialing' || billingView.state === 'trialing_canceled') {
+                badge = (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
+                                ↩️ Return Converter — Active
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/15 text-yellow-800 text-xs font-semibold border border-yellow-500/30 whitespace-nowrap">
+                                🤖 CP Bot — {billingView.state === 'trialing_canceled' ? 'Trial Cancelling' : 'Free Trial'}
+                            </div>
+                        </div>
+                        {billingView.banner && (
+                            <div className="text-xs text-teal-900/70 font-medium">
+                                {billingView.banner}
+                            </div>
+                        )}
+                    </div>
+                );
+                button = (
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
+                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                Open Tools
+                            </a>
+                        </Button>
+                        {canManageSubscription(cpBotSubscription) && (
+                            <Button onClick={onManageSubscription} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                Manage billing
+                            </Button>
+                        )}
+                    </div>
+                );
+            } else if (billingView.state === 'active' || billingView.state === 'active_canceled') {
+                badge = (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
+                                ↩️ Return Converter — Active
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
+                                🤖 CP Bot — {billingView.state === 'active_canceled' ? 'Cancelling' : 'Active'}
+                            </div>
+                        </div>
+                        {billingView.banner && (
+                            <div className="text-xs text-teal-900/70 font-medium">
+                                {billingView.banner}
+                            </div>
+                        )}
+                    </div>
+                );
+                button = (
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
+                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                Open Tools
+                            </a>
+                        </Button>
+                        {canManageSubscription(cpBotSubscription) && (
+                            <Button onClick={onManageSubscription} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                Manage billing
+                            </Button>
+                        )}
+                    </div>
+                );
+            } else {
                 displayDescription = "Return Converter is free. Upgrade to unlock CP Bot.";
                 badge = (
                     <div className="flex flex-wrap items-center gap-2">
@@ -159,7 +254,6 @@ const ToolCard = ({
                 );
 
                 if (isTrialEligible) {
-                    // State 4: Locked and eligible -> "Start free trial now"
                     button = (
                         <div className="flex flex-col gap-2 w-full sm:w-auto">
                             <div className="flex flex-wrap items-center gap-2">
@@ -172,13 +266,10 @@ const ToolCard = ({
                                     Start free trial now
                                 </Button>
                             </div>
-                            <p className="text-[11px] text-teal-900/70 font-display">
-                                {trialDays} days free, then A${tool.price_monthly}/month. Card required. Cancel anytime.
-                            </p>
+                            <TrialTermsLine trialDays={trialDays} className="text-[11px] text-teal-900/70 font-display max-w-sm" />
                         </div>
                     );
                 } else {
-                    // State 1: Not eligible or no trial -> "Subscribe"
                     button = (
                         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                             <Button asChild variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
@@ -192,74 +283,6 @@ const ToolCard = ({
                         </div>
                     );
                 }
-            } else if (isCpBotTrial) {
-                // State 2: Trial active -> end date and "Manage subscription"
-                const trialDateText = getSubscriptionDateText(cpBotSubscription);
-                badge = (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
-                                ↩️ Return Converter — Active
-                            </div>
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/15 text-yellow-800 text-xs font-semibold border border-yellow-500/30 whitespace-nowrap">
-                                🤖 CP Bot — Free Trial
-                            </div>
-                        </div>
-                        {trialDateText && (
-                            <div className="text-xs text-teal-900/70 font-medium">
-                                {trialDateText}
-                            </div>
-                        )}
-                    </div>
-                );
-                button = (
-                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
-                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
-                                Open Tools
-                            </a>
-                        </Button>
-                        {canManageSubscription(cpBotSubscription) && (
-                            <Button onClick={onManageSubscription} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                                Manage subscription
-                            </Button>
-                        )}
-                    </div>
-                );
-            } else {
-                // State 3: Paid / Manual active -> "Manage subscription" (only if Stripe link & not manual)
-                const activeDateText = getSubscriptionDateText(cpBotSubscription, 'CP Bot');
-                badge = (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
-                                ↩️ Return Converter — Active
-                            </div>
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 whitespace-nowrap">
-                                🤖 CP Bot — Active
-                            </div>
-                        </div>
-                        {activeDateText && (
-                            <div className="text-xs text-teal-900/70 font-medium">
-                                {activeDateText}
-                            </div>
-                        )}
-                    </div>
-                );
-                button = (
-                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
-                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
-                                Open Tools
-                            </a>
-                        </Button>
-                        {canManageSubscription(cpBotSubscription) && (
-                            <Button onClick={onManageSubscription} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
-                                Manage subscription
-                            </Button>
-                        )}
-                    </div>
-                );
             }
         } else {
             const activeDateText = getSubscriptionDateText(subscription);
@@ -396,7 +419,7 @@ const Dashboard = () => {
         try {
             const { data: subsData } = await supabase
                 .from('subscriptions')
-                .select('product_slug, status, current_period_end, is_trial, manually_granted, stripe_subscription_id, stripe_customer_id')
+                .select('product_slug, status, current_period_end, cancel_at_period_end, is_trial, manually_granted, stripe_subscription_id, stripe_customer_id')
                 .eq('user_id', user.id);
             if (subsData) setSubscriptions(subsData as SubscriptionData[]);
         } catch (err) {
@@ -562,12 +585,34 @@ const Dashboard = () => {
                         <p className="text-xl text-teal-900/80 font-display">Manage your tools and subscriptions.</p>
                     </div>
 
+                    {!isLoading && user && subscriptions.some(s => s.status === 'past_due' && (s.product_slug === 'cpbot' || s.product_slug === 'rccp')) && (
+                        <div className="mb-8 p-6 rounded-2xl bg-white border border-red-500/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-600 shrink-0 border border-red-500/20">
+                                    <AlertCircle className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-teal-900 font-display">
+                                        Payment failed - CP Bot is paused. Update your payment method to restore access.
+                                    </h3>
+                                </div>
+                            </div>
+                            <Button
+                                onClick={() => redirectToBillingPortal(toast)}
+                                className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
+                            >
+                                Update payment method
+                            </Button>
+                        </div>
+                    )}
+
                     {!isLoading && user && (
                         <DashboardTrialCard
                             userId={user.id}
                             onClaimSuccess={refetchSubscriptions}
                             onSubscribe={() => handleGetAccessLogic('rccp', user, toast)}
                             priceMonthly={dbTools.find(t => t.slug === 'rccp')?.price_monthly}
+                            isPastDue={subscriptions.some(s => s.status === 'past_due' && (s.product_slug === 'cpbot' || s.product_slug === 'rccp'))}
                         />
                     )}
 
@@ -652,7 +697,7 @@ const Dashboard = () => {
                                                     tool={tool} 
                                                     type="active" 
                                                     currentPeriodEnd={getSubscriptionEndDate(tool.slug)}
-                                                    cpBotSubscription={tool.slug === 'rccp' ? subscriptions.find(s => (s.product_slug === 'cpbot' || s.product_slug === 'rccp') && (s.status === 'active' || s.status === 'trialing')) : undefined}
+                                                    cpBotSubscription={tool.slug === 'rccp' ? subscriptions.find(s => (s.product_slug === 'cpbot' || s.product_slug === 'rccp')) : undefined}
                                                     subscription={activeSub}
                                                     trialStatus={tool.slug === 'rccp' ? trialStatus : undefined}
                                                     onStartTrial={() => startTrialCheckout({ returnPath: '/dashboard', user, toast })}

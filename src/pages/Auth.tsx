@@ -225,7 +225,8 @@ const Auth = () => {
     try {
       if (isSignUp) {
         const fullPhone = phone ? `${COUNTRY_DIAL_CODES[country]?.code || ''}${phone}` : undefined;
-        const redirectUrl = `${window.location.origin}${sanitizedNext}`;
+        const targetNext = (sanitizedNext && sanitizedNext !== '/') ? sanitizedNext : '/dashboard';
+        const redirectUrl = `${window.location.origin}${targetNext}`;
         const { data, error } = await signUp(
           email,
           password,
@@ -247,7 +248,7 @@ const Auth = () => {
             : 'Please check your email to confirm your account.',
         });
         if (data?.session) {
-          navigate(sanitizedNext);
+          navigate(targetNext);
         }
       } else {
         const { data, error } = await signIn(email, password);

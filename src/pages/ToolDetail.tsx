@@ -5,6 +5,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { toolsData, VISIBLE_TOOL_SLUGS } from "@/data/tools";
+import { LaunchPriceDisplay } from "@/config/pricing";
 import { 
     ArrowLeft, 
     CheckCircle2, 
@@ -219,7 +220,7 @@ const ToolDetail = () => {
                                 
                                 <div className="flex flex-col xl:flex-row items-center gap-6">
                                     <div className="text-2xl font-bold text-teal-900 font-display whitespace-nowrap">
-                                        {tool.price}
+                                        {tool.slug === 'rccp' ? <LaunchPriceDisplay /> : tool.price}
                                     </div>
                                     
                                     {!loadingCount && subscriptionCount !== null && subscriptionCount > 0 ? (

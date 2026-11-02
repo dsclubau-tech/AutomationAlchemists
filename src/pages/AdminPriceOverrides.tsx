@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { PRICING_CONFIG } from "@/config/pricing";
 import {
   Tag,
   AlertTriangle,
@@ -109,7 +110,7 @@ export default function AdminPriceOverrides() {
   const currentTool = tools.find((t) => t.slug === selectedToolSlug) || {
     slug: "rccp",
     name: "Return Converter x CopyPaste Bot",
-    price_monthly: 9,
+    price_monthly: PRICING_CONFIG.standardPrice,
   };
   const normalPrice = currentTool.price_monthly;
 

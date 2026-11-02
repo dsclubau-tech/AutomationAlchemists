@@ -16,8 +16,9 @@ export interface SubscriptionLike {
   product_slug: string;
   status: string;
   current_period_end: string | null;
-  is_trial?: boolean;
-  manually_granted?: boolean;
+  cancel_at_period_end?: boolean | null;
+  is_trial?: boolean | null;
+  manually_granted?: boolean | null;
   stripe_subscription_id?: string | null;
   stripe_customer_id?: string | null;
 }
@@ -213,3 +214,5 @@ export function getSubscriptionDateText(
 
   return null;
 }
+
+export * from './billingView';

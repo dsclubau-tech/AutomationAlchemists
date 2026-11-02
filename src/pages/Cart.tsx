@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { VISIBLE_TOOL_SLUGS } from "@/data/tools";
+import { LaunchPriceDisplay, PRICING_CONFIG, formatPrice } from "@/config/pricing";
 
 interface DbTool {
     slug: string;
@@ -19,7 +20,7 @@ interface DbTool {
 }
 
 const TOOL_NAMES: Record<string, string> = {
-    'rccp': 'CP Bot & Return Converter',
+    'rccp': 'CP Bot',
     'listflow': 'ListFlow',
     'orderbot': 'Order Bot',
     'invoicegen': 'Invoice Generator',
@@ -225,10 +226,16 @@ const Cart = () => {
                                                     
                                                     <div className="flex items-center justify-between w-full md:w-auto gap-8">
                                                         <div className="text-right">
-                                                            <div className="font-headline-md text-2xl font-bold text-teal-900">
-                                                                ${tool.price_monthly}
-                                                            </div>
-                                                            <div className="text-teal-900/50 text-xs">AUD / month</div>
+                                                            {slug === 'rccp' ? (
+                                                                <LaunchPriceDisplay />
+                                                            ) : (
+                                                                <>
+                                                                    <div className="font-headline-md text-2xl font-bold text-teal-900">
+                                                                        ${tool.price_monthly}
+                                                                    </div>
+                                                                    <div className="text-teal-900/50 text-xs">AUD / month</div>
+                                                                </>
+                                                            )}
                                                         </div>
                                                         
                                                         <div className="flex items-center gap-3">
@@ -275,7 +282,11 @@ const Cart = () => {
                                             <div key={tool.slug} className="bg-white rounded-xl p-4 border border-teal-600/10 shadow-sm flex flex-col gap-3">
                                                 <div className="flex justify-between items-start">
                                                     <h4 className="font-headline-md text-md font-bold text-teal-900">{tool.name}</h4>
-                                                    <span className="font-semibold text-teal-600 text-sm">${tool.price_monthly}/mo</span>
+                                                    {tool.slug === 'rccp' ? (
+                                                        <span className="font-semibold text-teal-600 text-sm">A$4.99/mo (Launch price)</span>
+                                                    ) : (
+                                                        <span className="font-semibold text-teal-600 text-sm">${tool.price_monthly}/mo</span>
+                                                    )}
                                                 </div>
                                                 <button 
                                                     onClick={() => handleAdd(tool.slug)}

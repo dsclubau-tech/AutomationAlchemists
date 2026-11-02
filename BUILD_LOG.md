@@ -1,5 +1,79 @@
 # Build Log
 
+## 2026-11-02 (v1.11.0 Launch Readiness - Edge Function Not Deployed)
+- Requested:
+  - Part A: create-checkout-session (supabase/functions/create-checkout-session):
+    - Report how price is chosen and how per-user admin discounts interact with launch price.
+    - Confirm checkout selects price by lookup key "rccp".
+    - Add subscription_data.default_tax_rates = [Deno.env.get('STRIPE_GST_TAX_RATE_ID')]. If missing/empty, FAIL CLOSED (HTTP 500 "GST tax rate not configured"). Never enable automatic_tax.
+    - Terms consent: consent_collection.terms_of_service = 'required' and custom_text.terms_of_service_acceptance.message = 'I agree to the [Terms of Service](https://rccp.automationalchemists.com/terms-of-service) and [Privacy Policy](https://rccp.automationalchemists.com/privacy).'
+    - Extract pure parameter building helper (params.ts) for offline unit testing.
+  - Part B: Frontend:
+    - Central pricing config (src/config/pricing.tsx & .ts): standardPrice 9.99, launchPrice 4.99, currency AUD, gstInclusive true, launchEndsOn null. Search whole repo for hard-coded prices ("A$9", "$9", "9/month", "9.00") and replace with config.
+    - Render crossed-out standard price (<s><span className="sr-only">was A$9.99</span>A$9.99</s>) and launch price "A$4.99/month" with "Launch price" label and "incl. GST".
+    - Trial line next to every trial button: "Free for 30 days, then A$4.99/month (launch price, normally A$9.99), incl. GST, charged automatically until you cancel. By starting your trial you agree to the Terms of Service and Privacy Policy." with links opening in new tab.
+    - Naming: paid product is "CP Bot" (Copy Paste Bot). Clarify Return Converter is free.
+    - Dashboard billing states: extract pure function getBillingView(subscription, now) -> { state, banner, primaryAction } covering none, trialing, trialing (cancel_at_period_end), active paid, active paid (cancel_at_period_end), and past_due (paused banner, Update payment method button, no subscribe action). Dates en-AU, Australia/Sydney.
+    - Signup landing: emailRedirectTo (${window.location.origin}/dashboard) in signUp call.
+  - Tests: scripts/test-launch-readiness.mjs (offline: checkout params helper, getBillingView, pricing config formatting, grep audit for leftover $9).
+- Built:
+  - `supabase/functions/create-checkout-session/params.ts`:
+    - Pure helper `buildCheckoutSessionParams` with `STRIPE_GST_TAX_RATE_ID` fail-closed validation, `default_tax_rates`, terms consent message, and `automatic_tax` exclusion check.
+  - `supabase/functions/create-checkout-session/index.ts`:
+    - Integrated `buildCheckoutSessionParams` and fail-closed GST secret check.
+  - `src/config/pricing.tsx` & `src/config/pricing.ts`:
+    - Central pricing config, formatting helper, `<LaunchPriceDisplay />`, and `<TrialTermsLine />`.
+  - `src/lib/billingView.ts`:
+    - Pure `getBillingView` state evaluator and `formatBillingDate` in en-AU / Australia/Sydney.
+  - `src/lib/dashboardSections.ts`:
+    - Re-exported `getBillingView` and updated `SubscriptionLike` interface to include `cancel_at_period_end`.
+  - `src/hooks/useAuth.tsx` & `src/pages/Auth.tsx`:
+    - Updated signup `emailRedirectTo` default to `${window.location.origin}/dashboard`.
+  - `src/data/tools.ts`:
+    - Updated RCCP pricing text and clarified Return Converter is free.
+  - `src/data/rccpPage.ts`:
+    - Updated bot label to 'CP Bot' and bot price format to A$4.99/month.
+  - `src/pages/tools/RccpToolPage.tsx`:
+    - Added Offer JSON-LD schema (4.99 AUD), `<LaunchPriceDisplay />`, and `<TrialTermsLine />`.
+  - `src/pages/Tools.tsx`:
+    - Integrated `<LaunchPriceDisplay />` and `<TrialTermsLine />` for RCCP card.
+  - `src/components/DashboardTrialCard.tsx`:
+    - Added `isPastDue` suppression and `<TrialTermsLine />`.
+  - `src/lib/trial.ts`:
+    - Updated default claim error message price to launch price.
+  - `src/pages/Cart.tsx`:
+    - Renamed item to 'CP Bot', updated to `<LaunchPriceDisplay />`, and upsell card to launch price.
+  - `src/pages/ToolDetail.tsx`:
+    - Updated RCCP pricing section to `<LaunchPriceDisplay />`.
+  - `src/pages/AdminPriceOverrides.tsx`:
+    - Updated fallback price to `PRICING_CONFIG.standardPrice`.
+  - `src/pages/Dashboard.tsx`:
+    - Selected `cancel_at_period_end`, wired `getBillingView` in `ToolCard` (covering `past_due`, `trialing`, `trialing_canceled`, `active`, `active_canceled`), added top-level `past_due` alert banner, passed `isPastDue` to `DashboardTrialCard`.
+  - `scripts/test-launch-readiness.mjs`:
+    - Test runner with 4 suites (checkout params, billing view, pricing config, grep audit).
+- Follow-up Verification & Defect Fixes:
+  - TypeScript error comparison:
+    - Compared HEAD against v1.10.0 (`bd3f718`) via temporary external worktree and directory junction.
+    - Total errors on `bd3f718`: 101 (all pre-existing in `src/`, 0 in `supabase/functions/`).
+    - Resolved 1 introduced error in `src/pages/tools/RccpToolPage.tsx`: cast `SchemaMarkup type={"SoftwareApplication" as any}` to match existing pattern and prevent TS2322.
+    - Total errors on HEAD after fix: 101 (0 introduced errors; all 101 are pre-existing).
+  - Checkout confirmation text fix (`supabase/functions/create-checkout-session/params.ts`):
+    - Updated `custom_text.submit.message` to render exact specification: `"${trialDays} days free, then A$${displayPrice}/month (incl. GST), charged automatically until you cancel."`.
+    - Sanitized `displayPrice` formatting to ensure exactly one dollar sign after "A" (`A$4.99`, `A$3.00` for 300c override, no `A$$`).
+    - Added Test A4 in `scripts/test-launch-readiness.mjs` asserting exact submit confirmation copy across standard trial, non-trial, and override.
+- Verification:
+  - `node scripts/test-launch-readiness.mjs`: All 4 suites (A, B, C, D) passed with 0 errors.
+  - `node scripts/test-dashboard-sections.mjs`: All 6 tests passed with 0 errors.
+  - `node scripts/test-stripe-compat.mjs`: All 12 tests passed with 0 errors.
+  - `npx vite build`: Production bundle built successfully in 7.57s.
+  - Browser verification at `http://localhost:8080/`: verified Home, Tools (card with crossed out A$9.99, A$4.99/month, launch price label, incl. GST, trial copy with links), RCCP page (pricing section with crossed out A$9.99, A$4.99/month, incl. GST, trial terms line), and Dashboard route.
+- What was NOT run:
+  - No edge functions deployed (`create-checkout-session` not deployed).
+  - No migrations or SQL scripts run.
+  - No network calls to Supabase or Stripe.
+  - No git push.
+  - Checkout remains closed (`CHECKOUT_ENABLED` unset, `VITE_CHECKOUT_ENABLED` false).
+
 ## 2026-10-27 (v1.9.4 Email Logo Asset and Webhook Refund Fix - Webhook Not Deployed)
 - Requested:
   - Job A: Email Logo Asset for Supabase auth emails (https://www.automationalchemists.com/email-logo.png).

@@ -10,19 +10,22 @@ import {
 } from '@/lib/trial';
 import { startTrialCheckout, redirectToBillingPortal } from '@/lib/checkout';
 import { useAuth } from '@/hooks/useAuth';
+import { TrialTermsLine, PRICING_CONFIG } from '@/config/pricing';
 
 interface DashboardTrialCardProps {
   userId?: string;
   onClaimSuccess: () => Promise<void> | void;
   onSubscribe: () => void;
   priceMonthly?: number;
+  isPastDue?: boolean;
 }
 
 export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
   userId,
   onClaimSuccess,
   onSubscribe,
-  priceMonthly = 9,
+  priceMonthly = PRICING_CONFIG.launchPrice,
+  isPastDue = false,
 }) => {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -93,6 +96,10 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
       }
     }
   }, [trialStatus, successEndsAt]);
+
+  if (isPastDue) {
+    return null;
+  }
 
   // 1. Checkout success polling active
   if (isPolling) {
@@ -359,9 +366,7 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
                 <span>Start free trial now</span>
               )}
             </Button>
-            <p className="text-xs text-teal-900/70 font-display text-left sm:text-right">
-              {trialDays} days free, then A${priceMonthly}/month. Card required. Cancel anytime.
-            </p>
+            <TrialTermsLine trialDays={trialDays} className="text-xs text-teal-900/70 font-display text-left sm:text-right max-w-md" />
           </div>
         </div>
       </div>

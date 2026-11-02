@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { PRICING_CONFIG, formatPrice } from '@/config/pricing';
 
 export interface TrialPublicData {
   enabled: boolean;
@@ -51,14 +52,14 @@ export function sanitizeNext(raw: unknown): string {
  * Maps claim/denial reasons to client-friendly messages.
  * Never reveals which other account used a card or phone number.
  */
-export function getClaimErrorMessage(reason: string, priceMonthly: number = 9): string {
+export function getClaimErrorMessage(reason: string, priceMonthly: number = PRICING_CONFIG.launchPrice): string {
   switch (reason) {
     case 'checkout_required':
       return 'Please complete card verification in checkout to start your free trial.';
     case 'card_already_used':
-      return `This card has already been used for a free trial. You can subscribe at A$${priceMonthly}/month instead.`;
+      return `This card has already been used for a free trial. You can subscribe at ${formatPrice(priceMonthly)}/month instead.`;
     case 'phone_already_used':
-      return `This phone number has already been used for a free trial. You can subscribe at A$${priceMonthly}/month instead.`;
+      return `This phone number has already been used for a free trial. You can subscribe at ${formatPrice(priceMonthly)}/month instead.`;
     case 'phone_missing':
       return 'A valid phone number is required to start the free trial.';
     case 'card_missing':

@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Stripe from 'https://esm.sh/stripe@14.22.0?target=deno';
+import { buildCheckoutSessionParams } from './params.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -221,88 +222,35 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Build Checkout line item using price_data
-    let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[];
-
-    if (finalUnitAmount !== null) {
-      lineItems = [
-        {
-          price_data: {
-            currency: 'aud',
-            unit_amount: finalUnitAmount,
-            recurring: { interval: 'month' },
-            product: productId,
-          },
-          quantity: effectiveQuantity,
-        },
-      ];
-    } else {
-      // Fallback to static price ID if DB price is unavailable
-      lineItems = [
-        {
-          price: baseStripePrice.id,
-          quantity: effectiveQuantity,
-        },
-      ];
+    // FAIL CLOSED if GST tax rate ID secret is missing or empty
+    const gstTaxRateId = Deno.env.get('STRIPE_GST_TAX_RATE_ID')?.trim();
+    if (!gstTaxRateId) {
+      return new Response(JSON.stringify({ error: 'GST tax rate not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const origin = req.headers.get('Origin') || 'https://automationalchemists.com';
 
-    // Metadata payload set on BOTH session and subscription_data
-    const sessionMetadata: Record<string, string> = {
-      user_id: user.id,
-      tool_slug: product_slug,
-      price_source: priceSource,
-    };
-
-    const sessionCreateParams: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: ['card'],
-      mode: 'subscription',
-      customer_email: user.email,
-      client_reference_id: user.id,
-      metadata: sessionMetadata,
-      subscription_data: {
-        metadata: sessionMetadata,
+    // Build Checkout Session parameters with pure helper (GST tax rates, terms consent, NO automatic_tax)
+    const sessionCreateParams = buildCheckoutSessionParams({
+      user: {
+        id: user.id,
+        email: user.email,
       },
-      line_items: lineItems,
-      success_url: `${origin}/dashboard?checkout=success`,
-      cancel_url: `${origin}/tools/${product_slug}`,
-    };
-
-    // If eligible for trial: configure subscription trial options
-    if (isEligibleTrial) {
-      sessionMetadata.trial = 'true';
-      sessionCreateParams.metadata = sessionMetadata;
-      sessionCreateParams.subscription_data = {
-        metadata: sessionMetadata,
-        trial_period_days: trialDays,
-        trial_settings: {
-          end_behavior: {
-            missing_payment_method: 'cancel',
-          },
-        },
-      };
-      sessionCreateParams.payment_method_collection = 'always';
-      sessionCreateParams.phone_number_collection = {
-        enabled: true,
-      };
-
-      const startDate = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
-      const formattedDate = startDate.toLocaleDateString('en-AU', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      });
-      const displayPrice = finalUnitAmount !== null
-        ? (finalUnitAmount % 100 === 0 ? (finalUnitAmount / 100).toString() : (finalUnitAmount / 100).toFixed(2))
-        : (toolData?.price_monthly ? Number(toolData.price_monthly).toString() : '9');
-
-      sessionCreateParams.custom_text = {
-        submit: {
-          message: `${trialDays} days free, then A$${displayPrice}/month starting ${formattedDate}. Cancel anytime before then.`,
-        },
-      };
-    }
+      productSlug: product_slug,
+      effectiveQuantity,
+      productId,
+      basePriceId: baseStripePrice.id,
+      finalUnitAmount,
+      priceSource,
+      origin,
+      isEligibleTrial,
+      trialDays,
+      gstTaxRateId,
+      catalogPriceMonthly: toolData?.price_monthly,
+    }) as unknown as Stripe.Checkout.SessionCreateParams;
 
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create(sessionCreateParams);

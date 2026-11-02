@@ -22,8 +22,8 @@ export const rccpPageContent = {
     pricing: {
       converterLabel: 'Return Converter',
       converterPrice: 'Free',
-      botLabel: 'CopyPaste Bot',
-      botPriceFormat: (price: number) => `AUD $${price}/month`,
+      botLabel: 'CP Bot',
+      botPriceFormat: () => 'A$4.99/month',
     },
     buttons: {
       getAccess: 'Get access',

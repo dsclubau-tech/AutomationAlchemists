@@ -10,10 +10,36 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Public tables: `invoices`, `templates`, `profiles`, `linked_emails`, `message_templates`, `gmail_templates`.
     - Private plan/credit tables: `invoice_plan_config`, `invoice_plan_admins`, `invoice_plan_accounts`, `invoice_email_periods`, `invoice_email_sends`.
   - **WARNING**: `profiles` (and possibly `invoices`, `templates`) already exist or may collide in the shared Supabase project, so the `ig_` prefix is mandatory at migration. Migration must preserve account ownership, authentication-ID mappings, invoice creation dates, Gmail credentials, and credit history.
-  - **No tables created now**: Zero database schema or data modifications in v1.10.0.
+  - **No tables created now**: Zero database schema or data modifications in v1.11.0.
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Central Pricing Configuration (`src/config/pricing.tsx` & `.ts`, v1.11.0)**:
+  - Pinned single source of truth: `standardPrice = 9.99`, `launchPrice = 4.99`, `currency = 'AUD'`, `gstInclusive = true`, `launchEndsOn = null` (no fake deadline or countdown timer).
+  - Pure formatter `formatPrice` and reusable `<LaunchPriceDisplay />` rendering crossed-out standard price (`<s><span className="sr-only">was A$9.99</span>A$9.99</s>`), launch price `A$4.99/month`, `"Launch price"` badge, and `"incl. GST"`.
+  - Reusable `<TrialTermsLine />` rendering exact trial terms next to every trial CTA button across `/tools`, `/tools/rccp`, and `/dashboard`:
+    `"Free for 30 days, then A$4.99/month (launch price, normally A$9.99), incl. GST, charged automatically until you cancel. By starting your trial you agree to the Terms of Service and Privacy Policy."`
+    Dynamic trial days (resolved from `trial_offers`, defaulting to 30) and config prices; links open in a new tab (`target="_blank" rel="noopener noreferrer"`).
+- **Product Naming & Product Separation (v1.11.0)**:
+  - Paid product strictly designated as "CP Bot" (Copy Paste Bot).
+  - Return Converter clearly documented and messaged as 100% free; removed any copy stating Return Converter is included in the paid subscription.
+- **Customer Dashboard Billing States (`src/lib/billingView.ts`, v1.11.0)**:
+  - Pure helper `getBillingView(subscription, now)` extracting billing state evaluation:
+    - `none / expired`: Subscribe / Start trial CTA.
+    - `trialing (active)`: "Free trial active - ends on <date>" with "Manage billing" action.
+    - `trialing_canceled (active, cancel_at_period_end)`: "Trial cancelled - access until <date>; no charge" with "Manage billing".
+    - `active (paid)`: "Subscription active - renews on <date>" with "Manage billing".
+    - `active_canceled (paid, cancel_at_period_end)`: "Cancelled - access until <date>" with "Manage billing".
+    - `past_due`: High-priority alert banner "Payment failed - CP Bot is paused. Update your payment method to restore access." with "Update payment method" button opening Stripe Billing Portal. Suppresses trial card and Subscribe actions.
+  - Date formatting: en-AU locale, `Australia/Sydney` timezone.
+- **Signup Landing Redirect (v1.11.0)**:
+  - Supabase `signUp` calls configured with `emailRedirectTo: `${window.location.origin}/dashboard`` ensuring email confirmation lands users on `/dashboard`.
+- **Checkout Session GST & Terms Hardening (`create-checkout-session`, v1.11.0)**:
+  - Extracted pure helper `buildCheckoutSessionParams` in `supabase/functions/create-checkout-session/params.ts`.
+  - GST tax rate integration: `subscription_data.default_tax_rates = [Deno.env.get('STRIPE_GST_TAX_RATE_ID')]`.
+  - Fail-closed security: missing/empty `STRIPE_GST_TAX_RATE_ID` returns HTTP 500 (`"GST tax rate not configured"`) and halts session creation.
+  - Runtime assertion guarantees NO `automatic_tax` is passed.
+  - Terms consent collection: `consent_collection.terms_of_service = 'required'` and `custom_text.terms_of_service_acceptance.message = 'I agree to the [Terms of Service](https://rccp.automationalchemists.com/terms-of-service) and [Privacy Policy](https://rccp.automationalchemists.com/privacy).'`.
 - **Contact Page**: Redesigned contact details card with functional links (mailto, WhatsApp SVG links, Google Maps). JSON-LD and display text are aligned.
 - **Auth System**: Integrated Supabase Auth with singleton `useAuth` hook and visibility-change state restoration. Return-path navigation via `?next=` sanitized by `sanitizeNext`.
 - **Email Branding Asset (`/email-logo.png`, v1.9.4)**:
@@ -22,30 +48,12 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - 400x400 PNG, logo centered with 12% padding (48px padding, 304x304 inner area), flattened on pure black `#000000` (RGB mode), optimized under 100 KB (30.56 KB), corner pixels `(0, 0, 0)`.
 - **Invoice Generator Product Page & Branding Asset (`/tools/invoice-generator`, v1.10.0)**:
   - Dedicated landing page at `/tools/invoice-generator` (`src/pages/tools/InvoiceGeneratorToolPage.tsx` and `src/data/invoiceGeneratorPage.ts`) mirroring `/tools/rccp` structure, design tokens, and spacing.
-  - Tokens: `teal-900` `#0A363D`, `teal-800` `#104B54`, `teal-600` `#207680`, `mint-50` `#EBF4F4`, `yellow` `#FFD200` (`bg-yellow-accent`) for the primary CTA only.
-  - Dedicated branding asset at `public/invoice-generator-logo.png`: 425x512 px, 34.35 KB, clean alpha transparency with zero haloing.
-  - Config URLs pinned in `src/data/invoiceGeneratorPage.ts`:
-    - `APP_SIGNUP_URL = 'https://invoice-generator-mu-pearl.vercel.app/signup'`
-    - `APP_PRIVACY_URL = 'https://invoice-generator-mu-pearl.vercel.app/privacy'`
-  - Exact copy used: headline "Simple invoices for marketplace sellers.", audience line built with eBay, Amazon and Walmart sellers in mind, availability for Australia (US, Canada, UK coming soon), 4 feature cards, 3 workflow steps, "What's included for free" allowance, and 6-item interactive FAQ.
-  - Pending screenshots section conditionally rendered only when the config array is populated.
-- **Tools Overview Page (`/tools`, v1.10.0 - 3-Card Grid)**:
-  - Expanded grid to 3 equal-height cards on desktop/tablet: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch`.
+  - Pinned config URLs in `src/data/invoiceGeneratorPage.ts`.
+- **Tools Overview Page (`/tools`, 3-Card Grid)**:
   - Card 1: Return Converter x CopyPaste Bot (`rccp`).
   - Card 2: ListFlow (`listflow`, Coming soon).
-  - Card 3: Invoice Generator (category tag "INVOICING", "Free" tag, "Free to get started", description, and "Learn more" button linking to `/tools/invoice-generator`).
-  - SchemaMarkup and SEOHead descriptions updated to include Invoice Generator.
-- **Navigation Integration (v1.10.0)**:
-  - Desktop navbar "Our Tools" dropdown: added Invoice Generator with product logo icon.
-  - Mobile drawer "Our Tools" list: added Invoice Generator link.
-  - Prerender (`scripts/prerender.js`) and Sitemap (`scripts/generate-sitemap.js`) route lists updated.
-- **Dashboard Button Contrast Fixes (`/dashboard`, v1.10.0)**:
-  - Fixed dark-on-dark invisible text bug on outline buttons caused by shadcn `Button` injecting `bg-background` (`#0A363D`) underneath dark teal text (`text-teal-900`).
-  - Explicitly applied `bg-transparent` across all dashboard outline buttons ("Open Return Converter", "Manage subscription", "Buy now", "+ Add another store", "Add your first store"), restoring immediate label contrast (11.4:1 contrast on white cards).
-  - Restyled ListFlow button under "Coming soon" to a disabled, muted button matching `/tools` (`bg-teal-600/10 text-teal-900/60 font-semibold cursor-not-allowed border border-teal-600/20`), clearly labelled "Coming soon".
-  - Preserved yellow primary CTA style and kept all dashboard gating/fetching logic untouched.
-  - Verified pure offline assertions pass via `scripts/test-dashboard-sections.mjs` (6/6 tests passing).
-- **Dashboard Isolation Guarantee (v1.10.0)**:
+  - Card 3: Invoice Generator (`INVOICING` tag, `Free` badge, "Free to get started", "Learn more" button).
+- **Dashboard Isolation Guarantee**:
   - Invoice Generator is completely absent from `/dashboard`. It operates under separate auth and is excluded by `categorizeDashboardTools` without touching the database tools table.
 - **Entitlement Gating**: Active subscription counting via `get_active_subscription_count` for authenticated users.
 - **Tools Catalog Visibility (v1.7.0)**:
@@ -61,10 +69,13 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - Webhook function `stripe-webhook` deployed (v6, `--no-verify-jwt`).
   - Anti-abuse identity tables: `public.trial_identities` (card fingerprint & HMAC phone hash) and `public.trial_denials`.
   - Stored Procedure `process_stripe_webhook_event` (13 arguments exact match, single overload).
-- **Trial Checkout & Billing Portal Edge Functions (v1.9.0 - Code written, not deployed)**:
+- **Trial Checkout & Billing Portal Edge Functions (v1.9.0, v1.9.1, v1.11.0 - Code written, not deployed)**:
   - `create-checkout-session` (`supabase/functions/create-checkout-session/index.ts`):
     - Gated server-side by `CHECKOUT_ENABLED !== 'true'` (only `profiles.is_admin` permitted in production).
-    - Single-seat quantity enforcement (v1.9.1): forced to 1 for non-orderbot tools.
+    - Single-seat quantity enforcement: forced to 1 for non-orderbot tools.
+    - Selects Stripe price by lookup key `"rccp"`.
+    - Dynamic inline `price_data` for active per-user admin overrides (`user_price_overrides`).
+    - Configured with `subscription_data.default_tax_rates` and terms consent requirement.
   - `create-portal-session` (`supabase/functions/create-portal-session/index.ts`):
     - Creates Stripe billing portal session with `return_url = `${origin}/dashboard``.
 - **Trial Hardening, Webhook API Version Independence & Refund Handling (v1.9.1, v1.9.2, v1.9.4 - Code written, not deployed)**:
@@ -73,6 +84,8 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Decoupled from Stripe endpoint API version changes (`supabase/functions/_shared/stripeCompat.ts`), re-fetching full subscription by ID under pinned SDK API version. Safe period extractor `getPeriod` and invoice resolver `getInvoiceSubscriptionId`.
     - Refund handling fix (v1.9.4): `charge.refunded` re-retrieves charge via `stripe.charges.retrieve(chargeId)` to support modern `2026-02-25.clover` payload where `invoice` is omitted from the Charge payload. Resolves invoice ID via `getChargeInvoiceId` and revokes access by invoking `process_stripe_webhook_event` with `p_quantity = 0`.
     - Pure compatibility test suite (`scripts/test-stripe-compat.mjs`) verifying 12 assertions across legacy and clover shapes.
+- **Launch Readiness Test Suite (`scripts/test-launch-readiness.mjs`, v1.11.0)**:
+  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, no automatic_tax), `getBillingView` state machine (all 7 scenarios), pricing formatting, and zero leftover `$9` string audit in `src/`.
 
 ## Current Production Deployment Status
 - **Vercel Frontend**: Automatic deployment on push to `main`.
@@ -80,19 +93,20 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
   - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, and v1.9.4 refund fix changes **NOT deployed**.
-  - `create-checkout-session`: Code updated for v1.9.0 & v1.9.1, **NOT deployed**.
+  - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, and v1.11.0 (GST tax rate & terms consent), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-- **Database**: Migration 034 applied and verified. Zero database migrations executed in v1.10.0.
+- **Database**: Migration 034 applied and verified. Zero database migrations executed in v1.11.0.
 
 ## In Progress
-- Local verification of release v1.10.0 before remote push.
-- Owner adding `TRIAL_IDENTITY_PEPPER` secret to Supabase Edge Functions.
-- Owner setting up Stripe Customer Billing Portal features and verifying webhook signing secret.
-- Chrome extension v1.0.5.3 Chrome Web Store review.
+- Local verification of release v1.11.0 before remote push.
+- Owner setting `STRIPE_GST_TAX_RATE_ID` secret in Supabase Edge Functions.
+- Owner deploying `create-checkout-session` (`npx supabase functions deploy create-checkout-session --project-ref tdevgrwmafwrsmeymjzd`).
+- Owner pushing v1.11.0 commit to GitHub.
 
 ## Not Started
-- Deploying `create-checkout-session`, `create-portal-session`, and updated `stripe-webhook` to Supabase.
-- Office PC Stripe test-mode verification run (trial checkout, duplicate card rejection, portal cancellation, subscription "End trial" conversion, parallel checkout duplicate cancellation, charge refund access revocation under clover payload).
+- Deploying `create-portal-session` and updated `stripe-webhook` to Supabase.
+- Office PC Stripe live verification run under admin switch.
+- Enabling public checkout (`CHECKOUT_ENABLED = true`, `VITE_CHECKOUT_ENABLED = true`).
 - Multi-item single-checkout.
 - Future Invoice Generator database migration under `ig_` table prefix.
 
@@ -104,4 +118,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-10-31 — Release v1.10.0: Invoice Generator landing page, tools card, and dashboard button fix.*
+*Last Updated: 2026-11-02 — Release v1.11.0: Launch readiness.*

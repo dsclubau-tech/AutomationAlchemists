@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toolsData, VISIBLE_TOOL_SLUGS } from "@/data/tools";
 import { useTrialPublic } from "@/lib/trial";
 import { handleGetAccessLogic, startTrialCheckout } from "@/lib/checkout";
+import { PRICING_CONFIG, TrialTermsLine, LaunchPriceDisplay } from "@/config/pricing";
 
 interface DbTool {
     slug: string;
@@ -25,7 +26,7 @@ const Tools = () => {
     const { toast } = useToast();
     const { data: trialPublic } = useTrialPublic('rccp');
     const [dbTools, setDbTools] = useState<Record<string, DbTool>>({
-        rccp: { slug: 'rccp', status: 'available', price_monthly: 9, maintenance_message: null },
+        rccp: { slug: 'rccp', status: 'available', price_monthly: PRICING_CONFIG.launchPrice, maintenance_message: null },
         listflow: { slug: 'listflow', status: 'coming_soon', price_monthly: 59, maintenance_message: null }
     });
 
@@ -150,9 +151,12 @@ const Tools = () => {
                                 </ul>
                             </div>
                             <div className="mt-auto border-t border-teal-600/20 pt-6 relative z-10">
-                                <div className="flex justify-between items-center mb-6 px-1">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6 px-1">
                                     <span className="font-label-md text-sm text-teal-900/80">Return Converter: <strong className="text-teal-900">Free</strong></span>
-                                    <span className="font-label-md text-sm text-teal-900/80">CP Bot: <strong className="text-teal-900">AUD ${rccpPrice}/mo</strong></span>
+                                    <div className="flex items-baseline gap-1.5 flex-wrap">
+                                        <span className="font-label-md text-sm text-teal-900/80">CP Bot:</span>
+                                        <LaunchPriceDisplay />
+                                    </div>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     {trialPublic?.enabled ? (
@@ -164,9 +168,9 @@ const Tools = () => {
                                             >
                                                 Start free trial now
                                             </button>
-                                            <p className="text-xs text-teal-900/70 text-center mt-2 font-display">
-                                                {trialDays} days free, then A${rccpPrice}/month. Card required. Cancel anytime.
-                                            </p>
+                                            <div className="text-center mt-2 px-1">
+                                                <TrialTermsLine trialDays={trialDays} className="text-xs text-teal-900/70 font-display block" />
+                                            </div>
                                         </div>
                                     ) : (
                                         <Link
