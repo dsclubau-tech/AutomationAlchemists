@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1] - 2026-11-03
+### Fixed
+- Fixed critical Cart page crash where clicking "Subscribe" from the customer dashboard caused a full-page error due to a missing loading component import
+- Fixed Return Converter x CopyPaste Bot tool page crash for customers with an active free trial by properly formatting remaining trial time as text rather than a raw object
+- Added missing alert icon import on the account deletion confirmation modal, eliminating potential runtime errors
+- Enhanced application error boundary to log caught component exceptions and stack traces for streamlined diagnostics
+
 ## [1.14.0] - 2026-11-03
 ### Fixed
 - Fixed free trial end date displays so that every dashboard surface, including the trial reminder banner and the product card, displays the exact same expiration day in Sydney time matching Stripe Checkout

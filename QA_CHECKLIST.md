@@ -923,3 +923,62 @@
   - **Expected Result**:
     - System detects existing normalized claim and blocks checkout with reason `already_claimed`.
     - Dashboard displays clear denial message: `"This account or email has already used the free trial."`.
+
+---
+
+## 33. Cart Page Crash Fix, RCCP Tool Page Crash Fix & Identifier Sweep (Release v1.14.1 Hotfix)
+
+### 33a. Static Verification & Automated Regression Suites
+- [x] **Check 33a.1: Identifier Sweep & Cart Mount Test Suite**:
+  - `node scripts/test-identifier-sweep.mjs`
+  - **Expected Result**: Exits 0, all 4 checks pass:
+    - Check 1.1: Every file using `PageLoader` imports it correctly across all 149 source files in `src/`.
+    - Check 1.2: Every file using `ShieldAlert` imports it correctly (`src/pages/Account.tsx`).
+    - Check 2.1: Zero TS2304/TS2552 ("Cannot find name") errors in the codebase.
+    - Check 3.1 & 3.2: `PageLoader` renders cleanly and `<Cart />` page mounts without throwing `ReferenceError: PageLoader is not defined` in logged-out and logged-in SSR test harness.
+- [x] **Check 33a.2: RCCP Tool Page 9-State Regression Test Suite**:
+  - `node scripts/test-rccp-crash.mjs`
+  - **Expected Result**: Exits 0, all 9 states (logged out, logged in with no trial, active trial, active paid subscription, trial cancelled, trial denied, sold out, offer disabled, fetch error) and edge case null/empty date regressions pass cleanly with 0 crashes.
+- [x] **Check 33a.3: Launch Readiness Integrated Suite D2 Execution**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, all suites A, B, C, D (including D2 sweep), and E pass with 0 errors.
+- [x] **Check 33a.4: TypeScript Diagnostics Count**:
+  - `npx tsc --noEmit -p tsconfig.app.json`
+  - **Expected Result**: Total diagnostic errors reduced from baseline 101 to 98 (zero new errors introduced).
+- [x] **Check 33a.5: Production Build and Headless Prerendering**:
+  - `powershell -Command "`$env:PUPPETEER_EXECUTABLE_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'; npm run build"`
+  - **Expected Result**: Exits 0, bundles assets in ~5s, and prerenders all 20 static routes including `/tools/rccp`.
+
+### 33b. Runtime & User-Facing Verification Steps
+- [ ] **Check 33b.1: Trial-Refused Customer Clicks Subscribe and Cart Page Loads Cleanly**:
+  - **Precondition**: Customer account experienced a post-checkout trial refusal (`reason = 'card_already_used'`).
+  - **Action**: From `/dashboard`, customer views the denial banner and clicks the `"Subscribe"` button.
+  - **Expected Result**:
+    - Browser navigates directly to `https://www.automationalchemists.com/cart?add=rccp`.
+    - Page does NOT crash with "Something went wrong — An unexpected error occurred".
+    - Cart renders CP Bot with A$4.99/mo launch price, subtotal, and checkout action.
+- [ ] **Check 33b.2: Cart Page Loads in Logged-Out State**:
+  - **Action**: In an incognito window or logged-out browser session, navigate to `https://www.automationalchemists.com/cart`.
+  - **Expected Result**:
+    - Page renders the clean `<PageLoader pageName="Authenticating..." />` without throwing `ReferenceError: PageLoader is not defined`.
+    - Redirects to `/auth?next=/cart` or displays auth prompt cleanly.
+- [ ] **Check 33b.3: /tools/rccp Loads for Logged-Out Visitors**:
+  - **Action**: Navigate to `https://www.automationalchemists.com/tools/rccp` while logged out.
+  - **Expected Result**:
+    - Hero section loads cleanly showing the `TrialSpotsBanner` (`"X of 100 free-trial spots left"`).
+    - Hero card displays `"Get your 30-day free trial now"` button and launch pricing. Zero crash screens.
+- [ ] **Check 33b.4: /tools/rccp Loads for Logged-In User Without a Free Trial**:
+  - **Action**: Sign in to an account with no trial claim and navigate to `https://www.automationalchemists.com/tools/rccp`.
+  - **Expected Result**:
+    - Hero section loads cleanly with `TrialSpotsBanner`.
+    - Trial action button is interactive and does not throw.
+- [ ] **Check 33b.5: /tools/rccp Loads for Logged-In User With an Active Free Trial**:
+  - **Action**: Sign in to an account with an active free trial (`statusTrial.has_access = true`, `claim.ends_at` in the future) and navigate to `https://www.automationalchemists.com/tools/rccp`.
+  - **Expected Result**:
+    - Page loads cleanly WITHOUT crashing into `ErrorBoundary`.
+    - Hero action button displays active trial badge: `"Trial active (30 days left)"` (or appropriate days/hours left string) with `"Dashboard →"` link.
+- [ ] **Check 33b.6: Account Deletion Modal Displays Alert Icon**:
+  - **Action**: Navigate to `/account`, scroll to Danger Zone, and click `"Delete Account"`.
+  - **Expected Result**:
+    - Modal opens smoothly with `<ShieldAlert />` icon rendered in red next to `"Are you sure?"`.
+    - No console `ReferenceError: ShieldAlert is not defined`.

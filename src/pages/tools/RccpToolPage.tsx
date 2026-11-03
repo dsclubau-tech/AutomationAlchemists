@@ -68,7 +68,7 @@ const RccpToolPage: React.FC = () => {
   );
 
   const trialDays = (user ? statusTrial?.trial_days : publicTrial?.trial_days) || 30;
-  const timeLeftFormatted = statusTrial?.claim?.ends_at ? formatTrialTimeLeft(statusTrial.claim.ends_at) : '';
+  const timeLeftFormatted = statusTrial?.claim?.ends_at ? formatTrialTimeLeft(statusTrial.claim.ends_at).text : '';
 
   const [dbTool, setDbTool] = useState<DbTool>({
     slug: 'rccp',

@@ -14,6 +14,17 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Cart Page Crash Resolution & Global Identifier Sweep (`src/pages/Cart.tsx`, `src/pages/Account.tsx`, v1.14.1)**:
+  - Fixed launch-blocking `ReferenceError: PageLoader is not defined` crash on `/cart` when trial-refused customers clicked "Subscribe" from the dashboard or when unauthenticated users visited the cart. Imported shared `PageLoader` from `src/components/PageLoader.tsx`.
+  - Comprehensive source code sweep fixed missing `ShieldAlert` icon import in `src/pages/Account.tsx` account deletion confirmation modal.
+  - Eliminated all TS2304 and TS2552 missing identifier errors across the codebase, reducing total TypeScript diagnostic errors from baseline 101 to 98 (zero new errors introduced).
+- **RCCP Tool Page Active Trial Crash Fix (`src/pages/tools/RccpToolPage.tsx`, v1.14.1)**:
+  - Fixed React 18 child object rendering crash when logged-in accounts with an active free trial visit `/tools/rccp`. Extracted `.text` string property from `formatTrialTimeLeft(endsAt)` return value.
+  - Added safe `isNaN` guard in `src/lib/trial.ts` preventing NaN calculations on malformed timestamps.
+  - Enhanced `src/components/ErrorBoundary.tsx` `componentDidCatch` to log caught error objects and component stacks with `console.error`.
+- **Identifier Sweep & Cart Render Test Suite (`scripts/test-identifier-sweep.mjs`, v1.14.1)**:
+  - Static AST audit of all 149 source files ensuring every usage of `PageLoader` and `ShieldAlert` is strictly imported, plus SSR mount testing of `/cart` across authenticating and authenticated states.
+  - Integrated into Suite D2 of `scripts/test-launch-readiness.mjs`.
 - **Consistent Free Trial End Date Calculation (`src/lib/billingView.ts`, v1.14.0)**:
   - Standardized customer-facing trial expiration date calculation by subtracting the 6-hour database grace buffer (`TRIAL_GRACE_BUFFER_HOURS = 6`, `TRIAL_GRACE_BUFFER_MS = 21,600,000`) added by `process_stripe_webhook_event` (`034_card_trial_identity.sql:789`).
   - Pure helper `getEffectiveTrialEnd(currentPeriodEnd, isTrial)` resolves the exact unbuffered Stripe `trial_end` for all trialing subscriptions, while leaving paid renewals unadjusted.
@@ -152,4 +163,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-03 — Release v1.14.0: Consistent trial end date; trial limit by email and card only.*
+*Last Updated: 2026-11-03 — Release v1.14.1: Cart page crash fix (PageLoader not defined), RCCP tool page crash fix, and global identifier sweep.*

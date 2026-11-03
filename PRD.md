@@ -520,3 +520,36 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - **Client Error Messages Updated**:
     - Removed `phone_already_used` and `phone_missing` from `getClaimErrorMessage` in [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts).
     - Email and card denial copy remains active.
+
+---
+
+### 21. Cart Page Crash Fix, RCCP Tool Page Crash Fix & Identifier Sweep (Release v1.14.1 Hotfix)
+
+- **Cart Page Loading Crash Resolution (`src/pages/Cart.tsx`)**:
+  - **What it does**: Resolves a critical launch blocker where clicking the "Subscribe" button on the customer dashboard alert (shown to a customer whose trial checkout was refused due to an already-used card) resulted in a full-page runtime crash on `/cart`.
+  - **Root Cause**: `src/pages/Cart.tsx` rendered `<PageLoader pageName="Authenticating..." />` when `authLoading` was true or `!user`. However, `PageLoader` was referenced without being imported from `src/components/PageLoader.tsx`. At runtime, evaluation of the un-imported identifier threw `ReferenceError: PageLoader is not defined`, crashing into `ErrorBoundary`.
+  - **Resolution**: Reused the standard shared `<PageLoader />` component via explicit import `import PageLoader from "@/components/PageLoader";`.
+  - **Files Implementing It**: [`src/pages/Cart.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Cart.tsx).
+
+- **Global Identifier Sweep & Account Deletion Modal Fix (`src/pages/Account.tsx`)**:
+  - **What it does**: Comprehensive static sweep across all 149 TypeScript/TSX source files in `src/` to identify and resolve any un-imported components or identifiers causing runtime `ReferenceError` exceptions.
+  - **Sweep Results**:
+    - `src/pages/Cart.tsx:150`: Missing `PageLoader` import (fixed).
+    - `src/pages/Account.tsx:538`: Missing `ShieldAlert` icon import in the delete account confirmation modal `<ShieldAlert className="w-6 h-6" />`. Fixed by adding `ShieldAlert` to `lucide-react` imports.
+    - All other 8 occurrences of `PageLoader` across `src/` verified properly imported.
+    - Zero TS2304 / TS2552 missing identifier errors remaining across the entire project. Total TypeScript diagnostic errors reduced from 101 to 98.
+  - **Files Implementing It**: [`src/pages/Account.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Account.tsx), [`scripts/test-identifier-sweep.mjs`](file:///G:/app%20development/AutomationAlchemists/scripts/test-identifier-sweep.mjs).
+
+- **Return Converter x CopyPaste Bot Tool Page Crash Fix (`src/pages/tools/RccpToolPage.tsx`)**:
+  - **What it does**: Eliminates a runtime crash on `/tools/rccp` where logged-in accounts with an active free trial crashed into the full-page ErrorBoundary.
+  - **Root Cause & Origin**: In `src/pages/tools/RccpToolPage.tsx:71`, `timeLeftFormatted` was assigned the direct result of `formatTrialTimeLeft(endsAt)` (which returns an object with shape `{ text, hoursLeft, daysLeft, formattedDate }`). When rendered in JSX inside `<span>({timeLeftFormatted})</span>` (line 248), React 18 threw an unhandled exception because plain JavaScript objects cannot be rendered as React children. Traced via `git log -S "timeLeftFormatted"` to commit `33db4b9` in v1.5.0 (dormant while free trials were switched off in production). It was not introduced in v1.13.0.
+  - **Resolution**: Updated line 71 to extract the `.text` string property (`formatTrialTimeLeft(endsAt).text`). Added defensive `isNaN` guard in `src/lib/trial.ts` to return `'0 hours left'` safely if an invalid date string is encountered.
+  - **Files Implementing It**: [`src/pages/tools/RccpToolPage.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/tools/RccpToolPage.tsx), [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts).
+
+- **Error Boundary Exception Logging Enhancement (`src/components/ErrorBoundary.tsx`)**:
+  - **What it does**: Updates `ErrorBoundary`'s `componentDidCatch` lifecycle method to emit `console.error('ErrorBoundary caught an error:', error, errorInfo?.componentStack)` before triggering session reload or telemetry logging.
+  - **Preserved UI**: What the user sees on crash screens remains completely unchanged.
+  - **Files Implementing It**: [`src/components/ErrorBoundary.tsx`](file:///G:/app%20development/AutomationAlchemists/src/components/ErrorBoundary.tsx).
+
+- **Automated Regression Guards**:
+  - Integrated `scripts/test-identifier-sweep.mjs` into `scripts/test-launch-readiness.mjs` (Suite D2) to prevent any future missing identifier or broken mount regressions on `/cart` and `/tools/rccp`.

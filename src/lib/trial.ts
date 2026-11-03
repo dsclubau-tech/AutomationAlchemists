@@ -90,7 +90,11 @@ export function formatTrialTimeLeft(endsAt: string): {
 } {
   const endsDate = new Date(endsAt);
   const formattedDate = formatBillingDate(endsAt);
-  const diff = endsDate.getTime() - Date.now();
+  const time = endsDate.getTime();
+  if (isNaN(time)) {
+    return { text: '0 hours left', hoursLeft: 0, daysLeft: 0, formattedDate };
+  }
+  const diff = time - Date.now();
   if (diff <= 0) {
     return { text: '0 hours left', hoursLeft: 0, daysLeft: 0, formattedDate };
   }

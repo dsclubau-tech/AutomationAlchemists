@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { z } from 'zod';
 import Navigation from '@/components/Navigation';
 import { format } from 'date-fns';

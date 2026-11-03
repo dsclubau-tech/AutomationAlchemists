@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -551,6 +552,14 @@ const { buildCheckoutSessionParams, TERMS_URL, PRIVACY_URL } = await import(`fil
   }
 
   console.log('  ✓ Test D1: Zero leftover hard-coded "A$9", "AUD $9", "$9/month" strings found in src/.\n');
+
+  // Test D2: Identifier sweep & Cart render guard
+  console.log('--- Running Suite D2: Identifier Sweep & Cart Render Guard ---');
+  execSync('node scripts/test-identifier-sweep.mjs', {
+    cwd: path.resolve(__dirname, '..'),
+    stdio: 'inherit',
+  });
+  console.log('  ✓ Test D2: Identifier sweep and Cart render guard passed with zero errors.\n');
 
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('  SUCCESS: ALL LAUNCH READINESS TESTS PASSED (0 ERRORS)         ');

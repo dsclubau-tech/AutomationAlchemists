@@ -24,6 +24,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo?.componentStack);
     const isChunkLoadError = 
       error?.name === 'ChunkLoadError' || 
       error?.message?.includes('Failed to fetch dynamically imported module') ||

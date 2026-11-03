@@ -7,6 +7,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
+import PageLoader from "@/components/PageLoader";
 import { supabase } from "@/integrations/supabase/client";
 import { VISIBLE_TOOL_SLUGS } from "@/data/tools";
 import { LaunchPriceDisplay, PRICING_CONFIG, formatPrice } from "@/config/pricing";

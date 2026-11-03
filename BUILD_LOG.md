@@ -1,5 +1,59 @@
 # Build Log
 
+## 2026-11-03 (v1.14.1 Hotfix: Fix Cart Page Crash & RCCP Tool Page Crash; Identifier Sweep)
+- Requested (Urgent Addendum):
+  - Fix launch blocker crash on https://automationalchemists.com/cart (`ReferenceError: PageLoader is not defined at xe (Cart-BcVK03zu.js:1:2759)`), reached when a customer refused a trial clicks "Subscribe" on the dashboard.
+  - Sweep TypeScript check for every TS2304 ("Cannot find name") and TS2552 error across the codebase, listing file, line, and identifier, and fix safe missing imports.
+  - Grep `src/` for every use of `PageLoader` and confirm each has a proper import.
+  - Diagnose whether the `/tools/rccp` crash from Task D has the same cause; if different, fix at source with smallest change.
+  - Add static regression test script wired into existing test suites ensuring no file uses `PageLoader` or other missing identifiers without import, plus a render test showing `/cart` mounts without throwing in logged-out and logged-in states.
+  - Ship as standalone hotfix release v1.14.1 with updated control docs before resuming v1.15.0 tasks.
+- Root Cause Analysis:
+  1. Cart Page Crash (`/cart`):
+     - In `src/pages/Cart.tsx:150`, the component returns `<PageLoader pageName="Authenticating..." />` while `authLoading` is true or `!user`.
+     - `PageLoader` was referenced in JSX without an `import PageLoader from '@/components/PageLoader';` statement.
+     - At runtime, any navigation to `/cart` by an unauthenticated user or an authenticating user threw `ReferenceError: PageLoader is not defined`, catching into `ErrorBoundary` and rendering "Something went wrong".
+  2. RCCP Tool Page Crash (`/tools/rccp`):
+     - In `src/pages/tools/RccpToolPage.tsx:71`, `timeLeftFormatted` was assigned the return value of `formatTrialTimeLeft(statusTrial.claim.ends_at)`.
+     - `formatTrialTimeLeft` returns an object: `{ text: string, hoursLeft: number, daysLeft: number, formattedDate: string }`.
+     - On line 248, when `hasActiveTrial` evaluated to `true`, the JSX rendered `<span className="text-teal-900/70 font-medium">({timeLeftFormatted})</span>`.
+     - In React 18, rendering a plain object as a child throws: `Objects are not valid as a React child (found: object with keys {text, hoursLeft, daysLeft, formattedDate}). If you meant to render a collection of children, use an array instead.`
+     - **Origin**: Traced via git history (`git log -S "timeLeftFormatted" --oneline`) to commit `33db4b9` (v1.5.0). It was **NOT introduced by v1.13.0**. It lay dormant because free trials were previously disabled in production (`trial_offers.enabled = false`).
+- Full Sweep List (TS2304 / TS2552 Missing Identifiers):
+  1. `src/pages/Cart.tsx:150`: `error TS2304: Cannot find name 'PageLoader'`.
+     - Fixed: Added `import PageLoader from "@/components/PageLoader";` at line 10.
+  2. `src/pages/Account.tsx:538`: `error TS2304: Cannot find name 'ShieldAlert'`.
+     - In line 538: `<ShieldAlert className="w-6 h-6" />` used in the account deletion confirmation modal without importing `ShieldAlert`.
+     - Fixed: Added `ShieldAlert` to `import { Loader2, Eye, EyeOff, ArrowLeft, ShieldAlert } from 'lucide-react';` at line 8.
+  - Grep audit of all occurrences of `PageLoader` across `src/`:
+    - `src/App.tsx:10`: imported
+    - `src/components/PageLoader.tsx`: definition
+    - `src/pages/Cart.tsx:10`: imported (fixed)
+    - `src/pages/Company.tsx:6`: imported
+    - `src/pages/ContactPage.tsx:7`: imported
+    - `src/pages/Index.tsx:5`: imported
+    - `src/pages/Pricing.tsx:6`: imported
+    - `src/pages/VirtualAssistance.tsx:5`: imported
+    - Zero leftover missing `PageLoader` references exist across all 149 source files.
+  - Total TypeScript diagnostic error count reduced from baseline 101 to 98 (zero new errors introduced; all TS2304 errors resolved).
+- Built & Fixed:
+  - `src/pages/Cart.tsx`: Added `import PageLoader from "@/components/PageLoader";`.
+  - `src/pages/Account.tsx`: Added `ShieldAlert` to `lucide-react` import.
+  - `src/pages/tools/RccpToolPage.tsx`: Changed line 71 to `const timeLeftFormatted = statusTrial?.claim?.ends_at ? formatTrialTimeLeft(statusTrial.claim.ends_at).text : '';`.
+  - `src/lib/trial.ts`: Added `isNaN(time)` guard returning `'0 hours left'` safely in `formatTrialTimeLeft`.
+  - `src/components/ErrorBoundary.tsx`: Added `console.error('ErrorBoundary caught an error:', error, errorInfo?.componentStack);` in `componentDidCatch`.
+  - `scripts/test-identifier-sweep.mjs`: Added static source audit of all 149 source files, tsc error assertion, and SSR render tests for `/cart` in logged-out and logged-in states.
+  - `scripts/test-rccp-crash.mjs`: Added reproduction test harness and fix validation across all 9 states (logged out, logged in without trial, active trial, active paid, trial cancelled, trial denied, sold out, offer disabled, fetch error) and null/undefined field regressions.
+  - `scripts/test-launch-readiness.mjs`: Integrated Suite D2 executing `test-identifier-sweep.mjs` automatically.
+- Verification:
+  - `node scripts/test-identifier-sweep.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-rccp-crash.mjs`: Passed cleanly across all 9 states and null/empty regression cases (0 errors).
+  - `node scripts/test-launch-readiness.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-trial-banner.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-dashboard-sections.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-stripe-compat.mjs`: Passed cleanly (0 errors).
+  - Production build & prerender: `npm run build` completed with code 0 across all 20 routes including `/tools/rccp`.
+
 ## 2026-11-03 (v1.14.0 Consistent Trial End Date & Trial Uniqueness by Email + Card Only)
 - Requested:
   - Task A: Consistent Trial End Date
