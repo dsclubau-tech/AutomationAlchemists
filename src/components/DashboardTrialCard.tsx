@@ -11,6 +11,7 @@ import {
 import { startTrialCheckout, redirectToBillingPortal } from '@/lib/checkout';
 import { useAuth } from '@/hooks/useAuth';
 import { TrialTermsLine, PRICING_CONFIG } from '@/config/pricing';
+import { formatBillingDate } from '@/lib/billingView';
 
 interface DashboardTrialCardProps {
   userId?: string;
@@ -123,11 +124,7 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
 
   // 2. Checkout polling succeeded
   if (successEndsAt) {
-    const formattedDate = new Date(successEndsAt).toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
+    const formattedDate = formatBillingDate(successEndsAt);
     return (
       <div
         id="claim-trial"

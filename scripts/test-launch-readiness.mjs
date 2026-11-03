@@ -7,13 +7,23 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+if (typeof globalThis.localStorage === 'undefined') {
+  globalThis.localStorage = {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+  };
+}
+
 const paramsEntry = path.resolve(__dirname, '../supabase/functions/create-checkout-session/params.ts');
 const billingEntry = path.resolve(__dirname, '../src/lib/billingView.ts');
 const pricingEntry = path.resolve(__dirname, '../src/config/pricing.tsx');
+const trialEntry = path.resolve(__dirname, '../src/lib/trial.ts');
 
 const tempParamsBundle = path.resolve(__dirname, 'temp-params.mjs');
 const tempBillingBundle = path.resolve(__dirname, 'temp-billing.mjs');
 const tempPricingBundle = path.resolve(__dirname, 'temp-pricing.mjs');
+const tempTrialBundle = path.resolve(__dirname, 'temp-trial.mjs');
 
 console.log('═══════════════════════════════════════════════════════════════');
 console.log('   LAUNCH READINESS TEST SUITE (v1.11.0 Offline Assertions)    ');
@@ -48,8 +58,25 @@ try {
     outfile: tempPricingBundle,
   });
 
-  const { buildCheckoutSessionParams, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
-  const { getBillingView, formatBillingDate } = await import(`file://${tempBillingBundle.replace(/\\/g, '/')}`);
+    esbuild.buildSync({
+    entryPoints: [trialEntry],
+    bundle: true,
+    platform: 'node',
+    format: 'esm',
+    target: 'node18',
+    alias: {
+      '@': path.resolve(__dirname, '../src'),
+    },
+    define: {
+      'import.meta.env.VITE_SUPABASE_URL': '"https://mock.supabase.co"',
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': '"mock-anon-key"',
+      'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': '"mock-key"',
+    },
+    outfile: tempTrialBundle,
+  });
+const { buildCheckoutSessionParams, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
+  const { getBillingView, formatBillingDate, getEffectiveTrialEnd, TRIAL_GRACE_BUFFER_HOURS, TRIAL_GRACE_BUFFER_MS } = await import(`file://${tempBillingBundle.replace(/\\/g, '/')}`);
+  const { getClaimErrorMessage } = await import(`file://${tempTrialBundle.replace(/\\/g, '/')}`);
   const { PRICING_CONFIG, formatPrice, getTrialLineText } = await import(`file://${tempPricingBundle.replace(/\\/g, '/')}`);
 
   // ─────────────────────────────────────────────────────────────
@@ -328,7 +355,127 @@ try {
   );
   assert.strictEqual(viewPastDue.primaryAction?.label, 'Update payment method');
   assert.notStrictEqual(viewPastDue.primaryAction?.action, 'subscribe');
-  console.log('  ✓ Test B7: past_due displays paused banner and "Update payment method" with NO subscribe action.\n');
+  console.log('  ✓ Test B7: past_due displays paused banner and "Update payment method" with NO subscribe action.');
+
+  // Test B8: Trial ending 18:30 Sydney time (buffer crosses midnight into 4 December)
+  // Real trial end in Stripe: 2026-12-03T18:30:00+11:00 (2026-12-03T07:30:00.000Z)
+  // Webhook stored current_period_end: real end + 6h grace = 2026-12-04T00:30:00+11:00 (2026-12-03T13:30:00.000Z)
+  // UI must subtract 6h buffer and display 3 December 2026 in Australia/Sydney time.
+  const storedTrialEvening = '2026-12-03T13:30:00.000Z'; // 00:30 on 4 Dec in Sydney
+  const effectiveEveningEnd = getEffectiveTrialEnd(storedTrialEvening, true);
+  assert.strictEqual(
+    formatBillingDate(effectiveEveningEnd),
+    '3 December 2026',
+    'Effective end must format to 3 December 2026 in Sydney time'
+  );
+
+  const viewTrialEvening = getBillingView({
+    product_slug: 'cpbot',
+    status: 'trialing',
+    current_period_end: storedTrialEvening,
+    is_trial: true,
+  }, fixedNow);
+  assert.strictEqual(viewTrialEvening.state, 'trialing');
+  assert.strictEqual(viewTrialEvening.banner, 'Free trial active - ends on 3 December 2026');
+  assert.strictEqual(viewTrialEvening.formattedDate, '3 December 2026');
+  console.log('  ✓ Test B8: Trial ending 18:30 Sydney (buffer crosses midnight) correctly displays 3 December 2026.');
+
+  // Test B9: Trial ending 05:00 Sydney time (buffer does not cross midnight)
+  // Real trial end: 2026-12-03T05:00:00+11:00 (2026-12-02T18:00:00.000Z)
+  // Webhook stored: 2026-12-03T11:00:00+11:00 (2026-12-03T00:00:00.000Z)
+  const storedTrialMorning = '2026-12-03T00:00:00.000Z';
+  const effectiveMorningEnd = getEffectiveTrialEnd(storedTrialMorning, true);
+  assert.strictEqual(
+    formatBillingDate(effectiveMorningEnd),
+    '3 December 2026',
+    'Morning trial effective end must format to 3 December 2026'
+  );
+
+  const viewTrialMorning = getBillingView({
+    product_slug: 'cpbot',
+    status: 'trialing',
+    current_period_end: storedTrialMorning,
+    is_trial: true,
+  }, fixedNow);
+  assert.strictEqual(viewTrialMorning.state, 'trialing');
+  assert.strictEqual(viewTrialMorning.banner, 'Free trial active - ends on 3 December 2026');
+  assert.strictEqual(viewTrialMorning.formattedDate, '3 December 2026');
+  console.log('  ✓ Test B9: Trial ending 05:00 Sydney (buffer does not cross midnight) displays 3 December 2026.');
+
+  // Test B10: Trial ending around daylight-saving transition (April & October 2026)
+  // In April 2026: Sydney ends daylight saving on 5 April 2026 (AEDT UTC+11 -> AEST UTC+10 at 03:00 AEDT / 16:00 UTC 4 Apr).
+  // Real trial end: 2026-04-05T01:30:00+11:00 (2026-04-04T14:30:00.000Z).
+  // Stored +6h buffer: 2026-04-04T20:30:00.000Z (06:30 AEST on 5 Apr 2026).
+  const storedAprilDst = '2026-04-04T20:30:00.000Z';
+  const effectiveAprilDst = getEffectiveTrialEnd(storedAprilDst, true);
+  assert.strictEqual(formatBillingDate(effectiveAprilDst), '5 April 2026');
+  const viewAprilDst = getBillingView({
+    product_slug: 'cpbot',
+    status: 'trialing',
+    current_period_end: storedAprilDst,
+    is_trial: true,
+  }, new Date('2026-04-01T00:00:00Z'));
+  assert.strictEqual(viewAprilDst.banner, 'Free trial active - ends on 5 April 2026');
+
+  // October 2026: Sydney begins daylight saving on 4 October 2026 (AEST UTC+10 -> AEDT UTC+11 at 02:00).
+  // Real trial end: 2026-10-04T21:00:00+11:00 (2026-10-04T10:00:00.000Z).
+  // Stored +6h buffer: 2026-10-04T16:00:00.000Z (03:00 AEDT on 5 Oct 2026 - crossed midnight!).
+  const storedOctDst = '2026-10-04T16:00:00.000Z';
+  const effectiveOctDst = getEffectiveTrialEnd(storedOctDst, true);
+  assert.strictEqual(formatBillingDate(effectiveOctDst), '4 October 2026');
+  const viewOctDst = getBillingView({
+    product_slug: 'cpbot',
+    status: 'trialing',
+    current_period_end: storedOctDst,
+    is_trial: true,
+  }, new Date('2026-10-01T00:00:00Z'));
+  assert.strictEqual(viewOctDst.banner, 'Free trial active - ends on 4 October 2026');
+  console.log('  ✓ Test B10: Trial ending around daylight-saving change correctly adjusts buffer across transitions.');
+
+  // Test B11: Shared buffer constant verification and paid subscription buffer isolation
+  assert.strictEqual(TRIAL_GRACE_BUFFER_HOURS, 6, 'Shared buffer hours must equal 6');
+  assert.strictEqual(TRIAL_GRACE_BUFFER_MS, 6 * 60 * 60 * 1000, 'Shared buffer ms must equal 21,600,000');
+
+  // Paid subscription (is_trial = false) must NOT have buffer subtracted
+  const paidPeriodEnd = '2026-12-04T00:30:00.000Z'; // 11:30 AM 4 Dec Sydney
+  const effectivePaid = getEffectiveTrialEnd(paidPeriodEnd, false);
+  assert.strictEqual(effectivePaid?.getTime(), new Date(paidPeriodEnd).getTime(), 'Paid subscription end must not be altered');
+  const viewPaid = getBillingView({
+    product_slug: 'cpbot',
+    status: 'active',
+    current_period_end: paidPeriodEnd,
+    is_trial: false,
+  }, fixedNow);
+  assert.strictEqual(viewPaid.banner, 'Subscription active - renews on 4 December 2026');
+  console.log('  ✓ Test B11: Shared buffer constants verified and paid subscriptions stay unadjusted.\n');
+
+
+  // ─────────────────────────────────────────────────────────────
+  // (E) Task B - Trial Uniqueness by Email & Card (Phone Removal)
+  // ─────────────────────────────────────────────────────────────
+  console.log('--- Suite E: Task B Denial Messages & Phone Non-blocking ---');
+
+  // Phone denial reasons are removed and fall back to generic error
+  const phoneUsedMsg = getClaimErrorMessage('phone_already_used');
+  assert.strictEqual(phoneUsedMsg, 'Something went wrong. Please try again.', 'phone_already_used must return generic message');
+
+  const phoneMissingMsg = getClaimErrorMessage('phone_missing');
+  assert.strictEqual(phoneMissingMsg, 'Something went wrong. Please try again.', 'phone_missing must return generic message');
+
+  // Card and email denial reasons remain intact
+  const cardUsedMsg = getClaimErrorMessage('card_already_used');
+  assert.strictEqual(cardUsedMsg, 'This card has already been used for a free trial. You can subscribe at A$4.99/month instead.');
+
+  const cardMissingMsg = getClaimErrorMessage('card_missing');
+  assert.strictEqual(cardMissingMsg, 'A valid payment card is required to start the free trial.');
+
+  const claimedMsg = getClaimErrorMessage('already_claimed');
+  assert.strictEqual(claimedMsg, 'This account or email has already used the free trial.');
+
+  const emailNotAllowedMsg = getClaimErrorMessage('email_not_allowed');
+  assert.strictEqual(emailNotAllowedMsg, 'Please use a personal email address to start the free trial.');
+
+  console.log('  ✓ Test E1: Phone denial messages removed; card and email denial messages preserved.\n');
 
   // ─────────────────────────────────────────────────────────────
   // (C) Central Pricing Config Tests
@@ -413,4 +560,5 @@ try {
   if (fs.existsSync(tempParamsBundle)) fs.unlinkSync(tempParamsBundle);
   if (fs.existsSync(tempBillingBundle)) fs.unlinkSync(tempBillingBundle);
   if (fs.existsSync(tempPricingBundle)) fs.unlinkSync(tempPricingBundle);
+  if (fs.existsSync(tempTrialBundle)) fs.unlinkSync(tempTrialBundle);
 }

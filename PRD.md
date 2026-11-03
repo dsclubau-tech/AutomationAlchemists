@@ -481,3 +481,42 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - **Single Banner Authority**: On the landing page, the spots remaining number is displayed exclusively by the new top `TrialSpotsBanner`, eliminating visual clutter and competing counters.
   - **Preserved Elements**: The hero card CTA button (`Get your 30-day free trial now`), promotional price display (`A$4.99/mo launch price`), and `<TrialTermsLine />` (terms of service and privacy links) are completely preserved.
   - **Dashboard Invariant**: The customer dashboard trial card (`DashboardTrialCard.tsx`) retains its own spots remaining counter.
+
+
+---
+
+### 20. Consistent Trial End Date & Trial Gating by Card and Email Only (Release v1.14.0)
+
+- **Consistent Free Trial End Date Calculation & Formatting (Task A)**:
+  - **What it does**: Resolves a critical date synchronization discrepancy where the customer dashboard trial banner (`DashboardTrialCard`) and tool card (`getBillingView` / `Dashboard.tsx`) displayed different calendar days for trial subscriptions initiated in evening Sydney time.
+  - **Root Cause & Buffer Invariant**: Database procedure `process_stripe_webhook_event` provisions trialing subscriptions in `public.subscriptions` with `current_period_end = p_current_period_end + interval '6 hours'` to prevent the automated `pg_cron` job (`expire-past-due-subscriptions`) from terminating customer access during Stripe's ~1-hour invoice generation window. When a trial was started after ~18:00 Sydney time (AEDT UTC+11), adding 6 hours crossed midnight into the following day. Stored `current_period_end` remained buffered, causing `getBillingView` to format the next calendar day, while `DashboardTrialCard` formatted unbuffered `trial_claims.trial_ends_at` in a different locale format (`en-GB`).
+  - **Shared Constants & Effective End Calculation**:
+    - Extracted single source of truth in [`src/lib/billingView.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/billingView.ts): `TRIAL_GRACE_BUFFER_HOURS = 6` and `TRIAL_GRACE_BUFFER_MS = 21,600,000`.
+    - Pure helper `getEffectiveTrialEnd(currentPeriodEnd, isTrial)`: Subtracts the 6-hour buffer exclusively for trial subscriptions (`is_trial = true` or `status = 'trialing'`), ensuring displayed dates strictly match Stripe's true `trial_end`.
+    - Paid subscriptions (`is_trial = false`) remain unadjusted so renewal dates are never shifted.
+    - Database storage and access gating remain unadjusted based on the buffered value.
+  - **Standardized Display Format**:
+    - Standardized on a single date format across all customer-facing surfaces: `formatBillingDate(date)` using `en-AU` locale and `Australia/Sydney` timezone with options `{ day: 'numeric', month: 'long', year: 'numeric' }` (e.g. `"3 December 2026"`).
+    - Banner: `Free trial: 30 days left (ends 3 December 2026)` / `Your free trial is active until 3 December 2026`.
+    - Tool Card: `Free trial active - ends on 3 December 2026`.
+    - Both surfaces display the exact same calendar day matching Stripe Checkout.
+  - **Files Implementing It**: [`src/lib/billingView.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/billingView.ts), [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts), [`src/components/DashboardTrialCard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/components/DashboardTrialCard.tsx), [`src/lib/dashboardSections.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/dashboardSections.ts).
+
+- **Trial Gating by Card Fingerprint and Normalized Email Only (Task B)**:
+  - **What it does**: Redefines promotional free trial uniqueness rules so that trials are limited strictly per normalized email (`trial_claims.email_normalized`) and per card fingerprint (`trial_identities` where `kind = 'card'`). Phone numbers no longer block, deny, or lock customer access.
+  - **Phone Numbers No Longer Block**:
+    - A customer who provides a phone number previously entered on another account is no longer denied a free trial, provided they use a unique card and unique personal email.
+    - Omission of phone number or duplicate phone entry never causes denial.
+  - **Checkout Phone Collection Maintained**:
+    - Stripe Checkout continues to collect phone numbers across all checkout sessions (`phone_number_collection = { enabled: true }`) to populate customer invoice and billing contact records.
+  - **Historical Data Preservation**:
+    - Existing records with `kind = 'phone'` in `public.trial_identities` are preserved without modification or deletion.
+    - Stored procedure `public.finalize_card_trial` ignores existing `kind = 'phone'` rows and ceases writing new `kind = 'phone'` rows.
+  - **Database Migration 035 (Pending Owner Execution)**:
+    - Authored in [`supabase/migrations/035_trial_identity_card_email_only.sql`](file:///G:/app%20development/AutomationAlchemists/supabase/migrations/035_trial_identity_card_email_only.sql).
+    - Preserves `p_phone_hash` parameter for zero-broken-window backward compatibility with live edge functions.
+    - Removes `phone_missing` and `phone_already_used` denial triggers.
+    - Checks and registers only `kind = 'card'`.
+  - **Client Error Messages Updated**:
+    - Removed `phone_already_used` and `phone_missing` from `getClaimErrorMessage` in [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts).
+    - Email and card denial copy remains active.

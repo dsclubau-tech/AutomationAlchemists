@@ -1,4 +1,5 @@
 import { VISIBLE_TOOL_SLUGS } from '@/data/tools';
+import { formatBillingDate, getEffectiveTrialEnd } from './billingView';
 
 export interface DbToolLike {
   id?: string;
@@ -176,14 +177,11 @@ export function getSubscriptionDateText(
 ): string | null {
   if (!sub) return null;
 
-  // 1. Trial row
+    // 1. Trial row
   if (sub.is_trial || sub.status === 'trialing') {
     if (sub.current_period_end) {
-      const formatted = new Date(sub.current_period_end).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      });
+      const effectiveEnd = getEffectiveTrialEnd(sub.current_period_end, true);
+      const formatted = formatBillingDate(effectiveEnd);
       return `Free trial ends ${formatted}`;
     }
     return 'Free trial active';

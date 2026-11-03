@@ -245,18 +245,21 @@ Deno.serve(async (req) => {
             const customerPhone = session.customer_details?.phone ?? null;
             const pepper = Deno.env.get('TRIAL_IDENTITY_PEPPER');
 
-            // If the pepper or the fingerprint is missing, return 500 so Stripe retries
-            if (!pepper || !cardFingerprint) {
-              console.error('Trial checkout missing required pepper or card fingerprint after all fallbacks.');
-              return new Response(JSON.stringify({ error: 'Missing pepper or card fingerprint' }), {
+            // If the card fingerprint is missing, return 500 so Stripe retries
+            if (!cardFingerprint) {
+              console.error('Trial checkout missing required card fingerprint after all fallbacks.');
+              return new Response(JSON.stringify({ error: 'Missing card fingerprint' }), {
                 status: 500,
                 headers: { 'Content-Type': 'application/json' },
               });
             }
 
-            const phoneHash = customerPhone
+            // Phone is no longer used for trial gating (v1.14.0).
+            // Pass phoneHash if pepper is present for backward compatibility with 034 RPC,
+            // or a placeholder if unhashed, so 034 RPC does not reject with 'phone_missing'.
+            const phoneHash = (customerPhone && pepper)
               ? await hmacSha256Hex(pepper, customerPhone.trim())
-              : null;
+              : (customerPhone?.trim() || 'phone_not_tracked');
 
             const trialEndIso = (typeof subscription.trial_end === 'number' && !isNaN(subscription.trial_end))
               ? new Date(subscription.trial_end * 1000).toISOString()

@@ -169,7 +169,7 @@ try {
 
     const trialSub = trialSubs[0];
     assert.strictEqual(canManageSubscription(trialSub), true, 'Card trial with Stripe link shows manage button');
-    assert.strictEqual(getSubscriptionDateText(trialSub), 'Free trial ends 26 Nov 2026', 'Trial row shows trial end text');
+    assert.strictEqual(getSubscriptionDateText(trialSub), 'Free trial ends 26 November 2026', 'Trial row shows trial end text');
 
     console.log('✓ Test 4: Active trial row passed.');
   }

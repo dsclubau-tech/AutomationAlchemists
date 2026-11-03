@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-11-03
+### Fixed
+- Fixed free trial end date displays so that every dashboard surface, including the trial reminder banner and the product card, displays the exact same expiration day in Sydney time matching Stripe Checkout
+- Standardized date formatting across all dashboard billing cards and status banners to a consistent Australian date format (day, full month name, and year)
+
+### Changed
+- Simplified trial eligibility rules so free trials are limited per customer email and per payment card only, ensuring phone numbers no longer block, restrict, or delay trial activation
+- Retained phone number collection at checkout solely for invoice contact details and billing communication
+
 ## [1.13.0] - 2026-11-03
 ### Added
 - Streamlined the trial sign-up area on the Return Converter x CopyPaste Bot tool page by removing the duplicate spots counter below the action button, focusing capacity updates exclusively in the new prominent top banner

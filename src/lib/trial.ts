@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PRICING_CONFIG, formatPrice } from '@/config/pricing';
+import { formatBillingDate } from '@/lib/billingView';
 
 export interface TrialPublicData {
   enabled: boolean;
@@ -50,7 +51,8 @@ export function sanitizeNext(raw: unknown): string {
 
 /**
  * Maps claim/denial reasons to client-friendly messages.
- * Never reveals which other account used a card or phone number.
+ * Never reveals which other account used a card.
+ * Phone numbers no longer block or deny trials (v1.14.0).
  */
 export function getClaimErrorMessage(reason: string, priceMonthly: number = PRICING_CONFIG.launchPrice): string {
   switch (reason) {
@@ -58,10 +60,6 @@ export function getClaimErrorMessage(reason: string, priceMonthly: number = PRIC
       return 'Please complete card verification in checkout to start your free trial.';
     case 'card_already_used':
       return `This card has already been used for a free trial. You can subscribe at ${formatPrice(priceMonthly)}/month instead.`;
-    case 'phone_already_used':
-      return `This phone number has already been used for a free trial. You can subscribe at ${formatPrice(priceMonthly)}/month instead.`;
-    case 'phone_missing':
-      return 'A valid phone number is required to start the free trial.';
     case 'card_missing':
       return 'A valid payment card is required to start the free trial.';
     case 'no_slots':
@@ -82,6 +80,7 @@ export function getClaimErrorMessage(reason: string, priceMonthly: number = PRIC
 
 /**
  * Formats trial remaining time and expiry date.
+ * Formats date uniformly in Australia/Sydney timezone (matching getBillingView).
  */
 export function formatTrialTimeLeft(endsAt: string): {
   text: string;
@@ -90,11 +89,7 @@ export function formatTrialTimeLeft(endsAt: string): {
   formattedDate: string;
 } {
   const endsDate = new Date(endsAt);
-  const formattedDate = endsDate.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  const formattedDate = formatBillingDate(endsAt);
   const diff = endsDate.getTime() - Date.now();
   if (diff <= 0) {
     return { text: '0 hours left', hoursLeft: 0, daysLeft: 0, formattedDate };

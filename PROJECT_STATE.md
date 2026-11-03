@@ -10,10 +10,23 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Public tables: `invoices`, `templates`, `profiles`, `linked_emails`, `message_templates`, `gmail_templates`.
     - Private plan/credit tables: `invoice_plan_config`, `invoice_plan_admins`, `invoice_plan_accounts`, `invoice_email_periods`, `invoice_email_sends`.
   - **WARNING**: `profiles` (and possibly `invoices`, `templates`) already exist or may collide in the shared Supabase project, so the `ig_` prefix is mandatory at migration. Migration must preserve account ownership, authentication-ID mappings, invoice creation dates, Gmail credentials, and credit history.
-  - **No tables created now**: Zero database schema or data modifications in v1.13.0.
+  - **No tables created now**: Zero database schema or data modifications in v1.13.0. Migration 035 prepared in v1.14.0 for manual execution.
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Consistent Free Trial End Date Calculation (`src/lib/billingView.ts`, v1.14.0)**:
+  - Standardized customer-facing trial expiration date calculation by subtracting the 6-hour database grace buffer (`TRIAL_GRACE_BUFFER_HOURS = 6`, `TRIAL_GRACE_BUFFER_MS = 21,600,000`) added by `process_stripe_webhook_event` (`034_card_trial_identity.sql:789`).
+  - Pure helper `getEffectiveTrialEnd(currentPeriodEnd, isTrial)` resolves the exact unbuffered Stripe `trial_end` for all trialing subscriptions, while leaving paid renewals unadjusted.
+  - Pinned single date format `formatBillingDate(dateVal)` using `en-AU` locale and `Australia/Sydney` timezone (`{ day: 'numeric', month: 'long', year: 'numeric' }`, e.g. `"3 December 2026"`).
+  - Synchronized across the dashboard trial banner (`DashboardTrialCard.tsx`), tool cards (`Dashboard.tsx` / `getBillingView`), `formatTrialTimeLeft` (`src/lib/trial.ts`), and `getSubscriptionDateText` (`src/lib/dashboardSections.ts`), guaranteeing both surfaces display the exact same calendar day matching Stripe Checkout.
+- **Trial Anti-Abuse Gating: Card Fingerprint and Normalized Email Only (v1.14.0)**:
+  - Policy change: Free trials are gated strictly by normalized email (`trial_claims.email_normalized`) and card fingerprint (`trial_identities` kind `'card'`) only.
+  - Phone numbers no longer block, deny, or lock customer access. Duplicate phone numbers across accounts are permitted as long as the card fingerprint and normalized email are unique.
+  - Stripe Checkout retains phone number collection (`phone_number_collection = { enabled: true }`) across all sessions to populate invoice contact records.
+  - Authored pending migration `supabase/migrations/035_trial_identity_card_email_only.sql`: redefines `public.finalize_card_trial` to omit phone checks and stop writing `kind = 'phone'` rows, with `p_phone_hash DEFAULT NULL` for seamless backward compatibility.
+  - Preserved existing `kind = 'phone'` records in `trial_identities` without deletion.
+  - Updated `supabase/functions/stripe-webhook/index.ts` to remove hard requirement for `TRIAL_IDENTITY_PEPPER` and safely fallback to `'phone_not_tracked'` when pepper is unconfigured.
+  - Removed `phone_already_used` and `phone_missing` denial copy from `getClaimErrorMessage` in `src/lib/trial.ts`.
 - **Live Free-Trial Spots Banner on RCCP Tool Page (`src/components/TrialSpotsBanner.tsx`, v1.13.0)**:
   - Prominent, beautiful banner near the top of `/tools/rccp` (in the hero section, above the fold on desktop and mobile) displaying live promotional capacity (e.g. *"100 of 100 free-trial spots left"*).
   - Single database source of truth: queries `get_trial_public('rccp')` / `get_trial_status('rccp')`, where `v_slots_left := GREATEST(slot_cap - (slots_reserved + claims), 0)`. Cap is dynamic (owner changed cap from 5 to 100 via SQL); zero hardcoded limits.
@@ -34,7 +47,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - **Product Naming & Product Separation (v1.11.0)**:
   - Paid product strictly designated as "CP Bot" (Copy Paste Bot).
   - Return Converter clearly documented and messaged as 100% free; removed any copy stating Return Converter is included in the paid subscription.
-- **Customer Dashboard Billing States (`src/lib/billingView.ts`, v1.11.0)**:
+- **Customer Dashboard Billing States (`src/lib/billingView.ts`, v1.11.0 & v1.14.0)**:
   - Pure helper `getBillingView(subscription, now)` extracting billing state evaluation:
     - `none / expired`: Subscribe / Start trial CTA.
     - `trialing (active)`: "Free trial active - ends on <date>" with "Manage billing" action.
@@ -93,27 +106,32 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Configured with `subscription_data.default_tax_rates`, terms consent requirement, required full billing address, and phone collection.
   - `create-portal-session` (`supabase/functions/create-portal-session/index.ts`):
     - Creates Stripe billing portal session with `return_url = `${origin}/dashboard``.
-- **Trial Hardening, Webhook API Version Independence & Refund Handling (v1.9.1, v1.9.2, v1.9.4 - Code written, not deployed)**:
+- **Trial Hardening, Webhook API Version Independence & Refund Handling (v1.9.1, v1.9.2, v1.9.4, v1.14.0 - Code written, not deployed)**:
   - `stripe-webhook`:
     - Duplicate-subscription guard on trial checkouts (`checkout.session.completed` with `metadata.trial = 'true'`).
     - Decoupled from Stripe endpoint API version changes (`supabase/functions/_shared/stripeCompat.ts`), re-fetching full subscription by ID under pinned SDK API version. Safe period extractor `getPeriod` and invoice resolver `getInvoiceSubscriptionId`.
     - Refund handling fix (v1.9.4): `charge.refunded` re-retrieves charge via `stripe.charges.retrieve(chargeId)` to support modern `2026-02-25.clover` payload where `invoice` is omitted from the Charge payload. Resolves invoice ID via `getChargeInvoiceId` and revokes access by invoking `process_stripe_webhook_event` with `p_quantity = 0`.
+    - Phone decoupling (v1.14.0): Removed fatal requirement on `TRIAL_IDENTITY_PEPPER`; safely passes fallback identifier to maintain compatibility with 034 RPC until 035 is applied.
+    - Post-checkout denial cancellation verified: Immediately calls `stripe.subscriptions.cancel(p_stripe_subscription_id)` on trial denial.
     - Pure compatibility test suite (`scripts/test-stripe-compat.mjs`) verifying 12 assertions across legacy and clover shapes.
 - **Launch Readiness & Trial Banner Test Suites (`scripts/test-launch-readiness.mjs`, `scripts/test-trial-banner.mjs`)**:
-  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, billing address required, phone collection, name collection helper, customer_update constraints, no automatic_tax), `getBillingView` state machine (all 7 scenarios), pricing formatting, zero leftover `$9` string audit in `src/`, and complete trial banner state/urgency/sold-out evaluation.
+  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, billing address required, phone collection, name collection helper, customer_update constraints, no automatic_tax), `getBillingView` state machine (all 7 scenarios plus evening/morning/DST buffer adjustments), pricing formatting, phone denial removal, zero leftover `$9` string audit in `src/`, and complete trial banner state/urgency/sold-out evaluation.
 
 ## Current Production Deployment Status
 - **Vercel Frontend**: Automatic deployment on push to `main`.
 - **Checkout globally**: Hidden in production (`VITE_CHECKOUT_ENABLED !== 'true'`, Supabase secret `CHECKOUT_ENABLED` unset; only `profiles.is_admin` may call checkout).
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
-  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, and v1.9.4 refund fix changes **NOT deployed**.
+  - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, v1.9.4 refund fix, and v1.14.0 phone decoupling changes **NOT deployed**.
   - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, and v1.12.0 (GST tax rate, terms consent, billing address required, phone collection), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-- **Database**: Migration 034 applied and verified. Zero database migrations executed in v1.13.0 (reused existing public RPC `get_trial_public`).
+- **Database**:
+  - Migration 034 applied and verified.
+  - Migration 035 (`035_trial_identity_card_email_only.sql`) authored and pending manual execution by owner.
 
 ## In Progress
-- Local verification and testing of release v1.13.0 complete.
+- Local verification and testing of release v1.14.0 complete.
+- Owner applying migration `035_trial_identity_card_email_only.sql` in Supabase SQL editor.
 - Review of Stripe SDK upgrade options for first-class `name_collection` (`2025-09-30.clover`+).
 - Owner setting `STRIPE_GST_TAX_RATE_ID` secret in Supabase Edge Functions.
 - Owner deploying `create-checkout-session` (`npx supabase functions deploy create-checkout-session --project-ref tdevgrwmafwrsmeymjzd`).
@@ -134,4 +152,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-03 — Release v1.13.0: Live free-trial spots banner on the RCCP tool landing page.*
+*Last Updated: 2026-11-03 — Release v1.14.0: Consistent trial end date; trial limit by email and card only.*

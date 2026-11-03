@@ -1,5 +1,118 @@
 # Build Log
 
+## 2026-11-03 (v1.14.0 Consistent Trial End Date & Trial Uniqueness by Email + Card Only)
+- Requested:
+  - Task A: Consistent Trial End Date
+    - Investigate and resolve mismatch where dashboard banner (DashboardTrialCard) says "Your free trial is active until 3 Dec 2026" while tool card (getBillingView / Dashboard.tsx) says "Free trial active - ends on 4 December 2026" (Stripe says trial ends 3 Dec).
+    - Webhook stores trial as active with current_period_end = real trial end + 6h buffer; when trial started after ~18:00 Sydney, +6h crosses midnight into next day.
+    - EVERY place that shows a trial end date must show the SAME real trial end date in Australia/Sydney time, computed as stored current_period_end minus the buffer.
+    - Use ONE shared constant/helper for buffer (do not duplicate magic numbers).
+    - Do not change webhook or stored database values — access gating still depends on buffered value.
+    - Apply only to is_trial subscriptions; paid renewal dates stay as they are.
+    - Use one date format everywhere (say which).
+    - Tests: trial ending 18:30 Sydney (buffer crosses midnight), ending 05:00 Sydney, and around daylight-saving change.
+  - Task B: Trial Limit: One per Email and per Card Only; Phone No Longer Blocks
+    - Step 1 (report): Exhaustive list of touchpoints where phone identity is created, stored, checked, or turned into denial/UI message with filenames and line numbers.
+    - Step 2 (change): Stop creating new kind='phone' rows in trial_identities, stop checking phone when deciding eligibility, ignore existing phone rows without deleting data, remove phone denial message, keep email and card messages.
+    - Write pending migration in supabase/migrations/ (035_trial_identity_card_email_only.sql) without applying it. Ensure front end and webhook stay safe both before and after migration.
+  - Task C: Read-Only Report on Post-Checkout Trial Denial
+    - Trace code path with line numbers when trial is denied AFTER Stripe Checkout completes.
+    - Determine if trial subscription is cancelled in Stripe so customer is never charged at day 30.
+    - If not cancelled, propose smallest fix without implementing.
+- Built & Investigated:
+  - Task A Implementation & Root Cause Confirmation:
+    - Root cause verified: In `supabase/migrations/034_card_trial_identity.sql:789`, `process_stripe_webhook_event` writes `v_target_period_end := p_current_period_end + interval '6 hours'` into `subscriptions.current_period_end`. This prevents `pg_cron` from expiring access during Stripe's ~1-hour invoicing window. When a trial was created after ~18:00 Sydney time (AEDT UTC+11), adding 6 hours pushed `current_period_end` past midnight into the next calendar day.
+    - `getBillingView` formatted `subscriptions.current_period_end` directly in Sydney time (`"4 December 2026"`), while `DashboardTrialCard` formatted unbuffered `trial_claims.trial_ends_at` using browser locale `en-GB` (`"3 Dec 2026"`).
+    - Extracted shared constants in [`src/lib/billingView.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/billingView.ts): `TRIAL_GRACE_BUFFER_HOURS = 6` and `TRIAL_GRACE_BUFFER_MS = 21,600,000`.
+    - Pure helper `getEffectiveTrialEnd(currentPeriodEnd, isTrial)`: Subtracts 6h buffer exclusively for trial rows (`is_trial = true` or `status = 'trialing'`); paid subscriptions return unadjusted.
+    - Standardized date format helper `formatBillingDate(dateVal)`: Formats in `en-AU` locale and `Australia/Sydney` timezone (`{ day: 'numeric', month: 'long', year: 'numeric' }`, e.g. `"3 December 2026"`).
+    - Updated [`src/lib/billingView.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/billingView.ts): `getBillingView` trialing states compute effective end date before formatting.
+    - Updated [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts): `formatTrialTimeLeft` formats date using `formatBillingDate`.
+    - Updated [`src/components/DashboardTrialCard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/components/DashboardTrialCard.tsx): Checkout success polling formats date using `formatBillingDate`.
+    - Updated [`src/lib/dashboardSections.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/dashboardSections.ts): `getSubscriptionDateText` computes effective end date and formats using `formatBillingDate`.
+  - Task B Exhaustive Touchpoints Report (Files & Line Numbers):
+    1. `supabase/functions/stripe-webhook/index.ts`:
+       - Lines 9-22: `hmacSha256Hex` Web Crypto helper for phone hashing using `STRIPE_WEBHOOK_PHONE_PEPPER` / `TRIAL_IDENTITY_PEPPER`.
+       - Line 245: `customerPhone = session.customer_details?.phone ?? null;`
+       - Line 246: `pepper = Deno.env.get('TRIAL_IDENTITY_PEPPER');`
+       - Lines 249-255: Returned 500 if pepper was missing.
+       - Lines 257-259: `phoneHash = customerPhone ? await hmacSha256Hex(pepper, customerPhone.trim()) : null;`
+       - Line 271: `p_phone_hash: phoneHash` passed into `finalize_card_trial`.
+    2. `supabase/functions/create-checkout-session/params.ts`:
+       - Lines 92, 103, 147, 198: `phone_number_collection = { enabled: true }` enabled on all checkout sessions (retained for customer invoice and billing contact records).
+    3. `supabase/migrations/034_card_trial_identity.sql`:
+       - Line 12: Documentation specifying one trial per phone number HMAC hash.
+       - Line 38: `trial_identities` table definition: `CHECK (kind IN ('card', 'phone'))`.
+       - Line 42: Unique constraint `UNIQUE (tool_slug, kind, value_hash)`.
+       - Line 221: `finalize_card_trial` parameter `p_phone_hash text`.
+       - Lines 231, 234, 238, 244: Variable declarations and `v_phone_h := trim(COALESCE(p_phone_hash, ''))`.
+       - Lines 253-256: `IF v_phone_h = '' THEN ... reason = 'phone_missing'`.
+       - Lines 273-278: Idempotency check checking `kind = 'phone'` and `v_has_phone`.
+       - Lines 312-324: Cross-user uniqueness check for `kind = 'phone'` inserting `phone_already_used` into `trial_denials`.
+       - Lines 331-334: `INSERT INTO public.trial_identities (tool_slug, kind, value_hash, user_id) VALUES (p_tool_slug, 'phone', v_phone_h, p_user_id)`.
+    4. `src/lib/trial.ts`:
+       - Lines 61-64: `getClaimErrorMessage` client strings for `'phone_already_used'` and `'phone_missing'`.
+    5. `src/components/DashboardTrialCard.tsx`:
+       - Line 67 & 165: Displays `errorMsg = getClaimErrorMessage(deniedReason)`.
+    6. `scripts/test-launch-readiness.mjs`:
+       - Lines 147, 178, 181, 184-186: Assertions verifying `phone_number_collection = { enabled: true }` on Checkout sessions.
+    7. Docs and QA:
+       - `docs/FREE_TRIAL_AND_DISCOUNTS.md` (lines 35, 114, 274, 502, 532).
+       - `docs/CURRENT_STATE_BILLING_AND_ACCESS.md` (lines 53, 560, 617, 725).
+       - `docs/sql/034_behaviour_verify.sql` (lines 14, 53, 116, 267).
+       - `PRD.md` (lines 169, 171, 172, 184, 225, 246, 432).
+       - `QA_CHECKLIST.md` (Sections 27b, 29a).
+  - Task B Implementation:
+    - Authored [`supabase/migrations/035_trial_identity_card_email_only.sql`](file:///G:/app%20development/AutomationAlchemists/supabase/migrations/035_trial_identity_card_email_only.sql):
+      - Redefined `public.finalize_card_trial` to accept `p_phone_hash text DEFAULT NULL` for backward compatibility.
+      - Removed `phone_missing` validation check.
+      - Removed `phone_already_used` denial check.
+      - Removed insertion of `kind = 'phone'` rows into `trial_identities`.
+      - Only `kind = 'card'` and `trial_claims.email_normalized` are checked and enforced.
+      - Clearly marked as pending manual execution by the owner.
+    - Updated [`supabase/functions/stripe-webhook/index.ts`](file:///G:/app%20development/AutomationAlchemists/supabase/functions/stripe-webhook/index.ts):
+      - Removed requirement for `TRIAL_IDENTITY_PEPPER` so missing pepper no longer returns 500.
+      - `phoneHash` safely falls back to `'phone_not_tracked'` if pepper is unset, ensuring 034 RPC does not reject with `phone_missing` before migration 035 is applied.
+    - Updated [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts):
+      - Removed `phone_already_used` and `phone_missing` from `getClaimErrorMessage`.
+  - Task C Findings (Post-Checkout Trial Denial Investigation):
+    - Code path in `supabase/functions/stripe-webhook/index.ts`:
+      - Lines 137-145: Webhook receives `checkout.session.completed` with `session.mode === 'subscription'` and `session.metadata?.trial === 'true'`.
+      - Line 140: `p_stripe_subscription_id = session.subscription as string;`
+      - Line 149-153: Webhook retrieves `subscription` from Stripe.
+      - Line 239: `if (subscription.status === 'trialing') {`
+      - Line 240: Resolves card fingerprint.
+      - Lines 266-273: Invokes `supabaseAdmin.rpc('finalize_card_trial', { p_user_id, p_tool_slug, p_email, p_card_fingerprint, p_phone_hash, p_trial_end })`.
+      - In `034_card_trial_identity.sql:306` (or `035`): If card fingerprint is already registered to a different user, RPC inserts a row into `public.trial_denials` with reason `'card_already_used'` and returns `{ ok: false, reason: 'card_already_used' }`.
+      - Lines 280-282: `trialResult = finalizeData as { ok?: boolean; reason?: string } | null;`
+      - Line 282: `if (!trialResult?.ok) {`
+      - Line 283: `console.warn(`Trial denied for user ${p_user_id}: ${trialResult?.reason}. Cancelling subscription immediately.`);`
+      - Line 284: `await stripe.subscriptions.cancel(p_stripe_subscription_id);`
+      - Line 286: `return new Response(JSON.stringify({ received: true, trial_denied: trialResult?.reason }), { status: 200, ... });`
+    - Finding: In the codebase, **the trial subscription IS cancelled in Stripe immediately at line 284** (`await stripe.subscriptions.cancel(p_stripe_subscription_id);`). This prevents the customer from being charged when the 30-day trial elapses.
+    - Smallest Proposed Improvements (Report Only, Not Implemented):
+      1. *Error Handling / Defensive Try-Catch*: Currently, `await stripe.subscriptions.cancel(p_stripe_subscription_id)` at line 284 is not wrapped in a dedicated `try/catch` block (unlike the duplicate guard at line 219). If Stripe's API returns a network error or rate limit during cancellation, the unhandled rejection bubbles up to the outer catch block at line 557, returning HTTP 500 to Stripe and causing Stripe to retry the webhook. Wrapping line 284 in a `try/catch` with explicit logging ensures deterministic handling.
+      2. *Subscription Status Fallback*: Line 239 gates trial processing on `if (subscription.status === 'trialing')`. If for any reason Stripe provisions a trial session with a status other than `'trialing'` (e.g. `incomplete`), the trial identity check is bypassed and access could be erroneously provisioned at line 440. A defensive check verifying `isTrialMode` before line 239 ensures no non-trial status slips through.
+- Verification:
+  - 4 test suites run: `test-trial-banner.mjs`, `test-launch-readiness.mjs`, `test-dashboard-sections.mjs`, `test-stripe-compat.mjs` (all 100% passing).
+  - TypeScript diagnostics: 101 errors (0 new errors).
+  - Production build & Prerender: `npm run build` completed in ~5s across all 20 routes.
+  - Visual verification: Headless browser screenshot captured at `C:\Users\USER\.gemini\antigravity\brain\0efa0ec5-f674-4e33-a17f-bc849c676512\dashboard-consistent-trial-dates.png` demonstrating both the top trial banner and CP Bot tool card displaying the exact same calendar day: `3 December 2026`.
+- Files touched:
+  - `src/lib/billingView.ts`
+  - `src/lib/trial.ts`
+  - `src/components/DashboardTrialCard.tsx`
+  - `src/lib/dashboardSections.ts`
+  - `supabase/functions/stripe-webhook/index.ts`
+  - `supabase/migrations/035_trial_identity_card_email_only.sql` (NEW)
+  - `scripts/test-launch-readiness.mjs`
+  - `scripts/test-dashboard-sections.mjs`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+  - `PROJECT_STATE.md`
+  - `BUILD_LOG.md`
+  - `CHANGELOG.md`
+
 ## 2026-11-03 (v1.13.0 Live Free-Trial Spots Banner on RCCP Tool Page)
 - Requested:
   - Add a prominent banner near the top of https://www.automationalchemists.com/tools/rccp (in/under the hero, above the fold on desktop and mobile) showing the real number of free-trial spots left out of the total (e.g. "37 of 100 free-trial spots left"), with an animated progress bar that shrinks as customers claim spots.

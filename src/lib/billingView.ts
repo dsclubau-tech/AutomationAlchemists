@@ -29,11 +29,39 @@ export interface BillingView {
 }
 
 /**
- * Formats dates in Australia/Sydney timezone using en-AU locale, e.g. "30 November 2026".
+ * Database grace buffer applied to trialing subscriptions.
+ * In migration 034 (034_card_trial_identity.sql:789), process_stripe_webhook_event adds:
+ * `v_target_period_end := p_current_period_end + interval '6 hours';`
+ * This stops pg_cron from prematurely expiring access during Stripe's ~1h invoicing window.
+ * The true customer-facing expiration date is the stored period end minus this buffer.
  */
-export function formatBillingDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
+export const TRIAL_GRACE_BUFFER_HOURS = 6;
+export const TRIAL_GRACE_BUFFER_MS = TRIAL_GRACE_BUFFER_HOURS * 60 * 60 * 1000;
+
+/**
+ * Returns the effective date for a subscription period end.
+ * For trialing subscriptions (is_trial = true or status = 'trialing'), subtracts the
+ * 6-hour database grace buffer so that customer-facing UI displays the true Stripe trial_end.
+ * For paid subscriptions or non-trial rows, returns the date unadjusted.
+ */
+export function getEffectiveTrialEnd(
+  currentPeriodEnd: string | number | Date | null | undefined,
+  isTrial: boolean = true
+): Date | null {
+  if (!currentPeriodEnd) return null;
+  const d = currentPeriodEnd instanceof Date ? currentPeriodEnd : new Date(currentPeriodEnd);
+  if (isNaN(d.getTime())) return null;
+  if (!isTrial) return d;
+  return new Date(d.getTime() - TRIAL_GRACE_BUFFER_MS);
+}
+
+/**
+ * Formats dates in Australia/Sydney timezone using en-AU locale, e.g. "3 December 2026".
+ * Standard single date format used consistently across dashboard cards, banners, and billing views.
+ */
+export function formatBillingDate(dateVal: string | number | Date | null | undefined): string {
+  if (!dateVal) return '';
+  const date = dateVal instanceof Date ? dateVal : new Date(dateVal);
   if (isNaN(date.getTime())) return '';
   return date.toLocaleDateString('en-AU', {
     day: 'numeric',
@@ -116,7 +144,8 @@ export function getBillingView(
   // 3. TRIALING state (status === 'trialing' or is_trial is true)
   const isTrial = Boolean(subscription.is_trial || subscription.status === 'trialing');
   if (isTrial && (subscription.status === 'active' || subscription.status === 'trialing')) {
-    const formattedDate = formatBillingDate(subscription.current_period_end);
+    const effectiveEnd = getEffectiveTrialEnd(subscription.current_period_end, true);
+    const formattedDate = formatBillingDate(effectiveEnd);
     if (subscription.cancel_at_period_end) {
       return {
         state: 'trialing_canceled',

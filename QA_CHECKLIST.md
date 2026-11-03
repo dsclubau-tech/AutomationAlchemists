@@ -866,3 +866,60 @@
   - Navigate to `/dashboard` with an eligible account when the offer is enabled.
   - Inspect the CP Bot trial card.
   - **Expected Result**: The dashboard trial card continues to display its own "{slotsLeft} of {slotCap} free-trial spots left" line as normal.
+
+
+---
+
+## 32. Consistent Trial End Date & Trial Gating by Card and Email Only (Release v1.14.0)
+
+### 32a. Static Verification & Pure Helper Test Suite
+- [x] **Check 32a.1: Launch Readiness Test Suite Extended Assertions (Suite B & E)**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, all test suites pass:
+    - Test B8: Trial ending 18:30 Sydney time (buffer crosses midnight into 4 Dec) correctly displays 3 December 2026 in Australia/Sydney time.
+    - Test B9: Trial ending 05:00 Sydney time (buffer does not cross midnight) correctly displays 3 December 2026.
+    - Test B10: Trial ending around daylight-saving transitions (April AEDT->AEST and October AEST->AEDT) correctly adjusts 6-hour buffer across boundaries.
+    - Test B11: Shared buffer constants (`TRIAL_GRACE_BUFFER_HOURS = 6`, `TRIAL_GRACE_BUFFER_MS = 21,600,000`) verified; paid subscriptions (`is_trial = false`) remain strictly unadjusted.
+    - Test E1: Phone denial messages (`phone_already_used`, `phone_missing`) safely removed and fall back to generic copy; card (`card_already_used`, `card_missing`) and email (`already_claimed`, `email_not_allowed`) denial messages preserved.
+- [x] **Check 32a.2: Dashboard Section Regression Unit Tests**:
+  - `node scripts/test-dashboard-sections.mjs`
+  - **Expected Result**: Exits 0, all 6 test assertions pass with standardized date formatting (`Free trial ends 26 November 2026`).
+- [x] **Check 32a.3: Trial Banner & Stripe Compat Test Suites**:
+  - `node scripts/test-trial-banner.mjs && node scripts/test-stripe-compat.mjs`
+  - **Expected Result**: Exits 0, all 6 trial banner tests and 12 Stripe compatibility assertions pass with 0 errors.
+- [x] **Check 32a.4: TypeScript Baseline Parity**:
+  - `npx tsc --noEmit -p tsconfig.app.json`
+  - **Expected Result**: Exact match with known 101 pre-existing diagnostic errors (0 new errors introduced).
+- [x] **Check 32a.5: Production Build & Prerender Verification**:
+  - `powershell -Command "`$env:PUPPETEER_EXECUTABLE_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'; npm run build"`
+  - **Expected Result**: Exits 0, builds production assets cleanly in ~5s, and completes headless browser prerendering across all 20 static routes.
+
+### 32b. Runtime & User-Facing Verification (Stripe, Dashboard, and Anti-Abuse Gating)
+- [ ] **Check 32b.1: Trial Started at 19:00 Sydney Shows Same End Date in Both Places Matching Stripe**:
+  - **Action**: A customer starts a 30-day free trial checkout at 19:00 Sydney time on 3 November.
+  - **Stripe State**: Stripe sets `trial_end` to 3 December 19:00 Sydney time.
+  - **Database State**: `process_stripe_webhook_event` stores `current_period_end` with +6h grace (4 December 01:00 Sydney time) in `public.subscriptions`, while `trial_claims.trial_ends_at` holds 3 December 19:00 Sydney time.
+  - **User Navigation**: Customer navigates to `/dashboard`.
+  - **Expected Result**:
+    - Dashboard trial banner displays: `Free trial: 30 days left (ends 3 December 2026)` or `Your free trial is active until 3 December 2026`.
+    - CP Bot tool card displays: `Free trial active - ends on 3 December 2026`.
+    - BOTH places display the exact same calendar day (`3 December 2026`), exactly matching Stripe.
+- [ ] **Check 32b.2: Second Account with Same Phone Number But New Email and New Card Gets a Trial**:
+  - **Action**:
+    - Account 1 completes trial checkout using email `customer1@example.com`, card `4242...4242`, and phone `+61 400 000 000`. Trial activates.
+    - Account 2 signs up with new email `customer2@example.com`, enters phone `+61 400 000 000` at Stripe Checkout, and provides a DIFFERENT payment card `4000...0002`.
+  - **Expected Result**:
+    - Account 2's trial checkout completes and is approved (`ok: true`).
+    - Phone number does NOT block, lock, or cause denial.
+    - Account 2 receives active CP Bot trial access.
+- [ ] **Check 32b.3: Duplicate Card Fingerprint Refused**:
+  - **Action**: Account 3 signs up with unique email `customer3@example.com` and unique phone `+61 411 111 111`, but enters card `4242...4242` (already used by Account 1).
+  - **Expected Result**:
+    - Trial is denied with reason `card_already_used`.
+    - Webhook cancels the Stripe subscription immediately via `stripe.subscriptions.cancel` so Account 3 is never billed at day 30.
+    - Dashboard displays clear denial message: `"This card has already been used for a free trial. You can subscribe at A$4.99/month instead."`.
+- [ ] **Check 32b.4: Duplicate Normalized Email Refused**:
+  - **Action**: Customer attempts to sign up for a second trial using email variation `customer.1+alias@example.com` (normalizes to `customer1@example.com`).
+  - **Expected Result**:
+    - System detects existing normalized claim and blocks checkout with reason `already_claimed`.
+    - Dashboard displays clear denial message: `"This account or email has already used the free trial."`.
