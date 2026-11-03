@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-11-03
+### Changed
+- Enhanced checkout to collect complete billing addresses (street address, city, state, postal code, and country) for all trial and subscription signups, ensuring issued tax invoices contain full customer address details
+- Prepared billing profile and business name collection support for seamless tax invoice generation
+
 ## [1.11.0] - 2026-11-02
 ### Added
 - Launch readiness pricing configuration establishing the A$4.99/month promotional launch price for CP Bot (normally A$9.99/month), inclusive of GST

@@ -421,12 +421,23 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 - **Signup Landing Redirect**:
   - **What it does**: Sets `emailRedirectTo: `${window.location.origin}/dashboard`` during user sign-up so confirmed users land on `/dashboard`.
   - **Implementation**: `src/hooks/useAuth.tsx`, `src/pages/Auth.tsx`.
+---
 
+### 18. Billing Details Collection at Checkout (Release v1.12.0)
 
+- **Full Billing Address Collection (`create-checkout-session`)**:
+  - **What it does**: Configures Stripe Checkout sessions to mandate collection of the customer's full physical billing address (street address, city, state/province, postal code, and country) rather than just country and postal code.
+  - **Why**: Australian tax compliance and professional accounting require complete "Bill to" address details on tax invoices issued for trials and recurring subscriptions.
+  - **Implementation**: Set `billing_address_collection: 'required'` in `buildCheckoutSessionParams` (`supabase/functions/create-checkout-session/params.ts`).
+  - **Contact Details**: Enforces phone number collection (`phone_number_collection: { enabled: true }`) and customer email across all checkout sessions.
 
+- **Customer Update & Saved Billing Details**:
+  - **What it does**: Ensures customer names and billing addresses captured at checkout can be synchronized to the Stripe Customer object so subsequent automated invoices render complete billing details.
+  - **Stripe API Constraint**: `customer_update: { name: 'auto', address: 'auto' }` is valid exclusively when a session is attached to an existing Stripe `customer` ID. Supplying `customer_update` alongside `customer_email` causes a Stripe API rejection (`customer_update requires a customer`).
+  - **Implementation**: `buildCheckoutSessionParams` accepts `customerId?: string | null`. When `customerId` is provided, sets `customer` and attaches `customer_update: { name: 'auto', address: 'auto' }`. When only `user.email` is present (the current pattern in `create-checkout-session/index.ts`), `customer_update` is omitted to preserve API safety.
 
-
-
-
-
-
+- **Business / Company Name Collection & SDK Compatibility Analysis**:
+  - **What it does**: Researches and implements parameter support for collecting an optional business name alongside required individual names.
+  - **Stripe API Version Dependency**: First-class `name_collection` (`{ individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }`) requires Stripe API version `2025-09-30.clover` or higher (available in `stripe` SDK v19+).
+  - **SDK Status**: `create-checkout-session` currently imports `stripe@14.22.0` (Stripe API version `2023-10-16`), which rejects `name_collection` with `Received unknown parameter: name_collection`.
+  - **Implementation Strategy**: Added type and parameter building support in pure helper `params.ts` (`nameCollection?: ...`) verified by offline unit tests. Live checkout execution pauses `name_collection` emission pending SDK upgrade to avoid runtime checkout errors.

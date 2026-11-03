@@ -19,12 +19,40 @@ export interface BuildCheckoutSessionParamsOptions {
   gstTaxRateId?: string | null;
   trialStartDate?: Date;
   catalogPriceMonthly?: number | null;
+  customerId?: string | null;
+  nameCollection?: {
+    individual?: {
+      enabled: boolean;
+      optional?: boolean;
+    };
+    business?: {
+      enabled: boolean;
+      optional?: boolean;
+    };
+  } | null;
 }
 
 export interface CheckoutSessionParams {
   payment_method_types: string[];
   mode: 'subscription';
+  customer?: string;
   customer_email?: string;
+  customer_update?: {
+    name?: 'auto' | 'never';
+    address?: 'auto' | 'never';
+    shipping?: 'auto' | 'never';
+  };
+  billing_address_collection: 'required';
+  name_collection?: {
+    individual?: {
+      enabled: boolean;
+      optional?: boolean;
+    };
+    business?: {
+      enabled: boolean;
+      optional?: boolean;
+    };
+  };
   client_reference_id: string;
   metadata: Record<string, string>;
   subscription_data: {
@@ -61,7 +89,7 @@ export interface CheckoutSessionParams {
     };
   };
   payment_method_collection?: 'always';
-  phone_number_collection?: {
+  phone_number_collection: {
     enabled: boolean;
   };
 }
@@ -71,6 +99,10 @@ export interface CheckoutSessionParams {
  * Enforces:
  * - FAIL CLOSED if gstTaxRateId is missing or empty string.
  * - subscription_data.default_tax_rates = [gstTaxRateId] on both trial & non-trial.
+ * - billing_address_collection = 'required' across all sessions.
+ * - phone_number_collection = { enabled: true } across all sessions.
+ * - customer_update = { name: 'auto', address: 'auto' } ONLY when customerId is provided.
+ * - name_collection included when provided (e.g. { individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }).
  * - terms consent collection = 'required' with custom_text markdown links.
  * - ABSOLUTELY NO automatic_tax.
  */
@@ -111,6 +143,10 @@ export function buildCheckoutSessionParams(
     payment_method_types: ['card'],
     mode: 'subscription',
     client_reference_id: options.user.id,
+    billing_address_collection: 'required',
+    phone_number_collection: {
+      enabled: true,
+    },
     metadata: sessionMetadata,
     subscription_data: {
       metadata: sessionMetadata,
@@ -129,8 +165,18 @@ export function buildCheckoutSessionParams(
     },
   };
 
-  if (options.user.email) {
+  if (options.customerId) {
+    params.customer = options.customerId;
+    params.customer_update = {
+      name: 'auto',
+      address: 'auto',
+    };
+  } else if (options.user.email) {
     params.customer_email = options.user.email;
+  }
+
+  if (options.nameCollection) {
+    params.name_collection = options.nameCollection;
   }
 
   if (options.isEligibleTrial) {

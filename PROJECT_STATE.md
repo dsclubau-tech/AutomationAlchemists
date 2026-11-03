@@ -10,7 +10,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Public tables: `invoices`, `templates`, `profiles`, `linked_emails`, `message_templates`, `gmail_templates`.
     - Private plan/credit tables: `invoice_plan_config`, `invoice_plan_admins`, `invoice_plan_accounts`, `invoice_email_periods`, `invoice_email_sends`.
   - **WARNING**: `profiles` (and possibly `invoices`, `templates`) already exist or may collide in the shared Supabase project, so the `ig_` prefix is mandatory at migration. Migration must preserve account ownership, authentication-ID mappings, invoice creation dates, Gmail credentials, and credit history.
-  - **No tables created now**: Zero database schema or data modifications in v1.11.0.
+  - **No tables created now**: Zero database schema or data modifications in v1.12.0.
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
@@ -34,8 +34,12 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - Date formatting: en-AU locale, `Australia/Sydney` timezone.
 - **Signup Landing Redirect (v1.11.0)**:
   - Supabase `signUp` calls configured with `emailRedirectTo: `${window.location.origin}/dashboard`` ensuring email confirmation lands users on `/dashboard`.
-- **Checkout Session GST & Terms Hardening (`create-checkout-session`, v1.11.0)**:
+- **Checkout Session GST, Terms & Billing Details (`create-checkout-session`, v1.11.0 & v1.12.0)**:
   - Extracted pure helper `buildCheckoutSessionParams` in `supabase/functions/create-checkout-session/params.ts`.
+  - Mandatory full billing address collection: `billing_address_collection = 'required'` on all sessions (v1.12.0).
+  - Phone number collection: `phone_number_collection = { enabled: true }` enabled on all sessions (v1.12.0).
+  - Customer profile synchronization: `customer_update = { name: 'auto', address: 'auto' }` attached exclusively when `customerId` is passed; safely omitted when session uses `customer_email` (v1.12.0).
+  - Business / Company name collection: Helper support added for `name_collection` (`{ individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }`). Emission in live session creation paused pending Stripe SDK upgrade from `stripe@14.22.0` (API `2023-10-16`) to API `2025-09-30.clover`+ (v1.12.0).
   - GST tax rate integration: `subscription_data.default_tax_rates = [Deno.env.get('STRIPE_GST_TAX_RATE_ID')]`.
   - Fail-closed security: missing/empty `STRIPE_GST_TAX_RATE_ID` returns HTTP 500 (`"GST tax rate not configured"`) and halts session creation.
   - Runtime assertion guarantees NO `automatic_tax` is passed.
@@ -69,13 +73,13 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - Webhook function `stripe-webhook` deployed (v6, `--no-verify-jwt`).
   - Anti-abuse identity tables: `public.trial_identities` (card fingerprint & HMAC phone hash) and `public.trial_denials`.
   - Stored Procedure `process_stripe_webhook_event` (13 arguments exact match, single overload).
-- **Trial Checkout & Billing Portal Edge Functions (v1.9.0, v1.9.1, v1.11.0 - Code written, not deployed)**:
+- **Trial Checkout & Billing Portal Edge Functions (v1.9.0, v1.9.1, v1.11.0, v1.12.0 - Code written, not deployed)**:
   - `create-checkout-session` (`supabase/functions/create-checkout-session/index.ts`):
     - Gated server-side by `CHECKOUT_ENABLED !== 'true'` (only `profiles.is_admin` permitted in production).
     - Single-seat quantity enforcement: forced to 1 for non-orderbot tools.
     - Selects Stripe price by lookup key `"rccp"`.
     - Dynamic inline `price_data` for active per-user admin overrides (`user_price_overrides`).
-    - Configured with `subscription_data.default_tax_rates` and terms consent requirement.
+    - Configured with `subscription_data.default_tax_rates`, terms consent requirement, required full billing address, and phone collection.
   - `create-portal-session` (`supabase/functions/create-portal-session/index.ts`):
     - Creates Stripe billing portal session with `return_url = `${origin}/dashboard``.
 - **Trial Hardening, Webhook API Version Independence & Refund Handling (v1.9.1, v1.9.2, v1.9.4 - Code written, not deployed)**:
@@ -84,8 +88,8 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Decoupled from Stripe endpoint API version changes (`supabase/functions/_shared/stripeCompat.ts`), re-fetching full subscription by ID under pinned SDK API version. Safe period extractor `getPeriod` and invoice resolver `getInvoiceSubscriptionId`.
     - Refund handling fix (v1.9.4): `charge.refunded` re-retrieves charge via `stripe.charges.retrieve(chargeId)` to support modern `2026-02-25.clover` payload where `invoice` is omitted from the Charge payload. Resolves invoice ID via `getChargeInvoiceId` and revokes access by invoking `process_stripe_webhook_event` with `p_quantity = 0`.
     - Pure compatibility test suite (`scripts/test-stripe-compat.mjs`) verifying 12 assertions across legacy and clover shapes.
-- **Launch Readiness Test Suite (`scripts/test-launch-readiness.mjs`, v1.11.0)**:
-  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, no automatic_tax), `getBillingView` state machine (all 7 scenarios), pricing formatting, and zero leftover `$9` string audit in `src/`.
+- **Launch Readiness Test Suite (`scripts/test-launch-readiness.mjs`, v1.11.0, v1.12.0)**:
+  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, billing address required, phone collection, name collection helper, customer_update constraints, no automatic_tax), `getBillingView` state machine (all 7 scenarios), pricing formatting, and zero leftover `$9` string audit in `src/`.
 
 ## Current Production Deployment Status
 - **Vercel Frontend**: Automatic deployment on push to `main`.
@@ -93,19 +97,21 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
   - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, and v1.9.4 refund fix changes **NOT deployed**.
-  - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, and v1.11.0 (GST tax rate & terms consent), **NOT deployed**.
+  - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, and v1.12.0 (GST tax rate, terms consent, billing address required, phone collection), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-- **Database**: Migration 034 applied and verified. Zero database migrations executed in v1.11.0.
+- **Database**: Migration 034 applied and verified. Zero database migrations executed in v1.12.0.
 
 ## In Progress
-- Local verification of release v1.11.0 before remote push.
+- Local verification of release v1.12.0 before remote push.
+- Review of Task B investigation findings regarding `public.tools.price_monthly = 9.00` in the database.
+- Review of Stripe SDK upgrade options for first-class `name_collection` (`2025-09-30.clover`+).
 - Owner setting `STRIPE_GST_TAX_RATE_ID` secret in Supabase Edge Functions.
 - Owner deploying `create-checkout-session` (`npx supabase functions deploy create-checkout-session --project-ref tdevgrwmafwrsmeymjzd`).
-- Owner pushing v1.11.0 commit to GitHub.
+- Owner pushing v1.12.0 commit to GitHub.
 
 ## Not Started
 - Deploying `create-portal-session` and updated `stripe-webhook` to Supabase.
-- Office PC Stripe live verification run under admin switch.
+- Office PC Stripe live verification run under admin switch (including invoice "Bill to" verification).
 - Enabling public checkout (`CHECKOUT_ENABLED = true`, `VITE_CHECKOUT_ENABLED = true`).
 - Multi-item single-checkout.
 - Future Invoice Generator database migration under `ig_` table prefix.
@@ -118,4 +124,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-02 — Release v1.11.0: Launch readiness.*
+*Last Updated: 2026-11-03 — Release v1.12.0: Collect billing details at Stripe Checkout.*

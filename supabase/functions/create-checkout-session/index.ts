@@ -233,7 +233,8 @@ Deno.serve(async (req) => {
 
     const origin = req.headers.get('Origin') || 'https://automationalchemists.com';
 
-    // Build Checkout Session parameters with pure helper (GST tax rates, terms consent, NO automatic_tax)
+    // Build Checkout Session parameters with pure helper (GST tax rates, terms consent, billing address required, NO automatic_tax)
+    // Note: name_collection requires Stripe API 2025-09-30.clover+ (unsupported by pinned stripe@14.22.0 / 2023-10-16)
     const sessionCreateParams = buildCheckoutSessionParams({
       user: {
         id: user.id,

@@ -176,7 +176,64 @@ try {
   assert.strictEqual(overrideTrialParams.custom_text.submit?.message.includes('A$$'), false);
   assert.strictEqual(standardParams.custom_text?.submit?.message, undefined, 'Non-trial session must not have submit trial message');
   console.log('  ✓ Test A3: Trial params include trial settings, phone collection, default_tax_rates, NO automatic_tax.');
-  console.log('  ✓ Test A4: custom_text.submit message verified for standard trial, non-trial, and 300c override.\n');
+  console.log('  ✓ Test A4: custom_text.submit message verified for standard trial, non-trial, and 300c override.');
+
+  // Test A5: Billing address is required and phone number collection is enabled on all checkouts
+  assert.strictEqual(standardParams.billing_address_collection, 'required');
+  assert.strictEqual(trialParams.billing_address_collection, 'required');
+  assert.strictEqual(standardParams.phone_number_collection?.enabled, true);
+  assert.strictEqual(trialParams.phone_number_collection?.enabled, true);
+  console.log('  ✓ Test A5: billing_address_collection is required and phone_number_collection is enabled on all sessions.');
+
+  // Test A6: name_collection supports required individual name and optional business name
+  const nameCollectionConfig = {
+    individual: { enabled: true, optional: false },
+    business: { enabled: true, optional: true },
+  };
+  const sessionWithNameCollection = buildCheckoutSessionParams({
+    user: { id: 'usr_business_1', email: 'business@example.com' },
+    productSlug: 'rccp',
+    effectiveQuantity: 1,
+    productId: 'prod_rccp_live',
+    basePriceId: 'price_rccp_launch',
+    finalUnitAmount: 499,
+    priceSource: 'admin_price',
+    origin: 'https://automationalchemists.com',
+    isEligibleTrial: false,
+    gstTaxRateId: 'txr_gst_manual_live_123',
+    nameCollection: nameCollectionConfig,
+  });
+
+  assert.deepStrictEqual(sessionWithNameCollection.name_collection, nameCollectionConfig);
+  assert.strictEqual(sessionWithNameCollection.name_collection.individual.optional, false);
+  assert.strictEqual(sessionWithNameCollection.name_collection.business.optional, true);
+  assert.strictEqual(standardParams.name_collection, undefined, 'Default session without nameCollection option omits name_collection');
+  console.log('  ✓ Test A6: name_collection supports individual required and business optional.');
+
+  // Test A7: customer_update only valid together with customer id
+  const sessionWithCustomer = buildCheckoutSessionParams({
+    user: { id: 'usr_cust_1', email: 'cust@example.com' },
+    productSlug: 'rccp',
+    effectiveQuantity: 1,
+    productId: 'prod_rccp_live',
+    basePriceId: 'price_rccp_launch',
+    finalUnitAmount: 499,
+    priceSource: 'admin_price',
+    origin: 'https://automationalchemists.com',
+    isEligibleTrial: false,
+    gstTaxRateId: 'txr_gst_manual_live_123',
+    customerId: 'cus_existing_12345',
+  });
+
+  assert.strictEqual(sessionWithCustomer.customer, 'cus_existing_12345');
+  assert.deepStrictEqual(sessionWithCustomer.customer_update, { name: 'auto', address: 'auto' });
+  assert.strictEqual(sessionWithCustomer.customer_email, undefined, 'When customer ID is present, customer_email must not be passed');
+
+  // When customerId is NOT provided, customer_update must be omitted
+  assert.strictEqual(standardParams.customer, undefined);
+  assert.strictEqual(standardParams.customer_email, 'paid@example.com');
+  assert.strictEqual('customer_update' in standardParams, false, 'customer_update must be omitted when customer_email is used');
+  console.log('  ✓ Test A7: customer_update ({ name: "auto", address: "auto" }) attached ONLY when customer ID is provided; omitted with customer_email.\n');
 
   // ─────────────────────────────────────────────────────────────
   // (B) getBillingView Pure Helper Tests

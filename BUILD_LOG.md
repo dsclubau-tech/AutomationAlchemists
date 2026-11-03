@@ -1,5 +1,62 @@
 # Build Log
 
+## 2026-11-03 (v1.12.0 Billing Details at Checkout & Pricing Investigation)
+- Requested:
+  - Task A: Collect billing details at Stripe Checkout (supabase/functions/create-checkout-session/index.ts and params.ts only, plus tests/docs):
+    - Full billing address: billing_address_collection = 'required'.
+    - Individual name: required.
+    - Company / business name: OPTIONAL. Use name_collection ({ individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }) IF pinned SDK/API version supports it. If not, STOP on that item and report options instead of inventing a workaround.
+    - Phone number and email collection maintained on all sessions.
+    - customer_update: { name: 'auto', address: 'auto' } added only when existing customer ID is present; omitted when using customer_email.
+    - Put parameter-building logic in pure helper in params.ts with unit tests: required address, optional business name, customer_update only with customer id.
+    - Invariants: do not touch trial eligibility, override pricing, GST fail-closed logic, consent collection, custom_text, no-automatic_tax assertion, webhook, frontend files. Do not deploy.
+  - Task B: Read-only investigation of "Then A$9.00 per month" with GST A$0.82 on live checkout for rccp / CP Bot:
+    - Trace lookup key used (rccp vs cpbot - how product_slug maps to it).
+    - When inline price_data is used instead of a Stripe price.
+    - Whether tools.price_monthly or public.user_price_overrides feeds the amount.
+    - What code does when no override exists.
+    - Grep src/ and supabase/migrations/ for where tools.price_monthly is seeded or set.
+    - Most likely cause of A$9.00 and recommended minimal fix (do not implement).
+- Built:
+  - `supabase/functions/create-checkout-session/params.ts`:
+    - Pure helper `buildCheckoutSessionParams` updated with `billing_address_collection: 'required'` and `phone_number_collection: { enabled: true }` across all sessions (trial and non-trial).
+    - Added `customerId?: string | null` and `nameCollection?: ...` to `BuildCheckoutSessionParamsOptions` and `CheckoutSessionParams`.
+    - Customer profile synchronization: when `customerId` is provided, attaches `customer: options.customerId` and `customer_update: { name: 'auto', address: 'auto' }`. When only `user.email` is present, sets `customer_email` and omits `customer_update` to preserve Stripe API compatibility.
+    - Helper support and types added for `name_collection` (`{ individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }`).
+  - `supabase/functions/create-checkout-session/index.ts`:
+    - Checked Stripe SDK version and API compatibility: pinned `stripe@14.22.0` uses Stripe API `2023-10-16`. First-class `name_collection` was introduced in Stripe API `2025-09-30.clover` and `stripe` SDK v19+; sending `name_collection` under `stripe@14.22.0` causes runtime error `Received unknown parameter: name_collection`. Stopped on live emission of `name_collection` as instructed, and documented upgrade options.
+    - Confirmed `create-checkout-session` creates sessions with `customer_email` (no existing `customer` ID queried). Therefore, `customer_update` is safely omitted from live session creation, avoiding Stripe error `customer_update requires a customer`.
+    - Added documentation comment in `index.ts`.
+  - `scripts/test-launch-readiness.mjs`:
+    - Added Test A5: billing_address_collection is required and phone_number_collection is enabled on all sessions.
+    - Added Test A6: name_collection supports individual required and business optional.
+    - Added Test A7: customer_update ({ name: 'auto', address: 'auto' }) attached ONLY when customer ID is provided; strictly omitted with customer_email.
+  - Task B Investigation Findings:
+    - Lookup Key Mapping: In `index.ts:65`, `const { product_slug } = body;` is `'rccp'`. In `index.ts:153`, `stripe.prices.list({ lookup_keys: [product_slug] })` searches Stripe prices by lookup key `'rccp'` (not `'cpbot'`).
+    - Price Source & Inline price_data: In `index.ts:173-176`, the function queries `public.tools` for `slug = product_slug` (`'rccp'`). When `toolData.price_monthly` is non-null, `basePriceCents = Math.round(Number(toolData.price_monthly) * 100)`. If no active override exists in `public.user_price_overrides`, `finalUnitAmount` is set to `basePriceCents` (`priceSource = 'admin_price'`). In `params.ts:85-102`, whenever `finalUnitAmount !== null`, inline `price_data` is used instead of the Stripe price object (`basePriceId`).
+    - Tools Database Seed & Root Cause: In `supabase/migrations/016_tools_table.sql:20`, tools table was seeded with `9.00` for `cpbot`. In `QA_CHECKLIST.md:46, 101`, test instructions specifically updated `public.tools` `price_monthly` for `'rccp'` to `9.00`. In the live database (`tdevgrwmafwrsmeymjzd`), `public.tools` has `price_monthly = 9.00` for `'rccp'`. Thus `finalUnitAmount = 900` (A$9.00), which with 10% GST yields A$0.82 GST and A$8.18 net, matching the observed live checkout exactly. The pre-created Stripe price for `rccp` (A$4.99) is bypassed by the inline `price_data` logic.
+    - Recommended Minimal Fix: In Supabase SQL Editor: `UPDATE public.tools SET price_monthly = 4.99 WHERE slug = 'rccp';` (immediate data fix), or in code prefer `baseStripePrice.unit_amount` / Stripe price ID when no user-specific override exists.
+- Verification:
+  - `node scripts/test-launch-readiness.mjs`: All 4 suites passed with 0 errors (including tests A1-A7).
+  - `node scripts/test-dashboard-sections.mjs`: All 6 tests passed with 0 errors.
+  - `node scripts/test-stripe-compat.mjs`: All 12 tests passed with 0 errors.
+  - `npx tsc --noEmit -p tsconfig.app.json`: Exactly 101 pre-existing errors (0 new errors).
+  - `npx tsc --noEmit`: Exited with code 0.
+  - `npx vite build`: Production bundle built cleanly in 13.53s.
+- Files touched:
+  - `supabase/functions/create-checkout-session/params.ts`
+  - `supabase/functions/create-checkout-session/index.ts`
+  - `scripts/test-launch-readiness.mjs`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+  - `CHANGELOG.md`
+  - `PROJECT_STATE.md`
+  - `BUILD_LOG.md`
+- What was NOT run:
+  - No edge functions deployed (`create-checkout-session` not deployed; owner deploys).
+  - No database migrations or SQL run.
+  - No live Stripe calls made (live invoice verification must be performed by Fahim and Raf).
+
 ## 2026-11-02 (v1.11.0 Launch Readiness - Edge Function Not Deployed)
 - Requested:
   - Part A: create-checkout-session (supabase/functions/create-checkout-session):

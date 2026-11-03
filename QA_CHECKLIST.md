@@ -759,14 +759,41 @@
   - Set `STRIPE_GST_TAX_RATE_ID=<live_rate_id>`.
   - Trigger checkout call as admin.
   - **Expected Result**: Checkout session created with `default_tax_rates = [<live_rate_id>]` and Terms consent.
+---
 
+## 30. Billing Details Collection at Checkout (Release v1.12.0)
 
+### 30a. Static Verification & Pure Helper Test Suite
+- [x] **Check 30a.1: Launch Readiness Test Suite Extended Assertions (Suite A)**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, all tests pass including:
+    - Test A5: `billing_address_collection` is `'required'` and `phone_number_collection` is enabled on all checkout sessions.
+    - Test A6: `name_collection` correctly builds optional business name and required individual name (`{ individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }`) when configured.
+    - Test A7: `customer_update` (`{ name: 'auto', address: 'auto' }`) is attached only when a `customer` ID is provided, and is strictly omitted when using `customer_email`.
+- [x] **Check 30a.2: TypeScript Diagnostic Error Baseline**:
+  - `npx tsc --noEmit -p tsconfig.app.json`
+  - **Expected Result**: Exact match with known 101 pre-existing diagnostic errors (0 new errors introduced).
+- [x] **Check 30a.3: Production Build Compilation**:
+  - `npx vite build`
+  - **Expected Result**: Exits 0, production bundle builds cleanly.
 
-
-
-
-
-
-
-
-
+### 30b. Live Checkout & Invoice Verification (To be executed by Fahim and Raf on live/test Stripe)
+- [ ] **Check 30b.1: Mandatory Billing Address on Checkout Form**:
+  - **Action**: Start a trial or subscription checkout for CP Bot.
+  - **Expected Result**:
+    - Stripe Checkout displays full billing address inputs: Street Address, City, State/Province, Postal Code, and Country.
+    - Attempting to complete checkout with empty address fields is blocked by form validation.
+    - Phone number and email fields are present and collected.
+- [ ] **Check 30b.2: Individual & Optional Business Name Fields (Post-SDK Upgrade Check)**:
+  - **Action**: When `name_collection` is activated with a compatible Stripe API version, open Checkout.
+  - **Expected Result**:
+    - Individual full name is required.
+    - Business / company name is present as an optional field.
+- [ ] **Check 30b.3: Complete Address on Resulting Tax Invoice**:
+  - **Action**: Complete checkout with valid card and billing address (e.g. 123 George St, Sydney NSW 2000, Australia).
+  - **Expected Result**:
+    - In Stripe Dashboard (or downloaded invoice PDF), view invoice under "Bill to".
+    - Full street address, city, state, postal code, country, customer name, phone number, and email are rendered under "Bill to".
+- [ ] **Check 30b.4: Optional Company Name Rendering on Invoice**:
+  - **Test Case 1 (Filled)**: Customer fills in "Acme Trading Pty Ltd". The company name appears under "Bill to" on the invoice.
+  - **Test Case 2 (Omitted)**: Customer leaves company name blank. No blank line, placeholder, or undefined field appears on the invoice.
