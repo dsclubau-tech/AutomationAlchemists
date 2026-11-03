@@ -1,3 +1,13 @@
+export const CARD_DENIAL_RETRY_CAP = 3;
+
+/**
+ * Checks whether the number of card denials has reached or exceeded the retry cap (3).
+ * When true, trial eligibility is revoked and checkout falls back to standard paid checkout.
+ */
+export function isCardDenialCapExceeded(cardDenialCount: number, cap: number = CARD_DENIAL_RETRY_CAP): boolean {
+  return cardDenialCount >= cap;
+}
+
 export const TERMS_URL = 'https://rccp.automationalchemists.com/terms-of-service';
 export const PRIVACY_URL = 'https://rccp.automationalchemists.com/privacy';
 export const TERMS_CONSENT_MESSAGE = `I agree to the [Terms of Service](${TERMS_URL}) and [Privacy Policy](${PRIVACY_URL}).`;

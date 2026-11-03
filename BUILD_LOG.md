@@ -1,5 +1,97 @@
 # Build Log
 
+## 2026-11-03 (v1.15.0 Denied-Trial Choices, Sign-Up Flow, Dashboard Open Tools Link, RCCP Landing Page Crash Fix)
+- Requested:
+  - Task A: Denied-Trial Choices (Dashboard)
+    - When a trial is denied after Stripe Checkout, webhook cancels subscription and writes a row to `public.trial_denials` (id, user_id, tool_slug, reason, created_at).
+    - If denial reason is `card_already_used`: show TWO buttons — "Use another card" (initiating a fresh trial checkout through the same existing `startTrialCheckout` flow) and "Subscribe at A$4.99/month" (existing non-trial subscribe checkout from `PRICING_CONFIG`, charged today including GST).
+    - If denial reason is `already_claimed`: show ONLY the Subscribe button (no trial is possible on this account, so "Use another card" must not appear).
+    - Retry cap: at most 3 card-denials per account per tool (`user_id, tool_slug, reason = 'card_already_used'`). When cap is reached, hide "Use another card", keep "Subscribe at A$4.99/month", and show plain text saying the free trial is no longer available for this account.
+    - Server-side cap enforcement: In `supabase/functions/create-checkout-session`, if the account already has >= 3 card-denials for that tool, the function must not offer a trial (`isEligibleTrial = false`). Put decision in a pure helper with unit tests; function deployment pending owner action.
+    - Dashboard parity: In the denied state, the CP Bot tool card on `/dashboard` must not say "Start free trial now" — it must show the same choices as the alert.
+    - All user-facing wording centralized in `src/lib/trial.ts` with zero hard-coded button labels, error text, or prices in JSX.
+    - Exhaustive report of reason codes currently stored in `public.trial_denials`.
+  - Task B: Sign-Up Flow (`src/pages/Auth.tsx`)
+    - After successful sign-up, automatically switch the form to the "Sign in" tab.
+    - Pre-fill the email address just typed; NEVER pre-fill the password.
+    - Show a clear, persistent notice above the form: "Account created. Check your email to confirm your account, then sign in."
+    - Do NOT sign in automatically; keep `emailRedirectTo: `${origin}/dashboard``.
+    - Put decision logic in pure helper `src/lib/authFlow.ts` with tests.
+    - Capture screenshots of both tabs at desktop (1280x800) and 360px mobile (360x740).
+  - Task C: "Open Tools" Link (`src/pages/Dashboard.tsx`)
+    - Change the "Open Tools" button on the dashboard to open `https://rccp.automationalchemists.com/choose` (`target="_blank" rel="noopener noreferrer"`).
+    - Do NOT change tool-specific links — "Open Return Converter" must continue opening `https://rccp.automationalchemists.com`.
+    - Grep `src/` for other links to the app root and list them with one-line explanations.
+  - Task D: Crash on `/tools/rccp`
+    - Addressed and deployed in hotfix release v1.14.1 (commit `3dadae9`).
+- Reason Codes in `public.trial_denials` (Exhaustive Analysis of Webhook & Migrations 034/035):
+  1. `card_already_used`:
+     - Stored when: `finalize_card_trial` detects that the card fingerprint (`p_card_fingerprint`) exists in `public.trial_identities` (`kind = 'card'`) associated with a different user ID (`user_id <> p_user_id`).
+     - Location: `supabase/migrations/034_card_trial_identity.sql:308`, `supabase/migrations/035_trial_identity_card_email_only.sql:104`.
+     - Behavior: Post-checkout cancellation in webhook; customer is offered "Use another card" (if under 3 retries) and "Subscribe at A$4.99/month".
+  2. `already_claimed`:
+     - Stored when: `finalize_card_trial` detects that the current user ID or normalized email has already claimed a trial (`user_id = p_user_id` in `trial_claims` or `trial_identities`).
+     - Location: `034_card_trial_identity.sql:284, 363`, `035_trial_identity_card_email_only.sql:80`.
+     - Behavior: Customer is offered exclusively "Subscribe at A$4.99/month".
+  3. `card_missing`:
+     - Stored when: `finalize_card_trial` receives an empty or whitespace card fingerprint (`v_card_fp = ''`).
+     - Location: `034_card_trial_identity.sql:249`, `035_trial_identity_card_email_only.sql:54`.
+  4. `phone_missing` & `phone_already_used`:
+     - Stored when: Migration 034 evaluated empty phone numbers or cross-account duplicate phone HMAC hashes.
+     - Location: `034_card_trial_identity.sql:255, 319`. Obsoleted and bypassed in Migration 035.
+  5. Inherited Pre-Checkout Eligibility Denial Codes:
+     - Codes evaluated by `_check_trial_eligibility`: `email_not_allowed`, `email_unconfirmed`, `already_has_access`, `not_eligible`, `disabled`, `sold_out`.
+- Full Inventory of Links to App Root (`https://rccp.automationalchemists.com`) in `src/`:
+  1. `src/pages/Dashboard.tsx:43`: `getAppUrl` function maps tool slugs `rccp`, `cpbot`, and `returnlabels` to `https://rccp.automationalchemists.com`. Used by the "Open Return Converter" button on the CP Bot tool card.
+  2. `src/components/DashboardTrialCard.tsx:151`: Primary action button "Open CP Bot" for active trial users points to `https://rccp.automationalchemists.com`.
+  3. `src/config/pricing.tsx:21-22`: `TERMS_URL` and `PRIVACY_URL` point to `https://rccp.automationalchemists.com/terms-of-service` and `https://rccp.automationalchemists.com/privacy`.
+  4. `src/data/rccpPage.ts:32`: `freeUrl` property for Return Converter hero card links to `https://rccp.automationalchemists.com`.
+  5. `src/data/tools.ts:52, 57`: Marketing catalog definition specifies `appUrl: 'https://rccp.automationalchemists.com'` for the Return Converter tool.
+  6. `src/pages/Index.tsx:120`: Homepage featured tool card specifies `targetUrl: 'https://rccp.automationalchemists.com'` for Return Converter.
+- Built & Modified:
+  - `src/lib/trial.ts`:
+    - Defined `CARD_DENIAL_RETRY_CAP = 3`.
+    - Added `getSubscribeButtonText(slug)` formatting dynamically from `PRICING_CONFIG` (`"Subscribe at A$4.99/month"`).
+    - Added centralized copy table `TRIAL_DENIAL_TEXTS` covering button labels, headers, and capped copy.
+    - Created pure helper `getDeniedTrialChoice(reason, cardDenialCount, toolSlug)`.
+  - `supabase/functions/create-checkout-session/params.ts`:
+    - Defined `CARD_DENIAL_RETRY_CAP = 3`.
+    - Created pure helper `isCardDenialCapExceeded(cardDenialCount, cap = CARD_DENIAL_RETRY_CAP)`.
+  - `supabase/functions/create-checkout-session/index.ts`:
+    - Imported `isCardDenialCapExceeded`.
+    - Added database check querying `public.trial_denials` for `reason = 'card_already_used'` and `user_id = user.id`.
+    - If `isCardDenialCapExceeded` is true, sets `isEligibleTrial = false` with `trialEligibilityReason = 'card_denials_capped'` (forces standard paid checkout).
+  - `src/components/DashboardTrialCard.tsx`:
+    - Fetches `cardDenialCount` for authenticated user from `public.trial_denials`.
+    - Evaluates choices via `getDeniedTrialChoice(deniedReason, cardDenialCount)`.
+    - Renders dual buttons ("Use another card" and "Subscribe at A$4.99/month") under cap, single Subscribe button at cap, and plain text notice when capped.
+  - `src/pages/Dashboard.tsx`:
+    - Defined `RCCP_CHOOSE_URL = 'https://rccp.automationalchemists.com/choose'`.
+    - Updated lines 201 and 233 ("Open Tools" header buttons) to use `RCCP_CHOOSE_URL`.
+    - Fetches `cardDenialCount` and passes it to `ToolCard`.
+    - When `deniedChoice?.isDenied` is true, `ToolCard` suppresses "Start free trial now" and renders matching recovery choices.
+  - `src/lib/authFlow.ts`:
+    - Created pure helper `getSignUpSuccessState({ email, hasSession })` and constant `SIGNUP_CONFIRMATION_NOTICE`.
+  - `src/pages/Auth.tsx`:
+    - Integrated `getSignUpSuccessState` on sign-up success.
+    - Automatically switches to Sign in tab, pre-fills email, clears password, and displays persistent confirmation banner.
+  - `scripts/test-launch-readiness.mjs`:
+    - Added Suite F testing `isCardDenialCapExceeded`, `getDeniedTrialChoice` (card denial under cap, card denial capped, email denial), and `getSignUpSuccessState`.
+- Verification & Artifacts:
+  - `node scripts/test-launch-readiness.mjs`: Suites A through F passed (0 errors).
+  - `node scripts/test-identifier-sweep.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-rccp-crash.mjs`: Passed cleanly across all 9 states (0 errors).
+  - `node scripts/test-trial-banner.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-dashboard-sections.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-stripe-compat.mjs`: Passed cleanly (0 errors).
+  - `npx tsc --noEmit -p tsconfig.app.json`: Exactly 98 diagnostic errors (0 new errors, 0 missing identifiers).
+  - `npx vite build`: Production bundle built cleanly in 4.90s.
+  - Visual artifacts captured via Puppeteer (Chrome 1280x800 & 360x740):
+    - `auth-desktop-signup.png`
+    - `auth-desktop-signin-notice.png`
+    - `auth-mobile-signup.png`
+    - `auth-mobile-signin-notice.png`
+
 ## 2026-11-03 (v1.14.1 Hotfix: Fix Cart Page Crash & RCCP Tool Page Crash; Identifier Sweep)
 - Requested (Urgent Addendum):
   - Fix launch blocker crash on https://automationalchemists.com/cart (`ReferenceError: PageLoader is not defined at xe (Cart-BcVK03zu.js:1:2759)`), reached when a customer refused a trial clicks "Subscribe" on the dashboard.

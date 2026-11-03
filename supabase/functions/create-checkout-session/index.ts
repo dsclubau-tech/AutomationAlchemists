@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Stripe from 'https://esm.sh/stripe@14.22.0?target=deno';
-import { buildCheckoutSessionParams } from './params.ts';
+import { buildCheckoutSessionParams, isCardDenialCapExceeded } from './params.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -133,8 +133,21 @@ Deno.serve(async (req) => {
 
       if (!eligibilityError && eligibility) {
         if (eligibility.eligible) {
-          isEligibleTrial = true;
-          trialDays = Number(eligibility.trial_days) || 30;
+          // Check retry cap: at most 3 card-denials per account per tool in public.trial_denials
+          const { count: cardDenialCount, error: denialError } = await supabaseAdmin
+            .from('trial_denials')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('tool_slug', 'rccp')
+            .eq('reason', 'card_already_used');
+
+          if (!denialError && isCardDenialCapExceeded(cardDenialCount ?? 0)) {
+            isEligibleTrial = false;
+            trialEligibilityReason = 'card_denials_capped';
+          } else {
+            isEligibleTrial = true;
+            trialDays = Number(eligibility.trial_days) || 30;
+          }
         } else {
           trialEligibilityReason = eligibility.reason || 'not_eligible';
         }

@@ -3,10 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { sanitizeNext } from '@/lib/trial';
+import { getSignUpSuccessState } from '@/lib/authFlow';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import { z } from 'zod';
 import logo from '@/assets/logo.png';
@@ -120,6 +121,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [touchedPassword, setTouchedPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [signUpNotice, setSignUpNotice] = useState<string | null>(null);
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -241,13 +243,22 @@ const Auth = () => {
         );
         if (error) throw error;
 
+        const transition = getSignUpSuccessState({
+          email,
+          hasSession: Boolean(data?.session),
+        });
+        setIsSignUp(transition.isSignUp);
+        setEmail(transition.prefilledEmail);
+        setPassword(transition.clearedPassword);
+        setSignUpNotice(transition.notice);
+
         toast({
           title: 'Success!',
           description: data?.session 
             ? 'Your account has been created successfully.' 
             : 'Please check your email to confirm your account.',
         });
-        if (data?.session) {
+        if (transition.shouldNavigate) {
           navigate(targetNext);
         }
       } else {
@@ -358,6 +369,12 @@ const Auth = () => {
               </button>
             </div>
 
+            {signUpNotice && (
+              <div className="mb-6 p-4 rounded-xl bg-teal-600/10 border border-teal-600/30 text-teal-900 font-display text-sm flex items-start gap-3 shadow-sm">
+                <CheckCircle2 className="w-5 h-5 text-teal-700 shrink-0 mt-0.5" />
+                <span className="font-semibold leading-relaxed">{signUpNotice}</span>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-5">
               {isSignUp ? (
                 <>

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { handleGetAccessLogic, startTrialCheckout, redirectToBillingPortal } from '@/lib/checkout';
 import { VISIBLE_TOOL_SLUGS } from '@/data/tools';
-import { useTrialStatus, TrialStatusData } from '@/lib/trial';
+import { useTrialStatus, TrialStatusData, getDeniedTrialChoice } from '@/lib/trial';
 import {
     categorizeDashboardTools,
     canManageSubscription,
@@ -61,6 +61,8 @@ const getIconComponent = (slug: string): ElementType => {
     }
 };
 
+export const RCCP_CHOOSE_URL = 'https://rccp.automationalchemists.com/choose';
+
 const getAppUrl = (slug: string): string => {
     switch (slug) {
         case 'rccp': return 'https://rccp.automationalchemists.com';
@@ -99,6 +101,7 @@ const ToolCard = ({
     cpBotSubscription,
     subscription,
     trialStatus,
+    cardDenialCount = 0,
     onStartTrial,
     onManageSubscription,
     onSubscribe,
@@ -112,6 +115,7 @@ const ToolCard = ({
     cpBotSubscription?: SubscriptionData | null;
     subscription?: SubscriptionData | null;
     trialStatus?: TrialStatusData | null;
+    cardDenialCount?: number;
     onStartTrial?: () => void;
     onManageSubscription?: () => void;
     onSubscribe?: () => void;
@@ -197,7 +201,7 @@ const ToolCard = ({
                 button = (
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
-                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                            <a href={RCCP_CHOOSE_URL} target="_blank" rel="noopener noreferrer">
                                 Open Tools
                             </a>
                         </Button>
@@ -229,7 +233,7 @@ const ToolCard = ({
                 button = (
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <Button asChild className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
-                            <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                            <a href={RCCP_CHOOSE_URL} target="_blank" rel="noopener noreferrer">
                                 Open Tools
                             </a>
                         </Button>
@@ -253,7 +257,36 @@ const ToolCard = ({
                     </div>
                 );
 
-                if (isTrialEligible) {
+                const deniedChoice = trialStatus?.denied_reason
+                    ? getDeniedTrialChoice(trialStatus.denied_reason, cardDenialCount)
+                    : null;
+
+                if (deniedChoice?.isDenied) {
+                    button = (
+                        <div className="flex flex-col gap-2 w-full sm:w-auto">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button asChild variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                    <a href={getAppUrl(tool.slug)} target="_blank" rel="noopener noreferrer">
+                                        Open Return Converter
+                                    </a>
+                                </Button>
+                                {deniedChoice.canRetryCard && (
+                                    <Button onClick={onStartTrial} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                        {deniedChoice.useAnotherCardButtonText}
+                                    </Button>
+                                )}
+                                <Button onClick={onSubscribe} className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm">
+                                    {deniedChoice.subscribeButtonText}
+                                </Button>
+                            </div>
+                            {deniedChoice.isCapped && (
+                                <p className="text-xs text-teal-900/70 font-display">
+                                    {deniedChoice.description}
+                                </p>
+                            )}
+                        </div>
+                    );
+                } else if (isTrialEligible) {
                     button = (
                         <div className="flex flex-col gap-2 w-full sm:w-auto">
                             <div className="flex flex-wrap items-center gap-2">
@@ -406,6 +439,27 @@ const Dashboard = () => {
     const [showAddStoreModal, setShowAddStoreModal] = useState(false);
     const [newStoreName, setNewStoreName] = useState('');
     const [addStoreLoading, setAddStoreLoading] = useState(false);
+    const [cardDenialCount, setCardDenialCount] = useState<number>(0);
+
+    useEffect(() => {
+        if (!user) return;
+        const fetchDenials = async () => {
+            try {
+                const { count, error } = await (supabase as any)
+                    .from('trial_denials')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+                    .eq('tool_slug', 'rccp')
+                    .eq('reason', 'card_already_used');
+                if (!error && typeof count === 'number') {
+                    setCardDenialCount(count);
+                }
+            } catch (err) {
+                console.error('Error fetching card denial count:', err);
+            }
+        };
+        fetchDenials();
+    }, [user, trialStatus?.denied_reason]);
 
     // Redirect unauthenticated users once session check is done
     useEffect(() => {
@@ -700,6 +754,7 @@ const Dashboard = () => {
                                                     cpBotSubscription={tool.slug === 'rccp' ? subscriptions.find(s => (s.product_slug === 'cpbot' || s.product_slug === 'rccp')) : undefined}
                                                     subscription={activeSub}
                                                     trialStatus={tool.slug === 'rccp' ? trialStatus : undefined}
+                                                    cardDenialCount={cardDenialCount}
                                                     onStartTrial={() => startTrialCheckout({ returnPath: '/dashboard', user, toast })}
                                                     onManageSubscription={() => redirectToBillingPortal(toast)}
                                                     onSubscribe={() => handleGetAccessLogic('rccp', user, toast)}

@@ -14,6 +14,23 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Denied-Trial Choices & Retry Cap (`src/lib/trial.ts`, `src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, v1.15.0)**:
+  - Guided recovery options for declined free trials:
+    - Card already used (`card_already_used`): Displays dual action buttons — "Use another card" (initiating a fresh checkout session via standard `startTrialCheckout`) and "Subscribe at A$4.99/month" (initiating immediate paid subscription via `handleGetAccessLogic('rccp')`).
+    - Account/email already used (`already_claimed`): Displays exclusively the "Subscribe at A$4.99/month" action button.
+  - Three-strike retry cap: Maximum 3 card denials per account per tool evaluated from `public.trial_denials`. When reached (`cardDenialCount >= 3`), "Use another card" is suppressed, displaying plain text *"The free trial is no longer available for this account."* alongside the Subscribe button.
+  - Server-side cap enforcement: Pure helper `isCardDenialCapExceeded` in `supabase/functions/create-checkout-session/params.ts`; when cap is exceeded, `create-checkout-session` forces `isEligibleTrial = false` with `trialEligibilityReason = 'card_denials_capped'` (Edge Function updated, awaiting owner deployment).
+  - Dashboard CP Bot tool card parity: Suppresses "Start free trial now" when denied, presenting the exact dual or single recovery choices matching the top alert.
+  - All copy centralized in `src/lib/trial.ts` (`TRIAL_DENIAL_TEXTS`, `getDeniedTrialChoice`, `getSubscribeButtonText`) with zero hardcoded prices or labels in JSX.
+- **Sign-Up Flow Guidance & Persistent Notice (`src/lib/authFlow.ts`, `src/pages/Auth.tsx`, v1.15.0)**:
+  - Streamlined post-signup onboarding: Upon successful submission of the Create Account form, automatically switches active tab to "Sign in".
+  - Pre-fills customer email address into the Sign in input field while strictly clearing password fields.
+  - Displays persistent confirmation alert above the sign-in form: *"Account created. Check your email to confirm your account, then sign in."*.
+  - Preserves mandatory Supabase email verification with `emailRedirectTo: `${origin}/dashboard`` without premature automatic sign-in.
+  - State machine logic extracted into pure helper `getSignUpSuccessState` in `src/lib/authFlow.ts` with comprehensive unit tests.
+- **Dashboard "Open Tools" Link Direct Routing (`src/pages/Dashboard.tsx`, v1.15.0)**:
+  - Updated primary "Open Tools" header action buttons on `/dashboard` to link directly to `https://rccp.automationalchemists.com/choose` via exported constant `RCCP_CHOOSE_URL`.
+  - Tool-specific "Open Return Converter" actions continue pointing directly to `https://rccp.automationalchemists.com`.
 - **Cart Page Crash Resolution & Global Identifier Sweep (`src/pages/Cart.tsx`, `src/pages/Account.tsx`, v1.14.1)**:
   - Fixed launch-blocking `ReferenceError: PageLoader is not defined` crash on `/cart` when trial-refused customers clicked "Subscribe" from the dashboard or when unauthenticated users visited the cart. Imported shared `PageLoader` from `src/components/PageLoader.tsx`.
   - Comprehensive source code sweep fixed missing `ShieldAlert` icon import in `src/pages/Account.tsx` account deletion confirmation modal.
@@ -134,14 +151,14 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
   - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, v1.9.4 refund fix, and v1.14.0 phone decoupling changes **NOT deployed**.
-  - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, and v1.12.0 (GST tax rate, terms consent, billing address required, phone collection), **NOT deployed**.
+  - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, v1.12.0, and v1.15.0 (card denial retry cap), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
 - **Database**:
   - Migration 034 applied and verified.
   - Migration 035 (`035_trial_identity_card_email_only.sql`) authored and pending manual execution by owner.
 
 ## In Progress
-- Local verification and testing of release v1.14.0 complete.
+- Local verification and testing of release v1.15.0 complete.
 - Owner applying migration `035_trial_identity_card_email_only.sql` in Supabase SQL editor.
 - Review of Stripe SDK upgrade options for first-class `name_collection` (`2025-09-30.clover`+).
 - Owner setting `STRIPE_GST_TAX_RATE_ID` secret in Supabase Edge Functions.
@@ -163,4 +180,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-03 — Release v1.14.1: Cart page crash fix (PageLoader not defined), RCCP tool page crash fix, and global identifier sweep.*
+*Last Updated: 2026-11-03 — Release v1.15.0: Denied-trial choices, sign-up flow, Open Tools link, landing page crash fix.*

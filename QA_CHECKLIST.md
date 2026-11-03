@@ -982,3 +982,73 @@
   - **Expected Result**:
     - Modal opens smoothly with `<ShieldAlert />` icon rendered in red next to `"Are you sure?"`.
     - No console `ReferenceError: ShieldAlert is not defined`.
+
+---
+
+## 34. Denied-Trial Choices, Sign-Up Flow, and Dashboard Open Tools Link (Release v1.15.0)
+
+### 34a. Static Verification & Automated Regression Suites
+- [x] **Check 34a.1: Launch Readiness Test Suite with Suite F (5/5 Assertions Passed)**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, Suite F passes:
+    - Test F1: `isCardDenialCapExceeded` accurately flags 3 or more card denials as capped.
+    - Test F2: `getDeniedTrialChoice('card_already_used', 1)` produces dual choices: `"Use another card"` and `"Subscribe at A$4.99/month"`.
+    - Test F3: `getDeniedTrialChoice('card_already_used', 3)` suppresses card retry, flags `isCapped = true`, and sets description to `"The free trial is no longer available for this account."`.
+    - Test F4: `getDeniedTrialChoice('already_claimed', 0)` produces exclusively `"Subscribe at A$4.99/month"` (no card retry).
+    - Test F5: `getSignUpSuccessState` switches to Sign in tab, pre-fills email, strictly clears password, and returns `"Account created. Check your email to confirm your account, then sign in."`. (Passed: all suites A-F).
+- [x] **Check 34a.2: TypeScript Compilation & Diagnostics Count**:
+  - `powershell -Command "(npx tsc --noEmit -p tsconfig.app.json 2>&1 | Select-String ': error TS').Count"`
+  - **Expected Result**: Exactly 98 diagnostic errors (zero new errors introduced, zero TS2304/TS2552 missing identifier errors). (Passed: 98).
+- [x] **Check 34a.3: Full Test Suite Execution**:
+  - Run `scripts/test-identifier-sweep.mjs`, `scripts/test-rccp-crash.mjs`, `scripts/test-trial-banner.mjs`, `scripts/test-dashboard-sections.mjs`, `scripts/test-stripe-compat.mjs`.
+  - **Expected Result**: All suites pass with zero errors. (Passed).
+- [x] **Check 34a.4: Production Build Verification**:
+  - `npx vite build`
+  - **Expected Result**: Exits 0, client bundle builds cleanly in < 6 seconds. (Passed: 4.90s).
+
+### 34b. Runtime & User-Facing Verification Steps
+- [ ] **Check 34b.1: Card-Denied Customer Under Cap Sees Dual Recovery Options**:
+  - **Precondition**: Customer account experienced a post-checkout trial refusal with `reason = 'card_already_used'` and total card denials count < 3.
+  - **Action**: Navigate to `https://www.automationalchemists.com/dashboard`.
+  - **Expected Result**:
+    - Dashboard trial alert displays:
+      - Title: *"Free trial unavailable on this card"*
+      - Description: *"This card has already been used for a free trial. You can try a different payment card, or subscribe now."*
+      - Two action buttons: *"Use another card"* (yellow primary) and *"Subscribe at A$4.99/month"* (white/outline).
+    - CP Bot tool card does NOT show *"Start free trial now"*. Shows matching *"Use another card"* and *"Subscribe at A$4.99/month"* buttons (or *"Open Return Converter"*).
+- [ ] **Check 34b.2: Card-Denied Customer at Cap Sees Single Subscribe Action**:
+  - **Precondition**: Customer account has 3 or more rows in `public.trial_denials` with `reason = 'card_already_used'`.
+  - **Action**: Navigate to `https://www.automationalchemists.com/dashboard`.
+  - **Expected Result**:
+    - Dashboard trial alert displays:
+      - Description: *"The free trial is no longer available for this account."*
+      - *"Use another card"* button is completely hidden.
+      - Single action button: *"Subscribe at A$4.99/month"*.
+    - CP Bot tool card shows only *"Subscribe at A$4.99/month"* and *"Open Return Converter"*.
+- [ ] **Check 34b.3: Email-Denied Customer Sees Only Subscribe Action**:
+  - **Precondition**: Customer account experienced a trial refusal with `reason = 'already_claimed'`.
+  - **Action**: Navigate to `https://www.automationalchemists.com/dashboard`.
+  - **Expected Result**:
+    - Dashboard trial alert displays:
+      - Title: *"Free trial already claimed"*
+      - Description: *"This account or email has already used the free trial. You can subscribe at A$4.99/month to continue using CP Bot."*
+      - Only the *"Subscribe at A$4.99/month"* action button is displayed (*"Use another card"* is omitted).
+- [ ] **Check 34b.4: Sign-Up Flow Transitions to Sign In Tab with Pre-Filled Email**:
+  - **Action**:
+    - Navigate to `https://www.automationalchemists.com/auth?mode=signup`.
+    - Fill out Full Name, Country, Email (`newuser@example.com`), Password, and accept Terms of Service.
+    - Click *"Create Account"*.
+  - **Expected Result**:
+    - Active tab automatically transitions to *"Sign in"*.
+    - Email field contains `newuser@example.com`.
+    - Password field is completely blank.
+    - Persistent banner appears above the form: *"Account created. Check your email to confirm your account, then sign in."*.
+    - User is NOT signed in automatically.
+- [ ] **Check 34b.5: Dashboard "Open Tools" Button Opens Tools Selector**:
+  - **Action**: Sign in and navigate to `https://www.automationalchemists.com/dashboard`. Click the *"Open Tools"* button in the dashboard header.
+  - **Expected Result**:
+    - Opens `https://rccp.automationalchemists.com/choose` in a new tab (`target="_blank" rel="noopener noreferrer"`).
+- [ ] **Check 34b.6: Dashboard "Open Return Converter" Button Opens Root**:
+  - **Action**: Click the *"Open Return Converter"* button on the Return Converter x CopyPaste Bot card.
+  - **Expected Result**:
+    - Opens `https://rccp.automationalchemists.com` in a new tab.

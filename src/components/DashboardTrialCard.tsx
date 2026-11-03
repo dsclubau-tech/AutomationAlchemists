@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
@@ -7,6 +8,7 @@ import {
   getTrialStatus,
   getClaimErrorMessage,
   formatTrialTimeLeft,
+  getDeniedTrialChoice,
 } from '@/lib/trial';
 import { startTrialCheckout, redirectToBillingPortal } from '@/lib/checkout';
 import { useAuth } from '@/hooks/useAuth';
@@ -39,6 +41,27 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
   const [successEndsAt, setSuccessEndsAt] = useState<string | null>(null);
   const [deniedReason, setDeniedReason] = useState<string | null>(null);
   const [isTimedOut, setIsTimedOut] = useState(false);
+  const [cardDenialCount, setCardDenialCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchDenials = async () => {
+      try {
+        const { count, error } = await (supabase as any)
+          .from('trial_denials')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('tool_slug', 'rccp')
+          .eq('reason', 'card_already_used');
+        if (!error && typeof count === 'number') {
+          setCardDenialCount(count);
+        }
+      } catch (err) {
+        console.error('Error fetching card denial count:', err);
+      }
+    };
+    fetchDenials();
+  }, [userId, deniedReason, trialStatus?.denied_reason]);
 
   // Detect ?checkout=success and poll get_trial_status every 2s up to 40s
   useEffect(() => {
@@ -157,9 +180,25 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     );
   }
 
-  // 3. Checkout polling returned denial reason
-  if (deniedReason) {
-    const errorMsg = getClaimErrorMessage(deniedReason, priceMonthly);
+  // 3. Checkout polling returned denial reason OR trialStatus has denied_reason
+  const activeDeniedReason = deniedReason || trialStatus?.denied_reason;
+  if (activeDeniedReason) {
+    const choice = getDeniedTrialChoice(activeDeniedReason, cardDenialCount, priceMonthly);
+
+    const handleRetryWithAnotherCard = async () => {
+      if (isStartingCheckout) return;
+      setIsStartingCheckout(true);
+      try {
+        await startTrialCheckout({
+          returnPath: '/dashboard',
+          user,
+          toast,
+        });
+      } finally {
+        setIsStartingCheckout(false);
+      }
+    };
+
     return (
       <div
         id="claim-trial"
@@ -171,19 +210,39 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
           </div>
           <div>
             <h3 className="text-base font-bold text-teal-900 font-display">
-              {errorMsg}
+              {choice.title}
             </h3>
             <p className="text-sm text-teal-900/70 font-display">
-              You can still subscribe to CP Bot directly without a trial.
+              {choice.description}
             </p>
           </div>
         </div>
-        <Button
-          onClick={onSubscribe}
-          className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
-        >
-          Subscribe
-        </Button>
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto shrink-0">
+          {choice.canRetryCard && (
+            <Button
+              type="button"
+              disabled={isStartingCheckout}
+              onClick={handleRetryWithAnotherCard}
+              variant="outline"
+              className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white font-bold px-4 py-2.5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
+            >
+              {isStartingCheckout ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                  <span>Redirecting...</span>
+                </>
+              ) : (
+                choice.useAnotherCardButtonText
+              )}
+            </Button>
+          )}
+          <Button
+            onClick={onSubscribe}
+            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
+          >
+            {choice.subscribeButtonText}
+          </Button>
+        </div>
       </div>
     );
   }

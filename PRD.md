@@ -553,3 +553,59 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
 
 - **Automated Regression Guards**:
   - Integrated `scripts/test-identifier-sweep.mjs` into `scripts/test-launch-readiness.mjs` (Suite D2) to prevent any future missing identifier or broken mount regressions on `/cart` and `/tools/rccp`.
+
+---
+
+### 22. Denied-Trial Choices, Sign-Up Flow & Dashboard Open Tools Link (Release v1.15.0)
+
+- **Denied-Trial Guided Recovery Choices (Task A)**:
+  - **What it does**: Provides clear, actionable next steps when a customer's promotional free trial is denied after completing Stripe Checkout (due to an already-used card or email).
+  - **Dual Recovery for Card Denial (`card_already_used`)**:
+    - When a customer signs up with a valid account but enters a payment card already recorded for another trial, the webhook cancels the subscription and records `reason = 'card_already_used'`.
+    - Under the retry cap, the dashboard alert and CP Bot tool card display TWO action buttons:
+      1. *"Use another card"*: Invokes the standard existing `startTrialCheckout` flow to retry checkout with a different card.
+      2. *"Subscribe at A$4.99/month"*: Invokes `handleGetAccessLogic('rccp')` to immediately subscribe to CP Bot at promotional launch pricing (charged today including GST).
+  - **Single Recovery for Email Denial (`already_claimed`)**:
+    - When a customer has already claimed a trial under this account or normalized email address, retrying with another card is impossible.
+    - The dashboard alert and tool card display ONLY the *"Subscribe at A$4.99/month"* action button.
+  - **Three-Strike Card Denial Cap**:
+    - To prevent brute-force testing of multiple cards, each account is capped at a maximum of 3 card denials per tool (`CARD_DENIAL_RETRY_CAP = 3`).
+    - The count is evaluated directly from `public.trial_denials` (`user_id = user.id`, `tool_slug = 'rccp'`, `reason = 'card_already_used'`).
+    - When `cardDenialCount >= 3`:
+      - *"Use another card"* is hidden.
+      - *"Subscribe at A$4.99/month"* remains available.
+      - Clear plain text is shown: *"The free trial is no longer available for this account."*.
+  - **Server-Side Cap Enforcement in `create-checkout-session`**:
+    - Pure helper `isCardDenialCapExceeded(cardDenialCount, cap)` in `supabase/functions/create-checkout-session/params.ts`.
+    - `create-checkout-session` queries `public.trial_denials`. When `cardDenialCount >= 3`, forces `isEligibleTrial = false` with `trialEligibilityReason = 'card_denials_capped'`.
+    - Safely falls back to a standard non-trial paid checkout session with default tax rates and terms consent (Edge Function updated, awaiting manual deployment by owner).
+  - **Tool Card Consistency & Centralized Copy**:
+    - CP Bot tool card on `/dashboard` suppresses the "Start free trial now" button when the account is in a denied state, displaying the exact same dual or single recovery options.
+    - All button labels, alert copy, and prices are strictly centralized in `src/lib/trial.ts` (`TRIAL_DENIAL_TEXTS`, `getDeniedTrialChoice`, `getSubscribeButtonText`) and pulled dynamically from `PRICING_CONFIG`.
+  - **Files Implementing It**: [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts), [`src/components/DashboardTrialCard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/components/DashboardTrialCard.tsx), [`src/pages/Dashboard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Dashboard.tsx), [`supabase/functions/create-checkout-session/params.ts`](file:///G:/app%20development/AutomationAlchemists/supabase/functions/create-checkout-session/params.ts), [`supabase/functions/create-checkout-session/index.ts`](file:///G:/app%20development/AutomationAlchemists/supabase/functions/create-checkout-session/index.ts).
+
+- **Sign-Up Flow Guidance & Persistent Notice (Task B)**:
+  - **What it does**: Eliminates confusion during customer onboarding when creating a new account.
+  - **State Transition to Sign In**:
+    - Upon successful submission of the "Create account" form in `src/pages/Auth.tsx`, the tab state automatically switches to "Sign in".
+    - The email address entered during sign-up is automatically pre-filled in the sign-in form.
+    - The password field is strictly wiped/cleared for security (never pre-filled).
+  - **Persistent Confirmation Notice**:
+    - Renders a prominent, persistent banner above the form: *"Account created. Check your email to confirm your account, then sign in."*.
+    - Accompanied by a check icon and styled in brand teal (`bg-teal-600/10 border-teal-600/30 text-teal-900`).
+    - Remains visible until the user navigates away or successfully authenticates.
+  - **Preserved Email Verification Safeguards**:
+    - Does NOT sign users in automatically (avoiding bypassed verification or authentication errors).
+    - Preserves `emailRedirectTo: `${window.location.origin}/dashboard``.
+  - **Pure State Helper**:
+    - Pure function `getSignUpSuccessState({ email, hasSession })` in `src/lib/authFlow.ts` driving state changes with offline unit tests.
+  - **Files Implementing It**: [`src/lib/authFlow.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/authFlow.ts), [`src/pages/Auth.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Auth.tsx).
+
+- **Dashboard "Open Tools" Link Direct Routing (Task C)**:
+  - **What it does**: Routes the top "Open Tools" action button on `/dashboard` directly to the tools selector page rather than the Return Converter root.
+  - **Destination URL**:
+    - Pinned exported constant `RCCP_CHOOSE_URL = 'https://rccp.automationalchemists.com/choose'` in `src/pages/Dashboard.tsx`.
+    - Both primary header "Open Tools" buttons (empty and populated dashboard views) open `RCCP_CHOOSE_URL` with `target="_blank" rel="noopener noreferrer"`.
+  - **Preserved Tool-Specific Links**:
+    - Individual tool card "Open Return Converter" actions continue pointing directly to `https://rccp.automationalchemists.com`.
+  - **Files Implementing It**: [`src/pages/Dashboard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Dashboard.tsx).

@@ -20,11 +20,13 @@ const paramsEntry = path.resolve(__dirname, '../supabase/functions/create-checko
 const billingEntry = path.resolve(__dirname, '../src/lib/billingView.ts');
 const pricingEntry = path.resolve(__dirname, '../src/config/pricing.tsx');
 const trialEntry = path.resolve(__dirname, '../src/lib/trial.ts');
+const authFlowEntry = path.resolve(__dirname, '../src/lib/authFlow.ts');
 
 const tempParamsBundle = path.resolve(__dirname, 'temp-params.mjs');
 const tempBillingBundle = path.resolve(__dirname, 'temp-billing.mjs');
 const tempPricingBundle = path.resolve(__dirname, 'temp-pricing.mjs');
 const tempTrialBundle = path.resolve(__dirname, 'temp-trial.mjs');
+const tempAuthFlowBundle = path.resolve(__dirname, 'temp-auth-flow.mjs');
 
 console.log('═══════════════════════════════════════════════════════════════');
 console.log('   LAUNCH READINESS TEST SUITE (v1.11.0 Offline Assertions)    ');
@@ -75,9 +77,22 @@ try {
     },
     outfile: tempTrialBundle,
   });
-const { buildCheckoutSessionParams, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
+
+  esbuild.buildSync({
+    entryPoints: [authFlowEntry],
+    bundle: true,
+    platform: 'node',
+    format: 'esm',
+    target: 'node18',
+    alias: {
+      '@': path.resolve(__dirname, '../src'),
+    },
+    outfile: tempAuthFlowBundle,
+  });
+const { buildCheckoutSessionParams, isCardDenialCapExceeded, CARD_DENIAL_RETRY_CAP, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
   const { getBillingView, formatBillingDate, getEffectiveTrialEnd, TRIAL_GRACE_BUFFER_HOURS, TRIAL_GRACE_BUFFER_MS } = await import(`file://${tempBillingBundle.replace(/\\/g, '/')}`);
-  const { getClaimErrorMessage } = await import(`file://${tempTrialBundle.replace(/\\/g, '/')}`);
+  const { getClaimErrorMessage, getDeniedTrialChoice, getSubscribeButtonText } = await import(`file://${tempTrialBundle.replace(/\\/g, '/')}`);
+  const { getSignUpSuccessState, SIGNUP_CONFIRMATION_NOTICE } = await import(`file://${tempAuthFlowBundle.replace(/\\/g, '/')}`);
   const { PRICING_CONFIG, formatPrice, getTrialLineText } = await import(`file://${tempPricingBundle.replace(/\\/g, '/')}`);
 
   // ─────────────────────────────────────────────────────────────
@@ -479,6 +494,58 @@ const { buildCheckoutSessionParams, TERMS_URL, PRIVACY_URL } = await import(`fil
   console.log('  ✓ Test E1: Phone denial messages removed; card and email denial messages preserved.\n');
 
   // ─────────────────────────────────────────────────────────────
+  // (F) Release v1.15.0 - Denied-Trial Choices & Sign-Up Flow Tests
+  // ─────────────────────────────────────────────────────────────
+  console.log('--- Suite F: Denied-Trial Choices & Sign-Up Flow Tests ---');
+
+  // Test F1: isCardDenialCapExceeded pure helper
+  assert.strictEqual(isCardDenialCapExceeded(0), false);
+  assert.strictEqual(isCardDenialCapExceeded(1), false);
+  assert.strictEqual(isCardDenialCapExceeded(2), false);
+  assert.strictEqual(isCardDenialCapExceeded(3), true);
+  assert.strictEqual(isCardDenialCapExceeded(4), true);
+  console.log('  ✓ Test F1: Card denial retry cap (3) evaluated correctly server-side.');
+
+  // Test F2: getDeniedTrialChoice for card_already_used under cap (< 3)
+  const cardDeniedUnderCap = getDeniedTrialChoice('card_already_used', 1);
+  assert.strictEqual(cardDeniedUnderCap.isDenied, true);
+  assert.strictEqual(cardDeniedUnderCap.canRetryCard, true, 'Must allow retry with another card under cap');
+  assert.strictEqual(cardDeniedUnderCap.isCapped, false);
+  assert.strictEqual(cardDeniedUnderCap.useAnotherCardButtonText, 'Use another card');
+  assert.strictEqual(cardDeniedUnderCap.subscribeButtonText, 'Subscribe at A$4.99/month');
+  console.log('  ✓ Test F2: Card denial under cap offers "Use another card" and "Subscribe at A$4.99/month".');
+
+  // Test F3: getDeniedTrialChoice for card_already_used at or above cap (>= 3)
+  const cardDeniedCapped = getDeniedTrialChoice('card_already_used', 3);
+  assert.strictEqual(cardDeniedCapped.isDenied, true);
+  assert.strictEqual(cardDeniedCapped.canRetryCard, false, 'Must NOT show "Use another card" when capped');
+  assert.strictEqual(cardDeniedCapped.isCapped, true);
+  assert.strictEqual(cardDeniedCapped.description, 'The free trial is no longer available for this account.');
+  assert.strictEqual(cardDeniedCapped.subscribeButtonText, 'Subscribe at A$4.99/month');
+  console.log('  ✓ Test F3: Card denial at cap shows only Subscribe with plain text no longer available.');
+
+  // Test F4: getDeniedTrialChoice for already_claimed (email already used)
+  const emailDenied = getDeniedTrialChoice('already_claimed', 0);
+  assert.strictEqual(emailDenied.isDenied, true);
+  assert.strictEqual(emailDenied.canRetryCard, false, 'Must NOT show "Use another card" for email denial');
+  assert.strictEqual(emailDenied.subscribeButtonText, 'Subscribe at A$4.99/month');
+  console.log('  ✓ Test F4: Email denial shows ONLY the Subscribe button without card retry.');
+
+  // Test F5: getSignUpSuccessState pure helper
+  const signupUnconfirmed = getSignUpSuccessState({ email: 'newcustomer@example.com', hasSession: false });
+  assert.strictEqual(signupUnconfirmed.isSignUp, false, 'Must switch to Sign in tab');
+  assert.strictEqual(signupUnconfirmed.prefilledEmail, 'newcustomer@example.com', 'Must pre-fill email address');
+  assert.strictEqual(signupUnconfirmed.clearedPassword, '', 'Password must NEVER be pre-filled');
+  assert.strictEqual(signupUnconfirmed.notice, SIGNUP_CONFIRMATION_NOTICE);
+  assert.strictEqual(signupUnconfirmed.notice, 'Account created. Check your email to confirm your account, then sign in.');
+  assert.strictEqual(signupUnconfirmed.shouldNavigate, false, 'Must not navigate or sign in automatically');
+
+  const signupWithSession = getSignUpSuccessState({ email: 'auto@example.com', hasSession: true });
+  assert.strictEqual(signupWithSession.shouldNavigate, true);
+  console.log('  ✓ Test F5: Sign-up state transition correctly switches to Sign in, pre-fills email, clears password, and sets notice.\n');
+
+
+  // ─────────────────────────────────────────────────────────────
   // (C) Central Pricing Config Tests
   // ─────────────────────────────────────────────────────────────
   console.log('--- Suite C: Central Pricing Config Tests ---');
@@ -570,4 +637,5 @@ const { buildCheckoutSessionParams, TERMS_URL, PRIVACY_URL } = await import(`fil
   if (fs.existsSync(tempBillingBundle)) fs.unlinkSync(tempBillingBundle);
   if (fs.existsSync(tempPricingBundle)) fs.unlinkSync(tempPricingBundle);
   if (fs.existsSync(tempTrialBundle)) fs.unlinkSync(tempTrialBundle);
+  if (fs.existsSync(tempAuthFlowBundle)) fs.unlinkSync(tempAuthFlowBundle);
 }

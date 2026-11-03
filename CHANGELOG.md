@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2026-11-03
+### Added
+- Clear recovery choices for customers whose free trial was declined after checkout, including one-click retry with another card or immediate subscription at promotional launch pricing
+- Anti-abuse retry limit capping trial attempts at 3 cards per account while ensuring direct paid subscription remains accessible
+- Smooth sign-up flow that automatically switches new users to the sign-in form with their email address pre-filled and a persistent reminder to confirm their inbox
+
+### Changed
+- Updated the dashboard "Open Tools" button to open the tools selector page (`/choose`) directly
+
+### Fixed
+- Addressed page errors on cart checkout and promotional landing pages (including hotfix 1.14.1)
+
 ## [1.14.1] - 2026-11-03
 ### Fixed
 - Fixed critical Cart page crash where clicking "Subscribe" from the customer dashboard caused a full-page error due to a missing loading component import

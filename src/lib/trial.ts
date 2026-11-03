@@ -54,6 +54,121 @@ export function sanitizeNext(raw: unknown): string {
  * Never reveals which other account used a card.
  * Phone numbers no longer block or deny trials (v1.14.0).
  */
+
+export const CARD_DENIAL_RETRY_CAP = 3;
+
+/**
+ * Returns user-facing Subscribe button text formatted with current promotional pricing.
+ */
+export function getSubscribeButtonText(priceMonthly: number = PRICING_CONFIG.launchPrice): string {
+  return `Subscribe at ${formatPrice(priceMonthly)}/month`;
+}
+
+export const TRIAL_DENIAL_TEXTS = {
+  cardAlreadyUsedTitle: 'This card was already used for a free trial.',
+  cardAlreadyUsedSubtitle: 'You can use another card to start your free trial, or subscribe now.',
+  cardAlreadyUsedCappedTitle: 'This card was already used for a free trial.',
+  cardAlreadyUsedCappedSubtitle: 'The free trial is no longer available for this account.',
+  emailAlreadyUsedTitle: 'This account or email has already used the free trial.',
+  emailAlreadyUsedSubtitle: 'You can still subscribe to CP Bot directly without a trial.',
+  useAnotherCardButton: 'Use another card',
+  freeTrialNoLongerAvailable: 'The free trial is no longer available for this account.',
+} as const;
+
+export interface DeniedTrialChoice {
+  isDenied: boolean;
+  reason: string | null;
+  cardDenialCount: number;
+  isCapped: boolean;
+  canRetryCard: boolean;
+  title: string;
+  description: string;
+  subscribeButtonText: string;
+  useAnotherCardButtonText: string;
+}
+
+/**
+ * Pure helper returning customer-facing choices when a trial is denied.
+ * All wording lives in src/lib/trial.ts.
+ */
+export function getDeniedTrialChoice(
+  deniedReason?: string | null,
+  cardDenialCount: number = 0,
+  priceMonthly: number = PRICING_CONFIG.launchPrice
+): DeniedTrialChoice {
+  const reason = deniedReason || null;
+  const isCapped = cardDenialCount >= CARD_DENIAL_RETRY_CAP;
+  const subscribeButtonText = getSubscribeButtonText(priceMonthly);
+  const useAnotherCardButtonText = TRIAL_DENIAL_TEXTS.useAnotherCardButton;
+
+  if (!reason) {
+    return {
+      isDenied: false,
+      reason: null,
+      cardDenialCount,
+      isCapped: false,
+      canRetryCard: false,
+      title: '',
+      description: '',
+      subscribeButtonText,
+      useAnotherCardButtonText,
+    };
+  }
+
+  if (reason === 'card_already_used') {
+    if (isCapped) {
+      return {
+        isDenied: true,
+        reason,
+        cardDenialCount,
+        isCapped: true,
+        canRetryCard: false,
+        title: TRIAL_DENIAL_TEXTS.cardAlreadyUsedCappedTitle,
+        description: TRIAL_DENIAL_TEXTS.cardAlreadyUsedCappedSubtitle,
+        subscribeButtonText,
+        useAnotherCardButtonText,
+      };
+    }
+    return {
+      isDenied: true,
+      reason,
+      cardDenialCount,
+      isCapped: false,
+      canRetryCard: true,
+      title: TRIAL_DENIAL_TEXTS.cardAlreadyUsedTitle,
+      description: TRIAL_DENIAL_TEXTS.cardAlreadyUsedSubtitle,
+      subscribeButtonText,
+      useAnotherCardButtonText,
+    };
+  }
+
+  if (reason === 'already_claimed') {
+    return {
+      isDenied: true,
+      reason,
+      cardDenialCount,
+      isCapped: false,
+      canRetryCard: false,
+      title: TRIAL_DENIAL_TEXTS.emailAlreadyUsedTitle,
+      description: TRIAL_DENIAL_TEXTS.emailAlreadyUsedSubtitle,
+      subscribeButtonText,
+      useAnotherCardButtonText,
+    };
+  }
+
+  return {
+    isDenied: true,
+    reason,
+    cardDenialCount,
+    isCapped: false,
+    canRetryCard: false,
+    title: getClaimErrorMessage(reason, priceMonthly),
+    description: 'You can still subscribe to CP Bot directly without a trial.',
+    subscribeButtonText,
+    useAnotherCardButtonText,
+  };
+}
+
 export function getClaimErrorMessage(reason: string, priceMonthly: number = PRICING_CONFIG.launchPrice): string {
   switch (reason) {
     case 'checkout_required':
