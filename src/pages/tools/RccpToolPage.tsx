@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import SEOHead from '@/components/SEOHead';
 import SchemaMarkup from '@/components/SchemaMarkup';
 import { PRICING_CONFIG, TrialTermsLine, LaunchPriceDisplay } from '@/config/pricing';
+import { TrialSpotsBanner } from '@/components/TrialSpotsBanner';
 import { RevealText } from '@/components/RevealText';
 import { RevealBlock } from '@/components/RevealBlock';
 import { useAuth } from '@/hooks/useAuth';
@@ -67,8 +68,6 @@ const RccpToolPage: React.FC = () => {
   );
 
   const trialDays = (user ? statusTrial?.trial_days : publicTrial?.trial_days) || 30;
-  const slotsLeft = user ? (statusTrial?.slots_left ?? 0) : (publicTrial?.slots_left ?? 0);
-  const slotCap = user ? (statusTrial?.slot_cap ?? 0) : (publicTrial?.slot_cap ?? 0);
   const timeLeftFormatted = statusTrial?.claim?.ends_at ? formatTrialTimeLeft(statusTrial.claim.ends_at) : '';
 
   const [dbTool, setDbTool] = useState<DbTool>({
@@ -185,7 +184,8 @@ const RccpToolPage: React.FC = () => {
           </RevealBlock>
 
           {/* Hero Section */}
-          <section>
+          <section className="space-y-6">
+            <TrialSpotsBanner hide={hasActiveTrial} initialTrialDays={trialDays} />
             <div className="bg-white border border-teal-600/20 rounded-2xl p-6 sm:p-8 md:p-12 shadow-sm">
               <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start">
                 {/* Left: Logo without tile */}
@@ -265,9 +265,6 @@ const RccpToolPage: React.FC = () => {
                           >
                             {content.hero.buttons.trialCta(trialDays)}
                           </button>
-                          <span className="text-xs text-teal-900/70 font-medium font-display px-0.5">
-                            {content.hero.buttons.spotsLeft(slotsLeft, slotCap)}
-                          </span>
                           <TrialTermsLine trialDays={trialDays} className="text-xs text-teal-900/70 font-display px-0.5 max-w-md" />
                         </div>
                       ) : (

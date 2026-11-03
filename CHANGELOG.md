@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-11-03
+### Added
+- Streamlined the trial sign-up area on the Return Converter x CopyPaste Bot tool page by removing the duplicate spots counter below the action button, focusing capacity updates exclusively in the new prominent top banner
+- Prominent live free-trial spots banner on the Return Converter x CopyPaste Bot tool page displaying real remaining spots with animated countdown and progress bar
+- Dynamic urgency styling activating when remaining spots drop to 10% or below, featuring subtle amber styling, singular/plural grammar, and urgent spot reservation copy
+- Truthful sold-out state presenting CP Bot launch pricing without fake timers or fabricated availability claims
+- 30-second live polling and immediate refocus updates keeping trial capacity synchronized across browser sessions
+- Full prerendering and accessibility protections with polite screen reader updates and reduced-motion compliance
+
 ## [1.12.0] - 2026-11-03
 ### Changed
 - Enhanced checkout to collect complete billing addresses (street address, city, state, postal code, and country) for all trial and subscription signups, ensuring issued tax invoices contain full customer address details

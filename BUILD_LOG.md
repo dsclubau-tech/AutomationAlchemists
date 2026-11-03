@@ -1,5 +1,69 @@
 # Build Log
 
+## 2026-11-03 (v1.13.0 Live Free-Trial Spots Banner on RCCP Tool Page)
+- Requested:
+  - Add a prominent banner near the top of https://www.automationalchemists.com/tools/rccp (in/under the hero, above the fold on desktop and mobile) showing the real number of free-trial spots left out of the total (e.g. "37 of 100 free-trial spots left"), with an animated progress bar that shrinks as customers claim spots.
+  - Cap is dynamic (owner changed cap from 5 to 100 via SQL); zero hardcoded limits.
+  - Requirement 1 (Data Source): Reuse the exact same source the dashboard trial card uses (`get_trial_public` / `get_trial_status`). Investigate and report how spots left is computed and when it changes.
+  - Requirement 2 (Anonymous Visitors): Check whether existing source works for logged-out visitors. If database change needed, write migration without applying and fail silent until applied.
+  - Requirement 3 (Live Updates): Fetch on mount, refetch every 30 seconds while visible, refetch on tab focus/visibility change. Animate numbers via Framer Motion countdown, respect `prefers-reduced-motion`, use `aria-live="polite"` on numbers.
+  - Requirement 4 (States in Pure Helper): Implement `getTrialBannerView` in `src/lib/trialBanner.ts` covering loading (skeleton, no layout jump), available (normal), low (<= 10% of cap, subtle urgency, "Only N left"), sold out (0 left: explains capacity full, CP Bot available at launch price), and hidden (disabled offer or fetch failure).
+  - Requirement 5 (CTA): Single start-trial checkout handler (`startTrialCheckout`), with `TrialTermsLine` below it pulling prices dynamically from `PRICING_CONFIG`.
+  - Requirement 6 (Design): Match existing design tokens, responsive from 360px mobile to desktop.
+  - Requirement 7 (Prerender / SEO): Defer to client mount / render skeleton so static prerendered HTML contains zero stale numbers.
+  - Requirement 8 (Scope): Touch only `RccpToolPage.tsx`, new banner component `TrialSpotsBanner.tsx`, pure helper + tests (`trialBanner.ts`, `test-trial-banner.mjs`), and the 5 doc files.
+- Built & Investigated:
+  - Requirement 1 Findings (How Spots Left is Computed & When it Changes):
+    - Traced in Supabase stored procedures (`get_trial_public`, `get_trial_status`):
+      `v_slots_taken := v_offer.slots_reserved + (SELECT COUNT(*) FROM trial_claims WHERE tool_slug = p_tool_slug);`
+      `v_slots_left := GREATEST(v_offer.slot_cap - v_slots_taken, 0);`
+    - Trigger 1 (Decrements `slots_left` by 1): When a customer completes card-required trial checkout in Stripe, webhook receives `checkout.session.completed` with `metadata.trial = 'true'`, invoking `process_stripe_webhook_event` which inserts a row into `public.trial_claims`.
+    - Trigger 2 (Increments `slots_left` by 1): When an administrator revokes or resets an un-converted trial claim in `/admin/free-trials` via `admin_trial_revoke` or `admin_trial_reset_claim`, deleting or nullifying the claim.
+    - Trigger 3 (Adjusts `slots_left`): When an administrator edits `slot_cap` or `slots_reserved` in `public.trial_offers`.
+    - Invariant: Abandoned or failed Stripe checkouts do NOT consume a spot because no claim row is inserted.
+  - Requirement 2 Findings (Anonymous Access Verification):
+    - Tested live RPC `get_trial_public('rccp')` using the public Supabase anon key.
+    - Confirmed: `get_trial_public` is already a `SECURITY DEFINER` function with `search_path = public, pg_temp`, granted to both `anon` and `authenticated`.
+    - Live HTTP 200 response returned: `{"enabled": true, "slot_cap": 100, "slots_left": 100, "trial_days": 30, "slots_taken": 0}`.
+    - Conclusion: Zero database migrations required. Logged-out prospects can access real live offer capacity securely.
+  - Pure Helper & Test Suite (`src/lib/trialBanner.ts`, `scripts/test-trial-banner.mjs`):
+    - Authored `getTrialBannerView(input: TrialBannerInput): TrialBannerView` covering all 5 states.
+    - Urgency threshold: `spotsLeft <= Math.max(1, Math.ceil(slotCap * 0.1))` (<= 10 spots for cap 100; <= 1 spot for cap 5).
+    - Grammar handling: "Only 1 free-trial spot left" vs "Only N free-trial spots left".
+    - Sold-out state: Truthfully displays launch price availability (`A$4.99/mo`) and switches CTA mode to `get_access`.
+    - Authored 6-assertion test suite in `scripts/test-trial-banner.mjs` (100% passing).
+  - Banner Component (`src/components/TrialSpotsBanner.tsx`):
+    - Live polling: 30-second interval checking `document.visibilityState === 'visible'`.
+    - Immediate refocus listener on `window.addEventListener('focus')` and `visibilitychange`.
+    - Framer Motion `animate` controller smoothly interpolating number decrements over 0.8s.
+    - Accessibility: `aria-live="polite"` and `tabular-nums` on number element; `useReducedMotion` instantly bypasses transition.
+    - Animated progress bar with `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-label`.
+    - Responsive layout (360px mobile to 1280px desktop) with subtle amber glow on low urgency.
+    - Prerender safety: renders structural skeleton during prerender and initial client mount (`isPrerender || !mounted || loading`).
+  - Landing Page Integration (`src/pages/tools/RccpToolPage.tsx`):
+    - Mounted `<TrialSpotsBanner hide={hasActiveTrial} initialTrialDays={trialDays} />` at the top of the hero section (`<section className="space-y-6">`).
+    - Positioned prominently above the fold across mobile (360x740) and desktop (1280x800).
+- Verification:
+  - Unit tests: `node scripts/test-trial-banner.mjs` (6/6 passing).
+  - Existing test suites: `node scripts/test-launch-readiness.mjs`, `node scripts/test-dashboard-sections.mjs`, `node scripts/test-stripe-compat.mjs` (all passing).
+  - TypeScript diagnostics: `npx tsc --noEmit -p tsconfig.app.json` returned exactly 101 errors (0 new errors).
+  - Production build & Prerender: `npm run build` completed cleanly in 4.85s; inspected `dist/tools/rccp/index.html` to verify zero stale numbers baked in.
+  - Visual verification: Captured screenshots across viewports via headless Chrome:
+    - `desktop-available.png` (1280x800): Normal available state with 100/100 spots.
+    - `mobile-available.png` (360x740): Mobile responsive view completely above the fold.
+    - `desktop-low.png` & `mobile-low.png`: Low capacity urgency state (<= 10%, 7 spots left) showing amber glow, "Almost gone" badge, and "Claim your spot now".
+    - `desktop-soldout.png` & `mobile-soldout.png`: Sold-out state (0 spots left) showing truthful launch price copy and "Get CP Bot now".
+- Files touched:
+  - `src/lib/trialBanner.ts` (NEW)
+  - `src/components/TrialSpotsBanner.tsx` (NEW)
+  - `scripts/test-trial-banner.mjs` (NEW)
+  - `src/pages/tools/RccpToolPage.tsx`
+  - `PRD.md`
+  - `QA_CHECKLIST.md`
+  - `PROJECT_STATE.md`
+  - `BUILD_LOG.md`
+  - `CHANGELOG.md`
+
 ## 2026-11-03 (v1.12.0 Billing Details at Checkout & Pricing Investigation)
 - Requested:
   - Task A: Collect billing details at Stripe Checkout (supabase/functions/create-checkout-session/index.ts and params.ts only, plus tests/docs):
@@ -170,6 +234,14 @@
   - Task 1: Match Dashboard page and element style to `/tools` reference (light mint-50 background, time-fold-ripple background effect, light card surfaces with border-teal-600/20, high contrast >= 4.5:1 text, yellow primary CTA buttons, teal-outlined secondary buttons, restyled loaders, skeleton cards, store management cards, add store dialog, and trial card states).
   - Task 2: Enforce that each tool card appears in exactly ONE dashboard section. Tools with active access appear only under "Your tools" and are excluded from "Available" and "Coming soon". Dedupe `rccp` and `cpbot` access slugs. Preserve Order Bot multi-store exception and keep Invoice Generator hidden.
   - Task 3: Show "Manage subscription" ONLY when the subscription row has a Stripe link (`stripe_customer_id` or `stripe_subscription_id`) AND `manually_granted` is not true. Select needed fields without adding new queries. For manual grants show "Access until {date}" (or "Access: no end date") instead of "renews {date}".
+  - Addendum (Landing Page Spots Counter Consolidation):
+    - Removed redundant small spots text (`{slotsLeft} of {slotCap} free-trial spots left`) under the "Get your 30-day free trial now" button in `src/pages/tools/RccpToolPage.tsx`.
+    - Remaining capacity is now displayed exclusively by the new prominent `TrialSpotsBanner` near the top of the hero section.
+    - Preserved the hero CTA button, pricing lines, and legal terms line (`TrialTermsLine`).
+    - Verified that the dashboard trial card (`DashboardTrialCard.tsx`) keeps its own spots text unchanged.
+    - Re-captured and visually verified page rendering at 1280px desktop and 360px mobile viewports:
+      - `desktop-after-removal.png` & `desktop-hero-buttons.png`
+      - `mobile-after-removal.png` & `mobile-hero-buttons.png`
   - Verification: `npx tsc --noEmit -p .` exit 0, `npx vite build` exit 0 (never stage public/sitemap.xml), unit test harness `scripts/test-dashboard-sections.mjs` asserting all 6 specified scenarios. List owner visual checks.
 - Built:
   - `src/lib/dashboardSections.ts`:

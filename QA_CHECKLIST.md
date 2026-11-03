@@ -797,3 +797,72 @@
 - [ ] **Check 30b.4: Optional Company Name Rendering on Invoice**:
   - **Test Case 1 (Filled)**: Customer fills in "Acme Trading Pty Ltd". The company name appears under "Bill to" on the invoice.
   - **Test Case 2 (Omitted)**: Customer leaves company name blank. No blank line, placeholder, or undefined field appears on the invoice.
+
+---
+
+## 31. Live Free-Trial Spots Banner Verification (Release v1.13.0)
+
+### 31a. Static Verification & Pure Helper Test Suite
+- [x] **Check 31a.1: Trial Banner Pure Helper Test Suite**:
+  - `node scripts/test-trial-banner.mjs`
+  - **Expected Result**: Exits 0, all 6 tests pass:
+    - Test 1: Loading state returns `state="loading"` and `shouldRender=true`.
+    - Test 2: Error, disabled offer, or missing data safely hides banner (`shouldRender=false`).
+    - Test 3: Normal available state formats numbers, progress percentage, and non-urgent copy.
+    - Test 4: Low threshold boundary (<= 10% of cap) activates urgency styling with singular/plural grammar.
+    - Test 5: Sold-out state truthfully presents launch price availability with `get_access` CTA.
+    - Test 6: Dynamic arbitrary cap calculates percentage and headline without hardcoded limits.
+- [x] **Check 31a.2: TypeScript Baseline Parity**:
+  - `npx tsc --noEmit -p tsconfig.app.json`
+  - **Expected Result**: Exact match with known 101 pre-existing diagnostic errors (0 new errors introduced).
+- [x] **Check 31a.3: Production Build & Prerender Snapshot Invariant**:
+  - `npm run build`
+  - **Expected Result**: Exits 0. `dist/tools/rccp/index.html` contains the structural skeleton (`animate-pulse`) and ZERO baked-in stale numbers ("100 of 100", "free-trial spots left").
+
+### 31b. Live Behavior & State Scenarios
+- [ ] **Check 31b.1: Anonymous Visitor Display**:
+  - Open an Incognito window (unauthenticated) and navigate to `https://www.automationalchemists.com/tools/rccp`.
+  - **Expected Result**: Banner renders prominently near the top of the hero section displaying live capacity from `get_trial_public('rccp')` (e.g. "100 of 100 free-trial spots left") with animated progress bar and "Start your free trial" button.
+- [ ] **Check 31b.2: Live Polling & Tab Refocus**:
+  - Keep the RCCP landing page open in Tab 1. In Tab 2, claim a trial spot.
+  - Switch back to Tab 1.
+  - **Expected Result**: On tab refocus (or within 30 seconds of visibility), banner refetches and smoothly counts down remaining spots from the previous count to the updated count.
+- [ ] **Check 31b.3: Reduced-Motion Accessibility**:
+  - Enable "Reduce Motion" in OS settings (Windows: Settings -> Accessibility -> Visual effects -> Animation effects OFF).
+  - Refresh or trigger a spots update on `/tools/rccp`.
+  - **Expected Result**: Number updates immediately without motion transition; progress bar width adjusts instantly without CSS transition.
+- [ ] **Check 31b.4: Mobile Responsiveness (360px Viewport)**:
+  - In DevTools, set viewport to 360x740.
+  - Inspect the top of `/tools/rccp`.
+  - **Expected Result**: Banner is completely above the fold, headline wraps naturally without horizontal scrolling, progress bar renders full width, CTA button spans full width cleanly, and legal terms line is legible.
+- [ ] **Check 31b.5: Low Capacity Urgency State (<= 10% of Cap)**:
+  - Simulate or set `slots_left` to <= 10 (for cap 100).
+  - **Expected Result**:
+    - Banner displays amber subtle ring and border.
+    - Badge displays "ALMOST GONE" with AlertCircle icon.
+    - Headline displays "Only N free-trial spots left" (or "Only 1 free-trial spot left" when 1 remains).
+    - Progress bar displays warm amber gradient.
+    - CTA button says "Claim your spot now".
+- [ ] **Check 31b.6: Sold-Out State (0 Spots Left)**:
+  - Simulate or set `slots_left = 0`.
+  - **Expected Result**:
+    - Badge displays "FREE TRIAL FULL".
+    - Headline displays "All free-trial spots have been claimed".
+    - Subtext truthfully explains promotional spots are full and CP Bot is available at the launch price.
+    - Progress bar width is 0%.
+    - CTA button displays "Get CP Bot now" and routes to normal checkout.
+- [ ] **Check 31b.7: Offer Disabled / Network Error Fail-Silent**:
+  - Set `trial_offers.enabled = false` or block network RPC calls to `get_trial_public`.
+  - **Expected Result**: Banner hides completely (`return null`), causing zero layout breakage, zero visible error banners, and zero invalid numbers.
+- [ ] **Check 31b.8: Landing Page Spots Counter Exclusivity**:
+  - Navigate to `/tools/rccp` (both desktop and 360px mobile viewports).
+  - Inspect the lower hero card action area below the "Get your 30-day free trial now" button.
+  - **Expected Result**:
+    - The small redundant spots text is completely gone from below the button.
+    - The button itself is fully functional and preserved.
+    - The pricing line ("Return Converter: Free / CP Bot: A$4.99/month...") and `TrialTermsLine` (Terms of Service / Privacy Policy links) remain intact.
+    - ONLY the top promotional banner displays the free-trial spots number on this page.
+- [ ] **Check 31b.9: Dashboard Trial Card Spots Text Preserved**:
+  - Navigate to `/dashboard` with an eligible account when the offer is enabled.
+  - Inspect the CP Bot trial card.
+  - **Expected Result**: The dashboard trial card continues to display its own "{slotsLeft} of {slotCap} free-trial spots left" line as normal.

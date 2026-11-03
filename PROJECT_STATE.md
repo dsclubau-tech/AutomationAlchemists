@@ -10,10 +10,21 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Public tables: `invoices`, `templates`, `profiles`, `linked_emails`, `message_templates`, `gmail_templates`.
     - Private plan/credit tables: `invoice_plan_config`, `invoice_plan_admins`, `invoice_plan_accounts`, `invoice_email_periods`, `invoice_email_sends`.
   - **WARNING**: `profiles` (and possibly `invoices`, `templates`) already exist or may collide in the shared Supabase project, so the `ig_` prefix is mandatory at migration. Migration must preserve account ownership, authentication-ID mappings, invoice creation dates, Gmail credentials, and credit history.
-  - **No tables created now**: Zero database schema or data modifications in v1.12.0.
+  - **No tables created now**: Zero database schema or data modifications in v1.13.0.
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Live Free-Trial Spots Banner on RCCP Tool Page (`src/components/TrialSpotsBanner.tsx`, v1.13.0)**:
+  - Prominent, beautiful banner near the top of `/tools/rccp` (in the hero section, above the fold on desktop and mobile) displaying live promotional capacity (e.g. *"100 of 100 free-trial spots left"*).
+  - Single database source of truth: queries `get_trial_public('rccp')` / `get_trial_status('rccp')`, where `v_slots_left := GREATEST(slot_cap - (slots_reserved + claims), 0)`. Cap is dynamic (owner changed cap from 5 to 100 via SQL); zero hardcoded limits.
+  - Anonymous visitor support: `get_trial_public` is `SECURITY DEFINER` granted to `anon` and `authenticated`, working seamlessly without login or database migrations.
+  - Live synchronization: refetches every 30 seconds while the tab is visible and immediately on tab focus/visibility restoration.
+  - Smooth animation: Framer Motion animated numerical decrement countdown, `aria-live="polite"`, and respect for `prefers-reduced-motion`.
+  - Accessible progress bar: shrinks smoothly as spots are claimed, showing remaining capacity with full ARIA progressbar attributes.
+  - Pure state machine helper (`src/lib/trialBanner.ts`): evaluates `loading` (skeleton), `available` (normal), `low` (<= 10% of cap, "Almost gone" badge, amber styling, singular/plural grammar), `sold_out` (0 spots left, truthful launch price copy, "Get CP Bot now"), and `hidden` (fails silent on disabled offer or network error).
+  - Unified CTA: reuses standard `startTrialCheckout` and `handleGetAccessLogic` flows, accompanied by `<TrialTermsLine trialDays={trialDays} />` with zero hand-typed prices.
+  - Single landing page spots counter: removed the duplicate small spots line below the hero card trial button on `/tools/rccp` so only the new prominent banner shows the spots number on the landing page (dashboard trial card keeps its own text).
+  - Prerender safety: defers dynamic numbers until client mount; prerendered HTML contains structural skeleton with zero stale counts.
 - **Central Pricing Configuration (`src/config/pricing.tsx` & `.ts`, v1.11.0)**:
   - Pinned single source of truth: `standardPrice = 9.99`, `launchPrice = 4.99`, `currency = 'AUD'`, `gstInclusive = true`, `launchEndsOn = null` (no fake deadline or countdown timer).
   - Pure formatter `formatPrice` and reusable `<LaunchPriceDisplay />` rendering crossed-out standard price (`<s><span className="sr-only">was A$9.99</span>A$9.99</s>`), launch price `A$4.99/month`, `"Launch price"` badge, and `"incl. GST"`.
@@ -88,8 +99,8 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Decoupled from Stripe endpoint API version changes (`supabase/functions/_shared/stripeCompat.ts`), re-fetching full subscription by ID under pinned SDK API version. Safe period extractor `getPeriod` and invoice resolver `getInvoiceSubscriptionId`.
     - Refund handling fix (v1.9.4): `charge.refunded` re-retrieves charge via `stripe.charges.retrieve(chargeId)` to support modern `2026-02-25.clover` payload where `invoice` is omitted from the Charge payload. Resolves invoice ID via `getChargeInvoiceId` and revokes access by invoking `process_stripe_webhook_event` with `p_quantity = 0`.
     - Pure compatibility test suite (`scripts/test-stripe-compat.mjs`) verifying 12 assertions across legacy and clover shapes.
-- **Launch Readiness Test Suite (`scripts/test-launch-readiness.mjs`, v1.11.0, v1.12.0)**:
-  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, billing address required, phone collection, name collection helper, customer_update constraints, no automatic_tax), `getBillingView` state machine (all 7 scenarios), pricing formatting, and zero leftover `$9` string audit in `src/`.
+- **Launch Readiness & Trial Banner Test Suites (`scripts/test-launch-readiness.mjs`, `scripts/test-trial-banner.mjs`)**:
+  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, billing address required, phone collection, name collection helper, customer_update constraints, no automatic_tax), `getBillingView` state machine (all 7 scenarios), pricing formatting, zero leftover `$9` string audit in `src/`, and complete trial banner state/urgency/sold-out evaluation.
 
 ## Current Production Deployment Status
 - **Vercel Frontend**: Automatic deployment on push to `main`.
@@ -99,15 +110,14 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, and v1.9.4 refund fix changes **NOT deployed**.
   - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, and v1.12.0 (GST tax rate, terms consent, billing address required, phone collection), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-- **Database**: Migration 034 applied and verified. Zero database migrations executed in v1.12.0.
+- **Database**: Migration 034 applied and verified. Zero database migrations executed in v1.13.0 (reused existing public RPC `get_trial_public`).
 
 ## In Progress
-- Local verification of release v1.12.0 before remote push.
-- Review of Task B investigation findings regarding `public.tools.price_monthly = 9.00` in the database.
+- Local verification and testing of release v1.13.0 complete.
 - Review of Stripe SDK upgrade options for first-class `name_collection` (`2025-09-30.clover`+).
 - Owner setting `STRIPE_GST_TAX_RATE_ID` secret in Supabase Edge Functions.
 - Owner deploying `create-checkout-session` (`npx supabase functions deploy create-checkout-session --project-ref tdevgrwmafwrsmeymjzd`).
-- Owner pushing v1.12.0 commit to GitHub.
+- Owner updating `public.tools.price_monthly = 4.99` in Supabase SQL editor for `slug = 'rccp'`.
 
 ## Not Started
 - Deploying `create-portal-session` and updated `stripe-webhook` to Supabase.
@@ -117,11 +127,11 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Future Invoice Generator database migration under `ig_` table prefix.
 
 ## Known Issues
-- `npm run build` prerender step fails locally due to missing Puppeteer Chrome binary (not a code issue; `npx vite build` succeeds).
+- None. Prerender local build verified working using system Chrome (`PUPPETEER_EXECUTABLE_PATH`).
 
 ## Tech Stack
 - React 18, Vite, Tailwind CSS, TypeScript, Framer Motion
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-03 — Release v1.12.0: Collect billing details at Stripe Checkout.*
+*Last Updated: 2026-11-03 — Release v1.13.0: Live free-trial spots banner on the RCCP tool landing page.*

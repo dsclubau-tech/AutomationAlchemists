@@ -441,3 +441,43 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - **Stripe API Version Dependency**: First-class `name_collection` (`{ individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }`) requires Stripe API version `2025-09-30.clover` or higher (available in `stripe` SDK v19+).
   - **SDK Status**: `create-checkout-session` currently imports `stripe@14.22.0` (Stripe API version `2023-10-16`), which rejects `name_collection` with `Received unknown parameter: name_collection`.
   - **Implementation Strategy**: Added type and parameter building support in pure helper `params.ts` (`nameCollection?: ...`) verified by offline unit tests. Live checkout execution pauses `name_collection` emission pending SDK upgrade to avoid runtime checkout errors.
+
+---
+
+### 19. Live Free-Trial Spots Banner on RCCP Tool Landing Page (Release v1.13.0)
+
+- **Real-Time Spots Left Tracking & Database Single Source of Truth**:
+  - **What it does**: Displays the real, live number of available free-trial spots out of the total capacity (e.g. *"100 of 100 free-trial spots left"* or *"Only 7 free-trial spots left"*) near the top of the RCCP tool landing page (`/tools/rccp`).
+  - **Database Integration**: Directly queries `public.get_trial_public('rccp')` / `public.get_trial_status('rccp')`.
+  - **Calculation Invariant**: `v_slots_taken := slots_reserved + (SELECT COUNT(*) FROM trial_claims WHERE tool_slug = p_tool_slug);` and `v_slots_left := GREATEST(slot_cap - v_slots_taken, 0);`.
+  - **Zero Hard-Coding**: Fully dynamic; respects database changes (such as owner increasing cap from 5 to 100) with zero hardcoded numbers.
+  - **State Machine Helper (`src/lib/trialBanner.ts`)**: Pure function `getTrialBannerView` mapping database stats to deterministic UI states:
+    - `loading`: Structural skeleton, zero layout shift, hides all numerical claims.
+    - `available`: Normal display with live spots count, percentage progress bar, and "Start your free trial" CTA.
+    - `low`: Urgent state triggered when `spotsLeft <= Math.max(1, Math.ceil(slotCap * 0.1))` (e.g. <= 10 spots for cap 100, <= 1 for cap 5), featuring "Almost gone" badge, amber styling, singular/plural grammar ("Only N free-trial spots left"), and "Claim your spot now" CTA.
+    - `sold_out`: 0 spots left; truthfully explains all promotional spots are claimed and CP Bot is available at the launch price (`A$4.99/mo`), with "Get CP Bot now" CTA.
+    - `hidden`: Offer disabled, fetch error, or invalid data; fails closed and renders nothing.
+
+- **Anonymous Visitor Access & Prerender Safety**:
+  - **What it does**: Ensures unauthenticated prospects landing on `/tools/rccp` see live trial availability without authentication barriers.
+  - **RPC Security**: Reuses existing `public.get_trial_public(p_tool_slug)` (`SECURITY DEFINER`, fixed `search_path = public, pg_temp`, granted to `anon` and `authenticated`). No new database migration or schema changes required.
+  - **Prerender Guard**: Prerender script (`scripts/prerender.js`) executes in a headless browser with `window.__PRERENDER__ = true`. The banner detects prerendering and initial client mount, rendering a lightweight structural skeleton. Prerendered static HTML never bakes in stale or snapshot numbers.
+
+- **Live Polling & Accessibility**:
+  - **What it does**: Keeps displayed spots synchronized with live checkouts across active browser tabs.
+  - **Polling Frequency**: Automatically refetches every 30 seconds while `document.visibilityState === 'visible'`.
+  - **Refocus Refetch**: Immediately refetches when the browser tab regains focus (`window.addEventListener('focus')`) or visibility changes to visible.
+  - **Smooth Number Countdown**: Animates numerical decrements using `framer-motion`'s `animate` helper over 0.8s.
+  - **Accessibility**: Number element tagged with `aria-live="polite"` and `tabular-nums` to inform screen readers without spamming. Animation is bypassed instantly when `prefers-reduced-motion` is detected.
+  - **Progress Bar**: Accessible `role="progressbar"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-label`.
+
+- **Call to Action & Pricing Transparency**:
+  - **What it does**: Standardizes trial initiation directly to the unified checkout path.
+  - **Single Checkout Path**: Clicking "Start your free trial" / "Claim your spot now" triggers `startTrialCheckout({ returnPath: '/tools/rccp', user, toast })` (redirects unauthenticated users to `/auth?mode=signup&next=/tools/rccp`, and initiates Stripe trial checkout for authenticated users). Clicking "Get CP Bot now" when sold out invokes `handleGetAccessLogic('rccp', user, toast)`.
+  - **Dynamic Legal Terms**: Mounts `<TrialTermsLine trialDays={trialDays} />` directly under the CTA button, pulling launch price, standard price, and GST notices strictly from `PRICING_CONFIG` without hand-typed prices.
+
+- **Landing Page Spots Counter Consolidation**:
+  - **What it does**: Removes the duplicate small text line (`{slotsLeft} of {slotCap} free-trial spots left`) previously located below the secondary hero card trial CTA button on `/tools/rccp`.
+  - **Single Banner Authority**: On the landing page, the spots remaining number is displayed exclusively by the new top `TrialSpotsBanner`, eliminating visual clutter and competing counters.
+  - **Preserved Elements**: The hero card CTA button (`Get your 30-day free trial now`), promotional price display (`A$4.99/mo launch price`), and `<TrialTermsLine />` (terms of service and privacy links) are completely preserved.
+  - **Dashboard Invariant**: The customer dashboard trial card (`DashboardTrialCard.tsx`) retains its own spots remaining counter.
