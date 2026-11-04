@@ -81,7 +81,7 @@ const Cart = () => {
                 .from('tools')
                 .select('slug, status, price_monthly, maintenance_message')
                 .eq('status', 'available'); // Only fetch available tools for cart/upsell
-                
+
             if (error) {
                 console.error("Error fetching live tool data:", error);
                 toast({
@@ -200,12 +200,12 @@ const Cart = () => {
                                             Checkout is processed individually per tool to ensure your subscriptions remain distinct and easy to manage on your dashboard.
                                         </p>
                                     </div>
-                                    
+
                                     <div className="space-y-4">
                                         {activeCartItems.map((slug) => {
                                             const tool = dbTools[slug];
                                             return (
-                                                <motion.div 
+                                                <motion.div
                                                     key={slug}
                                                     initial={{ opacity: 0, y: 10 }}
                                                     animate={{ opacity: 1, y: 0 }}
@@ -224,7 +224,7 @@ const Cart = () => {
                                                             <p className="text-teal-600 font-label-sm font-semibold uppercase tracking-wider text-xs mt-1">Monthly Subscription</p>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center justify-between w-full md:w-auto gap-8">
                                                         <div className="text-right">
                                                             {slug === 'rccp' ? (
@@ -238,16 +238,16 @@ const Cart = () => {
                                                                 </>
                                                             )}
                                                         </div>
-                                                        
+
                                                         <div className="flex items-center gap-3">
-                                                            <button 
+                                                            <button
                                                                 onClick={() => handleRemove(slug)}
                                                                 className="p-3 text-teal-900/40 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
                                                                 title="Remove from cart"
                                                             >
                                                                 <Trash2 className="w-5 h-5" />
                                                             </button>
-                                                            <button 
+                                                            <button
                                                                 onClick={() => handleCheckout(slug)}
                                                                 disabled={checkoutLoading === slug}
                                                                 className="flex items-center justify-center gap-2 bg-teal-800 text-white font-label-md text-sm font-semibold px-6 py-3 rounded-xl hover:bg-teal-700 transition-colors shadow-md min-w-[140px] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -277,7 +277,7 @@ const Cart = () => {
                                     <h3 className="font-headline-md text-lg font-bold text-teal-900 mb-6 flex items-center gap-2">
                                         <Sparkles className="w-5 h-5 text-teal-600" /> You might also like
                                     </h3>
-                                    
+
                                     <div className="space-y-4">
                                         {availableUpsells.map(tool => (
                                             <div key={tool.slug} className="bg-white rounded-xl p-4 border border-teal-600/10 shadow-sm flex flex-col gap-3">
@@ -289,7 +289,7 @@ const Cart = () => {
                                                         <span className="font-semibold text-teal-600 text-sm">${tool.price_monthly}/mo</span>
                                                     )}
                                                 </div>
-                                                <button 
+                                                <button
                                                     onClick={() => handleAdd(tool.slug)}
                                                     className="w-full text-center py-2 rounded-lg border border-teal-600/20 text-teal-700 font-label-md text-xs font-semibold hover:bg-teal-600/5 transition-colors"
                                                 >

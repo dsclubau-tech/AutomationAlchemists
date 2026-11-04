@@ -385,9 +385,8 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return (
       <div
         id="claim-trial"
-        className={`mb-12 p-6 sm:p-8 rounded-2xl bg-white border border-teal-600/20 shadow-md transition-all duration-700 ${
-          isHighlighted ? 'ring-2 ring-yellow-accent/60 shadow-[0_0_25px_rgba(255,210,0,0.25)]' : ''
-        }`}
+        className={`mb-12 p-6 sm:p-8 rounded-2xl bg-white border border-teal-600/20 shadow-md transition-all duration-700 ${isHighlighted ? 'ring-2 ring-yellow-accent/60 shadow-[0_0_25px_rgba(255,210,0,0.25)]' : ''
+          }`}
       >
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">

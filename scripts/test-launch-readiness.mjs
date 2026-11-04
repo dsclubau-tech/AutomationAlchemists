@@ -11,8 +11,8 @@ const __dirname = path.dirname(__filename);
 if (typeof globalThis.localStorage === 'undefined') {
   globalThis.localStorage = {
     getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
+    setItem: () => { },
+    removeItem: () => { },
   };
 }
 
@@ -61,7 +61,7 @@ try {
     outfile: tempPricingBundle,
   });
 
-    esbuild.buildSync({
+  esbuild.buildSync({
     entryPoints: [trialEntry],
     bundle: true,
     platform: 'node',
@@ -89,7 +89,7 @@ try {
     },
     outfile: tempAuthFlowBundle,
   });
-const { buildCheckoutSessionParams, isCardDenialCapExceeded, determineTrialEligibility, CARD_DENIAL_RETRY_CAP, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
+  const { buildCheckoutSessionParams, isCardDenialCapExceeded, determineTrialEligibility, CARD_DENIAL_RETRY_CAP, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
   const { getBillingView, formatBillingDate, getEffectiveTrialEnd, TRIAL_GRACE_BUFFER_HOURS, TRIAL_GRACE_BUFFER_MS } = await import(`file://${tempBillingBundle.replace(/\\/g, '/')}`);
   const { getClaimErrorMessage, getDeniedTrialChoice, getSubscribeButtonText } = await import(`file://${tempTrialBundle.replace(/\\/g, '/')}`);
   const { getSignUpSuccessState, SIGNUP_CONFIRMATION_NOTICE } = await import(`file://${tempAuthFlowBundle.replace(/\\/g, '/')}`);

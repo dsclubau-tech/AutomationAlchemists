@@ -92,8 +92,8 @@ const SkeletonCard = () => (
     </div>
 );
 
-const ToolCard = ({ 
-    tool, 
+const ToolCard = ({
+    tool,
     type,
     currentPeriodEnd,
     isNotified,
@@ -106,8 +106,8 @@ const ToolCard = ({
     onManageSubscription,
     onSubscribe,
     onBuyNow
-}: { 
-    tool: DbTool; 
+}: {
+    tool: DbTool;
     type: 'active' | 'available' | 'coming_soon';
     currentPeriodEnd?: string | null;
     isNotified?: boolean;
@@ -123,7 +123,7 @@ const ToolCard = ({
 }) => {
     const Icon = getIconComponent(tool.slug);
     const [imageError, setImageError] = useState(false);
-    
+
     let badge = null;
     let button = null;
     let displayDescription = tool.short_description || tool.description;
@@ -381,7 +381,7 @@ const ToolCard = ({
     }
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className={`bg-white rounded-2xl overflow-hidden border ${tool.status === 'maintenance' && type === 'active' ? 'border-amber-500/30' : 'border-teal-600/20'} shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full w-full min-w-0`}
@@ -391,10 +391,10 @@ const ToolCard = ({
                     imageError ? (
                         <span className="text-4xl relative z-10" title="CP Bot & Return Converter">🤖↩️</span>
                     ) : (
-                        <img 
-                            src="/images/rccp-logo.png" 
-                            alt="CP Bot & Return Converter" 
-                            className="w-12 h-12 object-contain relative z-10" 
+                        <img
+                            src="/images/rccp-logo.png"
+                            alt="CP Bot & Return Converter"
+                            className="w-12 h-12 object-contain relative z-10"
                             onError={() => setImageError(true)}
                         />
                     )
@@ -402,10 +402,10 @@ const ToolCard = ({
                     <Icon className="w-10 h-10 text-teal-600 relative z-10" />
                 )}
             </div>
-            
+
             <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-bold text-teal-900 mb-2 font-display">{tool.name}</h3>
-                
+
                 <p className="text-teal-900/80 text-sm mb-4 leading-relaxed flex-grow">
                     {displayDescription}
                 </p>
@@ -416,7 +416,7 @@ const ToolCard = ({
                         <span className="text-sm text-amber-900/90">{tool.maintenance_message}</span>
                     </div>
                 )}
-                
+
                 <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/10 mt-auto">
                     {badge}
                     {button}
@@ -491,7 +491,7 @@ const Dashboard = () => {
                     .select('*')
                     .neq('status', 'hidden')
                     .order('sort_order', { ascending: true });
-                
+
                 if (toolsData) setDbTools(toolsData as DbTool[]);
 
                 if (user) {
@@ -503,11 +503,11 @@ const Dashboard = () => {
                         .from('tool_notifications')
                         .select('tool_slug')
                         .eq('user_id', user.id);
-                    
+
                     if (notifData) {
                         setNotifications(notifData.map(n => n.tool_slug));
                     }
-                    
+
                     // Fetch orderbot stores count
                     const { data: obStores } = await supabase.rpc('get_user_store_count', { p_product_slug: 'orderbot' });
                     if (obStores) setOrderbotStores(obStores);
@@ -518,7 +518,7 @@ const Dashboard = () => {
                 setIsLoading(false);
             }
         };
-        
+
         if (!authLoading) {
             fetchData();
         }
@@ -549,11 +549,11 @@ const Dashboard = () => {
                     tool_slug: tool.slug,
                     tool_name: tool.name
                 });
-            
+
             if (error) throw error;
 
             setNotifications(prev => [...prev, tool.slug]);
-            
+
             toast({
                 title: "🔔 You're on the list!",
                 description: `We'll notify you the moment ${tool.name} launches.`,
@@ -582,7 +582,7 @@ const Dashboard = () => {
                 is_active: true
             });
             if (error) throw error;
-            
+
             setShowAddStoreModal(false);
             setNewStoreName('');
             toast({
@@ -590,7 +590,7 @@ const Dashboard = () => {
                 description: "Store added. An admin will activate monitoring shortly.",
                 className: "bg-teal-900 border-none border-l-4 border-l-[#D4AF37] text-white",
             });
-            
+
             // Re-fetch orderbotStores
             const { data: obStores } = await supabase.rpc('get_user_store_count', { p_product_slug: 'orderbot' });
             if (obStores) setOrderbotStores(obStores);
@@ -625,15 +625,15 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-mint-50 text-teal-900 time-fold-ripple overflow-x-hidden selection:bg-teal-600 selection:text-white flex flex-col justify-between">
-            <SEOHead 
-                title="Your Dashboard | Automation Alchemists" 
-                description="Manage your tools and subscriptions." 
+            <SEOHead
+                title="Your Dashboard | Automation Alchemists"
+                description="Manage your tools and subscriptions."
             />
             <Navigation />
-            
+
             <main className="flex-grow pt-32 pb-24 px-6 relative z-10">
                 <div className="max-w-7xl mx-auto">
-                    
+
                     <div className="mb-16">
                         <h1 className="text-4xl md:text-5xl font-black text-teal-900 font-display mb-4 tracking-tight">Your dashboard</h1>
                         <p className="text-xl text-teal-900/80 font-display">Manage your tools and subscriptions.</p>
@@ -698,7 +698,7 @@ const Dashboard = () => {
                                         {activeTools.map(tool => {
                                             if (tool.slug === 'orderbot') {
                                                 return (
-                                                    <motion.div 
+                                                    <motion.div
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
@@ -707,10 +707,10 @@ const Dashboard = () => {
                                                         <div className="h-[80px] w-full flex items-center justify-center bg-teal-600/5 border-b border-teal-600/10 relative overflow-hidden">
                                                             <Activity className="w-10 h-10 text-teal-600 relative z-10" />
                                                         </div>
-                                                        
+
                                                         <div className="p-6 flex flex-col flex-grow">
                                                             <h3 className="text-xl font-bold text-teal-900 mb-2 font-display">{tool.name}</h3>
-                                                            
+
                                                             <div className="mb-4">
                                                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-600/10 text-green-700 text-xs font-semibold border border-green-600/20 w-fit">
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-green-600" />
@@ -731,7 +731,7 @@ const Dashboard = () => {
                                                                     </div>
                                                                 ))}
                                                             </div>
-                                                            
+
                                                             <div className="pt-4 border-t border-teal-600/10 mt-auto">
                                                                 <Button onClick={() => setShowAddStoreModal(true)} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 w-full font-bold transition-colors">
                                                                     + Add another store
@@ -743,13 +743,13 @@ const Dashboard = () => {
                                             }
                                             const activeSub = subscriptions.find(
                                                 s => (s.product_slug === tool.slug || (tool.slug === 'rccp' && s.product_slug === 'cpbot')) &&
-                                                     (s.status === 'active' || s.status === 'trialing')
+                                                    (s.status === 'active' || s.status === 'trialing')
                                             );
                                             return (
-                                                <ToolCard 
-                                                    key={tool.id} 
-                                                    tool={tool} 
-                                                    type="active" 
+                                                <ToolCard
+                                                    key={tool.id}
+                                                    tool={tool}
+                                                    type="active"
                                                     currentPeriodEnd={getSubscriptionEndDate(tool.slug)}
                                                     cpBotSubscription={tool.slug === 'rccp' ? subscriptions.find(s => (s.product_slug === 'cpbot' || s.product_slug === 'rccp')) : undefined}
                                                     subscription={activeSub}
@@ -773,7 +773,7 @@ const Dashboard = () => {
                                         {availableTools.map(tool => {
                                             if (tool.slug === 'orderbot') {
                                                 return (
-                                                    <motion.div 
+                                                    <motion.div
                                                         key={tool.id}
                                                         initial={{ opacity: 0, y: 20 }}
                                                         animate={{ opacity: 1, y: 0 }}
@@ -782,14 +782,14 @@ const Dashboard = () => {
                                                         <div className="h-[80px] w-full flex items-center justify-center bg-teal-600/5 border-b border-teal-600/10 relative overflow-hidden">
                                                             <Activity className="w-10 h-10 text-teal-600 relative z-10" />
                                                         </div>
-                                                        
+
                                                         <div className="p-6 flex flex-col flex-grow">
                                                             <h3 className="text-xl font-bold text-teal-900 mb-2 font-display">{tool.name}</h3>
-                                                            
+
                                                             <p className="text-teal-900/80 text-sm mb-4 leading-relaxed flex-grow">
                                                                 {tool.short_description || tool.description}
                                                             </p>
-                                                            
+
                                                             <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-teal-600/10 mt-auto">
                                                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-600 text-xs font-semibold border border-zinc-300">
                                                                     <Lock className="w-3 h-3" />
@@ -804,10 +804,10 @@ const Dashboard = () => {
                                                 );
                                             }
                                             return (
-                                                <ToolCard 
-                                                    key={tool.id} 
-                                                    tool={tool} 
-                                                    type="available" 
+                                                <ToolCard
+                                                    key={tool.id}
+                                                    tool={tool}
+                                                    type="available"
                                                     onBuyNow={(slug) => handleGetAccessLogic(slug, user, toast)}
                                                 />
                                             );
@@ -822,10 +822,10 @@ const Dashboard = () => {
                                     <h2 className="text-sm font-bold text-teal-900/70 uppercase tracking-wider mb-6 font-display">Coming soon</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                                         {comingSoonTools.map(tool => (
-                                            <ToolCard 
-                                                key={tool.id} 
-                                                tool={tool} 
-                                                type="coming_soon" 
+                                            <ToolCard
+                                                key={tool.id}
+                                                tool={tool}
+                                                type="coming_soon"
                                                 isNotified={notifications.includes(tool.slug)}
                                                 onNotify={handleNotifyMe}
                                             />
@@ -837,7 +837,7 @@ const Dashboard = () => {
                     )}
                 </div>
             </main>
-            
+
             <Dialog open={showAddStoreModal} onOpenChange={setShowAddStoreModal}>
                 <DialogContent className="bg-white border border-teal-600/20 text-teal-900 shadow-xl">
                     <DialogHeader>
@@ -846,7 +846,7 @@ const Dashboard = () => {
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label className="text-teal-900 font-medium">Store Name (required)</Label>
-                            <Input 
+                            <Input
                                 placeholder="e.g. My eBay Store 1"
                                 value={newStoreName}
                                 onChange={e => setNewStoreName(e.target.value)}
@@ -863,7 +863,7 @@ const Dashboard = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            
+
             <Footer />
         </div>
     );
