@@ -1,5 +1,70 @@
 # Build Log
 
+## 2026-11-04 (v1.15.1 Non-Trial Subscribe Path & Button Contrast Fix)
+- Requested:
+  - BUG A: "Subscribe at A$4.99/month" opened a TRIAL Stripe checkout instead of a paid checkout.
+    - Trace the flow: dashboard Subscribe button -> /cart -> request body sent to create-checkout-session -> params.ts parsing -> trial eligibility decision -> Stripe session params actually built. State root cause with file + line numbers.
+    - Fix at root: Subscribe path must send explicit skip-trial signal; Edge Function must honor it (no trial period days, no trial settings, payment collected today).
+    - Capped fallback ('card_denials_capped') must use same non-trial code path.
+    - "Use another card" button must still create a normal trial checkout.
+    - Client flag may only ever remove a trial, never grant one.
+    - Unit tests in scripts/ covering: Subscribe path -> no trial params; Use another card -> trial params present; capped user -> no trial params.
+  - BUG B: "Use another card" button rendered as a dark teal block with invisible text on dashboard alert and CP Bot tool card.
+    - Inspect element and report cause with file + line numbers.
+    - Fix so label is clearly readable (WCAG AA contrast) across default, hover, focus, and disabled states.
+    - Search src/ for the same class/pattern and report other affected buttons. Fix only visibly broken buttons; list others.
+    - Capture real screenshots of the denied dashboard state at desktop and mobile widths.
+- Root Cause Analysis — BUG A:
+  1. Flow Trace:
+     - Dashboard Subscribe action: In `src/components/DashboardTrialCard.tsx:240` and `src/pages/Dashboard.tsx:278`, clicking the Subscribe button triggers `onSubscribe`, calling `handleGetAccessLogic('rccp', user, toast)` in `src/lib/checkout.ts:122`.
+     - Cart navigation: In `src/lib/checkout.ts:141-148`, `handleGetAccessLogic` pushes `'rccp'` into `localStorage.getItem('cart')` and redirects to `/cart`.
+     - Cart checkout payload: In `src/pages/Cart.tsx:128-130`, `handleCheckout` invoked `create-checkout-session` with `body: { product_slug: slug, quantity: 1 }`. There was zero parameter indicating a paid purchase vs trial request.
+     - Edge Function request parsing: In `supabase/functions/create-checkout-session/index.ts:64`, the function only parsed `product_slug` and `quantity`.
+     - Trial eligibility decision: In `supabase/functions/create-checkout-session/index.ts:128-158`, the function unconditionally invoked `supabaseAdmin.rpc('trial_eligibility_for', { p_user_id: user.id, p_tool_slug: 'rccp' })`. For a card-denied user, the post-checkout failure previously cancelled their Stripe subscription and logged a denial in `trial_denials` without creating a row in `trial_claims` or `subscriptions`. Thus, `_check_trial_eligibility` evaluated them as `eligible: true` with `trial_days: 30`. Since `cardDenialCount < 3`, `isEligibleTrial` was set to `true`.
+     - Stripe parameters built: In `supabase/functions/create-checkout-session/params.ts:192-228`, `buildCheckoutSessionParams` attached `subscription_data.trial_period_days = 30`, `trial_settings`, and `payment_method_collection = 'always'`, building a $0.00 trial session rather than an immediate paid subscription.
+  2. Root Cause Statement:
+     The cart checkout path sent an identical generic payload (`{ product_slug: 'rccp', quantity: 1 }`) to `create-checkout-session`, where the server unconditionally checked RPC trial eligibility and forced a 30-day trial for any eligible user, having no mechanism to recognize an explicit direct subscription purchase.
+- Root Cause Analysis — BUG B:
+  1. In `src/components/DashboardTrialCard.tsx:227` and `src/pages/Dashboard.tsx:274`, the "Use another card" `<Button>` was declared with `variant="outline"` and `className="border-teal-600 text-teal-900 ..."`.
+  2. In `src/components/ui/button.tsx:14`, `variant="outline"` applies class `bg-background`.
+  3. In `src/index.css:32` and line 68, `--background` is defined as `188 72% 14%` (`#0A363D`, deep dark teal).
+  4. Without `bg-transparent` in `className`, the button rendered with `background-color: #0A363D` (`bg-background`) and `color: #0A363D` (`text-teal-900`), creating a dark teal block with zero contrast (1:1 contrast ratio) where text was completely invisible.
+- Search for Other Buttons in `src/` with `variant="outline"` lacking `bg-transparent`:
+  1. `src/components/DashboardTrialCard.tsx:274`: "Refresh" button on 40-second polling timeout card (`className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white ..."`).
+  2. `src/pages/Dashboard.tsx:858`: "Cancel" button in Add Store modal dialog footer (`className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white"`).
+  - Note: Per instructions, only the visibly broken "Use another card" buttons on the live dashboard were modified; the others are documented here.
+- Built & Fixed:
+  - `src/pages/Cart.tsx`: Updated `handleCheckout` to send `skip_trial: true` in the `create-checkout-session` body.
+  - `supabase/functions/create-checkout-session/params.ts`:
+    - Added pure helper `determineTrialEligibility(input)` enforcing:
+      - `skipTrial: true` forces `isEligibleTrial = false` with `reason = 'skip_trial'`, routing to paid checkout.
+      - `skipTrial: false` can only grant a trial if server RPC says `eligible: true` and `cardDenialCount < 3`.
+      - Prevents client-side granting of trials on non-trial tools or ineligible accounts.
+  - `supabase/functions/create-checkout-session/index.ts`:
+    - Parsed `skipTrial = Boolean(body.skip_trial ?? body.skipTrial ?? body.no_trial ?? body.noTrial)`.
+    - Integrated `determineTrialEligibility`.
+  - `src/components/DashboardTrialCard.tsx`:
+    - Line 227: Added `bg-transparent focus-visible:ring-2 focus-visible:ring-teal-600` to "Use another card" button.
+  - `src/pages/Dashboard.tsx`:
+    - Line 274: Added `bg-transparent focus-visible:ring-2 focus-visible:ring-teal-600` to "Use another card" button.
+  - `scripts/test-launch-readiness.mjs`:
+    - Added Suite G (Tests G1–G4) covering Subscribe non-trial parameters, Use-another-card trial parameters, capped user non-trial parameters, and client security boundary.
+- Edge Function Files Modified (Needing Manual Deployment by Fahim):
+  - `supabase/functions/create-checkout-session/index.ts`
+  - `supabase/functions/create-checkout-session/params.ts`
+- Verification & Test Results:
+  - `node scripts/test-launch-readiness.mjs`: All Suites A through G passed (0 errors).
+  - `node scripts/test-identifier-sweep.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-rccp-crash.mjs`: Passed cleanly across all 9 states (0 errors).
+  - `node scripts/test-trial-banner.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-dashboard-sections.mjs`: Passed cleanly (0 errors).
+  - `node scripts/test-stripe-compat.mjs`: Passed cleanly (0 errors).
+  - TypeScript Diagnostics: Exactly 98 baseline errors (`powershell -Command "(npx tsc --noEmit -p tsconfig.app.json 2>&1 | Select-String ': error TS').Count"`). Zero new errors, zero TS2304/TS2552 errors.
+  - Production Build: `npx vite build` completed in 13.05s with code 0.
+  - Visual Artifacts Captured:
+    - [dashboard-denied-desktop.png](file:///C:/Users/USER/.gemini/antigravity/brain/0efa0ec5-f674-4e33-a17f-bc849c676512/dashboard-denied-desktop.png) (1280x800)
+    - [dashboard-denied-mobile.png](file:///C:/Users/USER/.gemini/antigravity/brain/0efa0ec5-f674-4e33-a17f-bc849c676512/dashboard-denied-mobile.png) (360x740)
+
 ## 2026-11-03 (v1.15.0 Denied-Trial Choices, Sign-Up Flow, Dashboard Open Tools Link, RCCP Landing Page Crash Fix)
 - Requested:
   - Task A: Denied-Trial Choices (Dashboard)

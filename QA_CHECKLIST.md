@@ -1052,3 +1052,56 @@
   - **Action**: Click the *"Open Return Converter"* button on the Return Converter x CopyPaste Bot card.
   - **Expected Result**:
     - Opens `https://rccp.automationalchemists.com` in a new tab.
+
+---
+
+## 35. Non-Trial Subscribe Checkout & Button Contrast (Release v1.15.1)
+
+### 35a. Static Verification & Automated Regression Suites
+- [x] **Check 35a.1: Launch Readiness Test Suite with Suite G (4/4 Assertions Passed)**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, Suite G passes:
+    - Test G1: Subscribe path (`skipTrial: true`) builds non-trial paid checkout with immediate payment today (A$4.99 unit amount, GST tax rate, no trial period, no trial settings).
+    - Test G2: Use-another-card path (`skipTrial: false`) preserves 30-day trial parameters.
+    - Test G3: Capped user ($\ge 3$ card denials) falls back to non-trial parameters.
+    - Test G4: Security rule verified: skip-trial flag can only remove a trial, never grant one. (Passed: Suites A through G).
+- [x] **Check 35a.2: TypeScript Compilation & Diagnostics Count**:
+  - `powershell -Command "(npx tsc --noEmit -p tsconfig.app.json 2>&1 | Select-String ': error TS').Count"`
+  - **Expected Result**: Exactly 98 diagnostic errors (zero new errors introduced, zero TS2304/TS2552 missing identifier errors). (Passed: 98).
+- [x] **Check 35a.3: Full Test Suite Execution**:
+  - Run `scripts/test-identifier-sweep.mjs`, `scripts/test-rccp-crash.mjs`, `scripts/test-trial-banner.mjs`, `scripts/test-dashboard-sections.mjs`, `scripts/test-stripe-compat.mjs`.
+  - **Expected Result**: All suites pass with zero errors. (Passed).
+- [x] **Check 35a.4: Production Build Verification**:
+  - `npx vite build`
+  - **Expected Result**: Exits 0, client bundle builds cleanly in < 15 seconds. (Passed: 13.05s).
+
+### 35b. Runtime & User-Facing Verification Steps
+- [ ] **Check 35b.1: Denied Customer Subscribing at A$4.99 Opens Paid Stripe Checkout**:
+  - **Precondition**: Customer account experienced a trial refusal (`reason = 'card_already_used'`).
+  - **Action**:
+    - Navigate to `https://www.automationalchemists.com/dashboard`.
+    - Click the yellow *"Subscribe at A$4.99/month"* button (either in the top banner or on the CP Bot tool card).
+    - Land on `/cart` and click *"Checkout"*.
+  - **Expected Result**:
+    - Redirects to Stripe Checkout.
+    - Total due today displays **A$4.99** (inclusive of A$0.45 GST).
+    - Checkout does NOT say "30 days free".
+    - Checkout button says **"Subscribe"** or **"Pay"**, NOT "Start trial".
+- [ ] **Check 35b.2: Denied Customer Retrying Card Opens Trial Stripe Checkout**:
+  - **Precondition**: Customer account experienced a trial refusal (`reason = 'card_already_used'`) with card denial count < 3.
+  - **Action**: Click *"Use another card"* on the dashboard banner.
+  - **Expected Result**:
+    - Redirects directly to Stripe Checkout.
+    - Total due today displays **A$0.00**.
+    - Mentions 30 days free trial.
+    - Checkout button says **"Start trial"**.
+- [ ] **Check 35b.3: "Use Another Card" Button on Dashboard Alert Has Readable Text**:
+  - **Action**: Navigate to `https://www.automationalchemists.com/dashboard` in a trial-denied state.
+  - **Expected Result**:
+    - "Use another card" button displays with a crisp white/transparent background, dark teal text (`text-teal-900`), and a teal border (`border-teal-600`).
+    - The button is NOT a dark teal block. Text is 100% visible and meets WCAG AA contrast.
+    - On hover, the button transitions to teal background with white text.
+- [ ] **Check 35b.4: "Use Another Card" Button on CP Bot Tool Card Has Readable Text**:
+  - **Action**: Inspect the CP Bot & Return Converter card in the same denied state.
+  - **Expected Result**:
+    - "Use another card" button has a transparent background, teal border, and dark teal text matching the adjacent "Open Return Converter" button.

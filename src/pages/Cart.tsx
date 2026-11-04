@@ -126,7 +126,7 @@ const Cart = () => {
         setCheckoutLoading(slug);
         try {
             const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-                body: { product_slug: slug, quantity: 1 }
+                body: { product_slug: slug, quantity: 1, skip_trial: true }
             });
 
             if (error) throw error;

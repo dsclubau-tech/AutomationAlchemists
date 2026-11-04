@@ -89,7 +89,7 @@ try {
     },
     outfile: tempAuthFlowBundle,
   });
-const { buildCheckoutSessionParams, isCardDenialCapExceeded, CARD_DENIAL_RETRY_CAP, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
+const { buildCheckoutSessionParams, isCardDenialCapExceeded, determineTrialEligibility, CARD_DENIAL_RETRY_CAP, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
   const { getBillingView, formatBillingDate, getEffectiveTrialEnd, TRIAL_GRACE_BUFFER_HOURS, TRIAL_GRACE_BUFFER_MS } = await import(`file://${tempBillingBundle.replace(/\\/g, '/')}`);
   const { getClaimErrorMessage, getDeniedTrialChoice, getSubscribeButtonText } = await import(`file://${tempTrialBundle.replace(/\\/g, '/')}`);
   const { getSignUpSuccessState, SIGNUP_CONFIRMATION_NOTICE } = await import(`file://${tempAuthFlowBundle.replace(/\\/g, '/')}`);
@@ -543,6 +543,129 @@ const { buildCheckoutSessionParams, isCardDenialCapExceeded, CARD_DENIAL_RETRY_C
   const signupWithSession = getSignUpSuccessState({ email: 'auto@example.com', hasSession: true });
   assert.strictEqual(signupWithSession.shouldNavigate, true);
   console.log('  ✓ Test F5: Sign-up state transition correctly switches to Sign in, pre-fills email, clears password, and sets notice.\n');
+
+  // ─────────────────────────────────────────────────────────────
+  // (G) Release v1.15.1 - Non-Trial Subscribe Path & Skip-Trial Tests
+  // ─────────────────────────────────────────────────────────────
+  console.log('--- Suite G: Non-Trial Subscribe Path & Skip-Trial Tests ---');
+
+  // Test G1: Subscribe path (skipTrial: true) -> no trial params, paid checkout today
+  const subscribeDecision = determineTrialEligibility({
+    productSlug: 'rccp',
+    isEligibleFromRpc: true,
+    rpcTrialDays: 30,
+    cardDenialCount: 1,
+    skipTrial: true,
+  });
+  assert.strictEqual(subscribeDecision.isEligibleTrial, false, 'Subscribe path must revoke trial eligibility');
+  assert.strictEqual(subscribeDecision.trialDays, 0);
+  assert.strictEqual(subscribeDecision.reason, 'skip_trial');
+
+  const subscribeParams = buildCheckoutSessionParams({
+    user: { id: 'usr_sub_1', email: 'subscriber@example.com' },
+    productSlug: 'rccp',
+    effectiveQuantity: 1,
+    productId: 'prod_rccp_live',
+    basePriceId: 'price_rccp_launch',
+    finalUnitAmount: 499,
+    priceSource: 'admin_price',
+    origin: 'https://automationalchemists.com',
+    isEligibleTrial: subscribeDecision.isEligibleTrial,
+    trialDays: subscribeDecision.trialDays,
+    gstTaxRateId: 'txr_123456789',
+  });
+
+  assert.strictEqual(subscribeParams.subscription_data.trial_period_days, undefined, 'Subscribe path must NOT set trial_period_days');
+  assert.strictEqual(subscribeParams.subscription_data.trial_settings, undefined, 'Subscribe path must NOT set trial_settings');
+  assert.strictEqual(subscribeParams.payment_method_collection, undefined, 'Subscribe path must NOT require trial payment_method_collection always');
+  assert.strictEqual(subscribeParams.metadata.trial, undefined, 'Session metadata.trial must be undefined');
+  assert.strictEqual(subscribeParams.subscription_data.metadata.trial, undefined, 'Subscription metadata.trial must be undefined');
+  assert.strictEqual(subscribeParams.custom_text?.submit, undefined, 'Submit message must not have free trial copy');
+  assert.strictEqual(subscribeParams.line_items[0].price_data.unit_amount, 499, 'Must charge A$4.99 unit amount today');
+  assert.deepStrictEqual(subscribeParams.subscription_data.default_tax_rates, ['txr_123456789'], 'Must apply GST tax rate');
+  console.log('  ✓ Test G1: Subscribe path (skipTrial: true) builds non-trial paid checkout with immediate payment today.');
+
+  // Test G2: Use-another-card path (skipTrial: false) -> trial params present
+  const retryCardDecision = determineTrialEligibility({
+    productSlug: 'rccp',
+    isEligibleFromRpc: true,
+    rpcTrialDays: 30,
+    cardDenialCount: 1,
+    skipTrial: false,
+  });
+  assert.strictEqual(retryCardDecision.isEligibleTrial, true, 'Use-another-card under cap must be eligible for trial');
+  assert.strictEqual(retryCardDecision.trialDays, 30);
+  assert.strictEqual(retryCardDecision.reason, null);
+
+  const retryCardParams = buildCheckoutSessionParams({
+    user: { id: 'usr_trial_retry', email: 'retry@example.com' },
+    productSlug: 'rccp',
+    effectiveQuantity: 1,
+    productId: 'prod_rccp_live',
+    basePriceId: 'price_rccp_launch',
+    finalUnitAmount: 499,
+    priceSource: 'admin_price',
+    origin: 'https://automationalchemists.com',
+    isEligibleTrial: retryCardDecision.isEligibleTrial,
+    trialDays: retryCardDecision.trialDays,
+    gstTaxRateId: 'txr_123456789',
+  });
+
+  assert.strictEqual(retryCardParams.subscription_data.trial_period_days, 30, 'Trial checkout must set 30 days');
+  assert.deepStrictEqual(retryCardParams.subscription_data.trial_settings, { end_behavior: { missing_payment_method: 'cancel' } });
+  assert.strictEqual(retryCardParams.payment_method_collection, 'always');
+  assert.strictEqual(retryCardParams.metadata.trial, 'true');
+  assert.strictEqual(retryCardParams.subscription_data.metadata.trial, 'true');
+  assert.strictEqual(retryCardParams.custom_text?.submit?.message, '30 days free, then A$4.99/month (incl. GST), charged automatically until you cancel.');
+  console.log('  ✓ Test G2: Use-another-card path (skipTrial: false) preserves 30-day trial parameters.');
+
+  // Test G3: Capped user (cardDenialCount >= 3) -> no trial params
+  const cappedDecision = determineTrialEligibility({
+    productSlug: 'rccp',
+    isEligibleFromRpc: true,
+    rpcTrialDays: 30,
+    cardDenialCount: 3,
+    skipTrial: false,
+  });
+  assert.strictEqual(cappedDecision.isEligibleTrial, false, 'Capped user must not be eligible for trial');
+  assert.strictEqual(cappedDecision.reason, 'card_denials_capped');
+
+  const cappedParams = buildCheckoutSessionParams({
+    user: { id: 'usr_capped', email: 'capped@example.com' },
+    productSlug: 'rccp',
+    effectiveQuantity: 1,
+    productId: 'prod_rccp_live',
+    basePriceId: 'price_rccp_launch',
+    finalUnitAmount: 499,
+    priceSource: 'admin_price',
+    origin: 'https://automationalchemists.com',
+    isEligibleTrial: cappedDecision.isEligibleTrial,
+    trialDays: cappedDecision.trialDays,
+    gstTaxRateId: 'txr_123456789',
+  });
+
+  assert.strictEqual(cappedParams.subscription_data.trial_period_days, undefined, 'Capped user must NOT get trial_period_days');
+  assert.strictEqual(cappedParams.subscription_data.trial_settings, undefined, 'Capped user must NOT get trial_settings');
+  assert.strictEqual(cappedParams.metadata.trial, undefined);
+  console.log('  ✓ Test G3: Capped user (>= 3 card denials) falls back to non-trial parameters.');
+
+  // Test G4: Client-supplied flag security — skipTrial: false cannot grant trial if server denies or for other tools
+  const maliciousAttempt = determineTrialEligibility({
+    productSlug: 'rccp',
+    isEligibleFromRpc: false,
+    rpcReason: 'already_claimed',
+    skipTrial: false,
+  });
+  assert.strictEqual(maliciousAttempt.isEligibleTrial, false, 'Client cannot force trial if RPC says ineligible');
+  assert.strictEqual(maliciousAttempt.reason, 'already_claimed');
+
+  const nonTrialTool = determineTrialEligibility({
+    productSlug: 'orderbot',
+    isEligibleFromRpc: true,
+    skipTrial: false,
+  });
+  assert.strictEqual(nonTrialTool.isEligibleTrial, false, 'Non-rccp tools cannot receive trial');
+  console.log('  ✓ Test G4: Security rule verified: skip-trial flag can only remove trial, never grant one.\n');
 
 
   // ─────────────────────────────────────────────────────────────

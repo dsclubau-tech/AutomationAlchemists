@@ -224,7 +224,7 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
               disabled={isStartingCheckout}
               onClick={handleRetryWithAnotherCard}
               variant="outline"
-              className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white font-bold px-4 py-2.5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
+              className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
             >
               {isStartingCheckout ? (
                 <>

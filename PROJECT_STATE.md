@@ -14,6 +14,13 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Non-Trial Subscribe Checkout & UI Contrast Enhancements (`src/pages/Cart.tsx`, `src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, `supabase/functions/create-checkout-session/params.ts`, v1.15.1)**:
+  - Fixed issue where clicking "Subscribe at A$4.99/month" after a declined trial opened another 30-day free trial checkout instead of a paid subscription.
+  - Cart checkout (`src/pages/Cart.tsx`) sends explicit `skip_trial: true` signal in `create-checkout-session` payload.
+  - Pure helper `determineTrialEligibility` in `params.ts` honors `skip_trial: true`, stripping trial period days, trial settings, and trial submission copy to collect payment today (A$4.99 incl. GST).
+  - Security guarantee: client-supplied `skipTrial` flag can only remove a trial, never grant one.
+  - "Use another card" button (`startTrialCheckout`) continues to initiate normal trial checkouts.
+  - Fixed invisible text on "Use another card" buttons across `/dashboard` by applying `bg-transparent`, restoring WCAG AA compliant contrast (14.8:1 default, 6.5:1 hover) on white surfaces.
 - **Denied-Trial Choices & Retry Cap (`src/lib/trial.ts`, `src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, v1.15.0)**:
   - Guided recovery options for declined free trials:
     - Card already used (`card_already_used`): Displays dual action buttons — "Use another card" (initiating a fresh checkout session via standard `startTrialCheckout`) and "Subscribe at A$4.99/month" (initiating immediate paid subscription via `handleGetAccessLogic('rccp')`).
@@ -151,14 +158,14 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - **Free trial**: Switched OFF (`trial_offers.enabled = false`).
 - **Edge Functions**:
   - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, v1.9.4 refund fix, and v1.14.0 phone decoupling changes **NOT deployed**.
-  - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, v1.12.0, and v1.15.0 (card denial retry cap), **NOT deployed**.
+  - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, v1.12.0, v1.15.0, and v1.15.1 (skip-trial non-trial checkout signal), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
 - **Database**:
   - Migration 034 applied and verified.
   - Migration 035 (`035_trial_identity_card_email_only.sql`) authored and pending manual execution by owner.
 
 ## In Progress
-- Local verification and testing of release v1.15.0 complete.
+- Local verification and testing of release v1.15.1 complete.
 - Owner applying migration `035_trial_identity_card_email_only.sql` in Supabase SQL editor.
 - Review of Stripe SDK upgrade options for first-class `name_collection` (`2025-09-30.clover`+).
 - Owner setting `STRIPE_GST_TAX_RATE_ID` secret in Supabase Edge Functions.
@@ -180,4 +187,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-03 — Release v1.15.0: Denied-trial choices, sign-up flow, Open Tools link, landing page crash fix.*
+*Last Updated: 2026-11-04 — Release v1.15.1: Fix Subscribe path opening trial checkout; fix invisible "Use another card" button.*

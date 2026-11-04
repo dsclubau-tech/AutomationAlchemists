@@ -609,3 +609,29 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
   - **Preserved Tool-Specific Links**:
     - Individual tool card "Open Return Converter" actions continue pointing directly to `https://rccp.automationalchemists.com`.
   - **Files Implementing It**: [`src/pages/Dashboard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Dashboard.tsx).
+
+---
+
+### 23. Direct Non-Trial Subscription & UI Contrast Enhancements (Release v1.15.1)
+
+- **Direct Non-Trial Paid Checkout on Cart & Recovery Paths (Bug A)**:
+  - **What it does**: Ensures that customers explicitly choosing to subscribe (such as those clicking "Subscribe at A$4.99/month" following a trial refusal, or checking out via the shopping cart) receive an immediate paid subscription session with payment collected today, rather than an unwanted $0.00 free trial session.
+  - **Explicit Skip-Trial Transmission**:
+    - `src/pages/Cart.tsx` transmits `skip_trial: true` in the `create-checkout-session` POST payload when initiating checkout.
+  - **Server-Side Decision Engine (`determineTrialEligibility`)**:
+    - Pure decision helper in `supabase/functions/create-checkout-session/params.ts`.
+    - If `skipTrial: true` is received, `isEligibleTrial` is strictly set to `false` with `reason = 'skip_trial'`.
+    - Strips all trial period days, trial settings, and trial submit notices, ensuring Stripe charges the first monthly billing cycle immediately at checkout (A$4.99 incl. GST).
+    - Preserves existing card-denial-cap enforcement (`'card_denials_capped'`) which shares the same non-trial checkout parameters.
+  - **Security Constraint**:
+    - A client-supplied skip-trial flag can only ever REMOVE a trial, never grant one. Ineligible accounts or non-trial tools cannot obtain a trial by omitting or spoofing flags.
+  - **Preserved Trial Checkout Paths**:
+    - "Use another card" and landing page trial CTAs continue to omit `skip_trial`, preserving the standard 30-day card-required free trial flow.
+  - **Files Implementing It**: [`src/pages/Cart.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Cart.tsx), [`supabase/functions/create-checkout-session/params.ts`](file:///G:/app%20development/AutomationAlchemists/supabase/functions/create-checkout-session/params.ts), [`supabase/functions/create-checkout-session/index.ts`](file:///G:/app%20development/AutomationAlchemists/supabase/functions/create-checkout-session/index.ts).
+
+- **UI Contrast Fix for Dashboard "Use Another Card" Action (Bug B)**:
+  - **What it does**: Resolves an issue where the "Use another card" recovery button rendered as a solid dark teal block with invisible text on `/dashboard`.
+  - **Contrast Standardization**:
+    - Declares explicit `bg-transparent` alongside `border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600` on the outline buttons.
+    - Eliminates inheritance of the theme's default dark teal background (`--background: 188 72% 14%`, `#0A363D`), establishing compliant WCAG AA contrast (14.8:1 in default state, 6.5:1 on hover).
+  - **Files Implementing It**: [`src/components/DashboardTrialCard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/components/DashboardTrialCard.tsx), [`src/pages/Dashboard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Dashboard.tsx).

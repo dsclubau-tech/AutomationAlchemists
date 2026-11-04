@@ -8,6 +8,64 @@ export function isCardDenialCapExceeded(cardDenialCount: number, cap: number = C
   return cardDenialCount >= cap;
 }
 
+export interface DetermineTrialEligibilityInput {
+  productSlug: string;
+  isEligibleFromRpc?: boolean;
+  rpcTrialDays?: number;
+  rpcReason?: string | null;
+  cardDenialCount?: number;
+  skipTrial?: boolean;
+}
+
+export interface DetermineTrialEligibilityResult {
+  isEligibleTrial: boolean;
+  trialDays: number;
+  reason: string | null;
+}
+
+/**
+ * Pure helper deciding trial eligibility.
+ * Rules:
+ * 1. Only 'rccp' product can have a trial.
+ * 2. If client requests skipTrial, trial is stripped (client can only REMOVE trial, never grant one).
+ * 3. Server-side RPC eligibility must be true; otherwise trial is denied with RPC reason.
+ * 4. Card denial count must be under CARD_DENIAL_RETRY_CAP (3); otherwise capped.
+ */
+export function determineTrialEligibility(
+  input: DetermineTrialEligibilityInput
+): DetermineTrialEligibilityResult {
+  if (input.productSlug !== 'rccp') {
+    return { isEligibleTrial: false, trialDays: 0, reason: null };
+  }
+
+  // Client skipTrial flag can only REMOVE the trial, never grant one.
+  if (input.skipTrial) {
+    return { isEligibleTrial: false, trialDays: 0, reason: 'skip_trial' };
+  }
+
+  if (!input.isEligibleFromRpc) {
+    return {
+      isEligibleTrial: false,
+      trialDays: 0,
+      reason: input.rpcReason || 'not_eligible',
+    };
+  }
+
+  if (isCardDenialCapExceeded(input.cardDenialCount ?? 0)) {
+    return {
+      isEligibleTrial: false,
+      trialDays: 0,
+      reason: 'card_denials_capped',
+    };
+  }
+
+  return {
+    isEligibleTrial: true,
+    trialDays: Number(input.rpcTrialDays) || 30,
+    reason: null,
+  };
+}
+
 export const TERMS_URL = 'https://rccp.automationalchemists.com/terms-of-service';
 export const PRIVACY_URL = 'https://rccp.automationalchemists.com/privacy';
 export const TERMS_CONSENT_MESSAGE = `I agree to the [Terms of Service](${TERMS_URL}) and [Privacy Policy](${PRIVACY_URL}).`;

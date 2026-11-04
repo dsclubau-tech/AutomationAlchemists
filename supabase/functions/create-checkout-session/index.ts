@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Stripe from 'https://esm.sh/stripe@14.22.0?target=deno';
-import { buildCheckoutSessionParams, isCardDenialCapExceeded } from './params.ts';
+import { buildCheckoutSessionParams, isCardDenialCapExceeded, determineTrialEligibility } from './params.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,6 +63,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const { product_slug } = body;
+    const skipTrial = Boolean(body.skip_trial ?? body.skipTrial ?? body.no_trial ?? body.noTrial);
 
     if (!product_slug) {
       return new Response(JSON.stringify({ error: 'Invalid parameters' }), {
@@ -118,13 +119,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    // TRIAL ELIGIBILITY CHECK (Migration 034)
-    // For tool rccp, inspect trial eligibility via service-role RPC.
-    let isEligibleTrial = false;
-    let trialDays = 0;
-    let trialEligibilityReason: string | null = null;
+    // TRIAL ELIGIBILITY CHECK (Migration 034 & v1.15.1)
+    // For tool rccp, inspect trial eligibility via service-role RPC unless client requested skipTrial.
+    let isEligibleFromRpc = false;
+    let rpcTrialDays = 0;
+    let rpcReason: string | null = null;
+    let cardDenialCount = 0;
 
-    if (product_slug === 'rccp') {
+    if (product_slug === 'rccp' && !skipTrial) {
       const { data: eligibility, error: eligibilityError } = await supabaseAdmin
         .rpc('trial_eligibility_for', {
           p_user_id: user.id,
@@ -132,30 +134,37 @@ Deno.serve(async (req) => {
         });
 
       if (!eligibilityError && eligibility) {
-        if (eligibility.eligible) {
+        isEligibleFromRpc = Boolean(eligibility.eligible);
+        rpcTrialDays = Number(eligibility.trial_days) || 30;
+        rpcReason = eligibility.reason || null;
+
+        if (isEligibleFromRpc) {
           // Check retry cap: at most 3 card-denials per account per tool in public.trial_denials
-          const { count: cardDenialCount, error: denialError } = await supabaseAdmin
+          const { count, error: denialError } = await supabaseAdmin
             .from('trial_denials')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', user.id)
             .eq('tool_slug', 'rccp')
             .eq('reason', 'card_already_used');
 
-          if (!denialError && isCardDenialCapExceeded(cardDenialCount ?? 0)) {
-            isEligibleTrial = false;
-            trialEligibilityReason = 'card_denials_capped';
-          } else {
-            isEligibleTrial = true;
-            trialDays = Number(eligibility.trial_days) || 30;
+          if (!denialError && count !== null && count !== undefined) {
+            cardDenialCount = count;
           }
-        } else {
-          trialEligibilityReason = eligibility.reason || 'not_eligible';
         }
       } else if (eligibilityError) {
         console.warn('trial_eligibility_for error:', eligibilityError);
-        trialEligibilityReason = 'rpc_error';
+        rpcReason = 'rpc_error';
       }
     }
+
+    const { isEligibleTrial, trialDays, reason: trialEligibilityReason } = determineTrialEligibility({
+      productSlug: product_slug,
+      isEligibleFromRpc,
+      rpcTrialDays,
+      rpcReason,
+      cardDenialCount,
+      skipTrial,
+    });
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
       httpClient: Stripe.createFetchHttpClient(),

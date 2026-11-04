@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.1] - 2026-11-04
+### Fixed
+- Fixed an issue where clicking "Subscribe" after a declined trial opened another free trial checkout instead of a paid subscription charged today
+- Fixed a visual display issue where the "Use another card" button rendered with dark text on a dark background, restoring clear readability and contrast
+
 ## [1.15.0] - 2026-11-03
 ### Added
 - Clear recovery choices for customers whose free trial was declined after checkout, including one-click retry with another card or immediate subscription at promotional launch pricing

@@ -271,7 +271,7 @@ const ToolCard = ({
                                     </a>
                                 </Button>
                                 {deniedChoice.canRetryCard && (
-                                    <Button onClick={onStartTrial} variant="outline" className="border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
+                                    <Button onClick={onStartTrial} variant="outline" className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold h-10 px-4 rounded-lg text-sm transition-colors font-display w-full sm:w-auto">
                                         {deniedChoice.useAnotherCardButtonText}
                                     </Button>
                                 )}
