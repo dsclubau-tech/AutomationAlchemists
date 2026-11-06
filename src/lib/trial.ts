@@ -29,6 +29,7 @@ export interface TrialStatusData {
   slots_taken?: number;
   trial_days?: number;
   denied_reason?: string | null;
+  card_denial_count?: number;
 }
 
 const isPrerendering = (): boolean =>
@@ -94,14 +95,15 @@ export interface DeniedTrialChoice {
 export function getDeniedTrialChoice(
   deniedReason?: string | null,
   cardDenialCount: number = 0,
-  priceMonthly: number = PRICING_CONFIG.launchPrice
+  priceMonthly: number = PRICING_CONFIG.launchPrice,
+  hasActiveAccess: boolean = false
 ): DeniedTrialChoice {
   const reason = deniedReason || null;
   const isCapped = cardDenialCount >= CARD_DENIAL_RETRY_CAP;
   const subscribeButtonText = getSubscribeButtonText(priceMonthly);
   const useAnotherCardButtonText = TRIAL_DENIAL_TEXTS.useAnotherCardButton;
 
-  if (!reason) {
+  if (!reason || hasActiveAccess) {
     return {
       isDenied: false,
       reason: null,

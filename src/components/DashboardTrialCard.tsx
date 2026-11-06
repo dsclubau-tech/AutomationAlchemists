@@ -21,6 +21,8 @@ interface DashboardTrialCardProps {
   onSubscribe: () => void;
   priceMonthly?: number;
   isPastDue?: boolean;
+  hasActiveAccess?: boolean;
+  cardDenialCount?: number;
 }
 
 export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
@@ -29,6 +31,8 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
   onSubscribe,
   priceMonthly = PRICING_CONFIG.launchPrice,
   isPastDue = false,
+  hasActiveAccess = false,
+  cardDenialCount: externalCardDenialCount,
 }) => {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -36,32 +40,22 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [isHighlighted, setIsHighlighted] = useState(false);
 
+  // Active access check: either passed from Dashboard (subscriptions) or from trialStatus RPC
+  const userHasActiveAccess = Boolean(hasActiveAccess || trialStatus?.has_access);
+
+  // Card denial count from prop or trial status (no direct table queries from browser)
+  const cardDenialCount = externalCardDenialCount ?? trialStatus?.card_denial_count ?? 0;
+
   // Polling state for /dashboard?checkout=success
-  const [isPolling, setIsPolling] = useState(false);
+  // Start true on initial mount if checkout=success is in URL to prevent flash of denied banner
+  const isCheckoutSuccess =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('checkout') === 'success';
+
+  const [isPolling, setIsPolling] = useState(() => isCheckoutSuccess);
   const [successEndsAt, setSuccessEndsAt] = useState<string | null>(null);
   const [deniedReason, setDeniedReason] = useState<string | null>(null);
   const [isTimedOut, setIsTimedOut] = useState(false);
-  const [cardDenialCount, setCardDenialCount] = useState<number>(0);
-
-  useEffect(() => {
-    if (!userId) return;
-    const fetchDenials = async () => {
-      try {
-        const { count, error } = await (supabase as any)
-          .from('trial_denials')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .eq('tool_slug', 'rccp')
-          .eq('reason', 'card_already_used');
-        if (!error && typeof count === 'number') {
-          setCardDenialCount(count);
-        }
-      } catch (err) {
-        console.error('Error fetching card denial count:', err);
-      }
-    };
-    fetchDenials();
-  }, [userId, deniedReason, trialStatus?.denied_reason]);
 
   // Detect ?checkout=success and poll get_trial_status every 2s up to 40s
   useEffect(() => {
@@ -75,6 +69,11 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
 
     const poll = async () => {
       attempts += 1;
+
+      // 1. Refresh subscriptions in parent first so hasActiveAccess updates
+      await onClaimSuccess();
+
+      // 2. Fetch fresh trial status
       const res = await getTrialStatus('rccp');
       if (res.ok) {
         if (res.data.has_access) {
@@ -82,21 +81,19 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
           setIsPolling(false);
           setSuccessEndsAt(res.data.claim?.ends_at || null);
           await refetch();
-          await onClaimSuccess();
-          return;
-        }
-        if (res.data.denied_reason) {
-          clearInterval(intervalId);
-          setIsPolling(false);
-          setDeniedReason(res.data.denied_reason);
           return;
         }
       }
 
+      // If max attempts reached without access
       if (attempts >= maxAttempts) {
         clearInterval(intervalId);
         setIsPolling(false);
-        setIsTimedOut(true);
+        if (res.ok && res.data.denied_reason) {
+          setDeniedReason(res.data.denied_reason);
+        } else {
+          setIsTimedOut(true);
+        }
       }
     };
 
@@ -125,7 +122,7 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     return null;
   }
 
-  // 1. Checkout success polling active
+  // 1. Checkout success polling active (show confirming loader)
   if (isPolling) {
     return (
       <div
@@ -180,71 +177,74 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
     );
   }
 
-  // 3. Checkout polling returned denial reason OR trialStatus has denied_reason
-  const activeDeniedReason = deniedReason || trialStatus?.denied_reason;
+  // 3. Denied trial banner
+  // Active access ALWAYS wins over denial.
+  // Never show denied banner if user has active access or while confirming.
+  const activeDeniedReason = !userHasActiveAccess && (deniedReason || trialStatus?.denied_reason);
   if (activeDeniedReason) {
-    const choice = getDeniedTrialChoice(activeDeniedReason, cardDenialCount, priceMonthly);
+    const choice = getDeniedTrialChoice(activeDeniedReason, cardDenialCount, priceMonthly, userHasActiveAccess);
+    if (choice.isDenied) {
+      const handleRetryWithAnotherCard = async () => {
+        if (isStartingCheckout) return;
+        setIsStartingCheckout(true);
+        try {
+          await startTrialCheckout({
+            returnPath: '/dashboard',
+            user,
+            toast,
+          });
+        } finally {
+          setIsStartingCheckout(false);
+        }
+      };
 
-    const handleRetryWithAnotherCard = async () => {
-      if (isStartingCheckout) return;
-      setIsStartingCheckout(true);
-      try {
-        await startTrialCheckout({
-          returnPath: '/dashboard',
-          user,
-          toast,
-        });
-      } finally {
-        setIsStartingCheckout(false);
-      }
-    };
-
-    return (
-      <div
-        id="claim-trial"
-        className="mb-8 p-6 rounded-2xl bg-white border border-red-500/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-600 shrink-0 border border-red-500/20">
-            <AlertCircle className="w-6 h-6" />
+      return (
+        <div
+          id="claim-trial"
+          className="mb-8 p-6 rounded-2xl bg-white border border-red-500/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-600 shrink-0 border border-red-500/20">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-teal-900 font-display">
+                {choice.title}
+              </h3>
+              <p className="text-sm text-teal-900/70 font-display">
+                {choice.description}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-bold text-teal-900 font-display">
-              {choice.title}
-            </h3>
-            <p className="text-sm text-teal-900/70 font-display">
-              {choice.description}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto shrink-0">
-          {choice.canRetryCard && (
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto shrink-0">
+            {choice.canRetryCard && (
+              <Button
+                type="button"
+                disabled={isStartingCheckout}
+                onClick={handleRetryWithAnotherCard}
+                variant="outline"
+                className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
+              >
+                {isStartingCheckout ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                    <span>Redirecting...</span>
+                  </>
+                ) : (
+                  choice.useAnotherCardButtonText
+                )}
+              </Button>
+            )}
             <Button
-              type="button"
-              disabled={isStartingCheckout}
-              onClick={handleRetryWithAnotherCard}
-              variant="outline"
-              className="bg-transparent border-teal-600 text-teal-900 hover:bg-teal-600 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-600 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors font-display w-full sm:w-auto"
+              onClick={onSubscribe}
+              className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
             >
-              {isStartingCheckout ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-                  <span>Redirecting...</span>
-                </>
-              ) : (
-                choice.useAnotherCardButtonText
-              )}
+              {choice.subscribeButtonText}
             </Button>
-          )}
-          <Button
-            onClick={onSubscribe}
-            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
-          >
-            {choice.subscribeButtonText}
-          </Button>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   // 4. Checkout polling timed out (> 40s)
@@ -277,7 +277,7 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
           </Button>
           <Button
             asChild
-            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-4 py-2 rounded-lg text-sm transition-colors font-display w-full sm:w-auto shadow-sm"
+            className="bg-yellow-accent text-teal-900 hover:bg-yellow-accent/90 font-bold px-4 py-2 rounded-lg text-sm transition-colors font-display shrink-0 w-full sm:w-auto shadow-sm"
           >
             <a href="/contact">Contact us</a>
           </Button>

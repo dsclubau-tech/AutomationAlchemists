@@ -10,10 +10,22 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Public tables: `invoices`, `templates`, `profiles`, `linked_emails`, `message_templates`, `gmail_templates`.
     - Private plan/credit tables: `invoice_plan_config`, `invoice_plan_admins`, `invoice_plan_accounts`, `invoice_email_periods`, `invoice_email_sends`.
   - **WARNING**: `profiles` (and possibly `invoices`, `templates`) already exist or may collide in the shared Supabase project, so the `ig_` prefix is mandatory at migration. Migration must preserve account ownership, authentication-ID mappings, invoice creation dates, Gmail credentials, and credit history.
-  - **No tables created now**: Zero database schema or data modifications in v1.13.0. Migration 035 prepared in v1.14.0 for manual execution.
+  - **No tables created now**: Zero database schema or data modifications in v1.13.0. Migration 035 prepared in v1.14.0, Migration 036 prepared in v1.15.2 for manual execution.
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Active Subscription Access Precedence Over Denial Banner (`src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, `src/lib/dashboardSections.ts`, `src/lib/trial.ts`, v1.15.2)**:
+  - Fixed issue where customers with an active paid CP Bot subscription (or active trial) still saw the red trial denial banner (*"This card was already used for a free trial"*) at the top of `/dashboard`.
+  - Enforced core invariant: active access ALWAYS takes precedence over old denial records. Old rows in `public.trial_denials` do not display once a user holds active tool access.
+  - Extracted pure helper `hasActiveCpBotAccess(subscriptions)` in `src/lib/dashboardSections.ts` detecting unexpired `cpbot` / `rccp` subscriptions.
+  - Added pure decision helper `shouldShowDeniedTrialBanner` and updated `getDeniedTrialChoice` to honor `hasActiveAccess: boolean`.
+  - Transient state protection: during `/dashboard?checkout=success` polling window, the confirming state (*"Setting up your trial... Verifying your card details and activating your CP Bot access"*) renders without flashing the red denial alert.
+  - Reversibility: if a subscription is later canceled/refunded and access lapses, the denial banner correctly returns.
+- **Elimination of Browser HTTP 403 on `trial_denials` & Authoring of Migration 036 (`src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, `src/lib/trial.ts`, `supabase/migrations/036_trial_denials_access.sql`, v1.15.2)**:
+  - Root cause analysis identified that `REVOKE ALL ON TABLE public.trial_denials FROM PUBLIC, anon, authenticated` in migration 034 caused PostgreSQL to return 403 Forbidden on direct browser queries.
+  - Completely removed direct table queries (`supabase.from('trial_denials')`) from all client components (`Dashboard.tsx`, `DashboardTrialCard.tsx`), eliminating repeated console 403 errors and duplicate effect re-renders.
+  - Centralized `cardDenialCount` evaluation via `useTrialStatus` (`trialStatus?.card_denial_count ?? 0`) with safe fallback to `0`.
+  - Authored pending migration `supabase/migrations/036_trial_denials_access.sql`: adds RLS SELECT policy on `public.trial_denials` for `authenticated`, standalone `public.get_card_denial_count` SECURITY DEFINER RPC, and includes `card_denial_count` in `public.get_trial_status`. (Not applied to live DB; awaiting manual owner execution).
 - **Non-Trial Subscribe Checkout & UI Contrast Enhancements (`src/pages/Cart.tsx`, `src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, `supabase/functions/create-checkout-session/params.ts`, v1.15.1)**:
   - Fixed issue where clicking "Subscribe at A$4.99/month" after a declined trial opened another 30-day free trial checkout instead of a paid subscription.
   - Cart checkout (`src/pages/Cart.tsx`) sends explicit `skip_trial: true` signal in `create-checkout-session` payload.
@@ -47,7 +59,7 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - Added safe `isNaN` guard in `src/lib/trial.ts` preventing NaN calculations on malformed timestamps.
   - Enhanced `src/components/ErrorBoundary.tsx` `componentDidCatch` to log caught error objects and component stacks with `console.error`.
 - **Identifier Sweep & Cart Render Test Suite (`scripts/test-identifier-sweep.mjs`, v1.14.1)**:
-  - Static AST audit of all 149 source files ensuring every usage of `PageLoader` and `ShieldAlert` is strictly imported, plus SSR mount testing of `/cart` across authenticating and authenticated states.
+  - Static AST audit of all 150 source files ensuring every usage of `PageLoader` and `ShieldAlert` is strictly imported, plus SSR mount testing of `/cart` across authenticating and authenticated states.
   - Integrated into Suite D2 of `scripts/test-launch-readiness.mjs`.
 - **Consistent Free Trial End Date Calculation (`src/lib/billingView.ts`, v1.14.0)**:
   - Standardized customer-facing trial expiration date calculation by subtracting the 6-hour database grace buffer (`TRIAL_GRACE_BUFFER_HOURS = 6`, `TRIAL_GRACE_BUFFER_MS = 21,600,000`) added by `process_stripe_webhook_event` (`034_card_trial_identity.sql:789`).
@@ -98,45 +110,9 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - Mandatory full billing address collection: `billing_address_collection = 'required'` on all sessions (v1.12.0).
   - Phone number collection: `phone_number_collection = { enabled: true }` enabled on all sessions (v1.12.0).
   - Customer profile synchronization: `customer_update = { name: 'auto', address: 'auto' }` attached exclusively when `customerId` is passed; safely omitted when session uses `customer_email` (v1.12.0).
-  - Business / Company name collection: Helper support added for `name_collection` (`{ individual: { enabled: true, optional: false }, business: { enabled: true, optional: true } }`). Emission in live session creation paused pending Stripe SDK upgrade from `stripe@14.22.0` (API `2023-10-16`) to API `2025-09-30.clover`+ (v1.12.0).
-  - GST tax rate integration: `subscription_data.default_tax_rates = [Deno.env.get('STRIPE_GST_TAX_RATE_ID')]`.
-  - Fail-closed security: missing/empty `STRIPE_GST_TAX_RATE_ID` returns HTTP 500 (`"GST tax rate not configured"`) and halts session creation.
-  - Runtime assertion guarantees NO `automatic_tax` is passed.
-  - Terms consent collection: `consent_collection.terms_of_service = 'required'` and `custom_text.terms_of_service_acceptance.message = 'I agree to the [Terms of Service](https://rccp.automationalchemists.com/terms-of-service) and [Privacy Policy](https://rccp.automationalchemists.com/privacy).'`.
-- **Contact Page**: Redesigned contact details card with functional links (mailto, WhatsApp SVG links, Google Maps). JSON-LD and display text are aligned.
-- **Auth System**: Integrated Supabase Auth with singleton `useAuth` hook and visibility-change state restoration. Return-path navigation via `?next=` sanitized by `sanitizeNext`.
-- **Email Branding Asset (`/email-logo.png`, v1.9.4)**:
-  - Hosted static asset: `https://www.automationalchemists.com/email-logo.png`.
-  - Static file at `public/email-logo.png` (copied to `dist/email-logo.png` on build, served directly before SPA catch-all rewrites).
-  - 400x400 PNG, logo centered with 12% padding (48px padding, 304x304 inner area), flattened on pure black `#000000` (RGB mode), optimized under 100 KB (30.56 KB), corner pixels `(0, 0, 0)`.
-- **Invoice Generator Product Page & Branding Asset (`/tools/invoice-generator`, v1.10.0)**:
-  - Dedicated landing page at `/tools/invoice-generator` (`src/pages/tools/InvoiceGeneratorToolPage.tsx` and `src/data/invoiceGeneratorPage.ts`) mirroring `/tools/rccp` structure, design tokens, and spacing.
-  - Pinned config URLs in `src/data/invoiceGeneratorPage.ts`.
-- **Tools Overview Page (`/tools`, 3-Card Grid)**:
-  - Card 1: Return Converter x CopyPaste Bot (`rccp`).
-  - Card 2: ListFlow (`listflow`, Coming soon).
-  - Card 3: Invoice Generator (`INVOICING` tag, `Free` badge, "Free to get started", "Learn more" button).
-- **Dashboard Isolation Guarantee**:
-  - Invoice Generator is completely absent from `/dashboard`. It operates under separate auth and is excluded by `categorizeDashboardTools` without touching the database tools table.
-- **Entitlement Gating**: Active subscription counting via `get_active_subscription_count` for authenticated users.
-- **Tools Catalog Visibility (v1.7.0)**:
-  - Strict visible tool filtering via exported constant `VISIBLE_TOOL_SLUGS = ['rccp', 'listflow'] as const` in `src/data/tools.ts`.
-  - Non-visible tools (`orderbot`, `invoicegen`) keep active route/detail files and direct URLs, but are unlinked from navigation, excluded from sitemaps/prerenders, and emit `<meta name="robots" content="noindex, nofollow" />`.
-- **Billing Page (`/billing`, v1.9.0)**:
-  - Self-service Customer Billing Portal card with "Manage subscription" button launching `create-portal-session`.
-- **Admin Dashboard & Controls (v1.6.0)**:
-  - Migration 033 applied in production.
-  - `/admin/free-trials` and `/admin/price-overrides` operational for administrators.
-- **Card-Required Free Trial Architecture & Webhook Deployment (v1.8.1)**:
-  - Migration 034 applied to production Supabase (`tdevgrwmafwrsmeymjzd`).
-  - Webhook function `stripe-webhook` deployed (v6, `--no-verify-jwt`).
-  - Anti-abuse identity tables: `public.trial_identities` (card fingerprint & HMAC phone hash) and `public.trial_denials`.
-  - Stored Procedure `process_stripe_webhook_event` (13 arguments exact match, single overload).
-- **Trial Checkout & Billing Portal Edge Functions (v1.9.0, v1.9.1, v1.11.0, v1.12.0 - Code written, not deployed)**:
-  - `create-checkout-session` (`supabase/functions/create-checkout-session/index.ts`):
-    - Gated server-side by `CHECKOUT_ENABLED !== 'true'` (only `profiles.is_admin` permitted in production).
-    - Single-seat quantity enforcement: forced to 1 for non-orderbot tools.
-    - Selects Stripe price by lookup key `"rccp"`.
+- **Backend Infrastructure (Pre-v1.11.0, migrations 031-034)**:
+  - `create-checkout-session`:
+    - Reads prices dynamically from `public.tools.price_monthly`.
     - Dynamic inline `price_data` for active per-user admin overrides (`user_price_overrides`).
     - Configured with `subscription_data.default_tax_rates`, terms consent requirement, required full billing address, and phone collection.
   - `create-portal-session` (`supabase/functions/create-portal-session/index.ts`):
@@ -149,8 +125,8 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
     - Phone decoupling (v1.14.0): Removed fatal requirement on `TRIAL_IDENTITY_PEPPER`; safely passes fallback identifier to maintain compatibility with 034 RPC until 035 is applied.
     - Post-checkout denial cancellation verified: Immediately calls `stripe.subscriptions.cancel(p_stripe_subscription_id)` on trial denial.
     - Pure compatibility test suite (`scripts/test-stripe-compat.mjs`) verifying 12 assertions across legacy and clover shapes.
-- **Launch Readiness & Trial Banner Test Suites (`scripts/test-launch-readiness.mjs`, `scripts/test-trial-banner.mjs`)**:
-  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, billing address required, phone collection, name collection helper, customer_update constraints, no automatic_tax), `getBillingView` state machine (all 7 scenarios plus evening/morning/DST buffer adjustments), pricing formatting, phone denial removal, zero leftover `$9` string audit in `src/`, and complete trial banner state/urgency/sold-out evaluation.
+- **Launch Readiness & Trial Banner Test Suites (`scripts/test-launch-readiness.mjs`, `scripts/test-trial-banner.mjs`, `scripts/test-dashboard-sections.mjs`)**:
+  - Pure offline assertions covering: checkout params helper (tax rate, fail-closed, terms consent, billing address required, phone collection, name collection helper, customer_update constraints, no automatic_tax), `getBillingView` state machine (all 7 scenarios plus evening/morning/DST buffer adjustments), pricing formatting, phone denial removal, zero leftover `$9` string audit in `src/`, trial banner state evaluation, and Suite H active access / trial_denials direct query guards.
 
 ## Current Production Deployment Status
 - **Vercel Frontend**: Automatic deployment on push to `main`.
@@ -160,13 +136,16 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, v1.9.4 refund fix, and v1.14.0 phone decoupling changes **NOT deployed**.
   - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, v1.12.0, v1.15.0, and v1.15.1 (skip-trial non-trial checkout signal), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
+  - **Zero Edge Function changes in v1.15.2**.
 - **Database**:
   - Migration 034 applied and verified.
   - Migration 035 (`035_trial_identity_card_email_only.sql`) authored and pending manual execution by owner.
+  - Migration 036 (`036_trial_denials_access.sql`) authored and pending manual execution by owner.
 
 ## In Progress
-- Local verification and testing of release v1.15.1 complete.
+- Local verification and testing of release v1.15.2 complete.
 - Owner applying migration `035_trial_identity_card_email_only.sql` in Supabase SQL editor.
+- Owner applying migration `036_trial_denials_access.sql` in Supabase SQL editor.
 - Review of Stripe SDK upgrade options for first-class `name_collection` (`2025-09-30.clover`+).
 - Owner setting `STRIPE_GST_TAX_RATE_ID` secret in Supabase Edge Functions.
 - Owner deploying `create-checkout-session` (`npx supabase functions deploy create-checkout-session --project-ref tdevgrwmafwrsmeymjzd`).
@@ -187,4 +166,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-04 — Release v1.15.1: Fix Subscribe path opening trial checkout; fix invisible "Use another card" button.*
+*Last Updated: 2026-11-06 — Release v1.15.2: Hide denied-trial banner for active subscribers; stop refused trial_denials browser queries.*

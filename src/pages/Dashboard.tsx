@@ -21,6 +21,7 @@ import {
     canManageSubscription,
     getSubscriptionDateText,
     getBillingView,
+    hasActiveCpBotAccess,
 } from '@/lib/dashboardSections';
 import { TrialTermsLine, PRICING_CONFIG } from '@/config/pricing';
 
@@ -439,27 +440,8 @@ const Dashboard = () => {
     const [showAddStoreModal, setShowAddStoreModal] = useState(false);
     const [newStoreName, setNewStoreName] = useState('');
     const [addStoreLoading, setAddStoreLoading] = useState(false);
-    const [cardDenialCount, setCardDenialCount] = useState<number>(0);
-
-    useEffect(() => {
-        if (!user) return;
-        const fetchDenials = async () => {
-            try {
-                const { count, error } = await (supabase as any)
-                    .from('trial_denials')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id)
-                    .eq('tool_slug', 'rccp')
-                    .eq('reason', 'card_already_used');
-                if (!error && typeof count === 'number') {
-                    setCardDenialCount(count);
-                }
-            } catch (err) {
-                console.error('Error fetching card denial count:', err);
-            }
-        };
-        fetchDenials();
-    }, [user, trialStatus?.denied_reason]);
+    // Read card denial count safely from trial status (no direct table queries from browser)
+    const cardDenialCount = trialStatus?.card_denial_count ?? 0;
 
     // Redirect unauthenticated users once session check is done
     useEffect(() => {
@@ -667,6 +649,8 @@ const Dashboard = () => {
                             onSubscribe={() => handleGetAccessLogic('rccp', user, toast)}
                             priceMonthly={dbTools.find(t => t.slug === 'rccp')?.price_monthly}
                             isPastDue={subscriptions.some(s => s.status === 'past_due' && (s.product_slug === 'cpbot' || s.product_slug === 'rccp'))}
+                            hasActiveAccess={hasActiveCpBotAccess(subscriptions)}
+                            cardDenialCount={cardDenialCount}
                         />
                     )}
 

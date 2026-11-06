@@ -21,8 +21,10 @@ const billingEntry = path.resolve(__dirname, '../src/lib/billingView.ts');
 const pricingEntry = path.resolve(__dirname, '../src/config/pricing.tsx');
 const trialEntry = path.resolve(__dirname, '../src/lib/trial.ts');
 const authFlowEntry = path.resolve(__dirname, '../src/lib/authFlow.ts');
+const dashboardSectionsEntry = path.resolve(__dirname, '../src/lib/dashboardSections.ts');
 
 const tempParamsBundle = path.resolve(__dirname, 'temp-params.mjs');
+const tempDashboardSectionsBundle = path.resolve(__dirname, 'temp-dashboard-sections.mjs');
 const tempBillingBundle = path.resolve(__dirname, 'temp-billing.mjs');
 const tempPricingBundle = path.resolve(__dirname, 'temp-pricing.mjs');
 const tempTrialBundle = path.resolve(__dirname, 'temp-trial.mjs');
@@ -89,11 +91,50 @@ try {
     },
     outfile: tempAuthFlowBundle,
   });
+
+  esbuild.buildSync({
+    entryPoints: [dashboardSectionsEntry],
+    bundle: true,
+    platform: 'node',
+    format: 'esm',
+    target: 'node18',
+    alias: {
+      '@': path.resolve(__dirname, '../src'),
+    },
+    outfile: tempDashboardSectionsBundle,
+  });
   const { buildCheckoutSessionParams, isCardDenialCapExceeded, determineTrialEligibility, CARD_DENIAL_RETRY_CAP, TERMS_URL, PRIVACY_URL } = await import(`file://${tempParamsBundle.replace(/\\/g, '/')}`);
   const { getBillingView, formatBillingDate, getEffectiveTrialEnd, TRIAL_GRACE_BUFFER_HOURS, TRIAL_GRACE_BUFFER_MS } = await import(`file://${tempBillingBundle.replace(/\\/g, '/')}`);
   const { getClaimErrorMessage, getDeniedTrialChoice, getSubscribeButtonText } = await import(`file://${tempTrialBundle.replace(/\\/g, '/')}`);
   const { getSignUpSuccessState, SIGNUP_CONFIRMATION_NOTICE } = await import(`file://${tempAuthFlowBundle.replace(/\\/g, '/')}`);
   const { PRICING_CONFIG, formatPrice, getTrialLineText } = await import(`file://${tempPricingBundle.replace(/\\/g, '/')}`);
+  const { hasActiveCpBotAccess, shouldShowDeniedTrialBanner } = await import(`file://${tempDashboardSectionsBundle.replace(/\\/g, '/')}`);
+
+  const srcDir = path.resolve(__dirname, '../src');
+
+function scanDirectory(dir, forbiddenRegex, allowedMatcher) {
+  const files = fs.readdirSync(dir);
+  const violations = [];
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      violations.push(...scanDirectory(fullPath, forbiddenRegex, allowedMatcher));
+    } else if (file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.js') || file.endsWith('.jsx')) {
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const lines = content.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (forbiddenRegex.test(line)) {
+          if (!allowedMatcher || !allowedMatcher(fullPath, line, i + 1)) {
+            violations.push({ file: fullPath, line: i + 1, content: line.trim() });
+          }
+        }
+      }
+    }
+  }
+  return violations;
+}
 
   // ─────────────────────────────────────────────────────────────
   // (A) Checkout Params Helper Tests
@@ -667,6 +708,87 @@ try {
   assert.strictEqual(nonTrialTool.isEligibleTrial, false, 'Non-rccp tools cannot receive trial');
   console.log('  ✓ Test G4: Security rule verified: skip-trial flag can only remove trial, never grant one.\n');
 
+  // ─────────────────────────────────────────────────────────────
+  // (H) Release v1.15.2 - Active Access Wins Over Denial & trial_denials Direct Query Guard
+  // ─────────────────────────────────────────────────────────────
+  console.log('--- Suite H: Active Access Wins Over Denial & trial_denials Guard ---');
+
+  // Test H1: Denied + Active subscription -> no banner
+  const activeSubChoice = getDeniedTrialChoice('card_already_used', 1, 4.99, true);
+  assert.strictEqual(activeSubChoice.isDenied, false, 'Active subscriber must evaluate isDenied: false');
+  assert.strictEqual(
+    shouldShowDeniedTrialBanner({ hasActiveAccess: true, deniedReason: 'card_already_used' }),
+    false,
+    'Denied-trial banner must be suppressed for active subscribers'
+  );
+  console.log('  ✓ Test H1: Denied + active subscription -> no banner.');
+
+  // Test H2: Denied + No access -> banner with both buttons
+  const noAccessChoice = getDeniedTrialChoice('card_already_used', 1, 4.99, false);
+  assert.strictEqual(noAccessChoice.isDenied, true, 'User without access must evaluate isDenied: true');
+  assert.strictEqual(noAccessChoice.canRetryCard, true, 'Under cap must show "Use another card"');
+  assert.strictEqual(noAccessChoice.useAnotherCardButtonText, 'Use another card');
+  assert.strictEqual(noAccessChoice.subscribeButtonText, 'Subscribe at A$4.99/month');
+  assert.strictEqual(
+    shouldShowDeniedTrialBanner({ hasActiveAccess: false, deniedReason: 'card_already_used' }),
+    true,
+    'Denied user with no access must show banner'
+  );
+  console.log('  ✓ Test H2: Denied + no access -> banner with both buttons.');
+
+  // Test H3: Denied + Canceled subscription -> banner returns
+  const canceledChoice = getDeniedTrialChoice('card_already_used', 1, 4.99, false);
+  assert.strictEqual(canceledChoice.isDenied, true);
+  assert.strictEqual(
+    shouldShowDeniedTrialBanner({ hasActiveAccess: false, deniedReason: 'card_already_used' }),
+    true,
+    'Canceled/ended subscription restores denial banner'
+  );
+  console.log('  ✓ Test H3: Denied + canceled -> banner returns.');
+
+  // Test H4: checkout=success + not yet active -> confirming state, no denied banner
+  assert.strictEqual(
+    shouldShowDeniedTrialBanner({ hasActiveAccess: false, deniedReason: 'card_already_used', isConfirming: true }),
+    false,
+    'Confirming state suppresses denied banner while webhook processes'
+  );
+  console.log('  ✓ Test H4: checkout=success + not yet active -> no denied banner (confirming).');
+
+  // Test H5: hasActiveCpBotAccess helper verification
+  const fixedTestTime = new Date('2026-11-06T12:00:00Z').getTime();
+  assert.strictEqual(
+    hasActiveCpBotAccess([{ product_slug: 'cpbot', status: 'active', current_period_end: '2026-12-05T00:00:00Z' }], fixedTestTime),
+    true,
+    'cpbot active subscription must have CP Bot access'
+  );
+  assert.strictEqual(
+    hasActiveCpBotAccess([{ product_slug: 'rccp', status: 'active', current_period_end: '2026-12-05T00:00:00Z' }], fixedTestTime),
+    true,
+    'rccp active subscription must have CP Bot access'
+  );
+  assert.strictEqual(
+    hasActiveCpBotAccess([{ product_slug: 'cpbot', status: 'canceled', current_period_end: '2026-10-01T00:00:00Z' }], fixedTestTime),
+    false,
+    'Expired/canceled subscription must not have CP Bot access'
+  );
+  assert.strictEqual(hasActiveCpBotAccess([], fixedTestTime), false, 'Empty subscriptions must not have access');
+  console.log('  ✓ Test H5: hasActiveCpBotAccess pure helper evaluated correctly.');
+
+  // Test H6: Client-side trial_denials direct query guard
+  const clientDenialCalls = scanDirectory(srcDir, /from\(\s*['"]trial_denials['"]\s*\)/);
+  assert.strictEqual(
+    clientDenialCalls.length,
+    0,
+    `Client code in src/ must not query trial_denials directly. Found: ${JSON.stringify(clientDenialCalls)}`
+  );
+  console.log('  ✓ Test H6: Direct trial_denials query guard verified: 0 direct table queries in src/.');
+
+  // Test H7: card_denial_count safe fallback
+  const defaultDenialChoice = getDeniedTrialChoice('card_already_used', undefined, 4.99);
+  assert.strictEqual(defaultDenialChoice.cardDenialCount, 0);
+  assert.strictEqual(defaultDenialChoice.canRetryCard, true);
+  console.log('  ✓ Test H7: card_denial_count safely defaults to 0 when unpopulated.\n');
+
 
   // ─────────────────────────────────────────────────────────────
   // (C) Central Pricing Config Tests
@@ -697,33 +819,7 @@ try {
   // ─────────────────────────────────────────────────────────────
   console.log('--- Suite D: Source Code Hard-coded Price Grep Audit ---');
 
-  const srcDir = path.resolve(__dirname, '../src');
 
-  function scanDirectory(dir, forbiddenRegex, allowedMatcher) {
-    const files = fs.readdirSync(dir);
-    const violations = [];
-
-    for (const file of files) {
-      const fullPath = path.join(dir, file);
-      const stat = fs.statSync(fullPath);
-
-      if (stat.isDirectory()) {
-        violations.push(...scanDirectory(fullPath, forbiddenRegex, allowedMatcher));
-      } else if (file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.js') || file.endsWith('.jsx')) {
-        const content = fs.readFileSync(fullPath, 'utf8');
-        const lines = content.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          if (forbiddenRegex.test(line)) {
-            if (!allowedMatcher || !allowedMatcher(fullPath, line, i + 1)) {
-              violations.push({ file: fullPath, line: i + 1, content: line.trim() });
-            }
-          }
-        }
-      }
-    }
-    return violations;
-  }
 
   // Look for hardcoded phrases like "A$9", "$9/month", "AUD $9" in user-facing UI code
   const forbiddenPricing = /(A\$9(?!\.99)|\$9\/month|AUD \$9\/mo|AUD \$9(?!\.99))/;
@@ -761,4 +857,5 @@ try {
   if (fs.existsSync(tempPricingBundle)) fs.unlinkSync(tempPricingBundle);
   if (fs.existsSync(tempTrialBundle)) fs.unlinkSync(tempTrialBundle);
   if (fs.existsSync(tempAuthFlowBundle)) fs.unlinkSync(tempAuthFlowBundle);
+  if (fs.existsSync(tempDashboardSectionsBundle)) fs.unlinkSync(tempDashboardSectionsBundle);
 }

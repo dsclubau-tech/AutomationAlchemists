@@ -72,6 +72,36 @@ export function hasActiveToolAccess(
 }
 
 /**
+ * Checks whether the user has active, unexpired access specifically to CP Bot.
+ * Checks for product_slug 'cpbot' or 'rccp' with active/trialing subscription.
+ */
+export function hasActiveCpBotAccess(
+  subscriptions: SubscriptionLike[],
+  nowMs: number = Date.now()
+): boolean {
+  return subscriptions.some(s => {
+    const matchesSlug = s.product_slug === 'cpbot' || s.product_slug === 'rccp';
+    return matchesSlug && isSubscriptionActive(s, nowMs);
+  });
+}
+
+/**
+ * Determines whether a denied-trial banner should be rendered on the dashboard.
+ * Rule: Active access ALWAYS wins over a denial.
+ * If user has active CP Bot access, denial banner is suppressed.
+ * If confirming checkout (checkout=success in URL and not timed out), banner is suppressed.
+ */
+export function shouldShowDeniedTrialBanner(params: {
+  hasActiveAccess: boolean;
+  deniedReason?: string | null;
+  isConfirming?: boolean;
+}): boolean {
+  if (params.hasActiveAccess) return false;
+  if (params.isConfirming) return false;
+  return Boolean(params.deniedReason);
+}
+
+/**
  * Categorizes tools into exactly one section: Your tools, Available, or Coming soon.
  * Enforces:
  * 1. A tool card appears in exactly ONE section.

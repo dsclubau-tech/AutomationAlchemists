@@ -1,5 +1,68 @@
 # Build Log
 
+## 2026-11-06 (v1.15.2 Hide Denied-Trial Banner for Active Subscribers & Stop Refused trial_denials Browser Queries)
+- Requested:
+  - BUG C: Stale denied-trial banner shown to a user who already has active paid access.
+    - Trace where denied state is computed (src/lib/trial.ts getDeniedTrialChoice, src/lib/dashboardSections.ts, src/components/DashboardTrialCard.tsx, src/pages/Dashboard.tsx) and why it ignores active access.
+    - Fix at root: Active access always wins over a denial. Handle ?checkout=success webhook window (show confirming behavior without flash of denied banner).
+    - Ensure reversibility: if subscription is canceled/refunded and access lapses, the denied banner returns.
+    - Add tests in scripts/.
+  - BUG D: Repeated HTTP 403 on trial_denials from the browser.
+    - Trace all client calls querying public.trial_denials directly with file + line numbers and explain why calls fire repeatedly.
+    - Inspect migrations to explain why HTTP 403 occurs instead of an empty result.
+    - Report what client does with failed result (fails open).
+    - Fix: Stop browser requests to trial_denials. Dedupe lookup to run at most once. Author migration 036_trial_denials_access.sql (not applied).
+    - Add tests proving client path no longer queries trial_denials directly.
+- Root Cause Analysis — BUG C:
+  1. File + Line Traces:
+     - `src/components/DashboardTrialCard.tsx:184-186`: Computed `activeDeniedReason = deniedReason || trialStatus?.denied_reason`. Step 3 rendered the red denied alert before checking if the user currently holds active subscription access. `DashboardTrialCard` had no knowledge of active subscription state.
+     - `supabase/migrations/034_card_trial_identity.sql:536-542`: In `get_trial_status`, `v_denied_reason` was queried unconditionally from `public.trial_denials` within the last 2 days and returned in the JSON payload even when `v_has_access: true`.
+     - `src/lib/trial.ts:94-170`: `getDeniedTrialChoice` returned `isDenied: true` whenever `deniedReason` was truthy, without taking active access into account.
+     - `src/lib/dashboardSections.ts:63`: `hasActiveToolAccess('rccp')` returned `true` for all users because Return Converter is free, without isolating paid CP Bot entitlement.
+     - Polling on `?checkout=success`: `DashboardTrialCard.tsx:39` initialized `isPolling: false`, causing a momentary flash of the red denied banner on initial mount. In addition, `poll()` halted immediately on `res.data.denied_reason`, treating an old denial from a prior trial attempt as a failure of the fresh checkout before the paid webhook could finish.
+- Root Cause Analysis — BUG D:
+  1. File + Line Traces of Client Queries:
+     - `src/components/DashboardTrialCard.tsx:50-55`: `supabase.from('trial_denials').select('*', { count: 'exact', head: true }).eq('user_id', userId)...`
+     - `src/pages/Dashboard.tsx:448-453`: `supabase.from('trial_denials').select('*', { count: 'exact', head: true }).eq('user_id', user.id)...`
+  2. Multiple Invocations Cause:
+     - Both components mounted concurrently on `/dashboard`.
+     - In `Dashboard.tsx`, effect ran on mount and re-ran when `trialStatus?.denied_reason` loaded.
+     - In `DashboardTrialCard.tsx`, effect ran on mount and re-ran when its internal `useTrialStatus` resolved, causing 3-4 separate HTTP HEAD queries per page load.
+  3. Migration RLS / Privilege Analysis:
+     - In `supabase/migrations/034_card_trial_identity.sql:55-58`:
+       `ALTER TABLE public.trial_denials ENABLE ROW LEVEL SECURITY;`
+       `REVOKE ALL ON TABLE public.trial_denials FROM PUBLIC, anon, authenticated;`
+       Table permissions were completely revoked from `authenticated`, and RLS had 0 policies.
+       PostgreSQL rejected PostgREST queries with permission denied (`code: "42501"`), which PostgREST translated into HTTP 403 Forbidden rather than 200 OK empty array.
+  4. Fail-Open Analysis:
+     - On HTTP 403, `error` was truthy, so `setCardDenialCount` was never called and `cardDenialCount` stayed at its initial state `0`.
+     - `cardDenialCount >= 3` evaluated to `false`, so the UI always permitted "Use another card" (`canRetryCard: true`), FAILING OPEN on the client.
+- Built & Fixed:
+  - `src/lib/dashboardSections.ts`:
+    - Added `hasActiveCpBotAccess(subscriptions, nowMs)` inspecting unexpired `cpbot` / `rccp` subscriptions.
+    - Added pure decision helper `shouldShowDeniedTrialBanner({ hasActiveAccess, deniedReason, isConfirming })`.
+  - `src/lib/trial.ts`:
+    - Added `card_denial_count?: number` to `TrialStatusData`.
+    - Updated `getDeniedTrialChoice(deniedReason, cardDenialCount, priceMonthly, hasActiveAccess)` where `hasActiveAccess: true` forces `isDenied: false`.
+  - `src/components/DashboardTrialCard.tsx`:
+    - Added `hasActiveAccess?: boolean` and `cardDenialCount?: number` props.
+    - Removed `fetchDenials` effect and direct `trial_denials` query.
+    - Initialized `isPolling` from `checkout === 'success'` URL param to eliminate initial mount banner flash.
+    - In polling loop, called `await onClaimSuccess()` to refresh parent subscriptions and terminated polling upon active access.
+    - Suppressed denied banner when `userHasActiveAccess` is true or while `isPolling` is confirming.
+  - `src/pages/Dashboard.tsx`:
+    - Removed `cardDenialCount` state and `fetchDenials` effect querying `trial_denials`.
+    - Sourced `cardDenialCount` from `trialStatus?.card_denial_count ?? 0`.
+    - Passed `hasActiveAccess={hasActiveCpBotAccess(subscriptions)}` and `cardDenialCount={cardDenialCount}` to `DashboardTrialCard`.
+  - `supabase/migrations/036_trial_denials_access.sql`:
+    - Authored unapplied migration adding RLS SELECT policy on `trial_denials` for `authenticated`, standalone `get_card_denial_count` SECURITY DEFINER RPC, and updated `get_trial_status` including `card_denial_count`.
+  - `scripts/test-launch-readiness.mjs`:
+    - Added Suite H (Tests H1–H7) covering all 4 banner scenarios, `hasActiveCpBotAccess`, static client query audit, and default fallback.
+  - `scripts/test-dashboard-sections.mjs`:
+    - Added Test 7 verifying `hasActiveCpBotAccess` and `shouldShowDeniedTrialBanner`.
+  - `scripts/capture-v1152-screenshots.mjs`:
+    - Captured 4 screenshots with zero console 403 errors.
+
 ## 2026-11-04 (v1.15.1 Non-Trial Subscribe Path & Button Contrast Fix)
 - Requested:
   - BUG A: "Subscribe at A$4.99/month" opened a TRIAL Stripe checkout instead of a paid checkout.

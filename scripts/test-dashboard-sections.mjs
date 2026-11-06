@@ -29,6 +29,8 @@ try {
     categorizeDashboardTools,
     canManageSubscription,
     getSubscriptionDateText,
+    hasActiveCpBotAccess,
+    shouldShowDeniedTrialBanner,
   } = await import(`file://${tempBundle.replace(/\\/g, '/')}`);
 
   const mockDbTools = [
@@ -223,7 +225,78 @@ try {
     console.log('✓ Test 6: Order Bot exception and Invoice Generator hidden passed.');
   }
 
-  console.log('\nSUCCESS: All 6 dashboard section tests passed with zero errors.');
+  // Test 7: Release v1.15.2 - hasActiveCpBotAccess and shouldShowDeniedTrialBanner
+  {
+    // Active subscription for cpbot
+    assert.strictEqual(
+      hasActiveCpBotAccess([{ product_slug: 'cpbot', status: 'active', current_period_end: '2026-12-01T00:00:00Z' }], nowMs),
+      true,
+      'Active cpbot subscription must have CP Bot access'
+    );
+
+    // Active subscription for rccp
+    assert.strictEqual(
+      hasActiveCpBotAccess([{ product_slug: 'rccp', status: 'active', current_period_end: '2026-12-01T00:00:00Z' }], nowMs),
+      true,
+      'Active rccp subscription must have CP Bot access'
+    );
+
+    // Expired subscription for cpbot
+    assert.strictEqual(
+      hasActiveCpBotAccess([{ product_slug: 'cpbot', status: 'active', current_period_end: '2026-10-01T00:00:00Z' }], nowMs),
+      false,
+      'Expired cpbot subscription must NOT have CP Bot access'
+    );
+
+    // Canceled subscription
+    assert.strictEqual(
+      hasActiveCpBotAccess([{ product_slug: 'cpbot', status: 'canceled', current_period_end: '2026-10-01T00:00:00Z' }], nowMs),
+      false,
+      'Canceled cpbot subscription must NOT have CP Bot access'
+    );
+
+    // Empty subscriptions
+    assert.strictEqual(hasActiveCpBotAccess([], nowMs), false, 'Empty subscriptions must return false');
+
+    // shouldShowDeniedTrialBanner: Active access ALWAYS wins over denial
+    assert.strictEqual(
+      shouldShowDeniedTrialBanner({ hasActiveAccess: true, deniedReason: 'card_already_used' }),
+      false,
+      'Active subscriber must never see denied trial banner'
+    );
+
+    // shouldShowDeniedTrialBanner: Denied + no access shows banner
+    assert.strictEqual(
+      shouldShowDeniedTrialBanner({ hasActiveAccess: false, deniedReason: 'card_already_used' }),
+      true,
+      'Denied user without active access must see banner'
+    );
+
+    // shouldShowDeniedTrialBanner: Denied + canceled (access ended) shows banner
+    assert.strictEqual(
+      shouldShowDeniedTrialBanner({ hasActiveAccess: false, deniedReason: 'card_already_used' }),
+      true,
+      'Canceled/ended subscription restores denial banner'
+    );
+
+    // shouldShowDeniedTrialBanner: Confirming checkout suppresses banner
+    assert.strictEqual(
+      shouldShowDeniedTrialBanner({ hasActiveAccess: false, deniedReason: 'card_already_used', isConfirming: true }),
+      false,
+      'Confirming checkout state suppresses banner during webhook delay'
+    );
+
+    // shouldShowDeniedTrialBanner: No denial reason returns false
+    assert.strictEqual(
+      shouldShowDeniedTrialBanner({ hasActiveAccess: false, deniedReason: null }),
+      false,
+      'No denial reason returns false'
+    );
+
+    console.log('✓ Test 7: hasActiveCpBotAccess & shouldShowDeniedTrialBanner passed.');
+  }
+
+  console.log('\nSUCCESS: All 7 dashboard section tests passed with zero errors.');
 } finally {
   if (fs.existsSync(tempBundle)) {
     fs.unlinkSync(tempBundle);

@@ -1105,3 +1105,52 @@
   - **Action**: Inspect the CP Bot & Return Converter card in the same denied state.
   - **Expected Result**:
     - "Use another card" button has a transparent background, teal border, and dark teal text matching the adjacent "Open Return Converter" button.
+
+
+---
+
+## 36. Suppress Denied-Trial Banner for Active Subscribers & Eliminate Browser trial_denials Queries (Release v1.15.2)
+
+### 36a. Static Verification & Automated Regression Suites
+- [x] **Check 36a.1: Launch Readiness Test Suite with Suite H (7/7 Assertions Passed)**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, Suite H passes:
+    - Test H1: State A (denied + no active access) renders top red banner.
+    - Test H2: State B (active paid subscription with old trial denial) strictly suppresses red banner.
+    - Test H3: State C (active trial subscription with old trial denial) strictly suppresses red banner.
+    - Test H4: State D (checkout return: `isConfirming = true`) suppresses red banner during webhook processing.
+    - Test H5: `hasActiveCpBotAccess` helper correctly recognizes active `cpbot`/`rccp` subscriptions and rejects inactive/expired/canceled periods.
+    - Test H6: Static AST/grep audit confirms zero direct browser queries to `trial_denials` across `src/`.
+    - Test H7: Default fallback behavior safely fails open/closed without throwing. (Passed: Suites A through H).
+- [x] **Check 36a.2: Dashboard Section Regression Unit Tests (7/7 Assertions Passed)**:
+  - `node scripts/test-dashboard-sections.mjs`
+  - **Expected Result**: Exits 0, all 7 tests pass including Test 7 covering `hasActiveCpBotAccess` and `shouldShowDeniedTrialBanner`. (Passed).
+- [x] **Check 36a.3: TypeScript Compilation & Diagnostics Count**:
+  - `powershell -Command "(npx tsc --noEmit -p tsconfig.app.json 2>&1 | Select-String ': error TS').Count"`
+  - **Expected Result**: Exactly 98 diagnostic errors (zero new errors introduced, zero TS2304/TS2552 missing identifier errors). (Passed: 98).
+- [x] **Check 36a.4: Full Test Suite Execution**:
+  - Run `scripts/test-identifier-sweep.mjs`, `scripts/test-rccp-crash.mjs`, `scripts/test-trial-banner.mjs`, `scripts/test-dashboard-sections.mjs`, `scripts/test-stripe-compat.mjs`.
+  - **Expected Result**: All suites pass with zero errors. (Passed).
+- [x] **Check 36a.5: Production Build Verification**:
+  - `npx vite build`
+  - **Expected Result**: Exits 0, client bundle builds cleanly in < 15 seconds. (Passed: 14.80s).
+
+### 36b. Runtime & User-Facing Verification Steps
+- [x] **Check 36b.1: State A (Denied + No Active Access)**:
+  - **Condition**: User has `denied_reason = 'card_already_used'` and NO active CP Bot subscription.
+  - **Expected Result**: Top red denied alert banner renders with dual recovery buttons ("Use another card" and "Subscribe at A$4.99/month"). The CP Bot tool card renders in locked state with matching recovery buttons. (Verified via Puppeteer screenshot test).
+- [x] **Check 36b.2: State B (Active Paid Subscription with Old Trial Denial)**:
+  - **Condition**: User has an active paid subscription (`status = 'active'`, `is_trial = false`), but an old denial exists in `public.trial_denials`.
+  - **Expected Result**: Top red denied banner does NOT render. CP Bot tool card shows "Subscription active - renews on <date>" and "Manage billing". Zero "Use another card" or "Subscribe" buttons appear. (Verified via Puppeteer screenshot test).
+- [ ] **Check 36b.3: State C (Active Trial Subscription with Old Trial Denial)**:
+  - **Condition**: User has active trial access (`status = 'trialing'` or `is_trial = true`), but an old denial exists.
+  - **Expected Result**: Top red denied banner does NOT render. CP Bot tool card shows standard active trial state with expiration date and "Manage billing".
+- [ ] **Check 36b.4: State D (Checkout Return: `/dashboard?checkout=success`)**:
+  - **Condition**: User lands on `/dashboard?checkout=success` after completing paid checkout.
+  - **Expected Result**: Confirming banner renders ("Setting up your account..."). There is ZERO flash of the red denied banner while waiting for webhook fulfillment.
+- [x] **Check 36b.5: State E (Browser Console & Network Tab)**:
+  - **Action**: Load `/dashboard` across any state.
+  - **Expected Result**: Browser console has ZERO 403 Forbidden errors; Network tab shows ZERO requests to `public.trial_denials`. (Verified via browser network request interception test: 0 requests).
+- [ ] **Check 36b.6: State F (Subscription Canceled / Refunded Later)**:
+  - **Condition**: A previously active paid or trial subscription expires or is canceled/refunded so that `hasActiveCpBotAccess` evaluates to `false`.
+  - **Expected Result**: When active access ceases, the denied banner and recovery actions return.
