@@ -127,18 +127,20 @@ export function getBillingView(
 
   const isEnded = endMs !== null && !isNaN(endMs) && endMs <= nowMs;
 
-  // 2. Expired or canceled and ended
-  if (isEnded || subscription.status === 'canceled') {
-    if (isEnded || !subscription.current_period_end) {
-      return {
-        state: 'expired',
-        banner: null,
-        primaryAction: {
-          action: 'subscribe',
-          label: 'Subscribe',
-        },
-      };
-    }
+  // 2. Expired or canceled (ended)
+  // Principle: The dashboard must NEVER claim access that the access gate denies.
+  // When status is 'canceled', access is ended immediately regardless of current_period_end.
+  // The "Cancelling - access until DATE" state remains ONLY when the gate still grants access
+  // (status 'active' or 'trialing' with cancel_at_period_end: true).
+  if (subscription.status === 'canceled' || isEnded) {
+    return {
+      state: 'expired',
+      banner: null,
+      primaryAction: {
+        action: 'subscribe',
+        label: 'Subscribe',
+      },
+    };
   }
 
   // 3. TRIALING state (status === 'trialing' or is_trial is true)
@@ -193,22 +195,6 @@ export function getBillingView(
       banner: formattedDate
         ? `Subscription active - renews on ${formattedDate}`
         : 'Subscription active',
-      primaryAction: {
-        action: 'manage_billing',
-        label: 'Manage billing',
-      },
-      formattedDate,
-    };
-  }
-
-  // 5. Canceled status with future period end
-  if (subscription.status === 'canceled' && !isEnded && subscription.current_period_end) {
-    const formattedDate = formatBillingDate(subscription.current_period_end);
-    return {
-      state: 'active_canceled',
-      banner: formattedDate
-        ? `Cancelled - access until ${formattedDate}`
-        : 'Cancelled',
       primaryAction: {
         action: 'manage_billing',
         label: 'Manage billing',

@@ -1154,3 +1154,62 @@
 - [ ] **Check 36b.6: State F (Subscription Canceled / Refunded Later)**:
   - **Condition**: A previously active paid or trial subscription expires or is canceled/refunded so that `hasActiveCpBotAccess` evaluates to `false`.
   - **Expected Result**: When active access ceases, the denied banner and recovery actions return.
+
+---
+
+## 37. Locked State for Ended Subscriptions & Eligibility-Gated Card Retry (Release v1.15.3)
+
+### 37a. Automated Pre-Release Checks
+- [x] **Check 37a.1: Launch Readiness Test Suite with Suite I & Test B12 (38/38 Assertions Passed)**:
+  - `node scripts/test-launch-readiness.mjs`
+  - **Expected Result**: Exits 0, all suites pass:
+    - Test B12: Verifies all 7 subscription lifecycle states (a)-(g) in `billingView.ts`:
+      - Case (a): Cancel at period end, paid (`status: 'active'`, `cancel_at_period_end: true`) -> `active_canceled` with banner "Cancelled - access until <date>".
+      - Case (b): Cancel at period end, during trial (`status: 'trialing'`, `cancel_at_period_end: true`) -> `trialing_canceled` with banner "Trial cancelled - access until <date>; no charge".
+      - Case (c): Immediate cancel (`status: 'canceled'`, future period end) -> `expired` (Locked) with NO access-until text (`banner: null`).
+      - Case (d): Refund (`status: 'canceled'`, future period end, refunded payment) -> `expired` (Locked) with `banner: null`.
+      - Case (e): Subscription deleted at period end (`status: 'canceled'`, past period end) -> `expired` (Locked) with `banner: null`.
+      - Case (f): Past due after failed payment (`status: 'past_due'`) -> `past_due` alert banner.
+      - Case (g): Active, not cancelling (`status: 'active'`, `cancel_at_period_end: false`) -> `active` with renewal banner.
+    - Suite I (Tests I1–I5): Verifies eligibility-gated card retry in `getDeniedTrialChoice`:
+      - Test I1: `card_already_used` + `isEligible: false` -> Single button ("Subscribe at A$4.99/month"), `canRetryCard: false`, calm copy.
+      - Test I2: `card_already_used` + `isEligible: true` + count < 3 -> Dual buttons ("Use another card" & "Subscribe at A$4.99/month").
+      - Test I3: `card_already_used` + `isEligible: undefined` (loading) -> Single button, `canRetryCard: false`.
+      - Test I4: `card_already_used` + `isEligible: true` + count >= 3 -> Single button (capped copy).
+      - Test I5: `already_claimed` + `isEligible: false` -> Single button (email already used copy).
+- [x] **Check 37a.2: Dashboard Section Regression Unit Tests (7/7 Passed)**:
+  - `node scripts/test-dashboard-sections.mjs`
+  - **Expected Result**: Exits 0, all 7 tests pass. (Passed).
+- [x] **Check 37a.3: Full Test Suite Execution**:
+  - `node scripts/test-identifier-sweep.mjs` (4/4 suites pass, 0 missing identifiers)
+  - `node scripts/test-stripe-compat.mjs` (12/12 tests pass)
+  - `node scripts/test-trial-banner.mjs` (6/6 tests pass)
+  - **Expected Result**: All suites pass with 0 errors. (Passed).
+- [x] **Check 37a.4: TypeScript Compilation & Diagnostics Count**:
+  - `powershell -Command "(npx tsc --noEmit -p tsconfig.app.json 2>&1 | Select-String ': error TS').Count"`
+  - **Expected Result**: Exactly 98 diagnostic errors (0 new errors, 0 TS2304 / TS2552 errors). (Passed: 98).
+- [x] **Check 37a.5: Production Build Verification**:
+  - `npx vite build`
+  - **Expected Result**: Exits 0, client bundle builds cleanly in < 15 seconds. (Passed: 8.98s).
+
+### 37b. Runtime & User-Facing Verification Steps (10 Captured Screenshots)
+- [x] **Check 37b.1: State 1 (Canceled + Future End Date -> Locked State)**:
+  - **Condition**: User has subscription `status = 'canceled'`, `current_period_end = 2026-12-05` (future date), `cancel_at_period_end = false`.
+  - **Expected Result**: Dashboard tool card shows Locked badge (`"CP Bot — Locked"`), text `"Your subscription has ended"`, and single primary button `"Subscribe"`. Does NOT show `"Cancelling - access until 5 December 2026"` or `"Open Tools"`.
+  - **Screenshots**: `dashboard-v1153-state1-canceled-locked-desktop.png`, `dashboard-v1153-state1-canceled-locked-mobile.png`.
+- [x] **Check 37b.2: State 2 (Active + `cancel_at_period_end: true` -> Cancelling with Access Until Date)**:
+  - **Condition**: User has subscription `status = 'active'`, `cancel_at_period_end = true`, `current_period_end = 2026-12-05`.
+  - **Expected Result**: Dashboard tool card shows Cancelling badge (`"CP Bot — Cancelling"`), text `"Cancelled - access until 5 December 2026"`, and `"Open Tools"` button.
+  - **Screenshots**: `dashboard-v1153-state2-cancelling-access-until-desktop.png`, `dashboard-v1153-state2-cancelling-access-until-mobile.png`.
+- [x] **Check 37b.3: State 3 (Denied + Eligible + Denial Count 2 -> Both Recovery Buttons)**:
+  - **Condition**: User has trial denial `card_already_used`, server confirms `isEligible = true`, and `card_denial_count = 2` (< 3).
+  - **Expected Result**: Dashboard top alert and tool card render dual buttons: `"Use another card"` and `"Subscribe at A$4.99/month"`.
+  - **Screenshots**: `dashboard-v1153-state3-denied-eligible-count2-desktop.png`, `dashboard-v1153-state3-denied-eligible-count2-mobile.png`.
+- [x] **Check 37b.4: State 4 (Denied + Ineligible -> Single Button: "Subscribe at A$4.99/month")**:
+  - **Condition**: User has trial denial record, but server reports `isEligible = false` (e.g. refunded or existing subscription).
+  - **Expected Result**: "Use another card" button is completely absent. Dashboard shows calm title *"A free trial isn't available for this account."* and subtitle *"You can subscribe at A$4.99/month."* with single button `"Subscribe at A$4.99/month"`.
+  - **Screenshots**: `dashboard-v1153-state4-denied-ineligible-subscribe-only-desktop.png`, `dashboard-v1153-state4-denied-ineligible-subscribe-only-mobile.png`.
+- [x] **Check 37b.5: State 5 (Denied + Capped Denial Count 3 -> Single Button: "Subscribe at A$4.99/month")**:
+  - **Condition**: User has trial denial `card_already_used`, `isEligible = true`, but `card_denial_count = 3` (reached cap).
+  - **Expected Result**: "Use another card" button is absent. Dashboard displays cap copy *"The free trial is no longer available for this account."* with single button `"Subscribe at A$4.99/month"`.
+  - **Screenshots**: `dashboard-v1153-state5-denied-capped-count3-desktop.png`, `dashboard-v1153-state5-denied-capped-count3-mobile.png`.

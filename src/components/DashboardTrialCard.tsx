@@ -182,7 +182,15 @@ export const DashboardTrialCard: React.FC<DashboardTrialCardProps> = ({
   // Never show denied banner if user has active access or while confirming.
   const activeDeniedReason = !userHasActiveAccess && (deniedReason || trialStatus?.denied_reason);
   if (activeDeniedReason) {
-    const choice = getDeniedTrialChoice(activeDeniedReason, cardDenialCount, priceMonthly, userHasActiveAccess);
+    const isEligible = loading ? undefined : trialStatus?.eligible;
+    const choice = getDeniedTrialChoice(
+      activeDeniedReason,
+      cardDenialCount,
+      priceMonthly,
+      userHasActiveAccess,
+      isEligible,
+      trialStatus?.reason
+    );
     if (choice.isDenied) {
       const handleRetryWithAnotherCard = async () => {
         if (isStartingCheckout) return;

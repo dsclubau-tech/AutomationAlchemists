@@ -665,3 +665,35 @@ Automation Alchemists provides subscription-based and free tools to e-commerce a
       3. Updated `public.get_trial_status(p_tool_slug)` including `card_denial_count` in the JSON response payload.
     - Preserved unapplied pending manual execution by the project owner in Supabase SQL editor.
   - **Files Implementing It**: [`src/components/DashboardTrialCard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/components/DashboardTrialCard.tsx), [`src/pages/Dashboard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Dashboard.tsx), [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts), [`supabase/migrations/036_trial_denials_access.sql`](file:///G:/app%20development/AutomationAlchemists/supabase/migrations/036_trial_denials_access.sql).
+
+---
+
+### 25. Locked State for Ended Subscriptions & Eligibility-Gated Card Retry (Release v1.15.3)
+
+- **Locked State for Canceled and Refunded Subscriptions (Bug E)**:
+  - **What it does**: Ensures that subscriptions that have ended (e.g. status is `'canceled'` due to immediate cancellation or full refund) immediately display in the Locked state (`expired`), rather than showing an active cancellation notice with a future date (e.g. *"Cancelling / Cancelled - access until 5 December 2026"*).
+  - **Core Invariant**:
+    - The dashboard must NEVER claim a customer has access until a future date when the database access gate (`check_product_subscription` in migration 029 and `get_trial_status` in migration 034/036) denies access.
+    - Because the database gate strictly requires `WHERE status = 'active'` (and `canceled` subscriptions return `has_access: false`), any subscription record with `status === 'canceled'` must immediately evaluate to `state: 'expired'` with `banner: null` and `primaryAction: { action: 'subscribe', label: 'Subscribe' }`.
+    - Distinguishing `active_canceled` from `canceled`:
+      - `active_canceled`: The customer initiated cancellation at period end (`cancel_at_period_end: true`) while the subscription remains `status === 'active'` (or `'trialing'`). Stripe and the database continue to grant access until the period finishes. Displays *"Cancelling - access until <date>"* and *"Open Tools"*.
+      - `canceled` (ended): The subscription was immediately terminated or refunded. Database status is `'canceled'`. Even if `current_period_end` holds an unelapsed future timestamp from when the invoice was issued, access is completely revoked. Displays Locked badge, no future date, and *"Subscribe"* action.
+  - **Elimination of Erroneous Branch**:
+    - Completely removed Section 5 in `src/lib/billingView.ts` which previously returned `state: 'active_canceled'` whenever `subscription.status === 'canceled' && !isEnded && subscription.current_period_end`.
+  - **Files Implementing It**: [`src/lib/billingView.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/billingView.ts), [`src/pages/Dashboard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Dashboard.tsx).
+
+- **Trial Eligibility Enforcement on "Use another card" (Bug F)**:
+  - **What it does**: Ensures that the recovery action "Use another card" is offered ONLY to accounts that the server genuinely considers eligible to start a free trial.
+  - **Core Invariant**:
+    - "Use another card" (`canRetryCard: true`) appears exclusively when ALL of the following hold:
+      1. Denial reason is `card_already_used`.
+      2. Server-side trial status confirms `isEligible === true` (`trialStatus?.eligible === true`).
+      3. Account denial count is under cap (`cardDenialCount < 3`).
+      4. User does not have active tool access (`!hasActiveAccess`).
+    - If the account is already ineligible for a free trial (`isEligible === false`, e.g. because of an existing paid/refunded subscription record or `reason === 'not_eligible'` / `'already_claimed'`), the dashboard must NOT offer "Use another card" (which would lead the customer to expect a trial but land on a paid checkout).
+    - Instead, the dashboard presents calm, truthful copy:
+      - Title: *"A free trial isn't available for this account."*
+      - Subtitle / Price line: *"You can subscribe at A$4.99/month."*
+      - Single CTA button: *"Subscribe at A$4.99/month"* (`action: 'subscribe'`).
+    - Fallback & Loading Safety: When trial status is loading (`isEligible === undefined`), `canRetryCard` safely defaults to `false`.
+  - **Files Implementing It**: [`src/lib/trial.ts`](file:///G:/app%20development/AutomationAlchemists/src/lib/trial.ts), [`src/components/DashboardTrialCard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/components/DashboardTrialCard.tsx), [`src/pages/Dashboard.tsx`](file:///G:/app%20development/AutomationAlchemists/src/pages/Dashboard.tsx).

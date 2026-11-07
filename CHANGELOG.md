@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.3] - 2026-11-07
+### Fixed
+- Fixed customer dashboard status display so that cancelled and refunded subscriptions immediately show as Locked rather than displaying an active cancellation notice with a future date
+- Fixed trial retry options so 'Use another card' is offered only to accounts confirmed eligible for a free trial, presenting direct subscription pricing with clear, calm messaging for accounts where a trial is not available
+
 ## [1.15.2] - 2026-11-06
 ### Fixed
 - Fixed an issue where the trial refusal alert remained visible to customers who had already purchased an active subscription

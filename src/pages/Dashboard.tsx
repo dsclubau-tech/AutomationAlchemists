@@ -258,8 +258,16 @@ const ToolCard = ({
                     </div>
                 );
 
+                const isEligible = trialStatus ? trialStatus.eligible : undefined;
                 const deniedChoice = trialStatus?.denied_reason
-                    ? getDeniedTrialChoice(trialStatus.denied_reason, cardDenialCount)
+                    ? getDeniedTrialChoice(
+                        trialStatus.denied_reason,
+                        cardDenialCount,
+                        PRICING_CONFIG.launchPrice,
+                        false,
+                        isEligible,
+                        trialStatus.reason
+                    )
                     : null;
 
                 if (deniedChoice?.isDenied) {
@@ -280,7 +288,7 @@ const ToolCard = ({
                                     {deniedChoice.subscribeButtonText}
                                 </Button>
                             </div>
-                            {deniedChoice.isCapped && (
+                            {(deniedChoice.isCapped || !isEligible) && (
                                 <p className="text-xs text-teal-900/70 font-display">
                                     {deniedChoice.description}
                                 </p>

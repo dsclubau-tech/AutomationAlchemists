@@ -547,17 +547,17 @@ function scanDirectory(dir, forbiddenRegex, allowedMatcher) {
   assert.strictEqual(isCardDenialCapExceeded(4), true);
   console.log('  ✓ Test F1: Card denial retry cap (3) evaluated correctly server-side.');
 
-  // Test F2: getDeniedTrialChoice for card_already_used under cap (< 3)
-  const cardDeniedUnderCap = getDeniedTrialChoice('card_already_used', 1);
+  // Test F2: getDeniedTrialChoice for card_already_used under cap (< 3) with confirmed trial eligibility
+  const cardDeniedUnderCap = getDeniedTrialChoice('card_already_used', 1, 4.99, false, true);
   assert.strictEqual(cardDeniedUnderCap.isDenied, true);
-  assert.strictEqual(cardDeniedUnderCap.canRetryCard, true, 'Must allow retry with another card under cap');
+  assert.strictEqual(cardDeniedUnderCap.canRetryCard, true, 'Must allow retry with another card under cap when eligible');
   assert.strictEqual(cardDeniedUnderCap.isCapped, false);
   assert.strictEqual(cardDeniedUnderCap.useAnotherCardButtonText, 'Use another card');
   assert.strictEqual(cardDeniedUnderCap.subscribeButtonText, 'Subscribe at A$4.99/month');
   console.log('  ✓ Test F2: Card denial under cap offers "Use another card" and "Subscribe at A$4.99/month".');
 
-  // Test F3: getDeniedTrialChoice for card_already_used at or above cap (>= 3)
-  const cardDeniedCapped = getDeniedTrialChoice('card_already_used', 3);
+  // Test F3: getDeniedTrialChoice for card_already_used at or above cap (>= 3) with confirmed trial eligibility
+  const cardDeniedCapped = getDeniedTrialChoice('card_already_used', 3, 4.99, false, true);
   assert.strictEqual(cardDeniedCapped.isDenied, true);
   assert.strictEqual(cardDeniedCapped.canRetryCard, false, 'Must NOT show "Use another card" when capped');
   assert.strictEqual(cardDeniedCapped.isCapped, true);
@@ -724,7 +724,7 @@ function scanDirectory(dir, forbiddenRegex, allowedMatcher) {
   console.log('  ✓ Test H1: Denied + active subscription -> no banner.');
 
   // Test H2: Denied + No access -> banner with both buttons
-  const noAccessChoice = getDeniedTrialChoice('card_already_used', 1, 4.99, false);
+  const noAccessChoice = getDeniedTrialChoice('card_already_used', 1, 4.99, false, true);
   assert.strictEqual(noAccessChoice.isDenied, true, 'User without access must evaluate isDenied: true');
   assert.strictEqual(noAccessChoice.canRetryCard, true, 'Under cap must show "Use another card"');
   assert.strictEqual(noAccessChoice.useAnotherCardButtonText, 'Use another card');
@@ -784,10 +784,55 @@ function scanDirectory(dir, forbiddenRegex, allowedMatcher) {
   console.log('  ✓ Test H6: Direct trial_denials query guard verified: 0 direct table queries in src/.');
 
   // Test H7: card_denial_count safe fallback
-  const defaultDenialChoice = getDeniedTrialChoice('card_already_used', undefined, 4.99);
+  const defaultDenialChoice = getDeniedTrialChoice('card_already_used', undefined, 4.99, false, true);
   assert.strictEqual(defaultDenialChoice.cardDenialCount, 0);
   assert.strictEqual(defaultDenialChoice.canRetryCard, true);
   console.log('  ✓ Test H7: card_denial_count safely defaults to 0 when unpopulated.\n');
+
+  // ─────────────────────────────────────────────────────────────
+  // (I) Release v1.15.3 - Trial Eligibility Gating for Card Retry (Bug F)
+  // ─────────────────────────────────────────────────────────────
+  console.log('--- Suite I: Trial Eligibility Gating for Card Retry ---');
+
+  // Test I1: denied + eligible + count < 3 -> both buttons
+  const choiceEligibleUnderCap = getDeniedTrialChoice('card_already_used', 1, 4.99, false, true);
+  assert.strictEqual(choiceEligibleUnderCap.isDenied, true);
+  assert.strictEqual(choiceEligibleUnderCap.canRetryCard, true);
+  assert.strictEqual(choiceEligibleUnderCap.title, 'This card was already used for a free trial.');
+  assert.strictEqual(choiceEligibleUnderCap.description, 'You can use another card to start your free trial, or subscribe now.');
+  assert.strictEqual(choiceEligibleUnderCap.useAnotherCardButtonText, 'Use another card');
+  assert.strictEqual(choiceEligibleUnderCap.subscribeButtonText, 'Subscribe at A$4.99/month');
+  console.log('  ✓ Test I1: denied + eligible + count<3 -> both buttons.');
+
+  // Test I2: denied + eligible + count >= 3 -> Subscribe only
+  const choiceEligibleCapped = getDeniedTrialChoice('card_already_used', 3, 4.99, false, true);
+  assert.strictEqual(choiceEligibleCapped.isDenied, true);
+  assert.strictEqual(choiceEligibleCapped.canRetryCard, false);
+  assert.strictEqual(choiceEligibleCapped.isCapped, true);
+  assert.strictEqual(choiceEligibleCapped.description, 'The free trial is no longer available for this account.');
+  assert.strictEqual(choiceEligibleCapped.subscribeButtonText, 'Subscribe at A$4.99/month');
+  console.log('  ✓ Test I2: denied + eligible + count>=3 -> Subscribe only.');
+
+  // Test I3: denied + eligible:false -> Subscribe only with generic calm copy
+  const choiceIneligible = getDeniedTrialChoice('card_already_used', 2, 4.99, false, false, 'not_eligible');
+  assert.strictEqual(choiceIneligible.isDenied, true);
+  assert.strictEqual(choiceIneligible.canRetryCard, false);
+  assert.strictEqual(choiceIneligible.title, "A free trial isn't available for this account.");
+  assert.strictEqual(choiceIneligible.description, 'You can subscribe at A$4.99/month.');
+  assert.strictEqual(choiceIneligible.subscribeButtonText, 'Subscribe at A$4.99/month');
+  console.log('  ✓ Test I3: denied + eligible:false -> Subscribe only with generic copy.');
+
+  // Test I4: denied + status still loading (isEligible: undefined) -> no "Use another card"
+  const choiceLoading = getDeniedTrialChoice('card_already_used', 1, 4.99, false, undefined);
+  assert.strictEqual(choiceLoading.isDenied, true);
+  assert.strictEqual(choiceLoading.canRetryCard, false, 'Status still loading must not show "Use another card"');
+  assert.strictEqual(choiceLoading.subscribeButtonText, 'Subscribe at A$4.99/month');
+  console.log('  ✓ Test I4: denied + status still loading -> no "Use another card".');
+
+  // Test I5: active access -> no banner (existing behaviour preserved)
+  const choiceActiveAccess = getDeniedTrialChoice('card_already_used', 1, 4.99, true, true);
+  assert.strictEqual(choiceActiveAccess.isDenied, false, 'Active access must suppress denial banner');
+  console.log('  ✓ Test I5: active access -> no banner (existing behaviour preserved).\n');
 
 
   // ─────────────────────────────────────────────────────────────

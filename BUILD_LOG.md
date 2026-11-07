@@ -1,5 +1,48 @@
 # Build Log
 
+## 2026-11-07 (v1.15.3 Locked State for Ended Subscriptions & Offer 'Use another card' Only When Trial is Possible)
+- Requested:
+  - BUG E: Dashboard says "Cancelling / Cancelled - access until <date>" for a subscription that has ENDED (e.g. refunded or immediately cancelled in Stripe).
+    - Trace the 7 lifecycle cases (a)-(g) across process_stripe_webhook_event, database access gate (check_product_subscription / get_trial_status), and billingView.ts.
+    - Fix at root: status === 'canceled' must always evaluate to expired (Locked) with banner: null, regardless of current_period_end.
+    - The "Cancelling - access until DATE" banner must remain strictly where the gate still grants access (status === 'active' or 'trialing' with cancel_at_period_end: true).
+  - BUG F: "Use another card" is offered to an account the server already considers NOT eligible for a trial (e.g. refunded account with existing subscription row, eligible: false, reason: 'not_eligible').
+    - Trace handler and decisions (startTrialCheckout, getDeniedTrialChoice, DashboardTrialCard.tsx, Dashboard.tsx).
+    - Fix: "Use another card" appears ONLY when trialStatus.eligible === true, cardDenialCount < 3, and user has no active access.
+    - In every other denied situation, show ONLY "Subscribe at A$4.99/month" with calm, truthful copy ("A free trial isn't available for this account. You can subscribe at A$4.99/month.").
+- Root Cause Analysis — BUG E:
+  1. File + Line Traces:
+     - `src/lib/billingView.ts:205-218`: Contained an explicit branch `if (subscription.status === 'canceled' && !isEnded && subscription.current_period_end)` that returned `state: 'active_canceled'`, `banner: 'Cancelled - access until <date>'`, and `primaryAction: { action: 'manage_billing' }`.
+     - `src/pages/Dashboard.tsx:216-247`: Grouped `billingView.state === 'active' || billingView.state === 'active_canceled'` together, rendering the badge "CP Bot — Cancelling", the banner text, and the "Open Tools" button.
+     - Database Access Gate: In `supabase/migrations/029_revert_check_product_subscription_to_1arg.sql:27-28` and `034_card_trial_identity.sql:508`, both `check_product_subscription` and `get_trial_status` strictly require `status = 'active'`. Rows with `status = 'canceled'` return `has_access: false`.
+     - In Stripe Webhook: When a charge is refunded or an immediate cancellation occurs, `process_stripe_webhook_event` sets `status = 'canceled'` without clearing `current_period_end`. This caused the dashboard to advertise future access that the gate denied.
+- Root Cause Analysis — BUG F:
+  1. File + Line Traces:
+     - `src/lib/trial.ts:120-145`: `getDeniedTrialChoice` evaluated `canRetryCard = true` whenever `reason === 'card_already_used'` and `cardDenialCount < 3`, with zero check of whether the user was actually eligible for a trial according to the server.
+     - `src/components/DashboardTrialCard.tsx:185-199`: Rendered "Use another card" whenever `choice.canRetryCard` was true, and bound it to `startTrialCheckout`.
+     - `src/pages/Dashboard.tsx:261-278`: Tool card similarly rendered "Use another card" without verifying eligibility.
+     - In `src/lib/checkout.ts:28-33`: `startTrialCheckout` sent `{ product_slug: 'rccp', quantity: 1 }` to `create-checkout-session`. The Edge Function queried `trial_eligibility_for`, which found the existing subscription row and returned `eligible: false`. Thus, the Edge Function built a paid checkout, surprising the customer with an immediate charge.
+- Built & Fixed:
+  - `src/lib/billingView.ts`:
+    - Updated `if (subscription.status === 'canceled' || isEnded)` to immediately return `state: 'expired'` with `banner: null`.
+    - Deleted legacy Section 5 returning `active_canceled` on canceled subscriptions with future dates.
+  - `src/lib/trial.ts`:
+    - Added `notEligibleTitle` and `notEligibleSubtitle` to `TRIAL_DENIAL_TEXTS`.
+    - Updated `getDeniedTrialChoice` to accept `isEligible?: boolean` and `trialReason?: string | null`.
+    - Set `canRetryCard: true` ONLY when `reason === 'card_already_used'` AND `isEligible === true` AND `cardDenialCount < 3`.
+    - Returns calm, generic copy for ineligible accounts without claiming card already used.
+  - `src/components/DashboardTrialCard.tsx`:
+    - Passed `isEligible = loading ? undefined : trialStatus?.eligible` and `trialStatus?.reason` to `getDeniedTrialChoice`.
+  - `src/pages/Dashboard.tsx`:
+    - Sourced `isEligible` from `trialStatus?.eligible` and passed to `getDeniedTrialChoice`.
+    - Rendered calm explanation under recovery buttons when ineligible.
+  - `scripts/test-launch-readiness.mjs`:
+    - Added Test B12 covering all 7 subscription lifecycle states (a)-(g).
+    - Updated Test F2, F3, H2, H7 with `isEligible = true`.
+    - Added Suite I (Tests I1–I5) covering all eligibility, cap, and loading states.
+  - `scripts/capture-v1153-screenshots.mjs`:
+    - Captured 10 screenshots across all 5 requested states at desktop and 360px mobile viewports.
+
 ## 2026-11-06 (v1.15.2 Hide Denied-Trial Banner for Active Subscribers & Stop Refused trial_denials Browser Queries)
 - Requested:
   - BUG C: Stale denied-trial banner shown to a user who already has active paid access.

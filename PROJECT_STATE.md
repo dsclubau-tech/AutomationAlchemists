@@ -14,6 +14,21 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 
 ## What's Built
 - **Marketing Site**: Static landing pages, services pages, tools overview. The services page excludes the Virtual Assistance section, which has its own dedicated `/virtual-assistant` route.
+- **Locked State for Ended Subscriptions & Eligibility-Gated Card Retry (`src/lib/billingView.ts`, `src/lib/trial.ts`, `src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, v1.15.3)**:
+  - **Locked State for Ended Subscriptions (Bug E)**:
+    - Fixed issue where the dashboard displayed `"Cancelling / Cancelled - access until <future date>"` for accounts with cancelled or refunded subscriptions whose access had ended (`status = 'canceled'`).
+    - Root cause analysis traced that `src/lib/billingView.ts` Section 5 previously returned `state: 'active_canceled'` whenever `subscription.status === 'canceled' && !isEnded && subscription.current_period_end`. However, the live database access gate (`check_product_subscription` in migration 029 and `get_trial_status` in migration 034/036) strictly requires `WHERE status = 'active'`. When Stripe cancellations or charge refunds occur, `process_stripe_webhook_event` updates `status = 'canceled'`, which immediately revokes database access while leaving `current_period_end` intact.
+    - Updated `src/lib/billingView.ts`: Any subscription with `status === 'canceled'` or `isEnded` immediately returns `state: 'expired'` (Locked state) with `banner: null` and `primaryAction: { action: 'subscribe', label: 'Subscribe' }`.
+    - Completely eliminated legacy Section 5 returning `active_canceled` on canceled subscriptions.
+    - Preserved `"Cancelling - access until <date>"` strictly for subscriptions that still have active access (`status === 'active'` or `'trialing'` with `cancel_at_period_end: true`).
+    - Verified all 7 subscription lifecycle states across Stripe, webhook, access gates, and UI.
+  - **Eligibility-Gated Trial Recovery ("Use another card", Bug F)**:
+    - Fixed issue where trial-refused users (such as refunded accounts with existing subscription rows) were offered "Use another card" even though the server considered them ineligible for a trial (`trial_eligibility_for` returning `eligible: false`).
+    - Updated `getDeniedTrialChoice` in `src/lib/trial.ts`: "Use another card" (`canRetryCard: true`) is offered ONLY when `reason === 'card_already_used'` AND `isEligible === true` AND `cardDenialCount < 3`.
+    - For accounts where `isEligible === false`, `canRetryCard` is forced to `false`, and calm, truthful copy is displayed: `"A free trial isn't available for this account. You can subscribe at A$4.99/month."` (without blaming the card or leading the user into a failed trial checkout).
+    - Preserved specific email denial copy (`already_claimed`) and 3-strike denial cap copy (`cardDenialCount >= 3`).
+    - Handled loading state gracefully (`isEligible === undefined` returns `canRetryCard: false`).
+    - Updated `DashboardTrialCard.tsx` and `Dashboard.tsx` to source `isEligible` from `trialStatus?.eligible` and pass it to `getDeniedTrialChoice`.
 - **Active Subscription Access Precedence Over Denial Banner (`src/components/DashboardTrialCard.tsx`, `src/pages/Dashboard.tsx`, `src/lib/dashboardSections.ts`, `src/lib/trial.ts`, v1.15.2)**:
   - Fixed issue where customers with an active paid CP Bot subscription (or active trial) still saw the red trial denial banner (*"This card was already used for a free trial"*) at the top of `/dashboard`.
   - Enforced core invariant: active access ALWAYS takes precedence over old denial records. Old rows in `public.trial_denials` do not display once a user holds active tool access.
@@ -136,14 +151,15 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
   - `stripe-webhook`: Deployed (v6, `--no-verify-jwt`). v1.9.1 duplicate guard, v1.9.2 Stripe API version independence, v1.9.4 refund fix, and v1.14.0 phone decoupling changes **NOT deployed**.
   - `create-checkout-session`: Code updated for v1.9.0, v1.9.1, v1.11.0, v1.12.0, v1.15.0, and v1.15.1 (skip-trial non-trial checkout signal), **NOT deployed**.
   - `create-portal-session`: Code created for v1.9.0, **NOT deployed**.
-  - **Zero Edge Function changes in v1.15.2**.
+  - **Zero Edge Function changes in v1.15.2 or v1.15.3**.
 - **Database**:
   - Migration 034 applied and verified.
   - Migration 035 (`035_trial_identity_card_email_only.sql`) authored and pending manual execution by owner.
   - Migration 036 (`036_trial_denials_access.sql`) authored and pending manual execution by owner.
+  - Zero database migrations or SQL in v1.15.3.
 
 ## In Progress
-- Local verification and testing of release v1.15.2 complete.
+- Local verification and testing of release v1.15.3 complete.
 - Owner applying migration `035_trial_identity_card_email_only.sql` in Supabase SQL editor.
 - Owner applying migration `036_trial_denials_access.sql` in Supabase SQL editor.
 - Review of Stripe SDK upgrade options for first-class `name_collection` (`2025-09-30.clover`+).
@@ -166,4 +182,4 @@ Automation Alchemists is a full-stack SaaS hub (React/Vite + Tailwind CSS + Supa
 - Supabase (PostgreSQL, Edge Functions via Deno, Auth)
 - Stripe (Checkout, Customer Billing Portal, Webhooks)
 
-*Last Updated: 2026-11-06 — Release v1.15.2: Hide denied-trial banner for active subscribers; stop refused trial_denials browser queries.*
+*Last Updated: 2026-11-07 — Release v1.15.3: Locked state for ended subscriptions; offer 'Use another card' only when a trial is possible.*

@@ -72,6 +72,8 @@ export const TRIAL_DENIAL_TEXTS = {
   cardAlreadyUsedCappedSubtitle: 'The free trial is no longer available for this account.',
   emailAlreadyUsedTitle: 'This account or email has already used the free trial.',
   emailAlreadyUsedSubtitle: 'You can still subscribe to CP Bot directly without a trial.',
+  notEligibleTitle: "A free trial isn't available for this account.",
+  notEligibleSubtitle: 'You can subscribe at A$4.99/month.',
   useAnotherCardButton: 'Use another card',
   freeTrialNoLongerAvailable: 'The free trial is no longer available for this account.',
 } as const;
@@ -96,7 +98,9 @@ export function getDeniedTrialChoice(
   deniedReason?: string | null,
   cardDenialCount: number = 0,
   priceMonthly: number = PRICING_CONFIG.launchPrice,
-  hasActiveAccess: boolean = false
+  hasActiveAccess: boolean = false,
+  isEligible?: boolean,
+  trialReason?: string | null
 ): DeniedTrialChoice {
   const reason = deniedReason || null;
   const isCapped = cardDenialCount >= CARD_DENIAL_RETRY_CAP;
@@ -117,7 +121,24 @@ export function getDeniedTrialChoice(
     };
   }
 
-  if (reason === 'card_already_used') {
+  // 1. Email already used / claimed (or trialReason is 'already_claimed'):
+  // User is ineligible precisely because email has already used a trial.
+  if (reason === 'already_claimed' || trialReason === 'already_claimed') {
+    return {
+      isDenied: true,
+      reason: 'already_claimed',
+      cardDenialCount,
+      isCapped: false,
+      canRetryCard: false,
+      title: TRIAL_DENIAL_TEXTS.emailAlreadyUsedTitle,
+      description: TRIAL_DENIAL_TEXTS.emailAlreadyUsedSubtitle,
+      subscribeButtonText,
+      useAnotherCardButtonText,
+    };
+  }
+
+  // 2. Card already used AND server confirms account IS eligible for a trial:
+  if (reason === 'card_already_used' && isEligible === true) {
     if (isCapped) {
       return {
         isDenied: true,
@@ -144,28 +165,33 @@ export function getDeniedTrialChoice(
     };
   }
 
-  if (reason === 'already_claimed') {
+  // 3. Ineligible (isEligible === false, e.g. not_eligible / existing subscription row):
+  // Server says no trial is possible for this account. Do NOT say the card was already used.
+  // Use calm wording:
+  if (isEligible === false) {
     return {
       isDenied: true,
-      reason,
+      reason: trialReason || reason,
       cardDenialCount,
       isCapped: false,
       canRetryCard: false,
-      title: TRIAL_DENIAL_TEXTS.emailAlreadyUsedTitle,
-      description: TRIAL_DENIAL_TEXTS.emailAlreadyUsedSubtitle,
+      title: TRIAL_DENIAL_TEXTS.notEligibleTitle,
+      description: `You can subscribe at ${formatPrice(priceMonthly)}/month.`,
       subscribeButtonText,
       useAnotherCardButtonText,
     };
   }
 
+  // 4. Status not loaded yet (isEligible === undefined / loading) or unknown reason fallback:
+  // Must NOT offer "Use another card" before eligibility is confirmed true.
   return {
     isDenied: true,
     reason,
     cardDenialCount,
     isCapped: false,
     canRetryCard: false,
-    title: getClaimErrorMessage(reason, priceMonthly),
-    description: 'You can still subscribe to CP Bot directly without a trial.',
+    title: TRIAL_DENIAL_TEXTS.notEligibleTitle,
+    description: `You can subscribe at ${formatPrice(priceMonthly)}/month.`,
     subscribeButtonText,
     useAnotherCardButtonText,
   };
